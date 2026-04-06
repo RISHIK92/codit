@@ -1,26 +1,177 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ── Liquid Obsidian Design Tokens ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Backgrounds */
+  --color-void:      #07080a;
+  --color-surface:   #0d0f12;
+  --color-elevated:  #141720;
+  --color-glass:     rgba(255,255,255,0.03);
+
+  /* Accents */
+  --color-accent:    #c8f0e8;
+  --color-glow:      #7fffd4;
+  --color-warm:      #e8c4a0;
+  --color-violet:    #b8a4e8;
+
+  /* Text */
+  --color-txt:       #eef0f5;
+  --color-txt-muted: #8892a4;
+  --color-txt-ghost: #3a4155;
+
+  /* Borders */
+  --color-border-s:  rgba(255,255,255,0.06);
+  --color-border-a:  rgba(200,240,232,0.3);
+
+  /* Semantic */
+  --color-err:       #ff6b7a;
+  --color-ok:        #7fffd4;
+  --color-warn:      #f0c87a;
+
+  /* Fonts */
+  --font-cormorant: var(--font-cormorant-var);
+  --font-dm:        var(--font-dm-mono-var);
+  --font-bebas:     var(--font-bebas-var);
+
+  /* Easings */
+  --ease-out-expo:   cubic-bezier(0.16,1,0.3,1);
+  --ease-spring:     cubic-bezier(0.34,1.56,0.64,1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--color-void);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 80% 60% at -10% -10%, rgba(120,200,180,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 110% 110%, rgba(184,164,232,0.06) 0%, transparent 60%);
+  background-attachment: fixed;
+  color: var(--color-txt);
+  font-family: var(--font-dm), monospace;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ── Keyframes ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes drift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(40px,30px) scale(1.1); }
+}
+
+@keyframes meshDrift {
+  from { transform: scale(1) rotate(0deg); }
+  to   { transform: scale(1.05) rotate(2deg); }
+}
+
+@keyframes spin {
+  to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Custom utilities that can't be done with pure Tailwind ── */
+.text-gradient-iris {
+  background: linear-gradient(135deg,#c8f0e8 0%,#b8a4e8 35%,#e8c4a0 70%,#7fffd4 100%);
+  background-size: 300% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.animate-fadeUp        { animation: fadeUp 0.8s var(--ease-out-expo) forwards; opacity:0; transform:translateY(24px); }
+.animate-fadeUp-d1     { animation: fadeUp 0.8s var(--ease-out-expo) 0.1s forwards; opacity:0; transform:translateY(24px); }
+.animate-fadeUp-d2     { animation: fadeUp 0.8s var(--ease-out-expo) 0.2s forwards; opacity:0; transform:translateY(24px); }
+.animate-fadeUp-d3     { animation: fadeUp 0.8s var(--ease-out-expo) 0.3s forwards; opacity:0; transform:translateY(24px); }
+.animate-fadeUp-d4     { animation: fadeUp 0.8s var(--ease-out-expo) 0.4s forwards; opacity:0; transform:translateY(24px); }
+.animate-fadeUp-fast   { animation: fadeUp 0.3s var(--ease-out-expo) forwards; }
+.animate-drift         { animation: drift 20s ease-in-out infinite alternate; }
+.animate-drift-slow    { animation: drift 24s ease-in-out infinite alternate; animation-delay: -8s; }
+.animate-meshDrift     { animation: meshDrift 12s ease-in-out infinite alternate; }
+.animate-toastIn       { animation: toastIn 0.35s var(--ease-spring) forwards; }
+
+/* Orb blur shared */
+.orb-blur { filter: blur(80px); }
+
+/* Google colored SVG shouldn't get overridden */
+.google-icon path { fill: inherit; }
+
+/* Input accent line on focus */
+.input-accent::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 32px; bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+  border-radius: 2px;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.25s var(--ease-out-expo);
+}
+.input-accent:focus-within::before { transform: scaleY(1); }
+
+/* Loading spinner on btn */
+.btn-loading { pointer-events: none; color: transparent !important; }
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(7,8,10,0.3);
+  border-top-color: #07080a;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  animation: spin 0.7s linear infinite;
+}
+
+/* Field reveal transition */
+.field-reveal {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    max-height 0.35s var(--ease-out-expo),
+    opacity    0.3s  var(--ease-out-expo),
+    transform  0.3s  var(--ease-out-expo);
+}
+.field-reveal.visible {
+  max-height: 300px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Focus visible ring */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
 }
