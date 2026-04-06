@@ -1,0 +1,30 @@
+// /shared/proto/user.proto
+
+syntax = "proto3";
+
+package user;
+
+option go_package = "gateway/pkg/pb";
+
+service UserService {
+  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse);
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+}
+
+message LoginUserRequest {
+  string uid = 1;
+  string email = 2;
+  string name = 3;
+  string avatar = 4;
+  string bio = 5;
+}
+
+message LoginUserResponse {
+  bool success = 1;
+}

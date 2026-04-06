@@ -9,7 +9,7 @@ import {
 import * as userService from "../services/userService";
 
 export const userHandler: UserServiceServer = {
-  loginUser: async (
+  createUser: async (
     call: grpc.ServerUnaryCall<LoginUserRequest, LoginUserResponse>,
     callback: grpc.sendUnaryData<LoginUserResponse>,
   ) => {
@@ -42,12 +42,16 @@ export const userHandler: UserServiceServer = {
       );
     }
   },
+  loginUser: function (
+    call: grpc.ServerUnaryCall<LoginUserRequest, LoginUserResponse>,
+    callback: grpc.sendUnaryData<LoginUserResponse>,
+  ): void {
+    throw new Error("Function not implemented.");
+  },
   healthCheck: function (
     call: grpc.ServerUnaryCall<HealthCheckRequest, HealthCheckResponse>,
     callback: grpc.sendUnaryData<HealthCheckResponse>,
-  ) {
-    callback(null, {
-      healthy: true,
-    });
+  ): void {
+    throw new Error("Function not implemented.");
   },
 };

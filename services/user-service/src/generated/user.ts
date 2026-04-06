@@ -21,52 +21,93 @@ import {
 
 export const protobufPackage = "user";
 
-export interface CreateUserRequest {
-  email: string;
-  password: string;
+export interface HealthCheckRequest {
 }
 
-export interface UserResponse {
-  id: string;
+export interface HealthCheckResponse {
+  healthy: boolean;
+}
+
+export interface LoginUserRequest {
+  uid: string;
+  email: string;
+  name: string;
+  avatar: string;
+  bio: string;
+}
+
+export interface LoginUserResponse {
   success: boolean;
 }
 
-function createBaseCreateUserRequest(): CreateUserRequest {
-  return { email: "", password: "" };
+function createBaseHealthCheckRequest(): HealthCheckRequest {
+  return {};
 }
 
-export const CreateUserRequest: MessageFns<CreateUserRequest> = {
-  encode(message: CreateUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.email !== "") {
-      writer.uint32(10).string(message.email);
+export const HealthCheckRequest: MessageFns<HealthCheckRequest> = {
+  encode(_: HealthCheckRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HealthCheckRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseHealthCheckRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
     }
-    if (message.password !== "") {
-      writer.uint32(18).string(message.password);
+    return message;
+  },
+
+  fromJSON(_: any): HealthCheckRequest {
+    return {};
+  },
+
+  toJSON(_: HealthCheckRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<HealthCheckRequest>, I>>(base?: I): HealthCheckRequest {
+    return HealthCheckRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<HealthCheckRequest>, I>>(_: I): HealthCheckRequest {
+    const message = createBaseHealthCheckRequest();
+    return message;
+  },
+};
+
+function createBaseHealthCheckResponse(): HealthCheckResponse {
+  return { healthy: false };
+}
+
+export const HealthCheckResponse: MessageFns<HealthCheckResponse> = {
+  encode(message: HealthCheckResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.healthy !== false) {
+      writer.uint32(8).bool(message.healthy);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateUserRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): HealthCheckResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCreateUserRequest();
+    const message = createBaseHealthCheckResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 10) {
+          if (tag !== 8) {
             break;
           }
 
-          message.email = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.password = reader.string();
+          message.healthy = reader.bool();
           continue;
         }
       }
@@ -78,54 +119,56 @@ export const CreateUserRequest: MessageFns<CreateUserRequest> = {
     return message;
   },
 
-  fromJSON(object: any): CreateUserRequest {
-    return {
-      email: isSet(object.email) ? globalThis.String(object.email) : "",
-      password: isSet(object.password) ? globalThis.String(object.password) : "",
-    };
+  fromJSON(object: any): HealthCheckResponse {
+    return { healthy: isSet(object.healthy) ? globalThis.Boolean(object.healthy) : false };
   },
 
-  toJSON(message: CreateUserRequest): unknown {
+  toJSON(message: HealthCheckResponse): unknown {
     const obj: any = {};
-    if (message.email !== "") {
-      obj.email = message.email;
-    }
-    if (message.password !== "") {
-      obj.password = message.password;
+    if (message.healthy !== false) {
+      obj.healthy = message.healthy;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateUserRequest>, I>>(base?: I): CreateUserRequest {
-    return CreateUserRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<HealthCheckResponse>, I>>(base?: I): HealthCheckResponse {
+    return HealthCheckResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateUserRequest>, I>>(object: I): CreateUserRequest {
-    const message = createBaseCreateUserRequest();
-    message.email = object.email ?? "";
-    message.password = object.password ?? "";
+  fromPartial<I extends Exact<DeepPartial<HealthCheckResponse>, I>>(object: I): HealthCheckResponse {
+    const message = createBaseHealthCheckResponse();
+    message.healthy = object.healthy ?? false;
     return message;
   },
 };
 
-function createBaseUserResponse(): UserResponse {
-  return { id: "", success: false };
+function createBaseLoginUserRequest(): LoginUserRequest {
+  return { uid: "", email: "", name: "", avatar: "", bio: "" };
 }
 
-export const UserResponse: MessageFns<UserResponse> = {
-  encode(message: UserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
+export const LoginUserRequest: MessageFns<LoginUserRequest> = {
+  encode(message: LoginUserRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.uid !== "") {
+      writer.uint32(10).string(message.uid);
     }
-    if (message.success !== false) {
-      writer.uint32(16).bool(message.success);
+    if (message.email !== "") {
+      writer.uint32(18).string(message.email);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.avatar !== "") {
+      writer.uint32(34).string(message.avatar);
+    }
+    if (message.bio !== "") {
+      writer.uint32(42).string(message.bio);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UserResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): LoginUserRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUserResponse();
+    const message = createBaseLoginUserRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -134,11 +177,115 @@ export const UserResponse: MessageFns<UserResponse> = {
             break;
           }
 
-          message.id = reader.string();
+          message.uid = reader.string();
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.avatar = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.bio = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): LoginUserRequest {
+    return {
+      uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      avatar: isSet(object.avatar) ? globalThis.String(object.avatar) : "",
+      bio: isSet(object.bio) ? globalThis.String(object.bio) : "",
+    };
+  },
+
+  toJSON(message: LoginUserRequest): unknown {
+    const obj: any = {};
+    if (message.uid !== "") {
+      obj.uid = message.uid;
+    }
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.avatar !== "") {
+      obj.avatar = message.avatar;
+    }
+    if (message.bio !== "") {
+      obj.bio = message.bio;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<LoginUserRequest>, I>>(base?: I): LoginUserRequest {
+    return LoginUserRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<LoginUserRequest>, I>>(object: I): LoginUserRequest {
+    const message = createBaseLoginUserRequest();
+    message.uid = object.uid ?? "";
+    message.email = object.email ?? "";
+    message.name = object.name ?? "";
+    message.avatar = object.avatar ?? "";
+    message.bio = object.bio ?? "";
+    return message;
+  },
+};
+
+function createBaseLoginUserResponse(): LoginUserResponse {
+  return { success: false };
+}
+
+export const LoginUserResponse: MessageFns<LoginUserResponse> = {
+  encode(message: LoginUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LoginUserResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLoginUserResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
             break;
           }
 
@@ -154,30 +301,23 @@ export const UserResponse: MessageFns<UserResponse> = {
     return message;
   },
 
-  fromJSON(object: any): UserResponse {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-    };
+  fromJSON(object: any): LoginUserResponse {
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
   },
 
-  toJSON(message: UserResponse): unknown {
+  toJSON(message: LoginUserResponse): unknown {
     const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
     if (message.success !== false) {
       obj.success = message.success;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UserResponse>, I>>(base?: I): UserResponse {
-    return UserResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<LoginUserResponse>, I>>(base?: I): LoginUserResponse {
+    return LoginUserResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UserResponse>, I>>(object: I): UserResponse {
-    const message = createBaseUserResponse();
-    message.id = object.id ?? "";
+  fromPartial<I extends Exact<DeepPartial<LoginUserResponse>, I>>(object: I): LoginUserResponse {
+    const message = createBaseLoginUserResponse();
     message.success = object.success ?? false;
     return message;
   },
@@ -185,36 +325,61 @@ export const UserResponse: MessageFns<UserResponse> = {
 
 export type UserServiceService = typeof UserServiceService;
 export const UserServiceService = {
-  createUser: {
-    path: "/user.UserService/CreateUser" as const,
+  loginUser: {
+    path: "/user.UserService/LoginUser" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: CreateUserRequest): Buffer => Buffer.from(CreateUserRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): CreateUserRequest => CreateUserRequest.decode(value),
-    responseSerialize: (value: UserResponse): Buffer => Buffer.from(UserResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): UserResponse => UserResponse.decode(value),
+    requestSerialize: (value: LoginUserRequest): Buffer => Buffer.from(LoginUserRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): LoginUserRequest => LoginUserRequest.decode(value),
+    responseSerialize: (value: LoginUserResponse): Buffer => Buffer.from(LoginUserResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): LoginUserResponse => LoginUserResponse.decode(value),
+  },
+  healthCheck: {
+    path: "/user.UserService/HealthCheck" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: HealthCheckRequest): Buffer => Buffer.from(HealthCheckRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): HealthCheckRequest => HealthCheckRequest.decode(value),
+    responseSerialize: (value: HealthCheckResponse): Buffer => Buffer.from(HealthCheckResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): HealthCheckResponse => HealthCheckResponse.decode(value),
   },
 } as const;
 
 export interface UserServiceServer extends UntypedServiceImplementation {
-  createUser: handleUnaryCall<CreateUserRequest, UserResponse>;
+  loginUser: handleUnaryCall<LoginUserRequest, LoginUserResponse>;
+  healthCheck: handleUnaryCall<HealthCheckRequest, HealthCheckResponse>;
 }
 
 export interface UserServiceClient extends Client {
-  createUser(
-    request: CreateUserRequest,
-    callback: (error: ServiceError | null, response: UserResponse) => void,
+  loginUser(
+    request: LoginUserRequest,
+    callback: (error: ServiceError | null, response: LoginUserResponse) => void,
   ): ClientUnaryCall;
-  createUser(
-    request: CreateUserRequest,
+  loginUser(
+    request: LoginUserRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: UserResponse) => void,
+    callback: (error: ServiceError | null, response: LoginUserResponse) => void,
   ): ClientUnaryCall;
-  createUser(
-    request: CreateUserRequest,
+  loginUser(
+    request: LoginUserRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: UserResponse) => void,
+    callback: (error: ServiceError | null, response: LoginUserResponse) => void,
+  ): ClientUnaryCall;
+  healthCheck(
+    request: HealthCheckRequest,
+    callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
+  ): ClientUnaryCall;
+  healthCheck(
+    request: HealthCheckRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
+  ): ClientUnaryCall;
+  healthCheck(
+    request: HealthCheckRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
   ): ClientUnaryCall;
 }
 

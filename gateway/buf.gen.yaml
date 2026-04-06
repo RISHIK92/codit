@@ -1,0 +1,11 @@
+# gateway/buf.gen.yaml
+version: v1
+plugins:
+  - plugin: go
+    out: pkg/pb
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: pkg/pb
+    opt:
+      - paths=source_relative
