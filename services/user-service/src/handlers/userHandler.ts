@@ -14,11 +14,11 @@ export const userHandler: UserServiceServer = {
     callback: grpc.sendUnaryData<LoginUserResponse>,
   ) => {
     try {
-      const { uid, email } = call.request;
+      const { uid, name, email } = call.request;
 
       console.log(`Received gRPC request to create user: ${email}`);
 
-      await userService.registerUser(uid, email);
+      await userService.syncUser(uid, email, name);
 
       callback(null, {
         success: true,

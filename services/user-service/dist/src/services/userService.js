@@ -42,20 +42,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerUser = void 0;
+exports.syncUser = void 0;
 const userRepo = __importStar(require("../repositories/userRepo"));
-const registerUser = (uid, email) => __awaiter(void 0, void 0, void 0, function* () {
-    // 1. Basic validation (Gateway should also do this, but always protect your backend)
-    if (!email || !uid) {
-        throw new Error("Email and UID are required");
+const syncUser = (uid, email, name) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!email) {
+        throw new Error("Email is required");
     }
-    // 2. Check if user already exists
-    const existingUser = yield userRepo.findUserByUid(uid);
-    if (existingUser) {
-        throw new Error("User already exists");
-    }
-    // 4. Save to database
-    const newUser = yield userRepo.createUserInDb(uid, email);
-    return newUser;
+    const user = yield userRepo.upsertUser(uid, email, name);
+    return user;
 });
-exports.registerUser = registerUser;
+exports.syncUser = syncUser;

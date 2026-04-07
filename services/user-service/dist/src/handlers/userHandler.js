@@ -46,11 +46,11 @@ exports.userHandler = void 0;
 const grpc = __importStar(require("@grpc/grpc-js"));
 const userService = __importStar(require("../services/userService"));
 exports.userHandler = {
-    createUser: (call, callback) => __awaiter(void 0, void 0, void 0, function* () {
+    loginUser: (call, callback) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const { uid, email } = call.request;
+            const { uid, name, email } = call.request;
             console.log(`Received gRPC request to create user: ${email}`);
-            yield userService.registerUser(uid, email);
+            yield userService.syncUser(uid, email, name);
             callback(null, {
                 success: true,
             });
@@ -70,9 +70,6 @@ exports.userHandler = {
             }, null);
         }
     }),
-    loginUser: function (call, callback) {
-        throw new Error("Function not implemented.");
-    },
     healthCheck: function (call, callback) {
         callback(null, {
             healthy: true,

@@ -14,3 +14,19 @@ export const findUserByUid = async (uid: string) => {
     where: { uid },
   });
 };
+
+export const upsertUser = async (uid: string, email: string, name: string) => {
+  prisma.user.upsert({
+    where: {
+      uid,
+    },
+    update: {
+      name: name || undefined,
+    },
+    create: {
+      uid: uid,
+      email: email,
+      name: name || "Anonymous User",
+    },
+  });
+};

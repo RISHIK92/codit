@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findUserByUid = exports.createUserInDb = void 0;
+exports.upsertUser = exports.findUserByUid = exports.createUserInDb = void 0;
 const prismaClient_1 = __importDefault(require("../db/prismaClient"));
 const createUserInDb = (uid, email) => __awaiter(void 0, void 0, void 0, function* () {
     return yield prismaClient_1.default.user.create({
@@ -29,3 +29,19 @@ const findUserByUid = (uid) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.findUserByUid = findUserByUid;
+const upsertUser = (uid, email, name) => __awaiter(void 0, void 0, void 0, function* () {
+    prismaClient_1.default.user.upsert({
+        where: {
+            uid,
+        },
+        update: {
+            name: name || undefined,
+        },
+        create: {
+            uid: uid,
+            email: email,
+            name: name || "Anonymous User",
+        },
+    });
+});
+exports.upsertUser = upsertUser;

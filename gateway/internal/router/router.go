@@ -23,9 +23,11 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	if err != nil {
 		log.Fatalf("Failed to connect to User Service: %v", err)
 	}
-	
+
 	userClient := pb.NewUserServiceClient(conn)
 
+	// CORS must be first — it handles OPTIONS preflight before auth runs
+	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
@@ -33,9 +35,10 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Get("/health", healthCheck)
 		r.Get("/api/users/health", proxy.HealthCheckProxy(userClient))
 	})
+
 	r.Group(func(r chi.Router) {
 		r.Use(customMiddleware.RequireAuth(app))
-		r.Mount("/api/users/login", proxy.LoginUserProxy(userClient))
+		r.Post("/api/users/login", proxy.LoginUserProxy(userClient))
 	})
 
 	return r

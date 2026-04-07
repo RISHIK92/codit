@@ -1,28 +1,29 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Mono, Bebas_Neue } from "next/font/google";
+import { AuthProvider } from "@/lib/AuthContext";
 import "./globals.css";
 
-const cormorantGaramond = Cormorant_Garamond({
-  weight: ["300", "600"],
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
-  variable: "--font-cormorant-var",
+  weight: ["300", "400", "600"],
 });
 
 const dmMono = DM_Mono({
-  weight: ["300", "400", "500"],
+  variable: "--font-dm",
   subsets: ["latin"],
-  variable: "--font-dm-mono-var",
+  weight: ["300", "400", "500"],
 });
 
-const bebasNeue = Bebas_Neue({
-  weight: ["400"],
+const bebas = Bebas_Neue({
+  variable: "--font-bebas",
   subsets: ["latin"],
-  variable: "--font-bebas-var",
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
-  title: "Codit — The Future of Your Workflow",
-  description: "A dark, ultra-refined interface for the next generation of digital workspaces.",
+  title: "Codit",
+  description: "The future of your workflow starts here.",
 };
 
 export default function RootLayout({
@@ -33,15 +34,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorantGaramond.variable} ${dmMono.variable} ${bebasNeue.variable}`}
+      className={`${cormorant.variable} ${dmMono.variable} ${bebas.variable} h-full antialiased`}
     >
-      <body>
-        {/* Ambient Orbs */}
-        <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-[200px] -left-[100px] w-[600px] h-[600px] rounded-full orb-blur opacity-12 animate-drift bg-[radial-gradient(circle,#7fffd4,transparent)]" />
-          <div className="absolute -bottom-[100px] -right-[50px] w-[400px] h-[400px] rounded-full orb-blur opacity-12 animate-drift-slow bg-[radial-gradient(circle,#b8a4e8,transparent)]" />
-        </div>
-        {children}
+      <body className="min-h-full flex flex-col font-mono text-[var(--text-primary)]">
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
