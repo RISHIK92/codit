@@ -25,6 +25,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	}
 
 	userClient := pb.NewUserServiceClient(conn)
+	userProjectClient := pb.NewUserProjectServiceClient(conn)
 
 	// CORS must be first — it handles OPTIONS preflight before auth runs
 	r.Use(customMiddleware.CORS)
@@ -39,6 +40,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	r.Group(func(r chi.Router) {
 		r.Use(customMiddleware.RequireAuth(app))
 		r.Post("/api/users/login", proxy.LoginUserProxy(userClient))
+		r.Post("/api/user-projects/create", proxy.CreateUserProjectProxy(userProjectClient))
 	})
 
 	return r

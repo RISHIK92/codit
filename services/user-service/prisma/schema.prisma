@@ -8,10 +8,107 @@ datasource db {
 }
 
 model User {
-  uid        String   @id
+  uid       String   @id
   email     String   @unique
   name      String?
   createdAt DateTime @default(now())
 
+  userProjects UserProjects[]
   @@index([email])
+}
+
+model Projects {
+  id                String    @default(uuid()) @unique
+  name              String
+  tech_stack        String[]
+  skill_level       Skill_Level
+  estimated_minutes Int
+  createdAt         DateTime  @default(now())
+
+  learningPhases      LearningPhase[]
+  userProjects        UserProjects[]
+  preferenceQuestions PreferenceQuestions[]
+}
+
+model PreferenceQuestions {
+  id                String     @default(uuid()) @unique
+  question          String
+  options           String[]
+  descriptiveAnswer String?
+  solution          String
+  project_id        String
+
+  projects          Projects   @relation(fields: [project_id], references: [id])
+}
+
+model UserProjects {
+  id              String   @default(uuid()) @unique
+  project_id      String
+  user_email      String
+  status          Status   @default(in_progress)
+  current_phase   Int      @default(0)
+  started_at      DateTime @default(now())
+  completed_at    DateTime?
+  
+  user            User @relation(fields: [user_email], references: [email])
+  projects        Projects @relation(fields: [project_id], references: [id])
+}
+
+model LearningPhase {
+  id                String    @default(uuid()) @unique
+  project_id        String
+  title             String
+  description       String
+  concepts          String[]
+  goal              Json?
+  phase_number      Int
+  estimated_minutes Int
+  createdAt         DateTime  @default(now())
+  
+  project         Projects @relation(fields: [project_id], references: [id])
+  resources       Resources[]
+  knowledgeChecks KnowledgeChecks[]
+}
+
+model KnowledgeChecks {
+  id                String    @default(uuid()) @unique
+  phase_id          String
+  question          String
+  correct_answer    String?
+  explanation       String
+  question_type     Question_Type
+
+  learningPhase     LearningPhase @relation(fields: [phase_id], references: [id])
+}
+
+model Resources {
+  id                String     @default(uuid()) @unique
+  phase_id          String
+  type              String
+  title             String
+  url               String
+  duration_minutes  Int
+  provider          String
+  timestamps        Json?
+  quality_score     Float
+
+  learningPhase     LearningPhase @relation(fields: [phase_id], references: [id])
+}
+
+enum Skill_Level {
+  beginner
+  intermediate
+  advanced
+}
+
+enum Status {
+  in_progress
+  completed
+  abandoned
+}
+
+enum Question_Type {
+  code_completion
+  multiple_choice
+  debug
 }

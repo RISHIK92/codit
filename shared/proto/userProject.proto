@@ -1,0 +1,47 @@
+// /shared/proto/userProject.proto
+
+syntax = "proto3";
+
+package userProject;
+
+option go_package = "gateway/pkg/pb";
+
+service UserProjectService {
+  rpc CreateProject (CreateUserProjectRequest) returns (CreateUserProjectResponse);
+  rpc GetUserProjectById (GetUserProjectByIdRequest) returns (GetUserProjectByIdResponse);
+  rpc GetAllUserProjects (GetAllUserProjectsRequest) returns (GetAllUserProjectsResponse);
+}
+
+message CreateUserProjectRequest {
+  string project_id = 1;
+  string email = 2;
+  string status = 3;
+  int32 current_phase = 4;
+}
+
+message CreateUserProjectResponse {
+  bool success = 1;
+}
+
+message GetUserProjectByIdRequest {
+  string project_id = 1;
+}
+
+message GetUserProjectByIdResponse {
+  UserProject user_project = 1;
+}
+
+message GetAllUserProjectsRequest {
+  string email = 1;
+}
+
+message GetAllUserProjectsResponse {
+  repeated UserProject user_projects = 1;
+}
+
+message UserProject {
+  string project_id = 1;
+  string email = 2;
+  string status = 3;
+  int32 current_phase = 4;
+}
