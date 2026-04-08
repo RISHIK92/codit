@@ -109,7 +109,7 @@ export default function DashboardPage() {
           {/* CTA */}
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
             <Link
-              href="/dashboard/projects/browse"
+              href="/dashboard/projects"
               className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
             >
               Browse Projects →

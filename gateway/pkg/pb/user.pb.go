@@ -223,6 +223,254 @@ func (x *LoginUserResponse) GetSuccess() bool {
 	return false
 }
 
+type GetUserProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserProfileRequest) Reset() {
+	*x = GetUserProfileRequest{}
+	mi := &file_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserProfileRequest) ProtoMessage() {}
+
+func (x *GetUserProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserProfileRequest.ProtoReflect.Descriptor instead.
+func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetUserProfileRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type GetUserProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           string                 `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	SkillLevel    string                 `protobuf:"bytes,4,opt,name=skill_level,json=skillLevel,proto3" json:"skill_level,omitempty"`
+	LearningModes []string               `protobuf:"bytes,5,rep,name=learning_modes,json=learningModes,proto3" json:"learning_modes,omitempty"`
+	HoursPerWeek  int32                  `protobuf:"varint,6,opt,name=hours_per_week,json=hoursPerWeek,proto3" json:"hours_per_week,omitempty"`
+	IsNew         bool                   `protobuf:"varint,7,opt,name=is_new,json=isNew,proto3" json:"is_new,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserProfileResponse) Reset() {
+	*x = GetUserProfileResponse{}
+	mi := &file_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserProfileResponse) ProtoMessage() {}
+
+func (x *GetUserProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserProfileResponse.ProtoReflect.Descriptor instead.
+func (*GetUserProfileResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetUserProfileResponse) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *GetUserProfileResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *GetUserProfileResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetUserProfileResponse) GetSkillLevel() string {
+	if x != nil {
+		return x.SkillLevel
+	}
+	return ""
+}
+
+func (x *GetUserProfileResponse) GetLearningModes() []string {
+	if x != nil {
+		return x.LearningModes
+	}
+	return nil
+}
+
+func (x *GetUserProfileResponse) GetHoursPerWeek() int32 {
+	if x != nil {
+		return x.HoursPerWeek
+	}
+	return 0
+}
+
+func (x *GetUserProfileResponse) GetIsNew() bool {
+	if x != nil {
+		return x.IsNew
+	}
+	return false
+}
+
+type UpdateUserPreferencesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	SkillLevel    string                 `protobuf:"bytes,2,opt,name=skill_level,json=skillLevel,proto3" json:"skill_level,omitempty"`
+	LearningModes []string               `protobuf:"bytes,3,rep,name=learning_modes,json=learningModes,proto3" json:"learning_modes,omitempty"`
+	HoursPerWeek  int32                  `protobuf:"varint,4,opt,name=hours_per_week,json=hoursPerWeek,proto3" json:"hours_per_week,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserPreferencesRequest) Reset() {
+	*x = UpdateUserPreferencesRequest{}
+	mi := &file_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserPreferencesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserPreferencesRequest) ProtoMessage() {}
+
+func (x *UpdateUserPreferencesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserPreferencesRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserPreferencesRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateUserPreferencesRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *UpdateUserPreferencesRequest) GetSkillLevel() string {
+	if x != nil {
+		return x.SkillLevel
+	}
+	return ""
+}
+
+func (x *UpdateUserPreferencesRequest) GetLearningModes() []string {
+	if x != nil {
+		return x.LearningModes
+	}
+	return nil
+}
+
+func (x *UpdateUserPreferencesRequest) GetHoursPerWeek() int32 {
+	if x != nil {
+		return x.HoursPerWeek
+	}
+	return 0
+}
+
+type UpdateUserPreferencesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserPreferencesResponse) Reset() {
+	*x = UpdateUserPreferencesResponse{}
+	mi := &file_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserPreferencesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserPreferencesResponse) ProtoMessage() {}
+
+func (x *UpdateUserPreferencesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserPreferencesResponse.ProtoReflect.Descriptor instead.
+func (*UpdateUserPreferencesResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateUserPreferencesResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -239,10 +487,31 @@ const file_user_proto_rawDesc = "" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x10\n" +
 	"\x03bio\x18\x05 \x01(\tR\x03bio\"-\n" +
 	"\x11LoginUserResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\x8f\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"-\n" +
+	"\x15GetUserProfileRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"\xd9\x01\n" +
+	"\x16GetUserProfileResponse\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1f\n" +
+	"\vskill_level\x18\x04 \x01(\tR\n" +
+	"skillLevel\x12%\n" +
+	"\x0elearning_modes\x18\x05 \x03(\tR\rlearningModes\x12$\n" +
+	"\x0ehours_per_week\x18\x06 \x01(\x05R\fhoursPerWeek\x12\x15\n" +
+	"\x06is_new\x18\a \x01(\bR\x05isNew\"\xa2\x01\n" +
+	"\x1cUpdateUserPreferencesRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1f\n" +
+	"\vskill_level\x18\x02 \x01(\tR\n" +
+	"skillLevel\x12%\n" +
+	"\x0elearning_modes\x18\x03 \x03(\tR\rlearningModes\x12$\n" +
+	"\x0ehours_per_week\x18\x04 \x01(\x05R\fhoursPerWeek\"9\n" +
+	"\x1dUpdateUserPreferencesResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xbe\x02\n" +
 	"\vUserService\x12<\n" +
 	"\tLoginUser\x12\x16.user.LoginUserRequest\x1a\x17.user.LoginUserResponse\x12B\n" +
-	"\vHealthCheck\x12\x18.user.HealthCheckRequest\x1a\x19.user.HealthCheckResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\vHealthCheck\x12\x18.user.HealthCheckRequest\x1a\x19.user.HealthCheckResponse\x12K\n" +
+	"\x0eGetUserProfile\x12\x1b.user.GetUserProfileRequest\x1a\x1c.user.GetUserProfileResponse\x12`\n" +
+	"\x15UpdateUserPreferences\x12\".user.UpdateUserPreferencesRequest\x1a#.user.UpdateUserPreferencesResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -256,20 +525,28 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_user_proto_goTypes = []any{
-	(*HealthCheckRequest)(nil),  // 0: user.HealthCheckRequest
-	(*HealthCheckResponse)(nil), // 1: user.HealthCheckResponse
-	(*LoginUserRequest)(nil),    // 2: user.LoginUserRequest
-	(*LoginUserResponse)(nil),   // 3: user.LoginUserResponse
+	(*HealthCheckRequest)(nil),            // 0: user.HealthCheckRequest
+	(*HealthCheckResponse)(nil),           // 1: user.HealthCheckResponse
+	(*LoginUserRequest)(nil),              // 2: user.LoginUserRequest
+	(*LoginUserResponse)(nil),             // 3: user.LoginUserResponse
+	(*GetUserProfileRequest)(nil),         // 4: user.GetUserProfileRequest
+	(*GetUserProfileResponse)(nil),        // 5: user.GetUserProfileResponse
+	(*UpdateUserPreferencesRequest)(nil),  // 6: user.UpdateUserPreferencesRequest
+	(*UpdateUserPreferencesResponse)(nil), // 7: user.UpdateUserPreferencesResponse
 }
 var file_user_proto_depIdxs = []int32{
 	2, // 0: user.UserService.LoginUser:input_type -> user.LoginUserRequest
 	0, // 1: user.UserService.HealthCheck:input_type -> user.HealthCheckRequest
-	3, // 2: user.UserService.LoginUser:output_type -> user.LoginUserResponse
-	1, // 3: user.UserService.HealthCheck:output_type -> user.HealthCheckResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	4, // 2: user.UserService.GetUserProfile:input_type -> user.GetUserProfileRequest
+	6, // 3: user.UserService.UpdateUserPreferences:input_type -> user.UpdateUserPreferencesRequest
+	3, // 4: user.UserService.LoginUser:output_type -> user.LoginUserResponse
+	1, // 5: user.UserService.HealthCheck:output_type -> user.HealthCheckResponse
+	5, // 6: user.UserService.GetUserProfile:output_type -> user.GetUserProfileResponse
+	7, // 7: user.UserService.UpdateUserPreferences:output_type -> user.UpdateUserPreferencesResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -286,7 +563,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -47,6 +47,65 @@ func LoginUserProxy(grpcClient pb.UserServiceClient) http.HandlerFunc {
 	}
 }
 
+func GetUserProfileProxy(grpcClient pb.UserServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "missing user email", http.StatusBadRequest)
+			return
+		}
+
+		grpcRes, err := grpcClient.GetUserProfile(r.Context(), &pb.GetUserProfileRequest{
+			Email: email,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+func UpdateUserPreferencesProxy(grpcClient pb.UserServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "missing user email", http.StatusBadRequest)
+			return
+		}
+
+		var body struct {
+			SkillLevel    string   `json:"skill_level"`
+			LearningModes []string `json:"learning_modes"`
+			HoursPerWeek  int32    `json:"hours_per_week"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "invalid JSON body", http.StatusBadRequest)
+			return
+		}
+
+		grpcRes, err := grpcClient.UpdateUserPreferences(r.Context(), &pb.UpdateUserPreferencesRequest{
+			Email:         email,
+			SkillLevel:    body.SkillLevel,
+			LearningModes: body.LearningModes,
+			HoursPerWeek:  body.HoursPerWeek,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
 func HealthCheckProxy(grpcClient pb.UserServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		grpcRes, err := grpcClient.HealthCheck(r.Context(), &pb.HealthCheckRequest{})
@@ -78,10 +137,6 @@ func grpcCodeToHTTP(c codes.Code) int {
 		return http.StatusUnauthorized
 	case codes.ResourceExhausted:
 		return http.StatusTooManyRequests
-	case codes.Unimplemented:
-		return http.StatusNotImplemented
-	case codes.Unavailable:
-		return http.StatusServiceUnavailable
 	default:
 		return http.StatusInternalServerError
 	}

@@ -227,7 +227,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ projectsLoading: true, projectsError: null });
     try {
       const data = await getAllUserProjects(idToken);
-      set({ userProjects: data.userProjects, projectsLoading: false });
+      // Go's encoding/json uses snake_case keys; jsonpb would use camelCase.
+      // Accept both so the client works regardless of the marshaller.
+      const projects = data.user_projects ?? data.userProjects ?? [];
+      set({ userProjects: projects, projectsLoading: false });
     } catch (err: any) {
       set({
         projectsError: err.message ?? "Failed to fetch projects",
@@ -240,14 +243,14 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ projectsLoading: true, projectsError: null });
     try {
       const data = await getUserProjectById(idToken, projectId);
-      if (data.userProject) {
-        // Map the DTO onto the local Project shape, preserving
-        // UI-only fields (title, description, nextObjective) from current state.
+      // Accept both snake_case (Go encoding/json) and camelCase (jsonpb)
+      const project = data.user_project ?? data.userProject;
+      if (project) {
         set((state) => ({
           currentProject: {
             ...state.currentProject,
-            id: data.userProject!.projectId,
-            phase: data.userProject!.currentPhase,
+            id: project.project_id,
+            phase: project.current_phase,
           },
           projectsLoading: false,
         }));

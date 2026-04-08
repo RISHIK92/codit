@@ -16,10 +16,10 @@ export default function LeftSidebar() {
   }
 
   const navLinks = [
-    { name: "Dashboard", href: "/dashboard", icon: "◉" },
-    { name: "My Projects", href: "#", icon: "○" },
-    { name: "Browse Projects", href: "#", icon: "○" },
-    { name: "Resources", href: "#", icon: "○" },
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "My Projects", href: "/dashboard/my-projects" },
+    { name: "Browse Projects", href: "/dashboard/projects" },
+    { name: "Resources", href: "/dashboard/resources" },
   ];
 
   return (
@@ -33,7 +33,10 @@ export default function LeftSidebar() {
       {/* Primary Nav */}
       <nav className="flex flex-col gap-1">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+          const isActive =
+            link.href === "/dashboard"
+              ? pathname === "/dashboard"
+              : pathname === link.href || pathname.startsWith(link.href + "/");
           return (
             <Link
               key={link.name}

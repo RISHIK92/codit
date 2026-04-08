@@ -26,6 +26,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 
 	userClient := pb.NewUserServiceClient(conn)
 	userProjectClient := pb.NewUserProjectServiceClient(conn)
+	projectClient := pb.NewProjectServiceClient(conn)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
@@ -34,11 +35,15 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	r.Route("/public", func(r chi.Router) {
 		r.Get("/health", healthCheck)
 		r.Get("/api/users/health", proxy.HealthCheckProxy(userClient))
+		r.Get("/api/projects/get-all", proxy.GetAllProjectsProxy(projectClient))
+		r.Get("/api/projects/get", proxy.GetProjectByIdProxy(projectClient))
 	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(customMiddleware.RequireAuth(app))
 		r.Post("/api/users/login", proxy.LoginUserProxy(userClient))
+		r.Get("/api/users/profile", proxy.GetUserProfileProxy(userClient))
+		r.Post("/api/users/preferences", proxy.UpdateUserPreferencesProxy(userClient))
 		r.Post("/api/user-projects/create", proxy.CreateUserProjectProxy(userProjectClient))
 		r.Get("/api/user-projects/get", proxy.GetUserProjectByIdProxy(userProjectClient))
 		r.Get("/api/user-projects/get-all", proxy.GetAllUserProjectsProxy(userProjectClient))

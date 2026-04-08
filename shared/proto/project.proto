@@ -1,0 +1,38 @@
+// /shared/proto/project.proto
+
+syntax = "proto3";
+
+package project;
+
+option go_package = "gateway/pkg/pb";
+
+service ProjectService {
+  // Returns the full catalogue of all available projects (public, no auth needed)
+  rpc GetAllProjects (GetAllProjectsRequest) returns (GetAllProjectsResponse);
+
+  // Returns a single project by its id
+  rpc GetProjectById (GetProjectByIdRequest) returns (GetProjectByIdResponse);
+}
+
+message GetAllProjectsRequest {}
+
+message GetAllProjectsResponse {
+  repeated Project projects = 1;
+}
+
+message GetProjectByIdRequest {
+  string project_id = 1;
+}
+
+message GetProjectByIdResponse {
+  Project project = 1;
+}
+
+message Project {
+  string id                  = 1;
+  string name                = 2;
+  repeated string tech_stack = 3;
+  string skill_level         = 4;
+  int32  estimated_minutes   = 5;
+  int32  phase_count         = 6;
+}

@@ -1,39 +1,49 @@
 /**
  * projectsApi.ts
  *
- * Typed fetch helpers that talk to the gateway's user-project endpoints.
- * Every function requires a Firebase ID token so the gateway's RequireAuth
- * middleware can verify the caller.
+ * Typed fetch helpers that talk to the gateway.
  *
- * Endpoints used (all require Bearer token):
+ * ─── Authenticated endpoints (require Bearer token) ───────────────────────────
  *   GET  /api/user-projects/get-all        → GetAllUserProjectsResponse
  *   GET  /api/user-projects/get?projectId= → GetUserProjectByIdResponse
  *
- * ─── Types mirror the proto ───────────────────────────────────────────────────
- *  UserProjectDTO  : Single user-project record returned by the gateway.
- *  AllProjectsDTO  : Wrapper around the repeated list.
- *  SingleProjectDTO: Wrapper around a single project.
+ * ─── Public endpoints (no auth) ───────────────────────────────────────────────
+ *   GET  /public/api/projects/get-all        → GetAllCatalogueProjectsResponse
+ *   GET  /public/api/projects/get?projectId= → GetCatalogueProjectByIdResponse
+ *
+ * ─── Wire format note ────────────────────────────────────────────────────────
+ * Go's encoding/json serialises proto struct tags as snake_case, e.g.
+ * `tech_stack`, `skill_level`, `estimated_minutes`, `phase_count`.
+ * All response interfaces below reflect the actual wire keys.
  */
 
 const GATEWAY_URL =
   process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8081";
 
-// ─── DTO Types (match proto field names after JSON encoding) ─────────────────
+// ─── DTO Types (match Go encoding/json snake_case wire format) ───────────────
 
 export interface UserProjectDTO {
-  projectId: string;
+  project_id: string;
   email: string;
   /** "in_progress" | "completed" | "abandoned" */
   status: string;
-  currentPhase: number;
+  current_phase: number;
 }
 
+// Go's encoding/json serialises proto snake_case fields as snake_case,
+// e.g. `user_projects` not `userProjects`. Both shapes are accepted below.
 export interface GetAllUserProjectsResponse {
-  userProjects: UserProjectDTO[];
+  // snake_case from Go's encoding/json (actual wire format)
+  user_projects?: UserProjectDTO[];
+  // camelCase fallback (in case the gateway is updated to use jsonpb)
+  userProjects?: UserProjectDTO[];
 }
 
 export interface GetUserProjectByIdResponse {
-  userProject: UserProjectDTO | undefined;
+  // snake_case from Go's encoding/json
+  user_project?: UserProjectDTO;
+  // camelCase fallback
+  userProject?: UserProjectDTO;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -91,4 +101,63 @@ export async function getUserProjectById(
   }
 
   return res.json() as Promise<GetUserProjectByIdResponse>;
+}
+
+// ─── Public catalogue DTOs ────────────────────────────────────────────────────
+// Field names match Go's encoding/json snake_case output from project.pb.go.
+
+export interface CatalogueProjectDTO {
+  id: string;
+  name: string;
+  tech_stack: string[];
+  skill_level: string;
+  estimated_minutes: number;
+  phase_count: number;
+}
+
+export interface GetAllCatalogueProjectsResponse {
+  projects?: CatalogueProjectDTO[];
+}
+
+export interface GetCatalogueProjectByIdResponse {
+  project?: CatalogueProjectDTO;
+}
+
+// ─── Public catalogue fetchers ────────────────────────────────────────────────
+
+/**
+ * Fetch the full project catalogue. No auth required.
+ * Hits GET /public/api/projects/get-all on the gateway.
+ */
+export async function getAllCatalogueProjects(): Promise<GetAllCatalogueProjectsResponse> {
+  const res = await fetch(`${GATEWAY_URL}/public/api/projects/get-all`, {
+    method: "GET",
+  });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json() as Promise<GetAllCatalogueProjectsResponse>;
+}
+
+/**
+ * Fetch a single catalogue project by its id.
+ * Hits GET /public/api/projects/get?projectId= on the gateway.
+ */
+export async function getCatalogueProjectById(
+  projectId: string,
+): Promise<GetCatalogueProjectByIdResponse> {
+  const url = new URL(`${GATEWAY_URL}/public/api/projects/get`);
+  url.searchParams.set("projectId", projectId);
+
+  const res = await fetch(url.toString(), { method: "GET" });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json() as Promise<GetCatalogueProjectByIdResponse>;
 }

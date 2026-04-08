@@ -9,6 +9,8 @@ option go_package = "gateway/pkg/pb";
 service UserService {
   rpc LoginUser (LoginUserRequest) returns (LoginUserResponse);
   rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetUserProfile (GetUserProfileRequest) returns (GetUserProfileResponse);
+  rpc UpdateUserPreferences (UpdateUserPreferencesRequest) returns (UpdateUserPreferencesResponse);
 }
 
 message HealthCheckRequest {}
@@ -26,5 +28,30 @@ message LoginUserRequest {
 }
 
 message LoginUserResponse {
+  bool success = 1;
+}
+
+message GetUserProfileRequest {
+  string email = 1;
+}
+
+message GetUserProfileResponse {
+  string uid = 1;
+  string email = 2;
+  string name = 3;
+  string skill_level = 4;
+  repeated string learning_modes = 5;
+  int32 hours_per_week = 6;
+  bool is_new = 7;
+}
+
+message UpdateUserPreferencesRequest {
+  string email = 1;
+  string skill_level = 2;
+  repeated string learning_modes = 3;
+  int32 hours_per_week = 4;
+}
+
+message UpdateUserPreferencesResponse {
   bool success = 1;
 }
