@@ -16,7 +16,7 @@ export const findUserByUid = async (uid: string) => {
 };
 
 export const upsertUser = async (uid: string, email: string, name: string) => {
-  prisma.user.upsert({
+  return await prisma.user.upsert({
     where: {
       uid,
     },

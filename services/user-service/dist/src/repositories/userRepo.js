@@ -30,7 +30,7 @@ const findUserByUid = (uid) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.findUserByUid = findUserByUid;
 const upsertUser = (uid, email, name) => __awaiter(void 0, void 0, void 0, function* () {
-    prismaClient_1.default.user.upsert({
+    return yield prismaClient_1.default.user.upsert({
         where: {
             uid,
         },

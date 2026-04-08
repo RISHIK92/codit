@@ -44,10 +44,13 @@ const user_1 = require("./src/generated/user");
 const userHandler_1 = require("./src/handlers/userHandler");
 const userProject_1 = require("./src/generated/userProject");
 const projectHandler_1 = require("./src/handlers/projectHandler");
+const project_1 = require("./src/generated/project");
+const projectCatalogueHandler_1 = require("./src/handlers/projectCatalogueHandler");
 const startServer = () => {
     const server = new grpc.Server();
     server.addService(user_1.UserServiceService, userHandler_1.userHandler);
     server.addService(userProject_1.UserProjectServiceService, projectHandler_1.projectHandler);
+    server.addService(project_1.ProjectServiceService, projectCatalogueHandler_1.projectCatalogueHandler);
     // Reflection Configuration
     const PROTO_PATH = path_1.default.join(__dirname, "../../../shared/proto/user.proto");
     const packageDefinition = protoLoader.loadSync(PROTO_PATH, {

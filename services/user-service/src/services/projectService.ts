@@ -30,3 +30,13 @@ export const updateProject = async (
 ) => {
   return await projectRepo.updateProject(id, status, currentPhase);
 };
+
+// ── Project catalogue ─────────────────────────────────────────────────────────
+
+export const getAllCatalogueProjects = async () => {
+  return await projectRepo.getAllCatalogueProjects();
+};
+
+export const getCatalogueProjectById = async (projectId: string) => {
+  return await projectRepo.getCatalogueProjectById(projectId);
+};

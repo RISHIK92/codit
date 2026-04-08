@@ -26,7 +26,11 @@
     "@types/node": "^25.5.2",
     "bcrypt": "^6.0.0",
     "prisma": "^6.0.0",
+    "ts-node": "^10.9.2",
     "ts-proto": "^2.11.6",
     "typescript": "^5.9.3"
+  },
+  "prisma": {
+    "seed": "ts-node --project tsconfig.json prisma/seed.ts"
   }
 }

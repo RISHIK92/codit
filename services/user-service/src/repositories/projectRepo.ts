@@ -29,6 +29,24 @@ export const getAllProjects = async (email: string) => {
   });
 };
 
+export const getAllCatalogueProjects = async () => {
+  return await prisma.projects.findMany({
+    include: {
+      _count: { select: { learningPhases: true } },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+};
+
+export const getCatalogueProjectById = async (projectId: string) => {
+  return await prisma.projects.findFirst({
+    where: { id: projectId },
+    include: {
+      _count: { select: { learningPhases: true } },
+    },
+  });
+};
+
 export const updateProject = async (
   id: string,
   status: Status,
