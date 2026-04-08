@@ -9,13 +9,13 @@ import {
   sendPasswordReset,
   resendVerification,
 } from "@/lib/authActions";
-import { useAuth } from "@/lib/AuthContext";
+import { useAuthStore } from "@/lib/stores";
 
 type Step = "email" | "password" | "verification_pending" | "forgot_password";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthStore();
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -423,7 +423,7 @@ export default function LoginPage() {
                       }`}
                     >
                       <GoogleIcon />
-                      Conitnue With Google
+                      Continue With Google
                     </button>
                   </>
                 )}

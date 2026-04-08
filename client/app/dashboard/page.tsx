@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/lib/AuthContext";
+import { useAuthStore, useDashboardStore } from "@/lib/stores";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthStore();
+  const { currentProject, phases, activities, resources } = useDashboardStore();
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const activeCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -15,195 +20,285 @@ export default function DashboardPage() {
     }
   }, [loading, user, router]);
 
+  // Handle automatic centering of active phase
+  useEffect(() => {
+    if (activeCardRef.current && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const activeCard = activeCardRef.current;
+
+      const scrollPos =
+        activeCard.offsetLeft -
+        container.offsetWidth / 2 +
+        activeCard.offsetWidth / 2;
+
+      container.scrollTo({
+        left: scrollPos,
+        behavior: "smooth",
+      });
+    }
+  }, [loading]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 300;
+      scrollContainerRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   if (loading || !user) return null;
 
   return (
-    <div className="p-8 w-full mx-auto">
-      {/* ── HERO STATS RIBBON ── */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {[
-          { label: "Total Experience", value: "2,847 XP", trend: "120 today" },
-          { label: "Current Level", value: "Level 3", trend: "85% to Level 4" },
-          { label: "Active Streak", value: "12 Days", trend: "Keep it up!" },
-        ].map((stat, i) => (
-          <div
-            key={i}
-            className="group bg-[linear-gradient(135deg,var(--bg-elevated)_0%,var(--bg-surface)_100%)] border border-border-s rounded-xl p-5 relative overflow-hidden transition-all duration-300 hover:border-border-a hover:-translate-y-1 hover:shadow-lg"
-          >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-[var(--gradient-iris)] scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
-            <div className="font-[family-name:var(--font-bebas)] text-5xl leading-none text-gradient-iris inline-block mb-2 animate-countUp [animation-delay:0.1s]">
-              {stat.value}
-            </div>
-            <div className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.1em] uppercase text-txt-muted">
-              {stat.label}
-            </div>
-            <div className="inline-flex items-center gap-1 text-[10px] text-success mt-2">
-              <span>↗</span> {stat.trend}
-            </div>
-          </div>
-        ))}
-      </div> */}
-
+    <div className="p-8 md:p-12 w-full max-w-6xl mx-auto">
       {/* ── CURRENT PROJECT HERO CARD ── */}
-      <div className="bg-elevated border border-border-s rounded-sm p-8 mb-8 relative overflow-hidden shadow-md group">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-[var(--gradient-iris)] bg-[length:200%_100%] animate-shimmer" />
+      <div className="bg-void border border-border-s rounded-[4px] p-8 lg:p-10 mb-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_30%,rgba(127,255,212,0.03)_0%,transparent_70%)] pointer-events-none" />
 
-        <h2 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-txt mb-3 leading-[1.2]">
-          Invoice Generator
-        </h2>
-
-        <p className="font-[family-name:var(--font-dm)] text-sm text-txt-muted mb-6">
-          Week 2: Backend Integration
-        </p>
-
-        <div className="mb-6">
-          <div className="w-full h-2 bg-void rounded-full relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
-            <div className="absolute top-0 left-0 h-full w-[40%] bg-[var(--gradient-iris)] rounded-full transition-all duration-1000 shadow-[var(--glow-primary)] bg-[length:300%_100%] animate-shimmer">
-              <div className="absolute -top-1 -right-1.5 w-4 h-4 bg-[radial-gradient(circle,var(--accent-primary)_0%,var(--accent-glow)_100%)] rounded-full animate-dropletPulse" />
-            </div>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 relative z-10">
+          <div>
+            <h2 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-txt mb-2 leading-none">
+              {currentProject.title}
+            </h2>
+            <p className="font-[family-name:var(--font-dm)] text-[13px] text-txt-muted tracking-wide">
+              Week {currentProject.week} — {currentProject.description}
+            </p>
           </div>
-          <div className="flex justify-between items-center mt-3 font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] text-txt-muted">
-            <span>Overall Progress</span>
-            <span className="text-accent">40%</span>
-          </div>
+          <Link
+            href={`/dashboard/projects/${currentProject.id}`}
+            className="inline-flex items-center justify-center px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
+          >
+            Continue Learning →
+          </Link>
         </div>
 
-        <div className="flex items-center gap-3 p-4 bg-[rgba(200,240,232,0.04)] border border-[rgba(200,240,232,0.1)] rounded-lg mb-6 transition-all duration-200 hover:bg-[rgba(200,240,232,0.06)] hover:border-[rgba(200,240,232,0.2)]">
-          <div className="w-8 h-8 rounded-md bg-accent text-void flex items-center justify-center text-base shrink-0">
-            ▶
+        <div className="flex flex-col lg:flex-row gap-8 relative z-10">
+          <div className="flex-1 flex flex-col justify-end pb-1">
+            <div className="flex justify-between items-center mb-3 font-[family-name:var(--font-dm)] text-[11px] tracking-[0.1em] uppercase text-txt-muted">
+              <span>Overall Progress</span>
+              <span className="text-txt">{currentProject.progress}%</span>
+            </div>
+            <div className="w-full h-[3px] bg-surface rounded-full relative overflow-hidden flex-shrink-0">
+              <div
+                className="absolute top-0 left-0 h-full bg-accent transition-all duration-1000"
+                style={{ width: `${currentProject.progress}%` }}
+              />
+            </div>
           </div>
+
           <div className="flex-1">
-            <div className="font-[family-name:var(--font-dm)] text-[9px] tracking-[0.12em] uppercase text-txt-ghost mb-1">
-              Next Up
+            <div className="flex items-center gap-4 p-4 bg-surface/50 border border-border-s rounded-[4px] transition-colors hover:border-accent/40">
+              <div className="w-10 h-10 rounded bg-void border border-border-s shrink-0 flex items-center justify-center text-accent">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M5 3l14 9-14 9V3z" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.15em] uppercase text-txt-ghost mb-1">
+                  Next Objective
+                </div>
+                <div className="font-[family-name:var(--font-dm)] text-sm text-txt font-medium">
+                  {currentProject.nextObjective}
+                </div>
+              </div>
             </div>
-            <div className="font-[family-name:var(--font-dm)] text-sm text-txt">
-              Build API endpoint
-            </div>
-          </div>
-        </div>
-
-        <Link
-          href="/dashboard/projects/1"
-          className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent text-void rounded-lg font-[family-name:var(--font-dm)] text-[13px] tracking-[0.06em] uppercase cursor-pointer transition-all duration-300 relative overflow-hidden group/cta hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(127,255,212,0.3)]"
-        >
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.2),transparent)] opacity-0 transition-opacity duration-300 group-hover/cta:opacity-100" />
-          <span className="relative z-10 transition-transform duration-300">
-            Continue Learning
-          </span>
-          <span className="relative z-10 transition-transform duration-300 group-hover/cta:translate-x-1">
-            →
-          </span>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 relative">
-        <div className="hidden md:block absolute top-[44px] left-0 right-0 h-[2px] bg-border-s z-0" />
-
-        <div className="bg-elevated border border-[rgba(168,230,207,0.3)] rounded-xl p-6 relative z-10 transition-all duration-300 cursor-pointer hover:-translate-y-1 mt-6">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-success border-2 border-success flex items-center justify-center font-[family-name:var(--font-dm)] text-xs font-semibold text-void transition-all duration-300">
-            ✓
-          </div>
-          <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-txt mb-2 mt-3 text-center">
-            Phase 1: Frontend
-          </h3>
-          <p className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] text-txt-muted mb-4 text-center">
-            UI Components & State
-          </p>
-          <div className="w-full h-1 bg-void rounded-sm overflow-hidden mb-2">
-            <div className="h-full bg-[var(--gradient-iris)] rounded-sm w-[100%]" />
-          </div>
-          <div className="flex justify-between font-[family-name:var(--font-dm)] text-[10px] text-txt-ghost">
-            <span className="flex items-center gap-1">⏱ Completed</span>
-            <span>100%</span>
-          </div>
-        </div>
-
-        {/* Phase 2 */}
-        <Link
-          href="/dashboard/projects/1"
-          className="bg-surface border border-accent shadow-[0_0_0_1px_var(--accent-primary),var(--shadow-md),var(--glow-primary)] rounded-xl p-6 relative z-10 transition-all duration-300 cursor-pointer hover:-translate-y-1 mt-6 block"
-        >
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-accent border-2 border-accent flex items-center justify-center font-[family-name:var(--font-dm)] text-xs font-semibold text-void shadow-[var(--glow-primary)] animate-[pulseRing_2s_ease-in-out_infinite]">
-            2
-          </div>
-          <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-txt mb-2 mt-3 text-center">
-            Phase 2: Backend
-          </h3>
-          <p className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] text-txt-muted mb-4 text-center">
-            API & Data Modeling
-          </p>
-          <div className="w-full h-1 bg-void rounded-sm overflow-hidden mb-2">
-            <div className="h-full bg-[var(--gradient-iris)] rounded-sm w-[20%]" />
-          </div>
-          <div className="flex justify-between font-[family-name:var(--font-dm)] text-[10px] text-txt-ghost">
-            <span className="flex items-center gap-1">⏱ Active</span>
-            <span>20%</span>
-          </div>
-        </Link>
-
-        {/* Phase 3 */}
-        <div className="bg-elevated border border-border-s rounded-xl p-6 relative z-10 transition-all duration-300 opacity-50 cursor-not-allowed mt-6">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-elevated border-2 border-border-s flex items-center justify-center font-[family-name:var(--font-dm)] text-[10px] font-semibold text-txt-secondary transition-all duration-300">
-            🔒
-          </div>
-          <h3 className="font-[family-name:var(--font-cormorant)] text-xl font-semibold text-txt mb-2 mt-3 text-center">
-            Phase 3: Deploy
-          </h3>
-          <p className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] text-txt-muted mb-4 text-center">
-            Cloud Infrastructure
-          </p>
-          <div className="w-full h-1 bg-void rounded-sm overflow-hidden mb-2">
-            <div className="h-full bg-[var(--gradient-iris)] rounded-sm w-[0%]" />
-          </div>
-          <div className="flex justify-between font-[family-name:var(--font-dm)] text-[10px] text-txt-ghost">
-            <span className="flex items-center gap-1">⏱ Locked</span>
-            <span>0%</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
+      {/* ── PHASE TRACKER ── */}
+      <div className="mb-14 relative group/tracker">
+        <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
+          <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+            Phase Progression
+          </h3>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => scroll("left")}
+              className="p-1 rounded-[4px] border border-border-s bg-void text-txt-ghost hover:text-accent hover:border-accent transition-colors cursor-pointer"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              className="p-1 rounded-[4px] border border-border-s bg-void text-txt-ghost hover:text-accent hover:border-accent transition-colors cursor-pointer"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+
+        <div
+          ref={scrollContainerRef}
+          className="flex overflow-x-auto no-scrollbar gap-0 border border-border-s rounded-[4px] scroll-smooth snap-x"
+        >
+          {phases.map((phase) => {
+            const isCompleted = phase.status === "completed";
+            const isActive = phase.status === "active";
+            const isLocked = phase.status === "locked";
+
+            const CardWrapper = ({ children, className }: any) =>
+              isLocked ? (
+                <div className={className}>{children}</div>
+              ) : (
+                <Link
+                  href={`/dashboard/projects/${currentProject.id}`}
+                  className={className}
+                >
+                  {children}
+                </Link>
+              );
+
+            return (
+              <div
+                key={phase.id}
+                ref={isActive ? activeCardRef : null}
+                className="min-w-[300px] flex-shrink-0 snap-center"
+              >
+                <CardWrapper
+                  className={`block p-6 lg:p-8 relative h-full border-r border-border-s last:border-r-0 transition-colors
+                    ${isCompleted ? "bg-[rgba(13,15,18,0.4)]" : ""}
+                    ${isActive ? "bg-void border-accent group cursor-pointer" : ""}
+                    ${isLocked ? "bg-surface/30 cursor-not-allowed opacity-60" : ""}
+                  `}
+                >
+                  <div className="absolute top-6 right-6 lg:top-8 lg:right-8">
+                    {isCompleted && (
+                      <div className="text-success">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                    )}
+                    {isActive && (
+                      <div className="w-2 h-2 rounded-full bg-accent animate-[pulseRing_2s_ease-out_infinite]" />
+                    )}
+                    {isLocked && (
+                      <div className="text-txt-ghost">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <rect
+                            x="3"
+                            y="11"
+                            width="18"
+                            height="11"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+
+                  <div
+                    className={`font-[family-name:var(--font-dm)] text-[10px] tracking-[0.15em] uppercase mb-3 flex items-center gap-2
+                      ${isActive ? "text-accent" : "text-txt-ghost"}
+                    `}
+                  >
+                    Phase {phase.id}
+                    {isActive && (
+                      <span className="px-1.5 py-0.5 bg-accent/10 rounded-[2px] text-[8px] leading-none">
+                        ACTIVE
+                      </span>
+                    )}
+                  </div>
+
+                  <h3
+                    className={`font-[family-name:var(--font-cormorant)] text-2xl font-medium mb-2 transition-colors
+                      ${isLocked ? "text-txt-muted" : "text-txt"}
+                      ${isActive ? "group-hover:text-accent" : ""}
+                    `}
+                  >
+                    {phase.title}
+                  </h3>
+
+                  <p
+                    className={`font-[family-name:var(--font-dm)] text-xs mb-6 ${isLocked ? "text-txt-ghost" : "text-txt-muted"}`}
+                  >
+                    {phase.description}
+                  </p>
+
+                  <div className="w-full h-[2px] bg-surface relative overflow-hidden">
+                    <div
+                      className={`absolute top-0 left-0 h-full transition-all duration-700
+                        ${isCompleted ? "bg-success" : "bg-accent"}
+                      `}
+                      style={{ width: `${phase.progress}%` }}
+                    />
+                  </div>
+                </CardWrapper>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* ── ACTIVITY FEED ── */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-txt">
+          <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
+            <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
               Recent Activity
-            </h2>
-            <Link
-              href="#"
-              className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] text-txt-secondary flex items-center gap-1.5 transition-colors hover:text-accent"
-            >
-              View All <span>→</span>
-            </Link>
+            </h3>
           </div>
-          <div className="bg-elevated border border-border-s rounded-xl p-5">
-            {[
-              {
-                text: 'Completed "useState with Arrays" quiz',
-                time: "2h ago",
-                icon: "✓",
-              },
-              {
-                text: 'Watched "React Forms" video',
-                time: "1d ago",
-                icon: "▶",
-              },
-            ].map((activity, i) => (
+          <div className="flex flex-col">
+            {activities.map((activity, i) => (
               <div
                 key={i}
-                className="flex items-start gap-4 py-4 border-b border-border-s last:border-0 last:pb-0 transition-opacity hover:opacity-80"
+                className="flex items-start gap-5 py-4 border-b border-border-s last:border-0"
               >
-                <div className="w-9 h-9 rounded-lg bg-void flex items-center justify-center text-base shrink-0 relative">
-                  {i === 0 && (
-                    <div className="absolute -inset-1 border-2 border-accent rounded-[10px] opacity-0 animate-[pulseRing_2s_ease-out_infinite]" />
+                <div
+                  className={`w-8 h-8 rounded shrink-0 flex items-center justify-center bg-void border mt-0.5
+                    ${activity.type === "quiz" ? "border-success/30 text-success" : "border-border-s text-txt-muted"}
+                  `}
+                >
+                  {activity.type === "quiz" ? (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  ) : (
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M5 3l14 9-14 9V3z" />
+                    </svg>
                   )}
-                  {activity.icon}
                 </div>
                 <div className="flex-1">
-                  <div className="font-[family-name:var(--font-dm)] text-[13px] leading-[1.6] text-txt mb-1">
+                  <div className="font-[family-name:var(--font-dm)] text-[13px] leading-relaxed text-txt mb-1.5">
                     {activity.text}
                   </div>
-                  <div className="font-[family-name:var(--font-dm)] text-[10px] text-txt-ghost">
+                  <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.05em] text-txt-ghost">
                     {activity.time}
                   </div>
                 </div>
@@ -214,47 +309,30 @@ export default function DashboardPage() {
 
         {/* ── RESOURCE GRID ── */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-txt">
-              Recommended
-            </h2>
+          <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
+            <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+              Recommended Reference
+            </h3>
           </div>
-          <div className="flex flex-col gap-4">
-            {[
-              {
-                title: "React State Mastery",
-                type: "Video",
-                time: "12 min",
-                emoji: "📺",
-              },
-              {
-                title: "Advanced Endpoints",
-                type: "Article",
-                time: "8 min",
-                emoji: "📝",
-              },
-            ].map((resource, i) => (
+          <div className="flex flex-col gap-3">
+            {resources.map((resource, i) => (
               <div
                 key={i}
-                className="group bg-elevated border border-border-s rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative hover:-translate-y-1 hover:border-border-a hover:shadow-lg"
+                className="group bg-void border border-border-s rounded-[4px] p-5 cursor-pointer transition-all duration-200 hover:border-accent hover:shadow-[0_4px_24px_rgba(0,0,0,0.4)] flex justify-between items-center"
               >
-                <div className="absolute inset-0 bg-surface opacity-0 transition-opacity duration-300 z-0 group-hover:opacity-50" />
-                <div className="w-full h-[100px] bg-surface flex items-center justify-center text-4xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-accent opacity-5" />
-                  <span className="relative z-10">{resource.emoji}</span>
-                </div>
-                <div className="p-4 relative z-10">
-                  <div className="inline-block px-2.5 py-1 bg-[rgba(200,240,232,0.1)] border border-[rgba(200,240,232,0.2)] rounded font-[family-name:var(--font-dm)] text-[9px] tracking-[0.12em] uppercase text-accent mb-3">
+                <div>
+                  <div className="font-[family-name:var(--font-dm)] text-[9px] tracking-[0.15em] uppercase text-txt-ghost mb-2.5">
                     {resource.type}
                   </div>
-                  <h3 className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-txt mb-2 leading-[1.3]">
+                  <h4 className="font-[family-name:var(--font-cormorant)] text-[20px] font-medium text-txt mb-0.5 group-hover:text-accent transition-colors">
                     {resource.title}
-                  </h3>
-                  <div className="flex items-center gap-3 font-[family-name:var(--font-dm)] text-[11px] text-txt-secondary">
-                    <span className="flex items-center gap-1">
-                      ⏱ {resource.time}
-                    </span>
-                  </div>
+                  </h4>
+                </div>
+                <div className="font-[family-name:var(--font-dm)] text-[11px] text-txt-muted tracking-wide flex items-center gap-2">
+                  {resource.time}
+                  <span className="text-accent opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                    →
+                  </span>
                 </div>
               </div>
             ))}

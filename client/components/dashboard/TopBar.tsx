@@ -1,10 +1,10 @@
 "use client";
 
-import { useAuth } from "@/lib/AuthContext";
+import { useAuthStore } from "@/lib/stores";
 import { Bell, User } from "lucide-react";
 
 export default function TopBar() {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
 
   const getAvatarColor = (name: string) => {
     const colors = [
@@ -31,23 +31,22 @@ export default function TopBar() {
     .slice(0, 2);
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 border-b border-border-s bg-[rgba(13,15,18,0.7)] sticky top-0 z-[100] backdrop-blur-[20px] saturate-[180%]">
+    <div className="flex items-center justify-between py-3 px-6 lg:px-12 border-b border-border-s bg-surface sticky top-0 z-[100]">
       <div className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-txt flex items-center gap-2"></div>
 
       <div className="flex items-center gap-4">
-        <button className="w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer relative transition-all duration-200 hover:bg-glass hover:border-border-a group after:absolute after:top-1 after:right-2 after:w-2.5 after:h-2.5 after:bg-[var(--accent-warm)] after:border-2 after:border-surface after:rounded-full after:shadow-[0_0_8px_var(--accent-warm)]">
+        <button className="w-9 h-9 rounded-[4px] flex items-center justify-center cursor-pointer relative transition-all duration-200 hover:bg-glass border border-transparent hover:border-border-s group">
+          <div className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border-2 border-surface" />
           <Bell
-            size={20}
+            size={18}
             className="text-txt-muted transition-colors group-hover:text-txt"
           />
         </button>
 
-        <div className="flex items-center gap-3 pl-2 border-l border-border-s">
+        <div className="flex items-center gap-3 pl-4 border-l border-border-s">
           <button className="group relative flex items-center justify-center">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--accent-glow)] to-[var(--accent-violet)] rounded-full opacity-0 blur-md transition-opacity duration-500"></div>
-
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center font-[family-name:var(--font-dm)] text-[13px] font-bold tracking-tighter cursor-pointer relative transition-all duration-300 border-2 border-surface shadow-[var(--shadow-sm)] ${getAvatarColor(
+              className={`w-8 h-8 rounded shrink-0 flex items-center justify-center font-[family-name:var(--font-dm)] text-[11px] font-bold tracking-tighter cursor-pointer transition-colors border border-border-s ${getAvatarColor(
                 displayName,
               )}`}
             >

@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuth } from "@/lib/AuthContext";
+import { useAuthStore } from "@/lib/stores";
 
 export default function Home() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthStore();
 
   useEffect(() => {
     if (!loading && user) {

@@ -6,6 +6,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  signOut as firebaseSignOut,
   User,
 } from "firebase/auth";
 import { auth } from "./firebase";
@@ -162,4 +163,8 @@ export async function resendVerification(): Promise<{
   } catch {
     return { success: false, message: "Could not resend. Please try again." };
   }
+}
+
+export async function signOutUser(): Promise<void> {
+  await firebaseSignOut(auth);
 }

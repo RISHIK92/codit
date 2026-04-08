@@ -349,3 +349,11 @@ body {
 .input-accent:focus-within::before {
   transform: scaleY(1);
 }
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

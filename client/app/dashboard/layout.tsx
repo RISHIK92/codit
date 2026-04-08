@@ -21,7 +21,7 @@ export default function DashboardLayout({
     <div className="flex bg-void min-h-screen text-txt">
       {!isProjectPage && <LeftSidebar />}
       <div className="flex-1 min-w-[600px] flex flex-col relative overflow-hidden">
-        <TopBar />
+        {/* <TopBar /> */}
         <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>

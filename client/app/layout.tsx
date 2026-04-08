@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Mono, Bebas_Neue } from "next/font/google";
-import { AuthProvider } from "@/lib/AuthContext";
+import AuthInitializer from "@/components/AuthInitializer";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -37,7 +37,8 @@ export default function RootLayout({
       className={`${cormorant.variable} ${dmMono.variable} ${bebas.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-mono text-[var(--text-primary)]">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthInitializer />
+        {children}
       </body>
     </html>
   );

@@ -1,16 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useUIStore } from "@/lib/stores";
 
 export default function RightSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const { isRightSidebarCollapsed, collapseRightSidebar, expandRightSidebar } =
+    useUIStore();
 
   return (
     <>
       {/* Toggle button (visible when collapsed) */}
       <button
-        onClick={() => setCollapsed(false)}
+        onClick={() => expandRightSidebar()}
         className={`fixed top-6 right-6 w-12 h-12 rounded-full bg-accent text-void flex items-center justify-center text-xl shadow-[var(--shadow-lg),var(--glow-primary)] transition-transform duration-300 z-[100] hover:scale-110 hover:rotate-12 ${
-          !collapsed ? "hidden" : ""
+          !isRightSidebarCollapsed ? "hidden" : ""
         }`}
       >
         ✨
@@ -19,7 +20,7 @@ export default function RightSidebar() {
       {/* Sidebar */}
       <aside
         className={`fixed md:sticky top-0 right-0 w-[320px] bg-surface border-l border-border-s p-6 flex flex-col h-screen z-50 transition-transform duration-300 overflow-hidden ${
-          collapsed ? "translate-x-full" : "translate-x-0"
+          isRightSidebarCollapsed ? "translate-x-full" : "translate-x-0"
         }`}
       >
         {/* Header */}
@@ -28,7 +29,7 @@ export default function RightSidebar() {
             <span>✨</span> AI Assistant
           </div>
           <button
-            onClick={() => setCollapsed(true)}
+            onClick={() => collapseRightSidebar()}
             className="w-8 h-8 rounded-md bg-transparent border border-border-s text-txt-muted flex items-center justify-center transition-colors hover:bg-elevated hover:border-border-a hover:text-txt"
           >
             ✕
@@ -37,10 +38,11 @@ export default function RightSidebar() {
 
         {/* Chat Container */}
         <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-4 pr-2 custom-scrollbar">
-          
           <div className="flex flex-col gap-2 animate-fadeUp">
             <div className="max-w-[85%] p-3.5 rounded-xl font-[family-name:var(--font-dm)] text-[13px] leading-relaxed relative bg-elevated border border-border-s text-txt rounded-bl-sm">
-              Hello John! I noticed you are starting Week 2 of the Invoice Generator project. Would you like me to explain how state lifting works before we jump into the API?
+              Hello John! I noticed you are starting Week 2 of the Invoice
+              Generator project. Would you like me to explain how state lifting
+              works before we jump into the API?
             </div>
             <div className="font-[family-name:var(--font-dm)] text-[9px] text-txt-ghost tracking-[0.04em]">
               12:02 PM
@@ -49,7 +51,8 @@ export default function RightSidebar() {
 
           <div className="flex flex-col gap-2 animate-fadeUp items-end">
             <div className="max-w-[85%] p-3.5 rounded-xl font-[family-name:var(--font-dm)] text-[13px] leading-relaxed relative bg-[rgba(200,240,232,0.12)] border border-[rgba(200,240,232,0.2)] text-txt rounded-br-sm">
-              Yes please, I always get confused about where to naturally place the state.
+              Yes please, I always get confused about where to naturally place
+              the state.
             </div>
             <div className="font-[family-name:var(--font-dm)] text-[9px] text-txt-ghost tracking-[0.04em]">
               12:04 PM
@@ -62,7 +65,6 @@ export default function RightSidebar() {
             <span className="w-2 h-2 bg-txt-ghost rounded-full animate-typingBounce [animation-delay:0.2s]" />
             <span className="w-2 h-2 bg-txt-ghost rounded-full animate-typingBounce [animation-delay:0.4s]" />
           </div>
-          
         </div>
 
         {/* Input Area */}
@@ -75,9 +77,9 @@ export default function RightSidebar() {
               Generate boilerplate
             </button>
           </div>
-          
+
           <div className="relative">
-            <textarea 
+            <textarea
               placeholder="Ask me anything..."
               className="w-full py-3.5 pl-4 pr-12 bg-elevated border border-border-s rounded-lg text-txt font-[family-name:var(--font-dm)] text-[13px] outline-none resize-none transition-all focus:border-accent focus:shadow-[0_0_0_3px_rgba(200,240,232,0.08)]"
               rows={2}
@@ -87,7 +89,6 @@ export default function RightSidebar() {
             </button>
           </div>
         </div>
-
       </aside>
     </>
   );
