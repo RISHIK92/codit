@@ -34,6 +34,11 @@
  */
 
 import { create } from "zustand";
+import {
+  getAllUserProjects,
+  getUserProjectById,
+  type UserProjectDTO,
+} from "@/lib/api/projectsApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -80,7 +85,17 @@ interface DashboardState {
   /** Recommended reference resources. */
   resources: Resource[];
 
-  // Actions
+  /**
+   * All user-project records fetched from the API.
+   * Each entry represents a project the user has started or completed.
+   */
+  userProjects: UserProjectDTO[];
+  /** True while a user-projects fetch is in flight. */
+  projectsLoading: boolean;
+  /** Error message from the last failed fetch, or null. */
+  projectsError: string | null;
+
+  // ── Local setters ──────────────────────────────────────────────────────────
   /** Replace the current project (e.g., after fetching from the API). */
   setCurrentProject: (project: Project) => void;
   /** Replace the phases list. */
@@ -89,6 +104,24 @@ interface DashboardState {
   setActivities: (activities: Activity[]) => void;
   /** Replace the resources list. */
   setResources: (resources: Resource[]) => void;
+
+  // ── Async API actions ──────────────────────────────────────────────────────
+  /**
+   * Fetch all projects for the authenticated user from the gateway.
+   * Requires a valid Firebase ID token.
+   * Sets `userProjects`, `projectsLoading`, and `projectsError`.
+   */
+  fetchUserProjects: (idToken: string) => Promise<void>;
+
+  /**
+   * Fetch a single user-project by project_id from the gateway.
+   * On success, updates `currentProject` with the returned data.
+   * Requires a valid Firebase ID token.
+   *
+   * @param idToken   Firebase ID token
+   * @param projectId The project_id to look up
+   */
+  fetchUserProjectById: (idToken: string, projectId: string) => Promise<void>;
 }
 
 // ─── Initial / mock data ──────────────────────────────────────────────────────
@@ -169,13 +202,63 @@ const INITIAL_RESOURCES: Resource[] = [
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useDashboardStore = create<DashboardState>((set) => ({
-  currentProject: INITIAL_PROJECT,
-  phases: INITIAL_PHASES,
-  activities: INITIAL_ACTIVITIES,
-  resources: INITIAL_RESOURCES,
+  currentProject: {
+    id: "",
+    title: "",
+    phase: 0,
+    description: "",
+    progress: 0,
+    nextObjective: "",
+  },
+  phases: [],
+  activities: [],
+  resources: [],
+
+  userProjects: [],
+  projectsLoading: false,
+  projectsError: null,
 
   setCurrentProject: (project) => set({ currentProject: project }),
   setPhases: (phases) => set({ phases }),
   setActivities: (activities) => set({ activities }),
   setResources: (resources) => set({ resources }),
+
+  fetchUserProjects: async (idToken: string) => {
+    set({ projectsLoading: true, projectsError: null });
+    try {
+      const data = await getAllUserProjects(idToken);
+      set({ userProjects: data.userProjects, projectsLoading: false });
+    } catch (err: any) {
+      set({
+        projectsError: err.message ?? "Failed to fetch projects",
+        projectsLoading: false,
+      });
+    }
+  },
+
+  fetchUserProjectById: async (idToken: string, projectId: string) => {
+    set({ projectsLoading: true, projectsError: null });
+    try {
+      const data = await getUserProjectById(idToken, projectId);
+      if (data.userProject) {
+        // Map the DTO onto the local Project shape, preserving
+        // UI-only fields (title, description, nextObjective) from current state.
+        set((state) => ({
+          currentProject: {
+            ...state.currentProject,
+            id: data.userProject!.projectId,
+            phase: data.userProject!.currentPhase,
+          },
+          projectsLoading: false,
+        }));
+      } else {
+        set({ projectsLoading: false });
+      }
+    } catch (err: any) {
+      set({
+        projectsError: err.message ?? "Failed to fetch project",
+        projectsLoading: false,
+      });
+    }
+  },
 }));

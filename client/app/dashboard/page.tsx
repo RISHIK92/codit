@@ -9,7 +9,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading } = useAuthStore();
-  const { currentProject, phases, activities, resources } = useDashboardStore();
+  const {
+    currentProject,
+    phases,
+    activities,
+    resources,
+    fetchUserProjects,
+    userProjects,
+    projectsLoading,
+  } = useDashboardStore();
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeCardRef = useRef<HTMLDivElement>(null);
@@ -19,6 +27,13 @@ export default function DashboardPage() {
       router.replace("/login");
     }
   }, [loading, user, router]);
+
+  // Fetch the user's projects from the API once auth is resolved
+  useEffect(() => {
+    if (!loading && user) {
+      user.getIdToken().then((token) => fetchUserProjects(token));
+    }
+  }, [loading, user, fetchUserProjects]);
 
   // Handle automatic centering of active phase
   useEffect(() => {
@@ -50,8 +65,100 @@ export default function DashboardPage() {
 
   if (loading || !user) return null;
 
+  // ── No projects yet ───────────────────────────────────────────────────────
+  if (!projectsLoading && userProjects.length === 0) {
+    return (
+      <div className="p-8 md:p-12 w-full bg-surface min-h-screen flex flex-col">
+        {/* Loading skeleton shimmer while initial fetch resolves */}
+        <div className="bg-void border border-border-s rounded-[4px] p-8 lg:p-10 mb-12 relative overflow-hidden flex flex-col items-center justify-center text-center gap-8 min-h-[280px]">
+          {/* Subtle mesh glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_40%,rgba(127,255,212,0.04)_0%,transparent_70%)] pointer-events-none" />
+
+          {/* Icon */}
+          <div className="relative z-10 w-14 h-14 rounded-[4px] border border-border-s bg-surface flex items-center justify-center text-accent">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          {/* Copy */}
+          <div className="relative z-10 max-w-sm">
+            <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-3">
+              No active project
+            </div>
+            <h2 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-txt mb-3 leading-tight">
+              Start your first project
+            </h2>
+            <p className="font-[family-name:var(--font-dm)] text-[13px] text-txt-muted leading-relaxed">
+              Complete the onboarding questions, and your personalised learning
+              plan will appear here.
+            </p>
+          </div>
+
+          {/* CTA */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
+            <Link
+              href="/dashboard/projects/browse"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
+            >
+              Browse Projects →
+            </Link>
+          </div>
+        </div>
+
+        {/* Empty states for the lower panels — keep layout stable */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* Activity */}
+          <div>
+            <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
+              <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+                Recent Activity
+              </h3>
+            </div>
+            <div className="py-10 flex flex-col items-center gap-2 text-center">
+              <div className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-widest text-txt-ghost">
+                No activity yet
+              </div>
+              <p className="font-[family-name:var(--font-dm)] text-[12px] text-txt-ghost/60">
+                Activity will appear here once you start a project.
+              </p>
+            </div>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
+              <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+                Recommended Reference
+              </h3>
+            </div>
+            <div className="py-10 flex flex-col items-center gap-2 text-center">
+              <div className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-widest text-txt-ghost">
+                Nothing to show yet
+              </div>
+              <p className="font-[family-name:var(--font-dm)] text-[12px] text-txt-ghost/60">
+                Resources tailored to your project will show up here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8 md:p-12 w-full max-w-6xl mx-auto">
+    <div className="p-8 md:p-12 w-full bg-surface">
       {/* ── CURRENT PROJECT HERO CARD ── */}
       <div className="bg-void border border-border-s rounded-[4px] p-8 lg:p-10 mb-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_30%,rgba(127,255,212,0.03)_0%,transparent_70%)] pointer-events-none" />

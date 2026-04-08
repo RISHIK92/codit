@@ -53,20 +53,47 @@ export default function LeftSidebar() {
       </nav>
 
       {/* Current Project */}
-      <div className="group bg-void border border-border-s rounded-sm p-5 cursor-pointer transition-colors hover:border-accent">
-        <div className="font-(family-name:--font-dm) text-[9px] tracking-[0.15em] uppercase text-txt-ghost mb-2">
-          Phase {currentProject.phase} · Day 9
+      {currentProject.id ? (
+        <div className="group bg-void border border-border-s rounded-sm p-5 cursor-pointer transition-colors hover:border-accent">
+          <div className="font-(family-name:--font-dm) text-[9px] tracking-[0.15em] uppercase text-txt-ghost mb-2">
+            Phase {currentProject.phase} · Day 9
+          </div>
+          <div className="font-(family-name:--font-cormorant) text-xl font-medium text-txt mb-4 group-hover:text-accent transition-colors flex items-center justify-between">
+            {currentProject.title}
+          </div>
+          <div className="w-full h-0.5 bg-surface relative overflow-hidden">
+            <div
+              className="absolute top-0 left-0 h-full bg-accent transition-all duration-700"
+              style={{ width: `${currentProject.progress}%` }}
+            />
+          </div>
         </div>
-        <div className="font-(family-name:--font-cormorant) text-xl font-medium text-txt mb-4 group-hover:text-accent transition-colors flex items-center justify-between">
-          {currentProject.title}
-        </div>
-        <div className="w-full h-0.5 bg-surface relative overflow-hidden">
-          <div
-            className="absolute top-0 left-0 h-full bg-accent transition-all duration-700"
-            style={{ width: `${currentProject.progress}%` }}
-          />
-        </div>
-      </div>
+      ) : (
+        <Link
+          href="/dashboard/projects/browse"
+          className="group bg-void border border-border-s border-dashed rounded-sm p-5 cursor-pointer transition-colors hover:border-accent flex flex-col items-center gap-3 text-center"
+        >
+          <div className="w-8 h-8 rounded-sm border border-border-s bg-surface flex items-center justify-center text-accent group-hover:border-accent transition-colors">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path
+                d="M12 5v14M5 12h14"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <div className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost group-hover:text-txt transition-colors">
+            Start a project
+          </div>
+        </Link>
+      )}
 
       <div className="flex-1" />
 

@@ -42,9 +42,12 @@ const reflection_1 = require("@grpc/reflection");
 const path_1 = __importDefault(require("path"));
 const user_1 = require("./src/generated/user");
 const userHandler_1 = require("./src/handlers/userHandler");
+const userProject_1 = require("./src/generated/userProject");
+const projectHandler_1 = require("./src/handlers/projectHandler");
 const startServer = () => {
     const server = new grpc.Server();
     server.addService(user_1.UserServiceService, userHandler_1.userHandler);
+    server.addService(userProject_1.UserProjectServiceService, projectHandler_1.projectHandler);
     // Reflection Configuration
     const PROTO_PATH = path_1.default.join(__dirname, "../../../shared/proto/user.proto");
     const packageDefinition = protoLoader.loadSync(PROTO_PATH, {

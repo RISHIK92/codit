@@ -18,7 +18,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex bg-void min-h-screen text-txt">
+    <div className="flex bg-surface min-h-screen text-txt">
       {!isProjectPage && <LeftSidebar />}
       <div className="flex-1 min-w-[600px] flex flex-col relative overflow-hidden">
         {/* <TopBar /> */}

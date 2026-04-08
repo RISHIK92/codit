@@ -4,11 +4,14 @@ import { ReflectionService } from "@grpc/reflection";
 import path from "path";
 import { UserServiceService } from "./src/generated/user";
 import { userHandler } from "./src/handlers/userHandler";
+import { UserProjectServiceService } from "./src/generated/userProject";
+import { projectHandler } from "./src/handlers/projectHandler";
 
 const startServer = () => {
   const server = new grpc.Server();
 
   server.addService(UserServiceService, userHandler);
+  server.addService(UserProjectServiceService, projectHandler);
 
   // Reflection Configuration
   const PROTO_PATH = path.join(__dirname, "../../../shared/proto/user.proto");
