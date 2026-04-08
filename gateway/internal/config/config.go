@@ -20,7 +20,7 @@ func LoadConfig() (*Config) {
 		log.Println("No .env file found, falling back to system environment variables")
 	}
 	return &Config{
-		Port: getEnv("PORT", "8080"),
+		Port: getEnv("PORT", "8081"),
 		UserServiceUrl: getEnv("USER_SERVICE_URL", "localhost:50051"),
 	}
 }

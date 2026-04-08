@@ -11,7 +11,7 @@ import {
 import { auth } from "./firebase";
 
 const GATEWAY_URL =
-  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8080";
+  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8081";
 
 export type AuthResult =
   | { success: true; user: User; isNew: boolean }

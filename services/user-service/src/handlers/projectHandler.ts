@@ -3,8 +3,10 @@ import {
   UserProjectServiceServer,
   CreateUserProjectRequest,
   CreateUserProjectResponse,
-  HealthCheckRequest,
-  HealthCheckResponse,
+  GetUserProjectByIdRequest,
+  GetUserProjectByIdResponse,
+  GetAllUserProjectsRequest,
+  GetAllUserProjectsResponse,
 } from "../generated/userProject";
 import * as projectService from "../services/projectService";
 import { Status } from "@prisma/client";
@@ -51,12 +53,90 @@ export const projectHandler: UserProjectServiceServer = {
       );
     }
   },
-  healthCheck: function (
-    call: grpc.ServerUnaryCall<HealthCheckRequest, HealthCheckResponse>,
-    callback: grpc.sendUnaryData<HealthCheckResponse>,
-  ) {
-    callback(null, {
-      healthy: true,
-    });
+  getUserProjectById: async (
+    call: grpc.ServerUnaryCall<
+      GetUserProjectByIdRequest,
+      GetUserProjectByIdResponse
+    >,
+    callback: grpc.sendUnaryData<GetUserProjectByIdResponse>,
+  ) => {
+    try {
+      const { projectId } = call.request;
+
+      console.log(`Received gRPC request to get project: ${projectId}`);
+
+      const dbProject = await projectService.findProjectById(projectId);
+
+      callback(null, {
+        userProject: dbProject
+          ? {
+              projectId: dbProject.project_id,
+              email: dbProject.user_email,
+              status: dbProject.status,
+              currentPhase: dbProject.current_phase,
+            }
+          : undefined,
+      });
+    } catch (error: any) {
+      console.error("Failed to get project:", error.message);
+
+      let statusCode = grpc.status.INTERNAL;
+      if (error.message.includes("required")) {
+        statusCode = grpc.status.INVALID_ARGUMENT;
+      } else if (error.message.includes("exists")) {
+        statusCode = grpc.status.ALREADY_EXISTS;
+      }
+
+      callback(
+        {
+          code: statusCode,
+          message: error.message,
+        },
+        null,
+      );
+    }
+  },
+  getAllUserProjects: async (
+    call: grpc.ServerUnaryCall<
+      GetAllUserProjectsRequest,
+      GetAllUserProjectsResponse
+    >,
+    callback: grpc.sendUnaryData<GetAllUserProjectsResponse>,
+  ) => {
+    try {
+      const { email } = call.request;
+
+      console.log(
+        `Received gRPC request to get all projects for user: ${email}`,
+      );
+
+      const dbProjects = await projectService.getAllProjects(email);
+
+      callback(null, {
+        userProjects: dbProjects.map((p) => ({
+          projectId: p.project_id,
+          email: p.user_email,
+          status: p.status,
+          currentPhase: p.current_phase,
+        })),
+      });
+    } catch (error: any) {
+      console.error("Failed to get all projects:", error.message);
+
+      let statusCode = grpc.status.INTERNAL;
+      if (error.message.includes("required")) {
+        statusCode = grpc.status.INVALID_ARGUMENT;
+      } else if (error.message.includes("exists")) {
+        statusCode = grpc.status.ALREADY_EXISTS;
+      }
+
+      callback(
+        {
+          code: statusCode,
+          message: error.message,
+        },
+        null,
+      );
+    }
   },
 };
