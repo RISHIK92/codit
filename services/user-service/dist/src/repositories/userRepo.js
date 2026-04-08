@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.upsertUser = exports.findUserByUid = exports.createUserInDb = void 0;
+exports.updateUserPreferences = exports.findUserByEmail = exports.upsertUser = exports.findUserByUid = exports.createUserInDb = void 0;
 const prismaClient_1 = __importDefault(require("../db/prismaClient"));
 const createUserInDb = (uid, email) => __awaiter(void 0, void 0, void 0, function* () {
     return yield prismaClient_1.default.user.create({
@@ -45,3 +45,20 @@ const upsertUser = (uid, email, name) => __awaiter(void 0, void 0, void 0, funct
     });
 });
 exports.upsertUser = upsertUser;
+const findUserByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prismaClient_1.default.user.findUnique({
+        where: { email },
+    });
+});
+exports.findUserByEmail = findUserByEmail;
+const updateUserPreferences = (email, skillLevel, learningModes, hoursPerWeek) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prismaClient_1.default.user.update({
+        where: { email },
+        data: {
+            skillLevel: skillLevel,
+            learningModes,
+            hoursPerWeek,
+        },
+    });
+});
+exports.updateUserPreferences = updateUserPreferences;

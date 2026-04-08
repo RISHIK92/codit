@@ -8,10 +8,13 @@ datasource db {
 }
 
 model User {
-  uid       String   @id
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  uid           String   @id
+  email         String   @unique
+  skillLevel    Skill_Level?
+  learningModes String[]  // ["video", "article"]
+  hoursPerWeek  Int?
+  name          String?
+  createdAt     DateTime @default(now())
 
   userProjects UserProjects[]
   @@index([email])

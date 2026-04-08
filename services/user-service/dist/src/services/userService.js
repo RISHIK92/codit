@@ -42,7 +42,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.syncUser = void 0;
+exports.updateUserPreferences = exports.getUserProfile = exports.syncUser = void 0;
 const userRepo = __importStar(require("../repositories/userRepo"));
 const syncUser = (uid, email, name) => __awaiter(void 0, void 0, void 0, function* () {
     if (!email) {
@@ -52,3 +52,24 @@ const syncUser = (uid, email, name) => __awaiter(void 0, void 0, void 0, functio
     return user;
 });
 exports.syncUser = syncUser;
+const getUserProfile = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!email)
+        throw new Error("Email is required");
+    const user = yield userRepo.findUserByEmail(email);
+    if (!user)
+        throw new Error("User not found");
+    return user;
+});
+exports.getUserProfile = getUserProfile;
+const updateUserPreferences = (email, skillLevel, learningModes, hoursPerWeek) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!email)
+        throw new Error("Email is required");
+    if (!skillLevel)
+        throw new Error("skill_level is required");
+    if (!learningModes || learningModes.length === 0)
+        throw new Error("learning_modes is required");
+    if (!hoursPerWeek || hoursPerWeek <= 0)
+        throw new Error("hours_per_week is required");
+    return yield userRepo.updateUserPreferences(email, skillLevel, learningModes, hoursPerWeek);
+});
+exports.updateUserPreferences = updateUserPreferences;

@@ -40,6 +40,31 @@ export interface LoginUserResponse {
   success: boolean;
 }
 
+export interface GetUserProfileRequest {
+  email: string;
+}
+
+export interface GetUserProfileResponse {
+  uid: string;
+  email: string;
+  name: string;
+  skillLevel: string;
+  learningModes: string[];
+  hoursPerWeek: number;
+  isNew: boolean;
+}
+
+export interface UpdateUserPreferencesRequest {
+  email: string;
+  skillLevel: string;
+  learningModes: string[];
+  hoursPerWeek: number;
+}
+
+export interface UpdateUserPreferencesResponse {
+  success: boolean;
+}
+
 function createBaseHealthCheckRequest(): HealthCheckRequest {
   return {};
 }
@@ -323,6 +348,416 @@ export const LoginUserResponse: MessageFns<LoginUserResponse> = {
   },
 };
 
+function createBaseGetUserProfileRequest(): GetUserProfileRequest {
+  return { email: "" };
+}
+
+export const GetUserProfileRequest: MessageFns<GetUserProfileRequest> = {
+  encode(message: GetUserProfileRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUserProfileRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetUserProfileRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetUserProfileRequest {
+    return { email: isSet(object.email) ? globalThis.String(object.email) : "" };
+  },
+
+  toJSON(message: GetUserProfileRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUserProfileRequest>, I>>(base?: I): GetUserProfileRequest {
+    return GetUserProfileRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUserProfileRequest>, I>>(object: I): GetUserProfileRequest {
+    const message = createBaseGetUserProfileRequest();
+    message.email = object.email ?? "";
+    return message;
+  },
+};
+
+function createBaseGetUserProfileResponse(): GetUserProfileResponse {
+  return { uid: "", email: "", name: "", skillLevel: "", learningModes: [], hoursPerWeek: 0, isNew: false };
+}
+
+export const GetUserProfileResponse: MessageFns<GetUserProfileResponse> = {
+  encode(message: GetUserProfileResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.uid !== "") {
+      writer.uint32(10).string(message.uid);
+    }
+    if (message.email !== "") {
+      writer.uint32(18).string(message.email);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.skillLevel !== "") {
+      writer.uint32(34).string(message.skillLevel);
+    }
+    for (const v of message.learningModes) {
+      writer.uint32(42).string(v!);
+    }
+    if (message.hoursPerWeek !== 0) {
+      writer.uint32(48).int32(message.hoursPerWeek);
+    }
+    if (message.isNew !== false) {
+      writer.uint32(56).bool(message.isNew);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUserProfileResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetUserProfileResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.uid = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.skillLevel = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.learningModes.push(reader.string());
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.hoursPerWeek = reader.int32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.isNew = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetUserProfileResponse {
+    return {
+      uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      skillLevel: isSet(object.skillLevel)
+        ? globalThis.String(object.skillLevel)
+        : isSet(object.skill_level)
+        ? globalThis.String(object.skill_level)
+        : "",
+      learningModes: globalThis.Array.isArray(object?.learningModes)
+        ? object.learningModes.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.learning_modes)
+        ? object.learning_modes.map((e: any) => globalThis.String(e))
+        : [],
+      hoursPerWeek: isSet(object.hoursPerWeek)
+        ? globalThis.Number(object.hoursPerWeek)
+        : isSet(object.hours_per_week)
+        ? globalThis.Number(object.hours_per_week)
+        : 0,
+      isNew: isSet(object.isNew)
+        ? globalThis.Boolean(object.isNew)
+        : isSet(object.is_new)
+        ? globalThis.Boolean(object.is_new)
+        : false,
+    };
+  },
+
+  toJSON(message: GetUserProfileResponse): unknown {
+    const obj: any = {};
+    if (message.uid !== "") {
+      obj.uid = message.uid;
+    }
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.skillLevel !== "") {
+      obj.skillLevel = message.skillLevel;
+    }
+    if (message.learningModes?.length) {
+      obj.learningModes = message.learningModes;
+    }
+    if (message.hoursPerWeek !== 0) {
+      obj.hoursPerWeek = Math.round(message.hoursPerWeek);
+    }
+    if (message.isNew !== false) {
+      obj.isNew = message.isNew;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUserProfileResponse>, I>>(base?: I): GetUserProfileResponse {
+    return GetUserProfileResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUserProfileResponse>, I>>(object: I): GetUserProfileResponse {
+    const message = createBaseGetUserProfileResponse();
+    message.uid = object.uid ?? "";
+    message.email = object.email ?? "";
+    message.name = object.name ?? "";
+    message.skillLevel = object.skillLevel ?? "";
+    message.learningModes = object.learningModes?.map((e) => e) || [];
+    message.hoursPerWeek = object.hoursPerWeek ?? 0;
+    message.isNew = object.isNew ?? false;
+    return message;
+  },
+};
+
+function createBaseUpdateUserPreferencesRequest(): UpdateUserPreferencesRequest {
+  return { email: "", skillLevel: "", learningModes: [], hoursPerWeek: 0 };
+}
+
+export const UpdateUserPreferencesRequest: MessageFns<UpdateUserPreferencesRequest> = {
+  encode(message: UpdateUserPreferencesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    if (message.skillLevel !== "") {
+      writer.uint32(18).string(message.skillLevel);
+    }
+    for (const v of message.learningModes) {
+      writer.uint32(26).string(v!);
+    }
+    if (message.hoursPerWeek !== 0) {
+      writer.uint32(32).int32(message.hoursPerWeek);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateUserPreferencesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateUserPreferencesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.skillLevel = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.learningModes.push(reader.string());
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.hoursPerWeek = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateUserPreferencesRequest {
+    return {
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      skillLevel: isSet(object.skillLevel)
+        ? globalThis.String(object.skillLevel)
+        : isSet(object.skill_level)
+        ? globalThis.String(object.skill_level)
+        : "",
+      learningModes: globalThis.Array.isArray(object?.learningModes)
+        ? object.learningModes.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.learning_modes)
+        ? object.learning_modes.map((e: any) => globalThis.String(e))
+        : [],
+      hoursPerWeek: isSet(object.hoursPerWeek)
+        ? globalThis.Number(object.hoursPerWeek)
+        : isSet(object.hours_per_week)
+        ? globalThis.Number(object.hours_per_week)
+        : 0,
+    };
+  },
+
+  toJSON(message: UpdateUserPreferencesRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.skillLevel !== "") {
+      obj.skillLevel = message.skillLevel;
+    }
+    if (message.learningModes?.length) {
+      obj.learningModes = message.learningModes;
+    }
+    if (message.hoursPerWeek !== 0) {
+      obj.hoursPerWeek = Math.round(message.hoursPerWeek);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateUserPreferencesRequest>, I>>(base?: I): UpdateUserPreferencesRequest {
+    return UpdateUserPreferencesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateUserPreferencesRequest>, I>>(object: I): UpdateUserPreferencesRequest {
+    const message = createBaseUpdateUserPreferencesRequest();
+    message.email = object.email ?? "";
+    message.skillLevel = object.skillLevel ?? "";
+    message.learningModes = object.learningModes?.map((e) => e) || [];
+    message.hoursPerWeek = object.hoursPerWeek ?? 0;
+    return message;
+  },
+};
+
+function createBaseUpdateUserPreferencesResponse(): UpdateUserPreferencesResponse {
+  return { success: false };
+}
+
+export const UpdateUserPreferencesResponse: MessageFns<UpdateUserPreferencesResponse> = {
+  encode(message: UpdateUserPreferencesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateUserPreferencesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateUserPreferencesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateUserPreferencesResponse {
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+  },
+
+  toJSON(message: UpdateUserPreferencesResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateUserPreferencesResponse>, I>>(base?: I): UpdateUserPreferencesResponse {
+    return UpdateUserPreferencesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateUserPreferencesResponse>, I>>(
+    object: I,
+  ): UpdateUserPreferencesResponse {
+    const message = createBaseUpdateUserPreferencesResponse();
+    message.success = object.success ?? false;
+    return message;
+  },
+};
+
 export type UserServiceService = typeof UserServiceService;
 export const UserServiceService = {
   loginUser: {
@@ -343,11 +778,35 @@ export const UserServiceService = {
     responseSerialize: (value: HealthCheckResponse): Buffer => Buffer.from(HealthCheckResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): HealthCheckResponse => HealthCheckResponse.decode(value),
   },
+  getUserProfile: {
+    path: "/user.UserService/GetUserProfile" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetUserProfileRequest): Buffer =>
+      Buffer.from(GetUserProfileRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetUserProfileRequest => GetUserProfileRequest.decode(value),
+    responseSerialize: (value: GetUserProfileResponse): Buffer =>
+      Buffer.from(GetUserProfileResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetUserProfileResponse => GetUserProfileResponse.decode(value),
+  },
+  updateUserPreferences: {
+    path: "/user.UserService/UpdateUserPreferences" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: UpdateUserPreferencesRequest): Buffer =>
+      Buffer.from(UpdateUserPreferencesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): UpdateUserPreferencesRequest => UpdateUserPreferencesRequest.decode(value),
+    responseSerialize: (value: UpdateUserPreferencesResponse): Buffer =>
+      Buffer.from(UpdateUserPreferencesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): UpdateUserPreferencesResponse => UpdateUserPreferencesResponse.decode(value),
+  },
 } as const;
 
 export interface UserServiceServer extends UntypedServiceImplementation {
   loginUser: handleUnaryCall<LoginUserRequest, LoginUserResponse>;
   healthCheck: handleUnaryCall<HealthCheckRequest, HealthCheckResponse>;
+  getUserProfile: handleUnaryCall<GetUserProfileRequest, GetUserProfileResponse>;
+  updateUserPreferences: handleUnaryCall<UpdateUserPreferencesRequest, UpdateUserPreferencesResponse>;
 }
 
 export interface UserServiceClient extends Client {
@@ -380,6 +839,36 @@ export interface UserServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
+  ): ClientUnaryCall;
+  getUserProfile(
+    request: GetUserProfileRequest,
+    callback: (error: ServiceError | null, response: GetUserProfileResponse) => void,
+  ): ClientUnaryCall;
+  getUserProfile(
+    request: GetUserProfileRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetUserProfileResponse) => void,
+  ): ClientUnaryCall;
+  getUserProfile(
+    request: GetUserProfileRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetUserProfileResponse) => void,
+  ): ClientUnaryCall;
+  updateUserPreferences(
+    request: UpdateUserPreferencesRequest,
+    callback: (error: ServiceError | null, response: UpdateUserPreferencesResponse) => void,
+  ): ClientUnaryCall;
+  updateUserPreferences(
+    request: UpdateUserPreferencesRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: UpdateUserPreferencesResponse) => void,
+  ): ClientUnaryCall;
+  updateUserPreferences(
+    request: UpdateUserPreferencesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: UpdateUserPreferencesResponse) => void,
   ): ClientUnaryCall;
 }
 

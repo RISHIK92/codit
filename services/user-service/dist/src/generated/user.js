@@ -5,7 +5,7 @@
 //   protoc               unknown
 // source: user.proto
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserServiceClient = exports.UserServiceService = exports.LoginUserResponse = exports.LoginUserRequest = exports.HealthCheckResponse = exports.HealthCheckRequest = exports.protobufPackage = void 0;
+exports.UserServiceClient = exports.UserServiceService = exports.UpdateUserPreferencesResponse = exports.UpdateUserPreferencesRequest = exports.GetUserProfileResponse = exports.GetUserProfileRequest = exports.LoginUserResponse = exports.LoginUserRequest = exports.HealthCheckResponse = exports.HealthCheckRequest = exports.protobufPackage = void 0;
 /* eslint-disable */
 const wire_1 = require("@bufbuild/protobuf/wire");
 const grpc_js_1 = require("@grpc/grpc-js");
@@ -265,6 +265,383 @@ exports.LoginUserResponse = {
         return message;
     },
 };
+function createBaseGetUserProfileRequest() {
+    return { email: "" };
+}
+exports.GetUserProfileRequest = {
+    encode(message, writer = new wire_1.BinaryWriter()) {
+        if (message.email !== "") {
+            writer.uint32(10).string(message.email);
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
+        const end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseGetUserProfileRequest();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 10) {
+                        break;
+                    }
+                    message.email = reader.string();
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+    fromJSON(object) {
+        return { email: isSet(object.email) ? globalThis.String(object.email) : "" };
+    },
+    toJSON(message) {
+        const obj = {};
+        if (message.email !== "") {
+            obj.email = message.email;
+        }
+        return obj;
+    },
+    create(base) {
+        return exports.GetUserProfileRequest.fromPartial(base !== null && base !== void 0 ? base : {});
+    },
+    fromPartial(object) {
+        var _a;
+        const message = createBaseGetUserProfileRequest();
+        message.email = (_a = object.email) !== null && _a !== void 0 ? _a : "";
+        return message;
+    },
+};
+function createBaseGetUserProfileResponse() {
+    return { uid: "", email: "", name: "", skillLevel: "", learningModes: [], hoursPerWeek: 0, isNew: false };
+}
+exports.GetUserProfileResponse = {
+    encode(message, writer = new wire_1.BinaryWriter()) {
+        if (message.uid !== "") {
+            writer.uint32(10).string(message.uid);
+        }
+        if (message.email !== "") {
+            writer.uint32(18).string(message.email);
+        }
+        if (message.name !== "") {
+            writer.uint32(26).string(message.name);
+        }
+        if (message.skillLevel !== "") {
+            writer.uint32(34).string(message.skillLevel);
+        }
+        for (const v of message.learningModes) {
+            writer.uint32(42).string(v);
+        }
+        if (message.hoursPerWeek !== 0) {
+            writer.uint32(48).int32(message.hoursPerWeek);
+        }
+        if (message.isNew !== false) {
+            writer.uint32(56).bool(message.isNew);
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
+        const end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseGetUserProfileResponse();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 10) {
+                        break;
+                    }
+                    message.uid = reader.string();
+                    continue;
+                }
+                case 2: {
+                    if (tag !== 18) {
+                        break;
+                    }
+                    message.email = reader.string();
+                    continue;
+                }
+                case 3: {
+                    if (tag !== 26) {
+                        break;
+                    }
+                    message.name = reader.string();
+                    continue;
+                }
+                case 4: {
+                    if (tag !== 34) {
+                        break;
+                    }
+                    message.skillLevel = reader.string();
+                    continue;
+                }
+                case 5: {
+                    if (tag !== 42) {
+                        break;
+                    }
+                    message.learningModes.push(reader.string());
+                    continue;
+                }
+                case 6: {
+                    if (tag !== 48) {
+                        break;
+                    }
+                    message.hoursPerWeek = reader.int32();
+                    continue;
+                }
+                case 7: {
+                    if (tag !== 56) {
+                        break;
+                    }
+                    message.isNew = reader.bool();
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+    fromJSON(object) {
+        return {
+            uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
+            email: isSet(object.email) ? globalThis.String(object.email) : "",
+            name: isSet(object.name) ? globalThis.String(object.name) : "",
+            skillLevel: isSet(object.skillLevel)
+                ? globalThis.String(object.skillLevel)
+                : isSet(object.skill_level)
+                    ? globalThis.String(object.skill_level)
+                    : "",
+            learningModes: globalThis.Array.isArray(object === null || object === void 0 ? void 0 : object.learningModes)
+                ? object.learningModes.map((e) => globalThis.String(e))
+                : globalThis.Array.isArray(object === null || object === void 0 ? void 0 : object.learning_modes)
+                    ? object.learning_modes.map((e) => globalThis.String(e))
+                    : [],
+            hoursPerWeek: isSet(object.hoursPerWeek)
+                ? globalThis.Number(object.hoursPerWeek)
+                : isSet(object.hours_per_week)
+                    ? globalThis.Number(object.hours_per_week)
+                    : 0,
+            isNew: isSet(object.isNew)
+                ? globalThis.Boolean(object.isNew)
+                : isSet(object.is_new)
+                    ? globalThis.Boolean(object.is_new)
+                    : false,
+        };
+    },
+    toJSON(message) {
+        var _a;
+        const obj = {};
+        if (message.uid !== "") {
+            obj.uid = message.uid;
+        }
+        if (message.email !== "") {
+            obj.email = message.email;
+        }
+        if (message.name !== "") {
+            obj.name = message.name;
+        }
+        if (message.skillLevel !== "") {
+            obj.skillLevel = message.skillLevel;
+        }
+        if ((_a = message.learningModes) === null || _a === void 0 ? void 0 : _a.length) {
+            obj.learningModes = message.learningModes;
+        }
+        if (message.hoursPerWeek !== 0) {
+            obj.hoursPerWeek = Math.round(message.hoursPerWeek);
+        }
+        if (message.isNew !== false) {
+            obj.isNew = message.isNew;
+        }
+        return obj;
+    },
+    create(base) {
+        return exports.GetUserProfileResponse.fromPartial(base !== null && base !== void 0 ? base : {});
+    },
+    fromPartial(object) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        const message = createBaseGetUserProfileResponse();
+        message.uid = (_a = object.uid) !== null && _a !== void 0 ? _a : "";
+        message.email = (_b = object.email) !== null && _b !== void 0 ? _b : "";
+        message.name = (_c = object.name) !== null && _c !== void 0 ? _c : "";
+        message.skillLevel = (_d = object.skillLevel) !== null && _d !== void 0 ? _d : "";
+        message.learningModes = ((_e = object.learningModes) === null || _e === void 0 ? void 0 : _e.map((e) => e)) || [];
+        message.hoursPerWeek = (_f = object.hoursPerWeek) !== null && _f !== void 0 ? _f : 0;
+        message.isNew = (_g = object.isNew) !== null && _g !== void 0 ? _g : false;
+        return message;
+    },
+};
+function createBaseUpdateUserPreferencesRequest() {
+    return { email: "", skillLevel: "", learningModes: [], hoursPerWeek: 0 };
+}
+exports.UpdateUserPreferencesRequest = {
+    encode(message, writer = new wire_1.BinaryWriter()) {
+        if (message.email !== "") {
+            writer.uint32(10).string(message.email);
+        }
+        if (message.skillLevel !== "") {
+            writer.uint32(18).string(message.skillLevel);
+        }
+        for (const v of message.learningModes) {
+            writer.uint32(26).string(v);
+        }
+        if (message.hoursPerWeek !== 0) {
+            writer.uint32(32).int32(message.hoursPerWeek);
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
+        const end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseUpdateUserPreferencesRequest();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 10) {
+                        break;
+                    }
+                    message.email = reader.string();
+                    continue;
+                }
+                case 2: {
+                    if (tag !== 18) {
+                        break;
+                    }
+                    message.skillLevel = reader.string();
+                    continue;
+                }
+                case 3: {
+                    if (tag !== 26) {
+                        break;
+                    }
+                    message.learningModes.push(reader.string());
+                    continue;
+                }
+                case 4: {
+                    if (tag !== 32) {
+                        break;
+                    }
+                    message.hoursPerWeek = reader.int32();
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+    fromJSON(object) {
+        return {
+            email: isSet(object.email) ? globalThis.String(object.email) : "",
+            skillLevel: isSet(object.skillLevel)
+                ? globalThis.String(object.skillLevel)
+                : isSet(object.skill_level)
+                    ? globalThis.String(object.skill_level)
+                    : "",
+            learningModes: globalThis.Array.isArray(object === null || object === void 0 ? void 0 : object.learningModes)
+                ? object.learningModes.map((e) => globalThis.String(e))
+                : globalThis.Array.isArray(object === null || object === void 0 ? void 0 : object.learning_modes)
+                    ? object.learning_modes.map((e) => globalThis.String(e))
+                    : [],
+            hoursPerWeek: isSet(object.hoursPerWeek)
+                ? globalThis.Number(object.hoursPerWeek)
+                : isSet(object.hours_per_week)
+                    ? globalThis.Number(object.hours_per_week)
+                    : 0,
+        };
+    },
+    toJSON(message) {
+        var _a;
+        const obj = {};
+        if (message.email !== "") {
+            obj.email = message.email;
+        }
+        if (message.skillLevel !== "") {
+            obj.skillLevel = message.skillLevel;
+        }
+        if ((_a = message.learningModes) === null || _a === void 0 ? void 0 : _a.length) {
+            obj.learningModes = message.learningModes;
+        }
+        if (message.hoursPerWeek !== 0) {
+            obj.hoursPerWeek = Math.round(message.hoursPerWeek);
+        }
+        return obj;
+    },
+    create(base) {
+        return exports.UpdateUserPreferencesRequest.fromPartial(base !== null && base !== void 0 ? base : {});
+    },
+    fromPartial(object) {
+        var _a, _b, _c, _d;
+        const message = createBaseUpdateUserPreferencesRequest();
+        message.email = (_a = object.email) !== null && _a !== void 0 ? _a : "";
+        message.skillLevel = (_b = object.skillLevel) !== null && _b !== void 0 ? _b : "";
+        message.learningModes = ((_c = object.learningModes) === null || _c === void 0 ? void 0 : _c.map((e) => e)) || [];
+        message.hoursPerWeek = (_d = object.hoursPerWeek) !== null && _d !== void 0 ? _d : 0;
+        return message;
+    },
+};
+function createBaseUpdateUserPreferencesResponse() {
+    return { success: false };
+}
+exports.UpdateUserPreferencesResponse = {
+    encode(message, writer = new wire_1.BinaryWriter()) {
+        if (message.success !== false) {
+            writer.uint32(8).bool(message.success);
+        }
+        return writer;
+    },
+    decode(input, length) {
+        const reader = input instanceof wire_1.BinaryReader ? input : new wire_1.BinaryReader(input);
+        const end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseUpdateUserPreferencesResponse();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 8) {
+                        break;
+                    }
+                    message.success = reader.bool();
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+    fromJSON(object) {
+        return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+    },
+    toJSON(message) {
+        const obj = {};
+        if (message.success !== false) {
+            obj.success = message.success;
+        }
+        return obj;
+    },
+    create(base) {
+        return exports.UpdateUserPreferencesResponse.fromPartial(base !== null && base !== void 0 ? base : {});
+    },
+    fromPartial(object) {
+        var _a;
+        const message = createBaseUpdateUserPreferencesResponse();
+        message.success = (_a = object.success) !== null && _a !== void 0 ? _a : false;
+        return message;
+    },
+};
 exports.UserServiceService = {
     loginUser: {
         path: "/user.UserService/LoginUser",
@@ -283,6 +660,24 @@ exports.UserServiceService = {
         requestDeserialize: (value) => exports.HealthCheckRequest.decode(value),
         responseSerialize: (value) => Buffer.from(exports.HealthCheckResponse.encode(value).finish()),
         responseDeserialize: (value) => exports.HealthCheckResponse.decode(value),
+    },
+    getUserProfile: {
+        path: "/user.UserService/GetUserProfile",
+        requestStream: false,
+        responseStream: false,
+        requestSerialize: (value) => Buffer.from(exports.GetUserProfileRequest.encode(value).finish()),
+        requestDeserialize: (value) => exports.GetUserProfileRequest.decode(value),
+        responseSerialize: (value) => Buffer.from(exports.GetUserProfileResponse.encode(value).finish()),
+        responseDeserialize: (value) => exports.GetUserProfileResponse.decode(value),
+    },
+    updateUserPreferences: {
+        path: "/user.UserService/UpdateUserPreferences",
+        requestStream: false,
+        responseStream: false,
+        requestSerialize: (value) => Buffer.from(exports.UpdateUserPreferencesRequest.encode(value).finish()),
+        requestDeserialize: (value) => exports.UpdateUserPreferencesRequest.decode(value),
+        responseSerialize: (value) => Buffer.from(exports.UpdateUserPreferencesResponse.encode(value).finish()),
+        responseDeserialize: (value) => exports.UpdateUserPreferencesResponse.decode(value),
     },
 };
 exports.UserServiceClient = (0, grpc_js_1.makeGenericClientConstructor)(exports.UserServiceService, "user.UserService");
