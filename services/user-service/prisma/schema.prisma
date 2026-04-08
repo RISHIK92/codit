@@ -62,6 +62,7 @@ model LearningPhase {
   concepts          String[]
   goal              Json?
   phase_number      Int
+  phase_status      PhaseStatus   @default(locked)
   estimated_minutes Int
   createdAt         DateTime  @default(now())
   
@@ -111,4 +112,10 @@ enum Question_Type {
   code_completion
   multiple_choice
   debug
+}
+
+enum PhaseStatus {
+  in_progress
+  completed
+  locked
 }

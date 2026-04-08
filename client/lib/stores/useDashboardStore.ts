@@ -2,7 +2,7 @@
  * useDashboardStore
  *
  * Owns all data that drives the main `/dashboard` page:
- *   - The user's active project metadata (title, week, progress, next objective).
+ *   - The user's active project metadata (title, phase, progress, next objective).
  *   - The ordered list of learning phases and their completion status.
  *   - The recent-activity feed.
  *   - The recommended-resource list.
@@ -40,7 +40,7 @@ import { create } from "zustand";
 export interface Project {
   id: string;
   title: string;
-  week: number;
+  phase: number;
   description: string;
   progress: number;
   nextObjective: string;
@@ -96,7 +96,7 @@ interface DashboardState {
 const INITIAL_PROJECT: Project = {
   id: "1",
   title: "Invoice Generator",
-  week: 2,
+  phase: 2,
   description: "Backend Integration",
   progress: 40,
   nextObjective: "Build Invoice API Endpoint",

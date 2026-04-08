@@ -55,7 +55,7 @@ export default function LeftSidebar() {
       {/* Current Project */}
       <div className="group bg-void border border-border-s rounded-sm p-5 cursor-pointer transition-colors hover:border-accent">
         <div className="font-(family-name:--font-dm) text-[9px] tracking-[0.15em] uppercase text-txt-ghost mb-2">
-          Week {currentProject.week} · Day 9
+          Phase {currentProject.phase} · Day 9
         </div>
         <div className="font-(family-name:--font-cormorant) text-xl font-medium text-txt mb-4 group-hover:text-accent transition-colors flex items-center justify-between">
           {currentProject.title}
