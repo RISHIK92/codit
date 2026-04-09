@@ -11,14 +11,13 @@ model User {
   uid           String   @id
   email         String   @unique
   skillLevel    Skill_Level?
-  score         Int      @default(0)
-  learningModes String[]  // ["video", "article"]
+  learningModes String[]
   hoursPerWeek  Int?
   name          String?
   createdAt     DateTime @default(now())
 
-  userProjects    UserProjects[]
-  eligibilityTest EntranceTest?
+  userProjects        UserProjects[]
+  entranceTestAttempt EntranceTestAttempt?
   @@index([email])
 }
 
@@ -34,25 +33,40 @@ model Projects {
   userProjects        UserProjects[]
 }
 
-model EntranceTest {
-  id         String                   @default(uuid()) @unique
-  user_email String                   @unique
-  score      Int                      @default(0)
-  createdAt  DateTime                 @default(now())
-
-  user       User                 @relation(fields: [user_email], references: [email])
-  questions  EntranceQuestion[]
+// ── Adaptive entrance test question pool ────────────────────────────────────
+model EntranceQuestion {
+  id             String     @default(uuid()) @unique
+  question       String
+  options        String[]   // always 4 entries
+  correct_option Int        // 0-3 index
+  explanation    String
+  difficulty     Difficulty
+  topic          String
+  createdAt      DateTime   @default(now())
 }
 
-model EntranceQuestion {
-  id              String          @default(uuid()) @unique
-  test_id         String
-  question        String
-  options         String[]
-  correct_option  Int
-  explanation     String
+model EntranceTestAttempt {
+  id           String      @default(uuid()) @unique
+  user_email   String      @unique
+  status       TestStatus  @default(in_progress)
+  round        Int         @default(1)
+  answers      Json        @default("[]")
+  result_level Skill_Level?
+  started_at   DateTime    @default(now())
+  completed_at DateTime?
 
-  test            EntranceTest @relation(fields: [test_id], references: [id])
+  user         User        @relation(fields: [user_email], references: [email])
+}
+
+enum Difficulty {
+  easy
+  intermediate
+  advanced
+}
+
+enum TestStatus {
+  in_progress
+  completed
 }
 
 model UserProjects {

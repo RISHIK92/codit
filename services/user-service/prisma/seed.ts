@@ -3,37 +3,8 @@ import {
   Skill_Level,
   PhaseStatus,
   Question_Type,
+  Difficulty,
 } from "@prisma/client";
-
-// Helper: create an EligibilityTest with 5 questions for a project
-async function seedEligibilityTest(
-  prisma: PrismaClient,
-  projectId: string,
-  title: string,
-  questions: {
-    question: string;
-    options: [string, string, string, string];
-    correct_option: number;
-    explanation: string;
-  }[],
-) {
-  const test = await prisma.eligibilityTest.create({
-    data: {
-      project_id: projectId,
-      title,
-    },
-  });
-  await prisma.eligibilityQuestion.createMany({
-    data: questions.map((q) => ({
-      test_id: test.id,
-      question: q.question,
-      options: q.options,
-      correct_option: q.correct_option,
-      explanation: q.explanation,
-    })),
-  });
-  return test;
-}
 
 const prisma = new PrismaClient();
 
@@ -193,60 +164,6 @@ async function main() {
     ],
   });
 
-  // Eligibility Test
-  await seedEligibilityTest(
-    prisma,
-    portfolio.id,
-    "Personal Portfolio Website – Eligibility Check",
-    [
-      {
-        question:
-          "Which HTML element semantically represents the main navigation of a page?",
-        options: ["<section>", "<nav>", "<aside>", "<header>"],
-        correct_option: 1,
-        explanation:
-          "<nav> is the semantic element for groups of navigation links.",
-      },
-      {
-        question:
-          "Which CSS property is used to make a flex container wrap its items onto multiple lines?",
-        options: [
-          "flex-direction: wrap",
-          "flex-wrap: wrap",
-          "align-items: wrap",
-          "flex-flow: nowrap",
-        ],
-        correct_option: 1,
-        explanation:
-          "flex-wrap: wrap allows flex items to overflow onto the next line.",
-      },
-      {
-        question:
-          "What does document.querySelector('#toggle') return if no element with id 'toggle' exists?",
-        options: ["undefined", "null", "0", "false"],
-        correct_option: 1,
-        explanation:
-          "querySelector returns null when no matching element is found.",
-      },
-      {
-        question:
-          "Which CSS unit is relative to the font-size of the root element?",
-        options: ["em", "px", "rem", "vh"],
-        correct_option: 2,
-        explanation:
-          "rem (root em) is relative to the <html> element's font-size.",
-      },
-      {
-        question: "What attribute should images always have for accessibility?",
-        options: ["title", "src", "alt", "id"],
-        correct_option: 2,
-        explanation:
-          "The alt attribute provides alternative text for screen readers and when the image fails to load.",
-      },
-    ],
-  );
-  console.log(`✅ Created eligibility test for: ${portfolio.name}`);
-
   // ─── BEGINNER PROJECT 2: To-Do List App ─────────────────────────────────────
   const todo = await prisma.projects.create({
     data: {
@@ -379,60 +296,6 @@ async function main() {
       },
     ],
   });
-
-  await seedEligibilityTest(
-    prisma,
-    todo.id,
-    "To-Do List App – Eligibility Check",
-    [
-      {
-        question:
-          "What hook do you use to add local state to a React functional component?",
-        options: ["useEffect", "useContext", "useState", "useRef"],
-        correct_option: 2,
-        explanation:
-          "useState returns a state value and a setter function for local component state.",
-      },
-      {
-        question:
-          "What is the correct TypeScript type for a function that returns nothing?",
-        options: ["null", "undefined", "void", "never"],
-        correct_option: 2,
-        explanation:
-          "void is used as the return type of functions that do not explicitly return a value.",
-      },
-      {
-        question:
-          "Which hook is used to run a side-effect after every render in React?",
-        options: ["useState", "useMemo", "useCallback", "useEffect"],
-        correct_option: 3,
-        explanation:
-          "useEffect runs after the render phase; passing an empty array makes it run only on mount.",
-      },
-      {
-        question:
-          "In JSX, what prop must be unique among siblings when rendering a list?",
-        options: ["id", "name", "key", "index"],
-        correct_option: 2,
-        explanation:
-          "The key prop helps React identify which items changed, were added, or removed.",
-      },
-      {
-        question:
-          "What does the spread operator (...) do when used with an array in JavaScript?",
-        options: [
-          "Creates a reference to the array",
-          "Copies array elements into a new context",
-          "Reverses the array",
-          "Flattens nested arrays",
-        ],
-        correct_option: 1,
-        explanation:
-          "The spread operator shallow-copies array elements, enabling immutable state patterns.",
-      },
-    ],
-  );
-  console.log(`✅ Created eligibility test for: ${todo.name}`);
 
   // ─── INTERMEDIATE PROJECT 1: REST API with Auth ──────────────────────────────
   const restApi = await prisma.projects.create({
@@ -598,67 +461,6 @@ async function main() {
     ],
   });
 
-  await seedEligibilityTest(
-    prisma,
-    restApi.id,
-    "REST API with JWT Authentication – Eligibility Check",
-    [
-      {
-        question: "What does REST stand for?",
-        options: [
-          "Remote Execution State Transfer",
-          "Representational State Transfer",
-          "Resource Endpoint Service Transfer",
-          "Reactive Server Technology",
-        ],
-        correct_option: 1,
-        explanation:
-          "REST (Representational State Transfer) is an architectural style for distributed hypermedia systems.",
-      },
-      {
-        question:
-          "Which HTTP status code indicates a resource was successfully created?",
-        options: ["200 OK", "204 No Content", "201 Created", "202 Accepted"],
-        correct_option: 2,
-        explanation:
-          "201 Created is the standard response for a successful POST that creates a new resource.",
-      },
-      {
-        question: "In JWT, what are the three dot-separated parts called?",
-        options: [
-          "Header, Payload, Signature",
-          "Key, Value, Hash",
-          "Algorithm, Claims, Secret",
-          "ID, Data, Token",
-        ],
-        correct_option: 0,
-        explanation:
-          "A JWT is composed of a Base64-encoded Header, Payload (claims), and Signature.",
-      },
-      {
-        question: "What is the primary purpose of a database migration?",
-        options: [
-          "To move data between servers",
-          "To version-control schema changes",
-          "To back up the database",
-          "To seed test data",
-        ],
-        correct_option: 1,
-        explanation:
-          "Migrations track incremental schema changes, letting teams evolve the database safely over time.",
-      },
-      {
-        question:
-          "Which Express function registers a middleware that runs for every incoming request?",
-        options: ["app.get()", "app.route()", "app.use()", "app.all()"],
-        correct_option: 2,
-        explanation:
-          "app.use() mounts a middleware function at a path; without a path it applies to all requests.",
-      },
-    ],
-  );
-  console.log(`✅ Created eligibility test for: ${restApi.name}`);
-
   // ─── INTERMEDIATE PROJECT 2: Real-Time Chat App ──────────────────────────────
   const chat = await prisma.projects.create({
     data: {
@@ -813,75 +615,6 @@ async function main() {
       },
     ],
   });
-
-  await seedEligibilityTest(
-    prisma,
-    chat.id,
-    "Real-Time Chat Application – Eligibility Check",
-    [
-      {
-        question:
-          "What protocol does Socket.IO use by default for real-time communication?",
-        options: [
-          "HTTP long polling only",
-          "WebSocket (with HTTP polling fallback)",
-          "TCP raw sockets",
-          "Server-Sent Events",
-        ],
-        correct_option: 1,
-        explanation:
-          "Socket.IO first upgrades to WebSocket; it falls back to HTTP long polling when WebSocket is unavailable.",
-      },
-      {
-        question:
-          "What is the difference between socket.emit() and io.to(room).emit()?",
-        options: [
-          "No difference",
-          "socket.emit() sends to all; io.to(room).emit() sends to sender only",
-          "socket.emit() sends to the connected client; io.to(room).emit() sends to all in a room",
-          "io.to(room).emit() is deprecated",
-        ],
-        correct_option: 2,
-        explanation:
-          "socket.emit targets the individual socket; io.to(room) broadcasts to every socket in the named room.",
-      },
-      {
-        question:
-          "Which Redis data structure is best suited for storing a sorted list of chat messages by timestamp?",
-        options: ["Hash", "List", "Sorted Set", "Set"],
-        correct_option: 2,
-        explanation:
-          "Sorted Sets (ZADD/ZRANGE) store members with a numeric score, making timestamp-based ordering trivial.",
-      },
-      {
-        question:
-          "What does 'volatile' mean in Socket.IO when emitting an event?",
-        options: [
-          "The event is encrypted",
-          "The event is dropped if the client is not connected",
-          "The event triggers an acknowledgement",
-          "The event is broadcast to all namespaces",
-        ],
-        correct_option: 1,
-        explanation:
-          "Volatile emits are fire-and-forget; useful for typing indicators where dropped events are acceptable.",
-      },
-      {
-        question:
-          "In a Next.js app, which file would you customise to attach a Socket.IO server?",
-        options: [
-          "next.config.ts",
-          "middleware.ts",
-          "A custom server.js/ts entry point",
-          "app/layout.tsx",
-        ],
-        correct_option: 2,
-        explanation:
-          "Socket.IO requires direct access to the HTTP server, which is only possible through a custom Node.js server entry point.",
-      },
-    ],
-  );
-  console.log(`✅ Created eligibility test for: ${chat.name}`);
 
   // ─── ADVANCED PROJECT 1: Distributed Task Queue ──────────────────────────────
   const taskQueue = await prisma.projects.create({
@@ -1057,66 +790,6 @@ async function main() {
       },
     ],
   });
-
-  await seedEligibilityTest(
-    prisma,
-    taskQueue.id,
-    "Distributed Task Queue System – Eligibility Check",
-    [
-      {
-        question: "Which Go keyword is used to start a new goroutine?",
-        options: ["async", "go", "thread", "spawn"],
-        correct_option: 1,
-        explanation:
-          "The go keyword starts a goroutine — a lightweight concurrently-executed function.",
-      },
-      {
-        question: "What does the XACK command do in Redis Streams?",
-        options: [
-          "Adds a new message to the stream",
-          "Deletes all pending messages",
-          "Acknowledges a message, removing it from the Pending Entries List",
-          "Lists all consumer groups",
-        ],
-        correct_option: 2,
-        explanation:
-          "Without XACK the message stays in the PEL and will be redelivered after the visibility timeout.",
-      },
-      {
-        question: "How do you safely pass data between goroutines in Go?",
-        options: [
-          "Use a global variable with a mutex",
-          "Use channels",
-          "Use shared memory without synchronisation",
-          "Use HTTP requests",
-        ],
-        correct_option: 1,
-        explanation:
-          "Channels are Go's primary mechanism for safe communication between goroutines.",
-      },
-      {
-        question:
-          "In Protocol Buffers, which file extension is used for schema definitions?",
-        options: [".json", ".yaml", ".proto", ".pb"],
-        correct_option: 2,
-        explanation:
-          ".proto files define message types and service RPCs; they are compiled to language-specific code.",
-      },
-      {
-        question: "What is the purpose of context.WithCancel() in Go?",
-        options: [
-          "Creates a new goroutine",
-          "Returns a context and a function to cancel it, propagating cancellation to child contexts",
-          "Sets a deadline on a network call",
-          "Recovers from a panic",
-        ],
-        correct_option: 1,
-        explanation:
-          "context.WithCancel lets you cancel long-running operations and their children by calling the returned cancel function.",
-      },
-    ],
-  );
-  console.log(`✅ Created eligibility test for: ${taskQueue.name}`);
 
   // ─── ADVANCED PROJECT 2: ML-Powered Code Review Bot ─────────────────────────
   const codeBot = await prisma.projects.create({
@@ -1298,77 +971,260 @@ async function main() {
     ],
   });
 
-  await seedEligibilityTest(
-    prisma,
-    codeBot.id,
-    "ML-Powered Code Review Bot – Eligibility Check",
-    [
+  // ─── ENTRANCE TEST QUESTION POOL ────────────────────────────────────────────
+  console.log("\n🧪 Seeding entrance test questions...");
+
+  await prisma.entranceQuestion.createMany({
+    data: [
+      // ── EASY (6 questions) ─────────────────────────────────────────────────
       {
         question:
-          "What does HMAC stand for in the context of webhook signature verification?",
+          "Which HTML element semantically represents a navigation menu?",
+        options: ["<section>", "<nav>", "<aside>", "<header>"],
+        correct_option: 1,
+        explanation:
+          "<nav> is the semantic element for groups of navigation links.",
+        difficulty: Difficulty.easy,
+        topic: "HTML",
+      },
+      {
+        question: "What does CSS stand for?",
         options: [
-          "Hash-based Message Authentication Code",
-          "HTTP Method Access Control",
-          "Hosted Microservice API Check",
-          "Header Meta-Authentication Credential",
+          "Creative Style Sheets",
+          "Cascading Style Sheets",
+          "Computer Style Syntax",
+          "Coloured Style Sheets",
+        ],
+        correct_option: 1,
+        explanation:
+          "CSS stands for Cascading Style Sheets — it describes how HTML elements are displayed.",
+        difficulty: Difficulty.easy,
+        topic: "CSS",
+      },
+      {
+        question:
+          "Which JavaScript method is used to add an element to the end of an array?",
+        options: [
+          "array.append()",
+          "array.push()",
+          "array.insert()",
+          "array.add()",
+        ],
+        correct_option: 1,
+        explanation:
+          "Array.push() adds one or more elements to the end of an array and returns the new length.",
+        difficulty: Difficulty.easy,
+        topic: "JavaScript",
+      },
+      {
+        question:
+          "What hook do you use to add local state to a React functional component?",
+        options: ["useEffect", "useContext", "useState", "useRef"],
+        correct_option: 2,
+        explanation:
+          "useState returns a state value and a setter function for local component state.",
+        difficulty: Difficulty.easy,
+        topic: "React",
+      },
+      {
+        question:
+          "Which HTTP method is typically used to retrieve data from a server?",
+        options: ["POST", "PUT", "GET", "DELETE"],
+        correct_option: 2,
+        explanation:
+          "GET requests retrieve data without modifying the server state.",
+        difficulty: Difficulty.easy,
+        topic: "HTTP",
+      },
+      {
+        question: "What does 'responsive design' mean?",
+        options: [
+          "A website that loads quickly",
+          "A website that adapts its layout to different screen sizes",
+          "A website that responds to keyboard shortcuts",
+          "A website with fast server response times",
+        ],
+        correct_option: 1,
+        explanation:
+          "Responsive design uses flexible layouts and media queries to adapt to any viewport size.",
+        difficulty: Difficulty.easy,
+        topic: "CSS",
+      },
+
+      // ── INTERMEDIATE (6 questions) ─────────────────────────────────────────
+      {
+        question: "What is the primary purpose of a database index?",
+        options: [
+          "To enforce uniqueness on a column",
+          "To speed up data retrieval at the cost of extra storage",
+          "To encrypt sensitive columns",
+          "To create foreign key constraints",
+        ],
+        correct_option: 1,
+        explanation:
+          "Indexes allow the database engine to find rows quickly without scanning the full table.",
+        difficulty: Difficulty.intermediate,
+        topic: "Databases",
+      },
+      {
+        question:
+          "Which HTTP status code indicates a resource was successfully created?",
+        options: ["200 OK", "204 No Content", "201 Created", "202 Accepted"],
+        correct_option: 2,
+        explanation:
+          "201 Created is the standard response for a successful POST that creates a new resource.",
+        difficulty: Difficulty.intermediate,
+        topic: "REST APIs",
+      },
+      {
+        question:
+          "What is the difference between synchronous and asynchronous code in JavaScript?",
+        options: [
+          "Synchronous code runs in parallel; asynchronous runs sequentially",
+          "Synchronous code blocks further execution; asynchronous code does not block while waiting",
+          "Asynchronous code is always faster than synchronous",
+          "There is no real difference in modern JavaScript",
+        ],
+        correct_option: 1,
+        explanation:
+          "Asynchronous code (via Promises/async-await) allows the event loop to continue while I/O operations complete.",
+        difficulty: Difficulty.intermediate,
+        topic: "JavaScript",
+      },
+      {
+        question:
+          "In JWT authentication, what are the three dot-separated parts?",
+        options: [
+          "Header, Payload, Signature",
+          "Key, Value, Hash",
+          "Algorithm, Claims, Secret",
+          "ID, Data, Token",
         ],
         correct_option: 0,
         explanation:
-          "HMAC uses a shared secret key combined with a hash function to verify message integrity and authenticity.",
+          "A JWT is a Base64-encoded Header + Payload (claims) + Signature, separated by dots.",
+        difficulty: Difficulty.intermediate,
+        topic: "Authentication",
       },
       {
         question:
-          "In the unified diff format, what does a line starting with '+' mean?",
+          "What does the 'useEffect' hook do when given an empty dependency array []?",
         options: [
-          "A line that was deleted",
-          "A context line (unchanged)",
-          "A line that was added",
-          "A file header",
+          "Runs on every render",
+          "Never runs",
+          "Runs once after the initial render",
+          "Runs before every render",
         ],
         correct_option: 2,
         explanation:
-          "Lines prefixed with '+' were added in the change; '-' lines were removed; unchanged lines have no prefix.",
-      },
-      {
-        question: "What is the LangChain pipe operator (|) used for?",
-        options: [
-          "Parallel execution of chains",
-          "Composing runnables left-to-right, passing each output as the next input",
-          "Merging two prompt templates",
-          "Logging intermediate outputs",
-        ],
-        correct_option: 1,
-        explanation:
-          "The | operator is LCEL syntax for chaining runnables sequentially.",
-      },
-      {
-        question: "What is pgvector used for in a RAG pipeline?",
-        options: [
-          "Storing relational tables",
-          "Caching HTTP responses",
-          "Storing and querying high-dimensional vector embeddings",
-          "Running Python functions inside PostgreSQL",
-        ],
-        correct_option: 2,
-        explanation:
-          "pgvector extends PostgreSQL with a vector data type and ANN index operators for similarity search.",
+          "An empty dependency array tells React to run the effect only after the first render (mount).",
+        difficulty: Difficulty.intermediate,
+        topic: "React",
       },
       {
         question:
-          "Why should webhook signature verification use a constant-time comparison function?",
+          "Which SQL clause is used to filter results after a GROUP BY?",
+        options: ["WHERE", "FILTER", "HAVING", "AND"],
+        correct_option: 2,
+        explanation:
+          "HAVING filters grouped rows, whereas WHERE filters individual rows before grouping.",
+        difficulty: Difficulty.intermediate,
+        topic: "Databases",
+      },
+
+      // ── ADVANCED (6 questions) ─────────────────────────────────────────────
+      {
+        question: "In distributed systems, what does the CAP theorem state?",
         options: [
-          "To improve performance",
-          "To prevent timing attacks that could reveal the secret",
-          "To support multiple hashing algorithms simultaneously",
-          "To allow async verification",
+          "A system can be fast, cheap, and reliable simultaneously",
+          "A distributed system can guarantee at most two of: Consistency, Availability, and Partition tolerance",
+          "Caching, Async processing, and Partitioning are the three pillars of scalability",
+          "All distributed systems are eventually consistent",
         ],
         correct_option: 1,
         explanation:
-          "Standard string comparison short-circuits on the first mismatch; constant-time comparison always takes the same duration, preventing timing-based secret leakage.",
+          "CAP theorem: in the presence of a network partition, you must choose between consistency and availability.",
+        difficulty: Difficulty.advanced,
+        topic: "System Design",
+      },
+      {
+        question: "What is the purpose of a database read replica?",
+        options: [
+          "To provide a backup for disaster recovery only",
+          "To serve read-heavy traffic and reduce load on the primary write node",
+          "To enforce schema migrations",
+          "To store large binary objects separately",
+        ],
+        correct_option: 1,
+        explanation:
+          "Read replicas scale out read throughput by directing SELECT queries away from the write primary.",
+        difficulty: Difficulty.advanced,
+        topic: "System Design",
+      },
+      {
+        question: "What does the Go keyword 'defer' do?",
+        options: [
+          "Pauses execution for a duration",
+          "Runs a function concurrently as a goroutine",
+          "Schedules a function call to run just before the surrounding function returns",
+          "Marks a function as non-blocking",
+        ],
+        correct_option: 2,
+        explanation:
+          "defer pushes a function call onto a stack that is executed in LIFO order when the surrounding function returns.",
+        difficulty: Difficulty.advanced,
+        topic: "Go",
+      },
+      {
+        question:
+          "What is the main advantage of Protocol Buffers over JSON for service-to-service communication?",
+        options: [
+          "Human readable and easier to debug",
+          "Supported by all browsers natively",
+          "Smaller payload size and faster serialisation/deserialisation due to binary encoding",
+          "Does not require a schema",
+        ],
+        correct_option: 2,
+        explanation:
+          "Protobuf binary encoding is typically 3-10x smaller and 5-10x faster to parse than equivalent JSON.",
+        difficulty: Difficulty.advanced,
+        topic: "gRPC",
+      },
+      {
+        question: "What problem does database connection pooling solve?",
+        options: [
+          "Prevents SQL injection attacks",
+          "Reduces the overhead of establishing new database connections by reusing existing ones",
+          "Automatically scales the number of database instances",
+          "Encrypts database connections",
+        ],
+        correct_option: 1,
+        explanation:
+          "Opening a DB connection is expensive; a pool keeps a set of connections open and reuses them across requests.",
+        difficulty: Difficulty.advanced,
+        topic: "Databases",
+      },
+      {
+        question:
+          "In React, what is the purpose of 'key' when reconciling lists and why must it be stable?",
+        options: [
+          "It is used for CSS styling; stability ensures consistent design",
+          "It identifies elements for React's diffing algorithm; unstable keys (e.g. array index) cause unnecessary unmounts and remounts",
+          "It is only relevant for accessibility — screen readers use it",
+          "It prevents duplicate API calls for list items",
+        ],
+        correct_option: 1,
+        explanation:
+          "React uses key to match old and new tree nodes. Using index as key breaks diffing when items are reordered.",
+        difficulty: Difficulty.advanced,
+        topic: "React",
       },
     ],
+  });
+
+  console.log(
+    "✅ Seeded 18 entrance test questions (6 easy / 6 intermediate / 6 advanced)",
   );
-  console.log(`✅ Created eligibility test for: ${codeBot.name}`);
 
   console.log("\n✨ Seeding complete!");
   console.log("   Projects seeded:");

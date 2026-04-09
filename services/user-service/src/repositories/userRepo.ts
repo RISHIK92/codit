@@ -1,4 +1,5 @@
 import prisma from "../db/prismaClient";
+import { Skill_Level } from "@prisma/client";
 
 export const createUserInDb = async (uid: string, email: string) => {
   return await prisma.user.create({
@@ -34,6 +35,16 @@ export const upsertUser = async (uid: string, email: string, name: string) => {
 export const findUserByEmail = async (email: string) => {
   return await prisma.user.findUnique({
     where: { email },
+  });
+};
+
+export const updateUserSkillLevel = async (
+  email: string,
+  skillLevel: Skill_Level,
+) => {
+  return await prisma.user.update({
+    where: { email },
+    data: { skillLevel },
   });
 };
 
