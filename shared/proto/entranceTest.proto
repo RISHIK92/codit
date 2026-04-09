@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package entrancetest;
+
+option go_package = "gateway/pkg/pb";
+
+service EntranceTestService {
+  rpc StartTest    (StartTestRequest)    returns (StartTestResponse);
+  rpc SubmitRound  (SubmitRoundRequest)  returns (SubmitRoundResponse);
+}
+
+// ── Request / Response messages ─────────────────────────────────────────────
+
+message StartTestRequest {
+  string email = 1;
+}
+
+message StartTestResponse {
+  repeated EntranceQuestionDTO questions = 1;  // first 2 easy questions
+  string attempt_id = 2;
+  int32 round = 3;
+}
+
+message SubmitRoundRequest {
+  string email = 1;
+  repeated AnswerDTO answers = 2;
+}
+
+message SubmitRoundResponse {
+  bool done = 1;
+  string skill_level = 2;                       // populated when done = true
+  repeated EntranceQuestionDTO next_questions = 3; // populated when done = false
+  int32 round = 4;
+}
+
+// ── Shared types ─────────────────────────────────────────────────────────────
+
+message EntranceQuestionDTO {
+  string id = 1;
+  string question = 2;
+  repeated string options = 3;
+  string difficulty = 4;
+  string topic = 5;
+  // correct_option intentionally omitted — never sent to client
+}
+
+message AnswerDTO {
+  string question_id = 1;
+  int32  selected_option = 2;
+}

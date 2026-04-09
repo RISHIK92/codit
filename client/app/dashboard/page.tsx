@@ -101,8 +101,7 @@ export default function DashboardPage() {
               Start your first project
             </h2>
             <p className="font-[family-name:var(--font-dm)] text-[13px] text-txt-muted leading-relaxed">
-              Complete the onboarding questions, and your personalised learning
-              plan will appear here.
+              Your personalised learning plan will appear here.
             </p>
           </div>
 

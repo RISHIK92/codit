@@ -16,6 +16,7 @@ export { useAuthStore } from "./useAuthStore";
 export { useDashboardStore } from "./useDashboardStore";
 export { useUIStore } from "./useUIStore";
 export { useUserStore } from "./useUserStore";
+export { useEntranceTestStore } from "./useEntranceTestStore";
 
 // Named type re-exports for convenience
 export type {

@@ -27,6 +27,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	userClient := pb.NewUserServiceClient(conn)
 	userProjectClient := pb.NewUserProjectServiceClient(conn)
 	projectClient := pb.NewProjectServiceClient(conn)
+	entranceTestClient := pb.NewEntranceTestServiceClient(conn)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
@@ -47,6 +48,8 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Post("/api/user-projects/create", proxy.CreateUserProjectProxy(userProjectClient))
 		r.Get("/api/user-projects/get", proxy.GetUserProjectByIdProxy(userProjectClient))
 		r.Get("/api/user-projects/get-all", proxy.GetAllUserProjectsProxy(userProjectClient))
+		r.Post("/api/entrance-test/start", proxy.StartEntranceTestProxy(entranceTestClient))
+		r.Post("/api/entrance-test/submit", proxy.SubmitEntranceRoundProxy(entranceTestClient))
 	})
 
 	return r
