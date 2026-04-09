@@ -11,12 +11,14 @@ model User {
   uid           String   @id
   email         String   @unique
   skillLevel    Skill_Level?
+  score         Int      @default(0)
   learningModes String[]  // ["video", "article"]
   hoursPerWeek  Int?
   name          String?
   createdAt     DateTime @default(now())
 
-  userProjects UserProjects[]
+  userProjects    UserProjects[]
+  eligibilityTest EntranceTest?
   @@index([email])
 }
 
@@ -30,18 +32,27 @@ model Projects {
 
   learningPhases      LearningPhase[]
   userProjects        UserProjects[]
-  preferenceQuestions PreferenceQuestions[]
 }
 
-model PreferenceQuestions {
-  id                String     @default(uuid()) @unique
-  question          String
-  options           String[]
-  descriptiveAnswer String?
-  solution          String
-  project_id        String
+model EntranceTest {
+  id         String                   @default(uuid()) @unique
+  user_email String                   @unique
+  score      Int                      @default(0)
+  createdAt  DateTime                 @default(now())
 
-  projects          Projects   @relation(fields: [project_id], references: [id])
+  user       User                 @relation(fields: [user_email], references: [email])
+  questions  EntranceQuestion[]
+}
+
+model EntranceQuestion {
+  id              String          @default(uuid()) @unique
+  test_id         String
+  question        String
+  options         String[]
+  correct_option  Int
+  explanation     String
+
+  test            EntranceTest @relation(fields: [test_id], references: [id])
 }
 
 model UserProjects {

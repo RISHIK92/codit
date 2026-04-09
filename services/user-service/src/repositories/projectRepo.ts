@@ -29,13 +29,25 @@ export const getAllProjects = async (email: string) => {
   });
 };
 
+const SKILL_LEVEL_ORDER: Record<string, number> = {
+  beginner: 0,
+  intermediate: 1,
+  advanced: 2,
+};
+
 export const getAllCatalogueProjects = async () => {
-  return await prisma.projects.findMany({
+  const projects = await prisma.projects.findMany({
     include: {
       _count: { select: { learningPhases: true } },
     },
     orderBy: { createdAt: "asc" },
   });
+
+  return projects.sort(
+    (a, b) =>
+      (SKILL_LEVEL_ORDER[a.skill_level] ?? 99) -
+      (SKILL_LEVEL_ORDER[b.skill_level] ?? 99),
+  );
 };
 
 export const getCatalogueProjectById = async (projectId: string) => {

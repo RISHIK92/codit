@@ -5,6 +5,36 @@ import {
   Question_Type,
 } from "@prisma/client";
 
+// Helper: create an EligibilityTest with 5 questions for a project
+async function seedEligibilityTest(
+  prisma: PrismaClient,
+  projectId: string,
+  title: string,
+  questions: {
+    question: string;
+    options: [string, string, string, string];
+    correct_option: number;
+    explanation: string;
+  }[],
+) {
+  const test = await prisma.eligibilityTest.create({
+    data: {
+      project_id: projectId,
+      title,
+    },
+  });
+  await prisma.eligibilityQuestion.createMany({
+    data: questions.map((q) => ({
+      test_id: test.id,
+      question: q.question,
+      options: q.options,
+      correct_option: q.correct_option,
+      explanation: q.explanation,
+    })),
+  });
+  return test;
+}
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -163,34 +193,59 @@ async function main() {
     ],
   });
 
-  // Preference questions
-  await prisma.preferenceQuestions.createMany({
-    data: [
+  // Eligibility Test
+  await seedEligibilityTest(
+    prisma,
+    portfolio.id,
+    "Personal Portfolio Website – Eligibility Check",
+    [
       {
-        project_id: portfolio.id,
-        question: "What is the primary purpose of your portfolio?",
-        options: [
-          "Job search",
-          "Freelancing",
-          "Personal showcase",
-          "University assignment",
-        ],
-        solution: "This shapes the tone and content of each section.",
+        question:
+          "Which HTML element semantically represents the main navigation of a page?",
+        options: ["<section>", "<nav>", "<aside>", "<header>"],
+        correct_option: 1,
+        explanation:
+          "<nav> is the semantic element for groups of navigation links.",
       },
       {
-        project_id: portfolio.id,
-        question: "Which colour scheme do you prefer?",
+        question:
+          "Which CSS property is used to make a flex container wrap its items onto multiple lines?",
         options: [
-          "Minimal light",
-          "Dark / neon",
-          "Earthy tones",
-          "Vibrant / colourful",
+          "flex-direction: wrap",
+          "flex-wrap: wrap",
+          "align-items: wrap",
+          "flex-flow: nowrap",
         ],
-        solution:
-          "Your chosen palette will be applied via CSS custom properties.",
+        correct_option: 1,
+        explanation:
+          "flex-wrap: wrap allows flex items to overflow onto the next line.",
+      },
+      {
+        question:
+          "What does document.querySelector('#toggle') return if no element with id 'toggle' exists?",
+        options: ["undefined", "null", "0", "false"],
+        correct_option: 1,
+        explanation:
+          "querySelector returns null when no matching element is found.",
+      },
+      {
+        question:
+          "Which CSS unit is relative to the font-size of the root element?",
+        options: ["em", "px", "rem", "vh"],
+        correct_option: 2,
+        explanation:
+          "rem (root em) is relative to the <html> element's font-size.",
+      },
+      {
+        question: "What attribute should images always have for accessibility?",
+        options: ["title", "src", "alt", "id"],
+        correct_option: 2,
+        explanation:
+          "The alt attribute provides alternative text for screen readers and when the image fails to load.",
       },
     ],
-  });
+  );
+  console.log(`✅ Created eligibility test for: ${portfolio.name}`);
 
   // ─── BEGINNER PROJECT 2: To-Do List App ─────────────────────────────────────
   const todo = await prisma.projects.create({
@@ -325,21 +380,59 @@ async function main() {
     ],
   });
 
-  await prisma.preferenceQuestions.createMany({
-    data: [
+  await seedEligibilityTest(
+    prisma,
+    todo.id,
+    "To-Do List App – Eligibility Check",
+    [
       {
-        project_id: todo.id,
-        question: "Should tasks support categories / labels?",
+        question:
+          "What hook do you use to add local state to a React functional component?",
+        options: ["useEffect", "useContext", "useState", "useRef"],
+        correct_option: 2,
+        explanation:
+          "useState returns a state value and a setter function for local component state.",
+      },
+      {
+        question:
+          "What is the correct TypeScript type for a function that returns nothing?",
+        options: ["null", "undefined", "void", "never"],
+        correct_option: 2,
+        explanation:
+          "void is used as the return type of functions that do not explicitly return a value.",
+      },
+      {
+        question:
+          "Which hook is used to run a side-effect after every render in React?",
+        options: ["useState", "useMemo", "useCallback", "useEffect"],
+        correct_option: 3,
+        explanation:
+          "useEffect runs after the render phase; passing an empty array makes it run only on mount.",
+      },
+      {
+        question:
+          "In JSX, what prop must be unique among siblings when rendering a list?",
+        options: ["id", "name", "key", "index"],
+        correct_option: 2,
+        explanation:
+          "The key prop helps React identify which items changed, were added, or removed.",
+      },
+      {
+        question:
+          "What does the spread operator (...) do when used with an array in JavaScript?",
         options: [
-          "Yes – colour-coded labels",
-          "Yes – plain text categories",
-          "No – keep it simple",
+          "Creates a reference to the array",
+          "Copies array elements into a new context",
+          "Reverses the array",
+          "Flattens nested arrays",
         ],
-        solution:
-          "Labels require an extra field in the Task type and a filter dimension.",
+        correct_option: 1,
+        explanation:
+          "The spread operator shallow-copies array elements, enabling immutable state patterns.",
       },
     ],
-  });
+  );
+  console.log(`✅ Created eligibility test for: ${todo.name}`);
 
   // ─── INTERMEDIATE PROJECT 1: REST API with Auth ──────────────────────────────
   const restApi = await prisma.projects.create({
@@ -505,21 +598,66 @@ async function main() {
     ],
   });
 
-  await prisma.preferenceQuestions.createMany({
-    data: [
+  await seedEligibilityTest(
+    prisma,
+    restApi.id,
+    "REST API with JWT Authentication – Eligibility Check",
+    [
       {
-        project_id: restApi.id,
-        question: "Which token storage strategy do you prefer?",
+        question: "What does REST stand for?",
         options: [
-          "HTTP-only cookie (more secure)",
-          "localStorage (easier to implement)",
-          "In-memory only",
+          "Remote Execution State Transfer",
+          "Representational State Transfer",
+          "Resource Endpoint Service Transfer",
+          "Reactive Server Technology",
         ],
-        solution:
-          "HTTP-only cookies prevent XSS-based token theft; in-memory prevents CSRF but is lost on refresh.",
+        correct_option: 1,
+        explanation:
+          "REST (Representational State Transfer) is an architectural style for distributed hypermedia systems.",
+      },
+      {
+        question:
+          "Which HTTP status code indicates a resource was successfully created?",
+        options: ["200 OK", "204 No Content", "201 Created", "202 Accepted"],
+        correct_option: 2,
+        explanation:
+          "201 Created is the standard response for a successful POST that creates a new resource.",
+      },
+      {
+        question: "In JWT, what are the three dot-separated parts called?",
+        options: [
+          "Header, Payload, Signature",
+          "Key, Value, Hash",
+          "Algorithm, Claims, Secret",
+          "ID, Data, Token",
+        ],
+        correct_option: 0,
+        explanation:
+          "A JWT is composed of a Base64-encoded Header, Payload (claims), and Signature.",
+      },
+      {
+        question: "What is the primary purpose of a database migration?",
+        options: [
+          "To move data between servers",
+          "To version-control schema changes",
+          "To back up the database",
+          "To seed test data",
+        ],
+        correct_option: 1,
+        explanation:
+          "Migrations track incremental schema changes, letting teams evolve the database safely over time.",
+      },
+      {
+        question:
+          "Which Express function registers a middleware that runs for every incoming request?",
+        options: ["app.get()", "app.route()", "app.use()", "app.all()"],
+        correct_option: 2,
+        explanation:
+          "app.use() mounts a middleware function at a path; without a path it applies to all requests.",
       },
     ],
-  });
+  );
+  console.log(`✅ Created eligibility test for: ${restApi.name}`);
 
   // ─── INTERMEDIATE PROJECT 2: Real-Time Chat App ──────────────────────────────
   const chat = await prisma.projects.create({
@@ -676,17 +814,74 @@ async function main() {
     ],
   });
 
-  await prisma.preferenceQuestions.createMany({
-    data: [
+  await seedEligibilityTest(
+    prisma,
+    chat.id,
+    "Real-Time Chat Application – Eligibility Check",
+    [
       {
-        project_id: chat.id,
-        question: "How many messages of history should be shown on join?",
-        options: ["20", "50", "100", "All (unlimited)"],
-        solution:
-          "More history = larger Redis payload; 50 is a good default for most apps.",
+        question:
+          "What protocol does Socket.IO use by default for real-time communication?",
+        options: [
+          "HTTP long polling only",
+          "WebSocket (with HTTP polling fallback)",
+          "TCP raw sockets",
+          "Server-Sent Events",
+        ],
+        correct_option: 1,
+        explanation:
+          "Socket.IO first upgrades to WebSocket; it falls back to HTTP long polling when WebSocket is unavailable.",
+      },
+      {
+        question:
+          "What is the difference between socket.emit() and io.to(room).emit()?",
+        options: [
+          "No difference",
+          "socket.emit() sends to all; io.to(room).emit() sends to sender only",
+          "socket.emit() sends to the connected client; io.to(room).emit() sends to all in a room",
+          "io.to(room).emit() is deprecated",
+        ],
+        correct_option: 2,
+        explanation:
+          "socket.emit targets the individual socket; io.to(room) broadcasts to every socket in the named room.",
+      },
+      {
+        question:
+          "Which Redis data structure is best suited for storing a sorted list of chat messages by timestamp?",
+        options: ["Hash", "List", "Sorted Set", "Set"],
+        correct_option: 2,
+        explanation:
+          "Sorted Sets (ZADD/ZRANGE) store members with a numeric score, making timestamp-based ordering trivial.",
+      },
+      {
+        question:
+          "What does 'volatile' mean in Socket.IO when emitting an event?",
+        options: [
+          "The event is encrypted",
+          "The event is dropped if the client is not connected",
+          "The event triggers an acknowledgement",
+          "The event is broadcast to all namespaces",
+        ],
+        correct_option: 1,
+        explanation:
+          "Volatile emits are fire-and-forget; useful for typing indicators where dropped events are acceptable.",
+      },
+      {
+        question:
+          "In a Next.js app, which file would you customise to attach a Socket.IO server?",
+        options: [
+          "next.config.ts",
+          "middleware.ts",
+          "A custom server.js/ts entry point",
+          "app/layout.tsx",
+        ],
+        correct_option: 2,
+        explanation:
+          "Socket.IO requires direct access to the HTTP server, which is only possible through a custom Node.js server entry point.",
       },
     ],
-  });
+  );
+  console.log(`✅ Created eligibility test for: ${chat.name}`);
 
   // ─── ADVANCED PROJECT 1: Distributed Task Queue ──────────────────────────────
   const taskQueue = await prisma.projects.create({
@@ -863,29 +1058,65 @@ async function main() {
     ],
   });
 
-  await prisma.preferenceQuestions.createMany({
-    data: [
+  await seedEligibilityTest(
+    prisma,
+    taskQueue.id,
+    "Distributed Task Queue System – Eligibility Check",
+    [
       {
-        project_id: taskQueue.id,
-        question: "What maximum job retry count should the system enforce?",
-        options: ["3", "5", "10", "Unlimited (dead-letter queue only)"],
-        solution:
-          "A dead-letter queue captures persistently failing jobs for manual inspection.",
+        question: "Which Go keyword is used to start a new goroutine?",
+        options: ["async", "go", "thread", "spawn"],
+        correct_option: 1,
+        explanation:
+          "The go keyword starts a goroutine — a lightweight concurrently-executed function.",
       },
       {
-        project_id: taskQueue.id,
-        question: "Which observability backend do you want to integrate?",
+        question: "What does the XACK command do in Redis Streams?",
         options: [
-          "Prometheus + Grafana",
-          "Datadog",
-          "Honeycomb",
-          "No observability needed",
+          "Adds a new message to the stream",
+          "Deletes all pending messages",
+          "Acknowledges a message, removing it from the Pending Entries List",
+          "Lists all consumer groups",
         ],
-        solution:
-          "Prometheus + Grafana is fully open-source and pairs well with Docker Compose.",
+        correct_option: 2,
+        explanation:
+          "Without XACK the message stays in the PEL and will be redelivered after the visibility timeout.",
+      },
+      {
+        question: "How do you safely pass data between goroutines in Go?",
+        options: [
+          "Use a global variable with a mutex",
+          "Use channels",
+          "Use shared memory without synchronisation",
+          "Use HTTP requests",
+        ],
+        correct_option: 1,
+        explanation:
+          "Channels are Go's primary mechanism for safe communication between goroutines.",
+      },
+      {
+        question:
+          "In Protocol Buffers, which file extension is used for schema definitions?",
+        options: [".json", ".yaml", ".proto", ".pb"],
+        correct_option: 2,
+        explanation:
+          ".proto files define message types and service RPCs; they are compiled to language-specific code.",
+      },
+      {
+        question: "What is the purpose of context.WithCancel() in Go?",
+        options: [
+          "Creates a new goroutine",
+          "Returns a context and a function to cancel it, propagating cancellation to child contexts",
+          "Sets a deadline on a network call",
+          "Recovers from a panic",
+        ],
+        correct_option: 1,
+        explanation:
+          "context.WithCancel lets you cancel long-running operations and their children by calling the returned cancel function.",
       },
     ],
-  });
+  );
+  console.log(`✅ Created eligibility test for: ${taskQueue.name}`);
 
   // ─── ADVANCED PROJECT 2: ML-Powered Code Review Bot ─────────────────────────
   const codeBot = await prisma.projects.create({
@@ -1067,34 +1298,77 @@ async function main() {
     ],
   });
 
-  await prisma.preferenceQuestions.createMany({
-    data: [
+  await seedEligibilityTest(
+    prisma,
+    codeBot.id,
+    "ML-Powered Code Review Bot – Eligibility Check",
+    [
       {
-        project_id: codeBot.id,
-        question: "Which LLM provider should the bot use?",
+        question:
+          "What does HMAC stand for in the context of webhook signature verification?",
         options: [
-          "OpenAI GPT-4o",
-          "Anthropic Claude 3.5",
-          "Local Ollama model",
-          "Groq (fast inference)",
+          "Hash-based Message Authentication Code",
+          "HTTP Method Access Control",
+          "Hosted Microservice API Check",
+          "Header Meta-Authentication Credential",
         ],
-        solution:
-          "The chain is provider-agnostic via LangChain's chat model abstraction; swap the model class to change providers.",
+        correct_option: 0,
+        explanation:
+          "HMAC uses a shared secret key combined with a hash function to verify message integrity and authenticity.",
       },
       {
-        project_id: codeBot.id,
-        question: "What review focus areas matter most to your team?",
+        question:
+          "In the unified diff format, what does a line starting with '+' mean?",
         options: [
-          "Security vulnerabilities",
-          "Performance issues",
-          "Code style & readability",
-          "All of the above",
+          "A line that was deleted",
+          "A context line (unchanged)",
+          "A line that was added",
+          "A file header",
         ],
-        solution:
-          "The system prompt will be tailored to emphasise the selected focus areas.",
+        correct_option: 2,
+        explanation:
+          "Lines prefixed with '+' were added in the change; '-' lines were removed; unchanged lines have no prefix.",
+      },
+      {
+        question: "What is the LangChain pipe operator (|) used for?",
+        options: [
+          "Parallel execution of chains",
+          "Composing runnables left-to-right, passing each output as the next input",
+          "Merging two prompt templates",
+          "Logging intermediate outputs",
+        ],
+        correct_option: 1,
+        explanation:
+          "The | operator is LCEL syntax for chaining runnables sequentially.",
+      },
+      {
+        question: "What is pgvector used for in a RAG pipeline?",
+        options: [
+          "Storing relational tables",
+          "Caching HTTP responses",
+          "Storing and querying high-dimensional vector embeddings",
+          "Running Python functions inside PostgreSQL",
+        ],
+        correct_option: 2,
+        explanation:
+          "pgvector extends PostgreSQL with a vector data type and ANN index operators for similarity search.",
+      },
+      {
+        question:
+          "Why should webhook signature verification use a constant-time comparison function?",
+        options: [
+          "To improve performance",
+          "To prevent timing attacks that could reveal the secret",
+          "To support multiple hashing algorithms simultaneously",
+          "To allow async verification",
+        ],
+        correct_option: 1,
+        explanation:
+          "Standard string comparison short-circuits on the first mismatch; constant-time comparison always takes the same duration, preventing timing-based secret leakage.",
       },
     ],
-  });
+  );
+  console.log(`✅ Created eligibility test for: ${codeBot.name}`);
 
   console.log("\n✨ Seeding complete!");
   console.log("   Projects seeded:");
