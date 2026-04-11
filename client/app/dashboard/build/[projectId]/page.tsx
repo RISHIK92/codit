@@ -582,10 +582,6 @@ function TreeNode({
   );
 }
 
-// ─── XTerm Terminal Panel ─────────────────────────────────────────────────────
-
-// ─── WebContainer helpers ─────────────────────────────────────────────────────
-
 /** Convert our flat FileNode tree into the FileSystemTree shape WebContainer expects */
 function buildWcFileTree(
   nodes: FileNode[],
@@ -653,7 +649,7 @@ function XTermPanel({
         },
         fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
         fontSize: 12,
-        lineHeight: 1.5,
+        lineHeight: 1.4,
         cursorBlink: true,
         cursorStyle: "bar",
         allowTransparency: true,
@@ -722,9 +718,25 @@ async function spawnShell(
   const { cols, rows } = term;
   const shell = await wc.spawn("jsh", { terminal: { cols, rows } });
 
-  // WC → terminal
+  let pendingNewline = false;
+
   shell.output.pipeTo(
-    new WritableStream({ write: (data) => term.write(data) }),
+    new WritableStream({
+      write: (data) => {
+        let out = data;
+        if (pendingNewline && out.match(/^\r?\n\x1b\[[0-9;]*m?~\//)) {
+          out = out.replace(/^\r?\n/, "");
+        }
+
+        out = out.replace(/(\n)\r?\n(\x1b\[[0-9;]*m?~\/)/g, "$1$2");
+
+        if (out.length > 0) {
+          pendingNewline = out.endsWith("\n");
+        }
+
+        term.write(out);
+      },
+    }),
   );
 
   // terminal → WC
@@ -737,7 +749,6 @@ async function spawnShell(
     shell.resize({ cols, rows });
   });
 }
-
 
 function fmtMinutes(mins: number): string {
   if (!mins) return "";
@@ -842,8 +853,6 @@ function PhaseSelector({
   );
 }
 
-// ─── Left Panel ───────────────────────────────────────────────────────────────
-
 function DescriptionPanel({
   phase,
   projectName,
@@ -923,7 +932,6 @@ function DescriptionPanel({
 
         {activeTab === "concepts" && (
           <div className="space-y-2">
-            {/* concepts not in DTO yet — show placeholder */}
             <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-4">
               Key concepts for this phase
             </p>
