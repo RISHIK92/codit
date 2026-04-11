@@ -45,6 +45,7 @@ export interface Project {
   phaseCount: number;
   goal: string;
   demoUrl: string;
+  deliverables: string[];
 }
 
 export interface LearningPhaseProto {
@@ -300,7 +301,17 @@ export const GetProjectByIdResponse: MessageFns<GetProjectByIdResponse> = {
 };
 
 function createBaseProject(): Project {
-  return { id: "", name: "", techStack: [], skillLevel: "", estimatedMinutes: 0, phaseCount: 0, goal: "", demoUrl: "" };
+  return {
+    id: "",
+    name: "",
+    techStack: [],
+    skillLevel: "",
+    estimatedMinutes: 0,
+    phaseCount: 0,
+    goal: "",
+    demoUrl: "",
+    deliverables: [],
+  };
 }
 
 export const Project: MessageFns<Project> = {
@@ -328,6 +339,9 @@ export const Project: MessageFns<Project> = {
     }
     if (message.demoUrl !== "") {
       writer.uint32(66).string(message.demoUrl);
+    }
+    for (const v of message.deliverables) {
+      writer.uint32(74).string(v!);
     }
     return writer;
   },
@@ -403,6 +417,14 @@ export const Project: MessageFns<Project> = {
           message.demoUrl = reader.string();
           continue;
         }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.deliverables.push(reader.string());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -442,6 +464,9 @@ export const Project: MessageFns<Project> = {
         : isSet(object.demo_url)
         ? globalThis.String(object.demo_url)
         : "",
+      deliverables: globalThis.Array.isArray(object?.deliverables)
+        ? object.deliverables.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -471,6 +496,9 @@ export const Project: MessageFns<Project> = {
     if (message.demoUrl !== "") {
       obj.demoUrl = message.demoUrl;
     }
+    if (message.deliverables?.length) {
+      obj.deliverables = message.deliverables;
+    }
     return obj;
   },
 
@@ -487,6 +515,7 @@ export const Project: MessageFns<Project> = {
     message.phaseCount = object.phaseCount ?? 0;
     message.goal = object.goal ?? "";
     message.demoUrl = object.demoUrl ?? "";
+    message.deliverables = object.deliverables?.map((e) => e) || [];
     return message;
   },
 };

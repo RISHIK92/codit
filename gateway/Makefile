@@ -11,4 +11,6 @@ BUF := ../services/user-service/node_modules/.bin/buf
 generate:
 	@echo "Generating Go protobuf and gRPC from shared proto..."
 	@$(BUF) generate ../shared/proto
-	@echo "Generation complete! Check gateway/pkg/pb for the output."
+	@echo "Generating TypeScript types in user-service..."
+	@cd ../services/user-service && PATH="$$PWD/node_modules/.bin:$$PATH" ./node_modules/.bin/buf generate /Users/rishikchowdarykaruturi/codit/shared/proto
+	@echo "Generation complete! Check gateway/pkg/pb and services/user-service/src/generated for output."

@@ -50,6 +50,8 @@ export interface Project {
   description: string;
   progress: number;
   nextObjective: string;
+  /** Ordered deliverables for the project, e.g. "You'll understand React hooks" */
+  deliverables: string[];
 }
 
 export type PhaseStatus = "completed" | "active" | "locked";
@@ -134,6 +136,7 @@ const INITIAL_PROJECT: Project = {
   description: "Backend Integration",
   progress: 40,
   nextObjective: "Build Invoice API Endpoint",
+  deliverables: [],
 };
 
 const INITIAL_PHASES: Phase[] = [
@@ -210,6 +213,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     description: "",
     progress: 0,
     nextObjective: "",
+    deliverables: [],
   },
   phases: [],
   activities: [],
@@ -269,6 +273,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
                 description: currentPhaseData?.description ?? cat.goal ?? "",
                 progress: pct,
                 nextObjective,
+                deliverables: cat.deliverables ?? [],
               },
             });
           }

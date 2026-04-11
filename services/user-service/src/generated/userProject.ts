@@ -55,15 +55,21 @@ export interface UserProject {
   currentPhase: number;
 }
 
+export interface GetUserProjectsByStatusRequest {
+  email: string;
+  status: string;
+}
+
+export interface GetUserProjectsByStatusResponse {
+  userProjects: UserProject[];
+}
+
 function createBaseCreateUserProjectRequest(): CreateUserProjectRequest {
   return { projectId: "", email: "", status: "", currentPhase: 0 };
 }
 
 export const CreateUserProjectRequest: MessageFns<CreateUserProjectRequest> = {
-  encode(
-    message: CreateUserProjectRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: CreateUserProjectRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.projectId !== "") {
       writer.uint32(10).string(message.projectId);
     }
@@ -79,12 +85,8 @@ export const CreateUserProjectRequest: MessageFns<CreateUserProjectRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): CreateUserProjectRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateUserProjectRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateUserProjectRequest();
     while (reader.pos < end) {
@@ -136,15 +138,15 @@ export const CreateUserProjectRequest: MessageFns<CreateUserProjectRequest> = {
       projectId: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
-          ? globalThis.String(object.project_id)
-          : "",
+        ? globalThis.String(object.project_id)
+        : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       status: isSet(object.status) ? globalThis.String(object.status) : "",
       currentPhase: isSet(object.currentPhase)
         ? globalThis.Number(object.currentPhase)
         : isSet(object.current_phase)
-          ? globalThis.Number(object.current_phase)
-          : 0,
+        ? globalThis.Number(object.current_phase)
+        : 0,
     };
   },
 
@@ -165,14 +167,10 @@ export const CreateUserProjectRequest: MessageFns<CreateUserProjectRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateUserProjectRequest>, I>>(
-    base?: I,
-  ): CreateUserProjectRequest {
+  create<I extends Exact<DeepPartial<CreateUserProjectRequest>, I>>(base?: I): CreateUserProjectRequest {
     return CreateUserProjectRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateUserProjectRequest>, I>>(
-    object: I,
-  ): CreateUserProjectRequest {
+  fromPartial<I extends Exact<DeepPartial<CreateUserProjectRequest>, I>>(object: I): CreateUserProjectRequest {
     const message = createBaseCreateUserProjectRequest();
     message.projectId = object.projectId ?? "";
     message.email = object.email ?? "";
@@ -186,396 +184,318 @@ function createBaseCreateUserProjectResponse(): CreateUserProjectResponse {
   return { success: false };
 }
 
-export const CreateUserProjectResponse: MessageFns<CreateUserProjectResponse> =
-  {
-    encode(
-      message: CreateUserProjectResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      if (message.success !== false) {
-        writer.uint32(8).bool(message.success);
-      }
-      return writer;
-    },
+export const CreateUserProjectResponse: MessageFns<CreateUserProjectResponse> = {
+  encode(message: CreateUserProjectResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): CreateUserProjectResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateUserProjectResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 8) {
-              break;
-            }
-
-            message.success = reader.bool();
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateUserProjectResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateUserProjectResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
           }
+
+          message.success = reader.bool();
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): CreateUserProjectResponse {
-      return {
-        success: isSet(object.success)
-          ? globalThis.Boolean(object.success)
-          : false,
-      };
-    },
-
-    toJSON(message: CreateUserProjectResponse): unknown {
-      const obj: any = {};
-      if (message.success !== false) {
-        obj.success = message.success;
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<CreateUserProjectResponse>, I>>(
-      base?: I,
-    ): CreateUserProjectResponse {
-      return CreateUserProjectResponse.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<I extends Exact<DeepPartial<CreateUserProjectResponse>, I>>(
-      object: I,
-    ): CreateUserProjectResponse {
-      const message = createBaseCreateUserProjectResponse();
-      message.success = object.success ?? false;
-      return message;
-    },
-  };
+  fromJSON(object: any): CreateUserProjectResponse {
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+  },
+
+  toJSON(message: CreateUserProjectResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateUserProjectResponse>, I>>(base?: I): CreateUserProjectResponse {
+    return CreateUserProjectResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateUserProjectResponse>, I>>(object: I): CreateUserProjectResponse {
+    const message = createBaseCreateUserProjectResponse();
+    message.success = object.success ?? false;
+    return message;
+  },
+};
 
 function createBaseGetUserProjectByIdRequest(): GetUserProjectByIdRequest {
   return { projectId: "" };
 }
 
-export const GetUserProjectByIdRequest: MessageFns<GetUserProjectByIdRequest> =
-  {
-    encode(
-      message: GetUserProjectByIdRequest,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      if (message.projectId !== "") {
-        writer.uint32(10).string(message.projectId);
-      }
-      return writer;
-    },
+export const GetUserProjectByIdRequest: MessageFns<GetUserProjectByIdRequest> = {
+  encode(message: GetUserProjectByIdRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.projectId !== "") {
+      writer.uint32(10).string(message.projectId);
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetUserProjectByIdRequest {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetUserProjectByIdRequest();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.projectId = reader.string();
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUserProjectByIdRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetUserProjectByIdRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
+
+          message.projectId = reader.string();
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): GetUserProjectByIdRequest {
-      return {
-        projectId: isSet(object.projectId)
-          ? globalThis.String(object.projectId)
-          : isSet(object.project_id)
-            ? globalThis.String(object.project_id)
-            : "",
-      };
-    },
-
-    toJSON(message: GetUserProjectByIdRequest): unknown {
-      const obj: any = {};
-      if (message.projectId !== "") {
-        obj.projectId = message.projectId;
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<GetUserProjectByIdRequest>, I>>(
-      base?: I,
-    ): GetUserProjectByIdRequest {
-      return GetUserProjectByIdRequest.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<I extends Exact<DeepPartial<GetUserProjectByIdRequest>, I>>(
-      object: I,
-    ): GetUserProjectByIdRequest {
-      const message = createBaseGetUserProjectByIdRequest();
-      message.projectId = object.projectId ?? "";
-      return message;
-    },
-  };
+  fromJSON(object: any): GetUserProjectByIdRequest {
+    return {
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+    };
+  },
+
+  toJSON(message: GetUserProjectByIdRequest): unknown {
+    const obj: any = {};
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUserProjectByIdRequest>, I>>(base?: I): GetUserProjectByIdRequest {
+    return GetUserProjectByIdRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUserProjectByIdRequest>, I>>(object: I): GetUserProjectByIdRequest {
+    const message = createBaseGetUserProjectByIdRequest();
+    message.projectId = object.projectId ?? "";
+    return message;
+  },
+};
 
 function createBaseGetUserProjectByIdResponse(): GetUserProjectByIdResponse {
   return { userProject: undefined };
 }
 
-export const GetUserProjectByIdResponse: MessageFns<GetUserProjectByIdResponse> =
-  {
-    encode(
-      message: GetUserProjectByIdResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      if (message.userProject !== undefined) {
-        UserProject.encode(
-          message.userProject,
-          writer.uint32(10).fork(),
-        ).join();
-      }
-      return writer;
-    },
+export const GetUserProjectByIdResponse: MessageFns<GetUserProjectByIdResponse> = {
+  encode(message: GetUserProjectByIdResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userProject !== undefined) {
+      UserProject.encode(message.userProject, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetUserProjectByIdResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetUserProjectByIdResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.userProject = UserProject.decode(reader, reader.uint32());
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUserProjectByIdResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetUserProjectByIdResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
+
+          message.userProject = UserProject.decode(reader, reader.uint32());
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): GetUserProjectByIdResponse {
-      return {
-        userProject: isSet(object.userProject)
-          ? UserProject.fromJSON(object.userProject)
-          : isSet(object.user_project)
-            ? UserProject.fromJSON(object.user_project)
-            : undefined,
-      };
-    },
-
-    toJSON(message: GetUserProjectByIdResponse): unknown {
-      const obj: any = {};
-      if (message.userProject !== undefined) {
-        obj.userProject = UserProject.toJSON(message.userProject);
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<GetUserProjectByIdResponse>, I>>(
-      base?: I,
-    ): GetUserProjectByIdResponse {
-      return GetUserProjectByIdResponse.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<I extends Exact<DeepPartial<GetUserProjectByIdResponse>, I>>(
-      object: I,
-    ): GetUserProjectByIdResponse {
-      const message = createBaseGetUserProjectByIdResponse();
-      message.userProject =
-        object.userProject !== undefined && object.userProject !== null
-          ? UserProject.fromPartial(object.userProject)
-          : undefined;
-      return message;
-    },
-  };
+  fromJSON(object: any): GetUserProjectByIdResponse {
+    return {
+      userProject: isSet(object.userProject)
+        ? UserProject.fromJSON(object.userProject)
+        : isSet(object.user_project)
+        ? UserProject.fromJSON(object.user_project)
+        : undefined,
+    };
+  },
+
+  toJSON(message: GetUserProjectByIdResponse): unknown {
+    const obj: any = {};
+    if (message.userProject !== undefined) {
+      obj.userProject = UserProject.toJSON(message.userProject);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUserProjectByIdResponse>, I>>(base?: I): GetUserProjectByIdResponse {
+    return GetUserProjectByIdResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUserProjectByIdResponse>, I>>(object: I): GetUserProjectByIdResponse {
+    const message = createBaseGetUserProjectByIdResponse();
+    message.userProject = (object.userProject !== undefined && object.userProject !== null)
+      ? UserProject.fromPartial(object.userProject)
+      : undefined;
+    return message;
+  },
+};
 
 function createBaseGetAllUserProjectsRequest(): GetAllUserProjectsRequest {
   return { email: "" };
 }
 
-export const GetAllUserProjectsRequest: MessageFns<GetAllUserProjectsRequest> =
-  {
-    encode(
-      message: GetAllUserProjectsRequest,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      if (message.email !== "") {
-        writer.uint32(10).string(message.email);
-      }
-      return writer;
-    },
+export const GetAllUserProjectsRequest: MessageFns<GetAllUserProjectsRequest> = {
+  encode(message: GetAllUserProjectsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetAllUserProjectsRequest {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetAllUserProjectsRequest();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.email = reader.string();
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAllUserProjectsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetAllUserProjectsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
+
+          message.email = reader.string();
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): GetAllUserProjectsRequest {
-      return {
-        email: isSet(object.email) ? globalThis.String(object.email) : "",
-      };
-    },
-
-    toJSON(message: GetAllUserProjectsRequest): unknown {
-      const obj: any = {};
-      if (message.email !== "") {
-        obj.email = message.email;
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<GetAllUserProjectsRequest>, I>>(
-      base?: I,
-    ): GetAllUserProjectsRequest {
-      return GetAllUserProjectsRequest.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<I extends Exact<DeepPartial<GetAllUserProjectsRequest>, I>>(
-      object: I,
-    ): GetAllUserProjectsRequest {
-      const message = createBaseGetAllUserProjectsRequest();
-      message.email = object.email ?? "";
-      return message;
-    },
-  };
+  fromJSON(object: any): GetAllUserProjectsRequest {
+    return { email: isSet(object.email) ? globalThis.String(object.email) : "" };
+  },
+
+  toJSON(message: GetAllUserProjectsRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetAllUserProjectsRequest>, I>>(base?: I): GetAllUserProjectsRequest {
+    return GetAllUserProjectsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetAllUserProjectsRequest>, I>>(object: I): GetAllUserProjectsRequest {
+    const message = createBaseGetAllUserProjectsRequest();
+    message.email = object.email ?? "";
+    return message;
+  },
+};
 
 function createBaseGetAllUserProjectsResponse(): GetAllUserProjectsResponse {
   return { userProjects: [] };
 }
 
-export const GetAllUserProjectsResponse: MessageFns<GetAllUserProjectsResponse> =
-  {
-    encode(
-      message: GetAllUserProjectsResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      for (const v of message.userProjects) {
-        UserProject.encode(v!, writer.uint32(10).fork()).join();
-      }
-      return writer;
-    },
+export const GetAllUserProjectsResponse: MessageFns<GetAllUserProjectsResponse> = {
+  encode(message: GetAllUserProjectsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.userProjects) {
+      UserProject.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetAllUserProjectsResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetAllUserProjectsResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.userProjects.push(
-              UserProject.decode(reader, reader.uint32()),
-            );
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAllUserProjectsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetAllUserProjectsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
+
+          message.userProjects.push(UserProject.decode(reader, reader.uint32()));
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): GetAllUserProjectsResponse {
-      return {
-        userProjects: globalThis.Array.isArray(object?.userProjects)
-          ? object.userProjects.map((e: any) => UserProject.fromJSON(e))
-          : globalThis.Array.isArray(object?.user_projects)
-            ? object.user_projects.map((e: any) => UserProject.fromJSON(e))
-            : [],
-      };
-    },
-
-    toJSON(message: GetAllUserProjectsResponse): unknown {
-      const obj: any = {};
-      if (message.userProjects?.length) {
-        obj.userProjects = message.userProjects.map((e) =>
-          UserProject.toJSON(e),
-        );
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<GetAllUserProjectsResponse>, I>>(
-      base?: I,
-    ): GetAllUserProjectsResponse {
-      return GetAllUserProjectsResponse.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<I extends Exact<DeepPartial<GetAllUserProjectsResponse>, I>>(
-      object: I,
-    ): GetAllUserProjectsResponse {
-      const message = createBaseGetAllUserProjectsResponse();
-      message.userProjects =
-        object.userProjects?.map((e) => UserProject.fromPartial(e)) || [];
-      return message;
-    },
-  };
+  fromJSON(object: any): GetAllUserProjectsResponse {
+    return {
+      userProjects: globalThis.Array.isArray(object?.userProjects)
+        ? object.userProjects.map((e: any) => UserProject.fromJSON(e))
+        : globalThis.Array.isArray(object?.user_projects)
+        ? object.user_projects.map((e: any) => UserProject.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GetAllUserProjectsResponse): unknown {
+    const obj: any = {};
+    if (message.userProjects?.length) {
+      obj.userProjects = message.userProjects.map((e) => UserProject.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetAllUserProjectsResponse>, I>>(base?: I): GetAllUserProjectsResponse {
+    return GetAllUserProjectsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetAllUserProjectsResponse>, I>>(object: I): GetAllUserProjectsResponse {
+    const message = createBaseGetAllUserProjectsResponse();
+    message.userProjects = object.userProjects?.map((e) => UserProject.fromPartial(e)) || [];
+    return message;
+  },
+};
 
 function createBaseUserProject(): UserProject {
   return { projectId: "", email: "", status: "", currentPhase: 0 };
 }
 
 export const UserProject: MessageFns<UserProject> = {
-  encode(
-    message: UserProject,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: UserProject, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.projectId !== "") {
       writer.uint32(10).string(message.projectId);
     }
@@ -592,8 +512,7 @@ export const UserProject: MessageFns<UserProject> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): UserProject {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseUserProject();
     while (reader.pos < end) {
@@ -645,15 +564,15 @@ export const UserProject: MessageFns<UserProject> = {
       projectId: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
-          ? globalThis.String(object.project_id)
-          : "",
+        ? globalThis.String(object.project_id)
+        : "",
       email: isSet(object.email) ? globalThis.String(object.email) : "",
       status: isSet(object.status) ? globalThis.String(object.status) : "",
       currentPhase: isSet(object.currentPhase)
         ? globalThis.Number(object.currentPhase)
         : isSet(object.current_phase)
-          ? globalThis.Number(object.current_phase)
-          : 0,
+        ? globalThis.Number(object.current_phase)
+        : 0,
     };
   },
 
@@ -677,9 +596,7 @@ export const UserProject: MessageFns<UserProject> = {
   create<I extends Exact<DeepPartial<UserProject>, I>>(base?: I): UserProject {
     return UserProject.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UserProject>, I>>(
-    object: I,
-  ): UserProject {
+  fromPartial<I extends Exact<DeepPartial<UserProject>, I>>(object: I): UserProject {
     const message = createBaseUserProject();
     message.projectId = object.projectId ?? "";
     message.email = object.email ?? "";
@@ -689,168 +606,149 @@ export const UserProject: MessageFns<UserProject> = {
   },
 };
 
-// ─── GetUserProjectsByStatus ─────────────────────────────────────────────────
-
-export interface GetUserProjectsByStatusRequest {
-  email: string;
-  status: string;
-}
-
-export interface GetUserProjectsByStatusResponse {
-  userProjects: UserProject[];
-}
-
 function createBaseGetUserProjectsByStatusRequest(): GetUserProjectsByStatusRequest {
   return { email: "", status: "" };
 }
 
-export const GetUserProjectsByStatusRequest: MessageFns<GetUserProjectsByStatusRequest> =
-  {
-    encode(
-      message: GetUserProjectsByStatusRequest,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      if (message.email !== "") {
-        writer.uint32(10).string(message.email);
-      }
-      if (message.status !== "") {
-        writer.uint32(18).string(message.status);
-      }
-      return writer;
-    },
+export const GetUserProjectsByStatusRequest: MessageFns<GetUserProjectsByStatusRequest> = {
+  encode(message: GetUserProjectsByStatusRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    if (message.status !== "") {
+      writer.uint32(18).string(message.status);
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetUserProjectsByStatusRequest {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetUserProjectsByStatusRequest();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) break;
-            message.email = reader.string();
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUserProjectsByStatusRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetUserProjectsByStatusRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
-          case 2: {
-            if (tag !== 18) break;
-            message.status = reader.string();
-            continue;
-          }
+
+          message.email = reader.string();
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) break;
-        reader.skip(tag & 7);
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.status = reader.string();
+          continue;
+        }
       }
-      return message;
-    },
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    fromJSON(object: any): GetUserProjectsByStatusRequest {
-      return {
-        email: isSet(object.email) ? globalThis.String(object.email) : "",
-        status: isSet(object.status) ? globalThis.String(object.status) : "",
-      };
-    },
+  fromJSON(object: any): GetUserProjectsByStatusRequest {
+    return {
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      status: isSet(object.status) ? globalThis.String(object.status) : "",
+    };
+  },
 
-    toJSON(message: GetUserProjectsByStatusRequest): unknown {
-      const obj: any = {};
-      if (message.email !== "") obj.email = message.email;
-      if (message.status !== "") obj.status = message.status;
-      return obj;
-    },
+  toJSON(message: GetUserProjectsByStatusRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.status !== "") {
+      obj.status = message.status;
+    }
+    return obj;
+  },
 
-    create<I extends Exact<DeepPartial<GetUserProjectsByStatusRequest>, I>>(
-      base?: I,
-    ): GetUserProjectsByStatusRequest {
-      return GetUserProjectsByStatusRequest.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<
-      I extends Exact<DeepPartial<GetUserProjectsByStatusRequest>, I>,
-    >(object: I): GetUserProjectsByStatusRequest {
-      const message = createBaseGetUserProjectsByStatusRequest();
-      message.email = object.email ?? "";
-      message.status = object.status ?? "";
-      return message;
-    },
-  };
+  create<I extends Exact<DeepPartial<GetUserProjectsByStatusRequest>, I>>(base?: I): GetUserProjectsByStatusRequest {
+    return GetUserProjectsByStatusRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUserProjectsByStatusRequest>, I>>(
+    object: I,
+  ): GetUserProjectsByStatusRequest {
+    const message = createBaseGetUserProjectsByStatusRequest();
+    message.email = object.email ?? "";
+    message.status = object.status ?? "";
+    return message;
+  },
+};
 
 function createBaseGetUserProjectsByStatusResponse(): GetUserProjectsByStatusResponse {
   return { userProjects: [] };
 }
 
-export const GetUserProjectsByStatusResponse: MessageFns<GetUserProjectsByStatusResponse> =
-  {
-    encode(
-      message: GetUserProjectsByStatusResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      for (const v of message.userProjects) {
-        UserProject.encode(v, writer.uint32(10).fork()).join();
-      }
-      return writer;
-    },
+export const GetUserProjectsByStatusResponse: MessageFns<GetUserProjectsByStatusResponse> = {
+  encode(message: GetUserProjectsByStatusResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.userProjects) {
+      UserProject.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetUserProjectsByStatusResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetUserProjectsByStatusResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) break;
-            message.userProjects.push(
-              UserProject.decode(reader, reader.uint32()),
-            );
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUserProjectsByStatusResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetUserProjectsByStatusResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
+
+          message.userProjects.push(UserProject.decode(reader, reader.uint32()));
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) break;
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): GetUserProjectsByStatusResponse {
-      return {
-        userProjects: globalThis.Array.isArray(object?.userProjects)
-          ? object.userProjects.map((e: any) => UserProject.fromJSON(e))
-          : globalThis.Array.isArray(object?.user_projects)
-            ? object.user_projects.map((e: any) => UserProject.fromJSON(e))
-            : [],
-      };
-    },
-
-    toJSON(message: GetUserProjectsByStatusResponse): unknown {
-      const obj: any = {};
-      if (message.userProjects?.length) {
-        obj.userProjects = message.userProjects.map((e) =>
-          UserProject.toJSON(e),
-        );
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<GetUserProjectsByStatusResponse>, I>>(
-      base?: I,
-    ): GetUserProjectsByStatusResponse {
-      return GetUserProjectsByStatusResponse.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<
-      I extends Exact<DeepPartial<GetUserProjectsByStatusResponse>, I>,
-    >(object: I): GetUserProjectsByStatusResponse {
-      const message = createBaseGetUserProjectsByStatusResponse();
-      message.userProjects =
-        object.userProjects?.map((e) => UserProject.fromPartial(e)) || [];
-      return message;
-    },
-  };
+  fromJSON(object: any): GetUserProjectsByStatusResponse {
+    return {
+      userProjects: globalThis.Array.isArray(object?.userProjects)
+        ? object.userProjects.map((e: any) => UserProject.fromJSON(e))
+        : globalThis.Array.isArray(object?.user_projects)
+        ? object.user_projects.map((e: any) => UserProject.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GetUserProjectsByStatusResponse): unknown {
+    const obj: any = {};
+    if (message.userProjects?.length) {
+      obj.userProjects = message.userProjects.map((e) => UserProject.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUserProjectsByStatusResponse>, I>>(base?: I): GetUserProjectsByStatusResponse {
+    return GetUserProjectsByStatusResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUserProjectsByStatusResponse>, I>>(
+    object: I,
+  ): GetUserProjectsByStatusResponse {
+    const message = createBaseGetUserProjectsByStatusResponse();
+    message.userProjects = object.userProjects?.map((e) => UserProject.fromPartial(e)) || [];
+    return message;
+  },
+};
 
 export type UserProjectServiceService = typeof UserProjectServiceService;
 export const UserProjectServiceService = {
@@ -860,12 +758,10 @@ export const UserProjectServiceService = {
     responseStream: false as const,
     requestSerialize: (value: CreateUserProjectRequest): Buffer =>
       Buffer.from(CreateUserProjectRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): CreateUserProjectRequest =>
-      CreateUserProjectRequest.decode(value),
+    requestDeserialize: (value: Buffer): CreateUserProjectRequest => CreateUserProjectRequest.decode(value),
     responseSerialize: (value: CreateUserProjectResponse): Buffer =>
       Buffer.from(CreateUserProjectResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): CreateUserProjectResponse =>
-      CreateUserProjectResponse.decode(value),
+    responseDeserialize: (value: Buffer): CreateUserProjectResponse => CreateUserProjectResponse.decode(value),
   },
   getUserProjectById: {
     path: "/userProject.UserProjectService/GetUserProjectById" as const,
@@ -873,12 +769,10 @@ export const UserProjectServiceService = {
     responseStream: false as const,
     requestSerialize: (value: GetUserProjectByIdRequest): Buffer =>
       Buffer.from(GetUserProjectByIdRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetUserProjectByIdRequest =>
-      GetUserProjectByIdRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetUserProjectByIdRequest => GetUserProjectByIdRequest.decode(value),
     responseSerialize: (value: GetUserProjectByIdResponse): Buffer =>
       Buffer.from(GetUserProjectByIdResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetUserProjectByIdResponse =>
-      GetUserProjectByIdResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetUserProjectByIdResponse => GetUserProjectByIdResponse.decode(value),
   },
   getAllUserProjects: {
     path: "/userProject.UserProjectService/GetAllUserProjects" as const,
@@ -886,12 +780,10 @@ export const UserProjectServiceService = {
     responseStream: false as const,
     requestSerialize: (value: GetAllUserProjectsRequest): Buffer =>
       Buffer.from(GetAllUserProjectsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetAllUserProjectsRequest =>
-      GetAllUserProjectsRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetAllUserProjectsRequest => GetAllUserProjectsRequest.decode(value),
     responseSerialize: (value: GetAllUserProjectsResponse): Buffer =>
       Buffer.from(GetAllUserProjectsResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetAllUserProjectsResponse =>
-      GetAllUserProjectsResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetAllUserProjectsResponse => GetAllUserProjectsResponse.decode(value),
   },
   getUserProjectsByStatus: {
     path: "/userProject.UserProjectService/GetUserProjectsByStatus" as const,
@@ -899,8 +791,7 @@ export const UserProjectServiceService = {
     responseStream: false as const,
     requestSerialize: (value: GetUserProjectsByStatusRequest): Buffer =>
       Buffer.from(GetUserProjectsByStatusRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetUserProjectsByStatusRequest =>
-      GetUserProjectsByStatusRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetUserProjectsByStatusRequest => GetUserProjectsByStatusRequest.decode(value),
     responseSerialize: (value: GetUserProjectsByStatusResponse): Buffer =>
       Buffer.from(GetUserProjectsByStatusResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): GetUserProjectsByStatusResponse =>
@@ -909,120 +800,72 @@ export const UserProjectServiceService = {
 } as const;
 
 export interface UserProjectServiceServer extends UntypedServiceImplementation {
-  createProject: handleUnaryCall<
-    CreateUserProjectRequest,
-    CreateUserProjectResponse
-  >;
-  getUserProjectById: handleUnaryCall<
-    GetUserProjectByIdRequest,
-    GetUserProjectByIdResponse
-  >;
-  getAllUserProjects: handleUnaryCall<
-    GetAllUserProjectsRequest,
-    GetAllUserProjectsResponse
-  >;
-  getUserProjectsByStatus: handleUnaryCall<
-    GetUserProjectsByStatusRequest,
-    GetUserProjectsByStatusResponse
-  >;
+  createProject: handleUnaryCall<CreateUserProjectRequest, CreateUserProjectResponse>;
+  getUserProjectById: handleUnaryCall<GetUserProjectByIdRequest, GetUserProjectByIdResponse>;
+  getAllUserProjects: handleUnaryCall<GetAllUserProjectsRequest, GetAllUserProjectsResponse>;
+  getUserProjectsByStatus: handleUnaryCall<GetUserProjectsByStatusRequest, GetUserProjectsByStatusResponse>;
 }
 
 export interface UserProjectServiceClient extends Client {
   createProject(
     request: CreateUserProjectRequest,
-    callback: (
-      error: ServiceError | null,
-      response: CreateUserProjectResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: CreateUserProjectResponse) => void,
   ): ClientUnaryCall;
   createProject(
     request: CreateUserProjectRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: CreateUserProjectResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: CreateUserProjectResponse) => void,
   ): ClientUnaryCall;
   createProject(
     request: CreateUserProjectRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: CreateUserProjectResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: CreateUserProjectResponse) => void,
   ): ClientUnaryCall;
   getUserProjectById(
     request: GetUserProjectByIdRequest,
-    callback: (
-      error: ServiceError | null,
-      response: GetUserProjectByIdResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetUserProjectByIdResponse) => void,
   ): ClientUnaryCall;
   getUserProjectById(
     request: GetUserProjectByIdRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetUserProjectByIdResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetUserProjectByIdResponse) => void,
   ): ClientUnaryCall;
   getUserProjectById(
     request: GetUserProjectByIdRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetUserProjectByIdResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetUserProjectByIdResponse) => void,
   ): ClientUnaryCall;
   getAllUserProjects(
     request: GetAllUserProjectsRequest,
-    callback: (
-      error: ServiceError | null,
-      response: GetAllUserProjectsResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetAllUserProjectsResponse) => void,
   ): ClientUnaryCall;
   getAllUserProjects(
     request: GetAllUserProjectsRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetAllUserProjectsResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetAllUserProjectsResponse) => void,
   ): ClientUnaryCall;
   getAllUserProjects(
     request: GetAllUserProjectsRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetAllUserProjectsResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetAllUserProjectsResponse) => void,
   ): ClientUnaryCall;
   getUserProjectsByStatus(
     request: GetUserProjectsByStatusRequest,
-    callback: (
-      error: ServiceError | null,
-      response: GetUserProjectsByStatusResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetUserProjectsByStatusResponse) => void,
   ): ClientUnaryCall;
   getUserProjectsByStatus(
     request: GetUserProjectsByStatusRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetUserProjectsByStatusResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetUserProjectsByStatusResponse) => void,
   ): ClientUnaryCall;
   getUserProjectsByStatus(
     request: GetUserProjectsByStatusRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetUserProjectsByStatusResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetUserProjectsByStatusResponse) => void,
   ): ClientUnaryCall;
 }
 
@@ -1030,40 +873,22 @@ export const UserProjectServiceClient = makeGenericClientConstructor(
   UserProjectServiceService,
   "userProject.UserProjectService",
 ) as unknown as {
-  new (
-    address: string,
-    credentials: ChannelCredentials,
-    options?: Partial<ClientOptions>,
-  ): UserProjectServiceClient;
+  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): UserProjectServiceClient;
   service: typeof UserProjectServiceService;
   serviceName: string;
 };
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends globalThis.Array<infer U>
-    ? globalThis.Array<DeepPartial<U>>
-    : T extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepPartial<U>>
-      : T extends {}
-        ? { [K in keyof T]?: DeepPartial<T[K]> }
-        : Partial<T>;
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

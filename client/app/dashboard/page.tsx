@@ -251,6 +251,35 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* ── DELIVERABLES ── */}
+        {currentProject.deliverables.length > 0 && (
+          <div className="mt-8 pt-8 border-t border-border-s relative z-10">
+            <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-4">
+              By the end of this project
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-2.5">
+              {currentProject.deliverables.map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className="text-accent shrink-0 mt-[2px]"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span className="font-[family-name:var(--font-dm)] text-[12px] text-txt-muted leading-snug">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── PHASE TRACKER ── */}

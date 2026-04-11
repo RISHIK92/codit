@@ -46,6 +46,7 @@ export const getAllCatalogueProjects = async () => {
   const projects = await prisma.projects.findMany({
     include: {
       _count: { select: { learningPhases: true } },
+      deliverables: { orderBy: { order: "asc" }, select: { text: true } },
     },
     orderBy: { createdAt: "asc" },
   });
@@ -62,6 +63,7 @@ export const getCatalogueProjectById = async (projectId: string) => {
     where: { id: projectId },
     include: {
       _count: { select: { learningPhases: true } },
+      deliverables: { orderBy: { order: "asc" }, select: { text: true } },
       learningPhases: {
         orderBy: { phase_number: "asc" },
         select: {

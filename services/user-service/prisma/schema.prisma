@@ -33,6 +33,16 @@ model Projects {
 
   learningPhases      LearningPhase[]
   userProjects        UserProjects[]
+  deliverables        Deliverable[]
+}
+
+model Deliverable {
+  id         String   @default(uuid()) @unique
+  project_id String
+  text       String
+  order      Int
+
+  project    Projects @relation(fields: [project_id], references: [id])
 }
 
 model EntranceQuestion {
@@ -80,6 +90,7 @@ model LearningPhase {
   project_id        String
   title             String
   description       String
+  LongDescription   String
   concepts          String[]
   goal              Json?
   phase_number      Int

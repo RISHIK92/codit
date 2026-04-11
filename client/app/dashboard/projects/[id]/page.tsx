@@ -293,6 +293,35 @@ export default function ProjectDetailPage() {
               </span>
             ))}
           </div>
+
+          {/* Deliverables */}
+          {(project.deliverables ?? []).length > 0 && (
+            <div className="mt-6 pt-6 border-t border-border-s">
+              <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-txt-ghost mb-4">
+                By the end of this project
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
+                {(project.deliverables ?? []).map((item, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="text-accent shrink-0 mt-px"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="font-(family-name:--font-dm) text-[12px] text-txt-muted leading-snug">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats row */}

@@ -141,6 +141,8 @@ export interface CatalogueProjectDTO {
   phase_count: number;
   goal: string;
   demo_url: string;
+  /** Ordered list of project deliverables, e.g. "You'll understand React hooks" */
+  deliverables?: string[];
 }
 
 export interface LearningPhaseDTO {

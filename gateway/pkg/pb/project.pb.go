@@ -201,6 +201,7 @@ type Project struct {
 	PhaseCount       int32                  `protobuf:"varint,6,opt,name=phase_count,json=phaseCount,proto3" json:"phase_count,omitempty"`
 	Goal             string                 `protobuf:"bytes,7,opt,name=goal,proto3" json:"goal,omitempty"`
 	DemoUrl          string                 `protobuf:"bytes,8,opt,name=demo_url,json=demoUrl,proto3" json:"demo_url,omitempty"`
+	Deliverables     []string               `protobuf:"bytes,9,rep,name=deliverables,proto3" json:"deliverables,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -289,6 +290,13 @@ func (x *Project) GetDemoUrl() string {
 		return x.DemoUrl
 	}
 	return ""
+}
+
+func (x *Project) GetDeliverables() []string {
+	if x != nil {
+		return x.Deliverables
+	}
+	return nil
 }
 
 type LearningPhaseProto struct {
@@ -507,7 +515,7 @@ const file_project_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"D\n" +
 	"\x16GetProjectByIdResponse\x12*\n" +
-	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\"\xea\x01\n" +
+	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\"\x8e\x02\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -519,7 +527,8 @@ const file_project_proto_rawDesc = "" +
 	"\vphase_count\x18\x06 \x01(\x05R\n" +
 	"phaseCount\x12\x12\n" +
 	"\x04goal\x18\a \x01(\tR\x04goal\x12\x19\n" +
-	"\bdemo_url\x18\b \x01(\tR\ademoUrl\"\xc0\x01\n" +
+	"\bdemo_url\x18\b \x01(\tR\ademoUrl\x12\"\n" +
+	"\fdeliverables\x18\t \x03(\tR\fdeliverables\"\xc0\x01\n" +
 	"\x12LearningPhaseProto\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +

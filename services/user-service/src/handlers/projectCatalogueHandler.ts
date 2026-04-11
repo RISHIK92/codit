@@ -30,6 +30,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           phaseCount: p._count.learningPhases,
           goal: p.goal ?? "",
           demoUrl: p.demo_url ?? "",
+          deliverables: p.deliverables.map((d) => d.text),
         })),
       });
     } catch (error: any) {
@@ -70,6 +71,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
               phaseCount: p._count.learningPhases,
               goal: p.goal ?? "",
               demoUrl: p.demo_url ?? "",
+              deliverables: p.deliverables?.map((d) => d.text) ?? [],
             }
           : undefined,
       });
@@ -121,6 +123,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           phaseCount: p._count.learningPhases,
           goal: p.goal ?? "",
           demoUrl: p.demo_url ?? "",
+          deliverables: p.deliverables?.map((d) => d.text) ?? [],
         },
         phases: p.learningPhases.map((ph) => ({
           id: ph.id,
