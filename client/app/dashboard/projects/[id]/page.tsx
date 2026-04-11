@@ -92,10 +92,10 @@ function PhaseItem({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center gap-4 p-5 text-left"
       >
-        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-(family-name:--font-dm) text-[11px] text-txt-ghost">
+        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-(family-name:--font-dm) text-[11px] text-gray-300">
           {String(index + 1).padStart(2, "0")}
         </span>
-        <span className="flex-1 font-(family-name:--font-cormorant) text-[18px] font-medium text-txt leading-tight">
+        <span className="flex-1 font-(family-name:--font-cormorant) text-[18px] font-medium text-white leading-tight">
           {phase.title}
         </span>
         <span className="shrink-0 font-(family-name:--font-dm) text-[11px] text-txt-ghost">
@@ -115,7 +115,7 @@ function PhaseItem({
               <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-2">
                 Description
               </p>
-              <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-txt-muted">
+              <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-white/80">
                 {phase.description}
               </p>
             </div>
@@ -135,8 +135,6 @@ function PhaseItem({
     </div>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -368,7 +366,7 @@ export default function ProjectDetailPage() {
           {alreadyStarted ? (
             <button
               onClick={() => router.push("/dashboard")}
-              className="shrink-0 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
+              className="shrink-0 font-(family-name:--font-dm) cursor-pointer text-[11px] uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
             >
               Go to Dashboard
             </button>

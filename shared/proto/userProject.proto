@@ -10,6 +10,7 @@ service UserProjectService {
   rpc CreateProject (CreateUserProjectRequest) returns (CreateUserProjectResponse);
   rpc GetUserProjectById (GetUserProjectByIdRequest) returns (GetUserProjectByIdResponse);
   rpc GetAllUserProjects (GetAllUserProjectsRequest) returns (GetAllUserProjectsResponse);
+  rpc GetUserProjectsByStatus (GetUserProjectsByStatusRequest) returns (GetUserProjectsByStatusResponse);
 }
 
 message CreateUserProjectRequest {
@@ -44,4 +45,13 @@ message UserProject {
   string email = 2;
   string status = 3;
   int32 current_phase = 4;
+}
+
+message GetUserProjectsByStatusRequest {
+  string email = 1;
+  string status = 2;
+}
+
+message GetUserProjectsByStatusResponse {
+  repeated UserProject user_projects = 1;
 }

@@ -79,6 +79,30 @@ export async function getAllUserProjects(
 }
 
 /**
+ * Fetch user-projects filtered by status on the backend.
+ * status: "in_progress" | "completed" | "abandoned"
+ */
+export async function getUserProjectsByStatus(
+  idToken: string,
+  status: string,
+): Promise<GetAllUserProjectsResponse> {
+  const url = new URL(`${GATEWAY_URL}/api/user-projects/get-by-status`);
+  url.searchParams.set("status", status);
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: authHeader(idToken),
+  });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json() as Promise<GetAllUserProjectsResponse>;
+}
+
+/**
  * Fetch a single user-project by its project_id.
  *
  * @param idToken   Firebase ID token

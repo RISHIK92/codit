@@ -48,6 +48,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Post("/api/user-projects/create", proxy.CreateUserProjectProxy(userProjectClient))
 		r.Get("/api/user-projects/get", proxy.GetUserProjectByIdProxy(userProjectClient))
 		r.Get("/api/user-projects/get-all", proxy.GetAllUserProjectsProxy(userProjectClient))
+		r.Get("/api/user-projects/get-by-status", proxy.GetUserProjectsByStatusProxy(userProjectClient))
 		r.Get("/api/projects/detail", proxy.GetProjectWithPhasesProxy(projectClient, userProjectClient))
 		r.Post("/api/entrance-test/start", proxy.StartEntranceTestProxy(entranceTestClient))
 		r.Post("/api/entrance-test/submit", proxy.SubmitEntranceRoundProxy(entranceTestClient))

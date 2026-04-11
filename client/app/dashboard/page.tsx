@@ -65,6 +65,41 @@ export default function DashboardPage() {
 
   if (loading || !user) return null;
 
+  // ── Loading skeleton ──────────────────────────────────────────────────────
+  if (projectsLoading) {
+    return (
+      <div className="p-8 md:p-12 w-full bg-surface min-h-screen">
+        <div className="bg-void border border-border-s rounded-sm p-8 lg:p-10 mb-12 relative overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div className="flex flex-col gap-3">
+              <div className="h-8 w-64 bg-surface rounded-sm animate-pulse" />
+              <div className="h-4 w-48 bg-surface rounded-sm animate-pulse" />
+            </div>
+            <div className="h-12 w-40 bg-surface rounded-sm animate-pulse" />
+          </div>
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-1 h-8 bg-surface rounded-sm animate-pulse" />
+            <div className="flex-1 h-16 bg-surface rounded-sm animate-pulse" />
+          </div>
+        </div>
+        <div className="h-4 w-32 bg-void rounded-sm animate-pulse mb-4" />
+        <div className="flex gap-0 border border-border-s rounded-sm overflow-hidden">
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="min-w-[300px] flex-shrink-0 p-6 border-r border-border-s last:border-r-0"
+            >
+              <div className="h-3 w-16 bg-void rounded-sm animate-pulse mb-4" />
+              <div className="h-6 w-36 bg-void rounded-sm animate-pulse mb-2" />
+              <div className="h-3 w-28 bg-void rounded-sm animate-pulse mb-6" />
+              <div className="h-px w-full bg-void rounded-sm animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // ── No projects yet ───────────────────────────────────────────────────────
   if (!projectsLoading && userProjects.length === 0) {
     return (
@@ -209,7 +244,7 @@ export default function DashboardPage() {
                 <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.15em] uppercase text-txt-ghost mb-1">
                   Next Objective
                 </div>
-                <div className="font-[family-name:var(--font-dm)] text-sm text-txt font-medium">
+                <div className="font-[family-name:var(--font-dm)] text-xs text-txt font-medium">
                   {currentProject.nextObjective}
                 </div>
               </div>

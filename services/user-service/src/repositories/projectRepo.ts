@@ -29,6 +29,13 @@ export const getAllProjects = async (email: string) => {
   });
 };
 
+export const getProjectsByStatus = async (email: string, status: Status) => {
+  return await prisma.userProjects.findMany({
+    where: { user_email: email, status },
+    orderBy: { started_at: "desc" },
+  });
+};
+
 const SKILL_LEVEL_ORDER: Record<string, number> = {
   beginner: 0,
   intermediate: 1,

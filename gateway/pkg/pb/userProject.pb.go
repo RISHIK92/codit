@@ -379,6 +379,102 @@ func (x *UserProject) GetCurrentPhase() int32 {
 	return 0
 }
 
+type GetUserProjectsByStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserProjectsByStatusRequest) Reset() {
+	*x = GetUserProjectsByStatusRequest{}
+	mi := &file_userProject_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserProjectsByStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserProjectsByStatusRequest) ProtoMessage() {}
+
+func (x *GetUserProjectsByStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserProjectsByStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetUserProjectsByStatusRequest) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetUserProjectsByStatusRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *GetUserProjectsByStatusRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type GetUserProjectsByStatusResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserProjects  []*UserProject         `protobuf:"bytes,1,rep,name=user_projects,json=userProjects,proto3" json:"user_projects,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserProjectsByStatusResponse) Reset() {
+	*x = GetUserProjectsByStatusResponse{}
+	mi := &file_userProject_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserProjectsByStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserProjectsByStatusResponse) ProtoMessage() {}
+
+func (x *GetUserProjectsByStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserProjectsByStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetUserProjectsByStatusResponse) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetUserProjectsByStatusResponse) GetUserProjects() []*UserProject {
+	if x != nil {
+		return x.UserProjects
+	}
+	return nil
+}
+
 var File_userProject_proto protoreflect.FileDescriptor
 
 const file_userProject_proto_rawDesc = "" +
@@ -406,11 +502,17 @@ const file_userProject_proto_rawDesc = "" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12#\n" +
-	"\rcurrent_phase\x18\x04 \x01(\x05R\fcurrentPhase2\xc2\x02\n" +
+	"\rcurrent_phase\x18\x04 \x01(\x05R\fcurrentPhase\"N\n" +
+	"\x1eGetUserProjectsByStatusRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"`\n" +
+	"\x1fGetUserProjectsByStatusResponse\x12=\n" +
+	"\ruser_projects\x18\x01 \x03(\v2\x18.userProject.UserProjectR\fuserProjects2\xb8\x03\n" +
 	"\x12UserProjectService\x12^\n" +
 	"\rCreateProject\x12%.userProject.CreateUserProjectRequest\x1a&.userProject.CreateUserProjectResponse\x12e\n" +
 	"\x12GetUserProjectById\x12&.userProject.GetUserProjectByIdRequest\x1a'.userProject.GetUserProjectByIdResponse\x12e\n" +
-	"\x12GetAllUserProjects\x12&.userProject.GetAllUserProjectsRequest\x1a'.userProject.GetAllUserProjectsResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x12GetAllUserProjects\x12&.userProject.GetAllUserProjectsRequest\x1a'.userProject.GetAllUserProjectsResponse\x12t\n" +
+	"\x17GetUserProjectsByStatus\x12+.userProject.GetUserProjectsByStatusRequest\x1a,.userProject.GetUserProjectsByStatusResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_userProject_proto_rawDescOnce sync.Once
@@ -424,30 +526,35 @@ func file_userProject_proto_rawDescGZIP() []byte {
 	return file_userProject_proto_rawDescData
 }
 
-var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_userProject_proto_goTypes = []any{
-	(*CreateUserProjectRequest)(nil),   // 0: userProject.CreateUserProjectRequest
-	(*CreateUserProjectResponse)(nil),  // 1: userProject.CreateUserProjectResponse
-	(*GetUserProjectByIdRequest)(nil),  // 2: userProject.GetUserProjectByIdRequest
-	(*GetUserProjectByIdResponse)(nil), // 3: userProject.GetUserProjectByIdResponse
-	(*GetAllUserProjectsRequest)(nil),  // 4: userProject.GetAllUserProjectsRequest
-	(*GetAllUserProjectsResponse)(nil), // 5: userProject.GetAllUserProjectsResponse
-	(*UserProject)(nil),                // 6: userProject.UserProject
+	(*CreateUserProjectRequest)(nil),        // 0: userProject.CreateUserProjectRequest
+	(*CreateUserProjectResponse)(nil),       // 1: userProject.CreateUserProjectResponse
+	(*GetUserProjectByIdRequest)(nil),       // 2: userProject.GetUserProjectByIdRequest
+	(*GetUserProjectByIdResponse)(nil),      // 3: userProject.GetUserProjectByIdResponse
+	(*GetAllUserProjectsRequest)(nil),       // 4: userProject.GetAllUserProjectsRequest
+	(*GetAllUserProjectsResponse)(nil),      // 5: userProject.GetAllUserProjectsResponse
+	(*UserProject)(nil),                     // 6: userProject.UserProject
+	(*GetUserProjectsByStatusRequest)(nil),  // 7: userProject.GetUserProjectsByStatusRequest
+	(*GetUserProjectsByStatusResponse)(nil), // 8: userProject.GetUserProjectsByStatusResponse
 }
 var file_userProject_proto_depIdxs = []int32{
 	6, // 0: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
 	6, // 1: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
-	0, // 2: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
-	2, // 3: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
-	4, // 4: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
-	1, // 5: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
-	3, // 6: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
-	5, // 7: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 2: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
+	0, // 3: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
+	2, // 4: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
+	4, // 5: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
+	7, // 6: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
+	1, // 7: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
+	3, // 8: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
+	5, // 9: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
+	8, // 10: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_userProject_proto_init() }
@@ -461,7 +568,7 @@ func file_userProject_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_userProject_proto_rawDesc), len(file_userProject_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -494,7 +494,7 @@ export default function ProjectsBrowsePage() {
                     {project.tech_stack.map((tech: string) => (
                       <span
                         key={tech}
-                        className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[10px] text-txt-ghost tracking-wide"
+                        className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[10px] text-gray-400 tracking-wide"
                       >
                         {tech}
                       </span>

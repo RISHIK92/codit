@@ -70,7 +70,7 @@ func GetUserProjectByIdProxy(grpcClient pb.UserProjectServiceClient) http.Handle
 }
 
 func GetAllUserProjectsProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request)  {
+	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.Header.Get("X-User-Email")
 		if email == "" {
 			http.Error(w, "Email is required", http.StatusBadRequest)
@@ -82,6 +82,38 @@ func GetAllUserProjectsProxy(grpcClient pb.UserProjectServiceClient) http.Handle
 		}
 
 		grpcRes, err := grpcClient.GetAllUserProjects(r.Context(), grpcReq)
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+func GetUserProjectsByStatusProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+
+		statusParam := r.URL.Query().Get("status")
+		if statusParam == "" {
+			http.Error(w, "status query param is required", http.StatusBadRequest)
+			return
+		}
+
+		grpcReq := &pb.GetUserProjectsByStatusRequest{
+			Email:  email,
+			Status: statusParam,
+		}
+
+		grpcRes, err := grpcClient.GetUserProjectsByStatus(r.Context(), grpcReq)
 		if err != nil {
 			st, _ := status.FromError(err)
 			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))

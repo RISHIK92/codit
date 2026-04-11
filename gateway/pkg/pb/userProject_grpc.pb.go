@@ -21,9 +21,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserProjectService_CreateProject_FullMethodName      = "/userProject.UserProjectService/CreateProject"
-	UserProjectService_GetUserProjectById_FullMethodName = "/userProject.UserProjectService/GetUserProjectById"
-	UserProjectService_GetAllUserProjects_FullMethodName = "/userProject.UserProjectService/GetAllUserProjects"
+	UserProjectService_CreateProject_FullMethodName           = "/userProject.UserProjectService/CreateProject"
+	UserProjectService_GetUserProjectById_FullMethodName      = "/userProject.UserProjectService/GetUserProjectById"
+	UserProjectService_GetAllUserProjects_FullMethodName      = "/userProject.UserProjectService/GetAllUserProjects"
+	UserProjectService_GetUserProjectsByStatus_FullMethodName = "/userProject.UserProjectService/GetUserProjectsByStatus"
 )
 
 // UserProjectServiceClient is the client API for UserProjectService service.
@@ -33,6 +34,7 @@ type UserProjectServiceClient interface {
 	CreateProject(ctx context.Context, in *CreateUserProjectRequest, opts ...grpc.CallOption) (*CreateUserProjectResponse, error)
 	GetUserProjectById(ctx context.Context, in *GetUserProjectByIdRequest, opts ...grpc.CallOption) (*GetUserProjectByIdResponse, error)
 	GetAllUserProjects(ctx context.Context, in *GetAllUserProjectsRequest, opts ...grpc.CallOption) (*GetAllUserProjectsResponse, error)
+	GetUserProjectsByStatus(ctx context.Context, in *GetUserProjectsByStatusRequest, opts ...grpc.CallOption) (*GetUserProjectsByStatusResponse, error)
 }
 
 type userProjectServiceClient struct {
@@ -73,6 +75,16 @@ func (c *userProjectServiceClient) GetAllUserProjects(ctx context.Context, in *G
 	return out, nil
 }
 
+func (c *userProjectServiceClient) GetUserProjectsByStatus(ctx context.Context, in *GetUserProjectsByStatusRequest, opts ...grpc.CallOption) (*GetUserProjectsByStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserProjectsByStatusResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_GetUserProjectsByStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserProjectServiceServer is the server API for UserProjectService service.
 // All implementations must embed UnimplementedUserProjectServiceServer
 // for forward compatibility.
@@ -80,6 +92,7 @@ type UserProjectServiceServer interface {
 	CreateProject(context.Context, *CreateUserProjectRequest) (*CreateUserProjectResponse, error)
 	GetUserProjectById(context.Context, *GetUserProjectByIdRequest) (*GetUserProjectByIdResponse, error)
 	GetAllUserProjects(context.Context, *GetAllUserProjectsRequest) (*GetAllUserProjectsResponse, error)
+	GetUserProjectsByStatus(context.Context, *GetUserProjectsByStatusRequest) (*GetUserProjectsByStatusResponse, error)
 	mustEmbedUnimplementedUserProjectServiceServer()
 }
 
@@ -98,6 +111,9 @@ func (UnimplementedUserProjectServiceServer) GetUserProjectById(context.Context,
 }
 func (UnimplementedUserProjectServiceServer) GetAllUserProjects(context.Context, *GetAllUserProjectsRequest) (*GetAllUserProjectsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllUserProjects not implemented")
+}
+func (UnimplementedUserProjectServiceServer) GetUserProjectsByStatus(context.Context, *GetUserProjectsByStatusRequest) (*GetUserProjectsByStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserProjectsByStatus not implemented")
 }
 func (UnimplementedUserProjectServiceServer) mustEmbedUnimplementedUserProjectServiceServer() {}
 func (UnimplementedUserProjectServiceServer) testEmbeddedByValue()                            {}
@@ -174,6 +190,24 @@ func _UserProjectService_GetAllUserProjects_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserProjectService_GetUserProjectsByStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserProjectsByStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).GetUserProjectsByStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_GetUserProjectsByStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).GetUserProjectsByStatus(ctx, req.(*GetUserProjectsByStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserProjectService_ServiceDesc is the grpc.ServiceDesc for UserProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -192,6 +226,10 @@ var UserProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllUserProjects",
 			Handler:    _UserProjectService_GetAllUserProjects_Handler,
+		},
+		{
+			MethodName: "GetUserProjectsByStatus",
+			Handler:    _UserProjectService_GetUserProjectsByStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

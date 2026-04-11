@@ -23,6 +23,10 @@ export const getAllProjects = async (email: string) => {
   return await projectRepo.getAllProjects(email);
 };
 
+export const getProjectsByStatus = async (email: string, status: Status) => {
+  return await projectRepo.getProjectsByStatus(email, status);
+};
+
 export const updateProject = async (
   id: string,
   status: Status,

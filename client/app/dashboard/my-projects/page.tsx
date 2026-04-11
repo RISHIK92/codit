@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/stores";
 import {
   getAllUserProjects,
+  getUserProjectsByStatus,
   getAllCatalogueProjects,
   type UserProjectDTO,
   type CatalogueProjectDTO,
@@ -51,9 +52,11 @@ function fmtMinutes(m: number) {
     : `${Math.floor(m / 60)}h ${m % 60 ? `${m % 60}m` : ""}`.trim();
 }
 
+// current_phase is 0-indexed: it's the index of the phase being worked on.
+// Phases 0..(current_phase-1) are completed, so completed count = current_phase.
 function progress(current: number, total: number) {
-  const pct =
-    total === 0 ? 0 : Math.min(100, Math.round((current / total) * 100));
+  if (total === 0) return 0;
+  const pct = Math.min(100, Math.round((current / total) * 100));
   return isNaN(pct) ? 0 : pct;
 }
 
@@ -112,10 +115,6 @@ function HexProgress({
     </svg>
   );
 }
-
-// ─── Constellation Node ──────────────────────────────────────────────────────
-// Each project rendered as a hexagonal node connected to a vertical spine.
-
 function ConstellationNode({
   ep,
   index,
@@ -129,7 +128,9 @@ function ConstellationNode({
   const status = (ep.user.status as Status) ?? "in_progress";
   const cfg = STATUS_CONFIG[status];
   const accent = SKILL_COLOR[ep.catalogue.skill_level] ?? "#7fffd4";
-  const pct = progress(ep.user.current_phase, ep.catalogue.phase_count);
+  // current_phase comes as omitempty from Go — coerce to 0 if undefined
+  const currentPhase = ep.user.current_phase ?? 0;
+  const pct = progress(currentPhase, ep.catalogue.phase_count);
   const isActive = status === "in_progress";
 
   return (
@@ -157,12 +158,12 @@ function ConstellationNode({
             hovered ? " border-accent" : ""
           }`}
         >
-          {/* Top accent edge */}
+          {/* Top accent edge — minimum 8% width so active projects are always visible */}
           <div
             className="absolute top-0 left-0 h-px transition-all duration-700"
             style={{
               width: isActive
-                ? `${pct}%`
+                ? `${Math.max(pct, 8)}%`
                 : status === "completed"
                   ? "100%"
                   : "0%",
@@ -173,13 +174,16 @@ function ConstellationNode({
           <div className="flex items-start gap-5 p-5">
             {/* Hex progress */}
             <div className="relative shrink-0">
-              <HexProgress pct={pct} color={accent} />
+              <HexProgress
+                pct={isActive && pct === 0 ? 5 : pct}
+                color={accent}
+              />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span
                   className="font-(family-name:--font-dm) text-[11px] font-medium"
                   style={{ color: accent }}
                 >
-                  {pct}%
+                  {isActive && pct === 0 ? "P1" : `${pct}%`}
                 </span>
               </div>
             </div>
@@ -224,8 +228,12 @@ function ConstellationNode({
               <div className="flex items-center gap-1.5 mb-3">
                 {Array.from({ length: ep.catalogue.phase_count }).map(
                   (_, i) => {
-                    const done = i < ep.user.current_phase;
-                    const current = i === ep.user.current_phase && isActive;
+                    // For completed projects all segments are filled
+                    const done =
+                      status === "completed" ? true : i < currentPhase;
+                    // current = the segment being actively worked on (0-indexed)
+                    const current =
+                      status === "in_progress" && i === currentPhase;
                     return (
                       <div
                         key={i}
@@ -234,9 +242,9 @@ function ConstellationNode({
                           backgroundColor: done
                             ? accent
                             : current
-                              ? `${accent}50`
-                              : "rgba(255,255,255,0.04)",
-                          boxShadow: current ? `0 0 6px ${accent}30` : "none",
+                              ? `${accent}70`
+                              : "rgba(255,255,255,0.06)",
+                          boxShadow: current ? `0 0 8px ${accent}50` : "none",
                         }}
                       />
                     );
@@ -247,7 +255,7 @@ function ConstellationNode({
               {/* Bottom meta */}
               <div className="flex items-center gap-3">
                 <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
-                  Phase {ep.user.current_phase}/{ep.catalogue.phase_count}
+                  Phase {currentPhase + 1}/{ep.catalogue.phase_count}
                 </span>
                 <span className="w-px h-2.5 bg-border-s" />
                 <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
@@ -258,7 +266,7 @@ function ConstellationNode({
                   {ep.catalogue.tech_stack.slice(0, 2).map((t) => (
                     <span
                       key={t}
-                      className="font-(family-name:--font-dm) text-[8px] text-txt-ghost border border-border-s rounded-sm px-1 py-px bg-surface"
+                      className="font-(family-name:--font-dm) text-[8px] text-gray-400 border border-border-s rounded-sm px-1 py-px bg-surface"
                     >
                       {t}
                     </span>
@@ -396,13 +404,42 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "abandoned", label: "Archived" },
 ];
 
+// Helper: enrich + sort a list of UserProjectDTOs using the catalogue map
+function enrich(
+  ups: UserProjectDTO[],
+  catMap: Map<string, CatalogueProjectDTO>,
+): EnrichedProject[] {
+  const enriched: EnrichedProject[] = [];
+  for (const up of ups) {
+    const cat = catMap.get(up.project_id);
+    if (cat) enriched.push({ user: up, catalogue: cat });
+  }
+  // Sort: active first, then completed, then abandoned
+  const order: Record<string, number> = {
+    in_progress: 0,
+    completed: 1,
+    abandoned: 2,
+  };
+  return enriched.sort(
+    (a, b) => (order[a.user.status] ?? 3) - (order[b.user.status] ?? 3),
+  );
+}
+
 export default function MyProjectsPage() {
   const router = useRouter();
   const { user, loading } = useAuthStore();
 
-  const [userProjects, setUserProjects] = useState<UserProjectDTO[]>([]);
-  const [catalogue, setCatalogue] = useState<CatalogueProjectDTO[]>([]);
+  // All projects (used for counts / Nucleus / MobileStats)
+  const [allEnriched, setAllEnriched] = useState<EnrichedProject[]>([]);
+  // Projects shown in the current tab (backend-filtered)
+  const [visible, setVisible] = useState<EnrichedProject[]>([]);
+  // Catalogue stored in a Map for O(1) lookup
+  const [catMap, setCatMap] = useState<Map<string, CatalogueProjectDTO>>(
+    new Map(),
+  );
+
   const [fetching, setFetching] = useState(true);
+  const [filterFetching, setFilterFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -410,6 +447,7 @@ export default function MyProjectsPage() {
     if (!loading && !user) router.replace("/login");
   }, [loading, user, router]);
 
+  // ── Initial load: fetch everything + catalogue ────────────────────────────
   useEffect(() => {
     if (loading || !user) return;
     setFetching(true);
@@ -419,8 +457,14 @@ export default function MyProjectsPage() {
           getAllUserProjects(token),
           getAllCatalogueProjects(),
         ]);
-        setUserProjects(upRes.user_projects ?? upRes.userProjects ?? []);
-        setCatalogue(catRes.projects ?? []);
+        const ups: UserProjectDTO[] =
+          upRes.user_projects ?? upRes.userProjects ?? [];
+        const cats: CatalogueProjectDTO[] = catRes.projects ?? [];
+        const map = new Map(cats.map((c) => [c.id, c]));
+        setCatMap(map);
+        const all = enrich(ups, map);
+        setAllEnriched(all);
+        setVisible(all); // "all" tab is default
       } catch (err: any) {
         setError(err.message ?? "Failed to load");
       } finally {
@@ -429,30 +473,32 @@ export default function MyProjectsPage() {
     });
   }, [loading, user]);
 
+  // ── Filter change: fetch from backend ────────────────────────────────────
+  const handleFilterChange = useCallback(
+    async (newFilter: Filter) => {
+      setFilter(newFilter);
+      if (!user) return;
+      if (newFilter === "all") {
+        setVisible(allEnriched);
+        return;
+      }
+      setFilterFetching(true);
+      try {
+        const token = await user.getIdToken();
+        const res = await getUserProjectsByStatus(token, newFilter);
+        const ups: UserProjectDTO[] =
+          res.user_projects ?? res.userProjects ?? [];
+        setVisible(enrich(ups, catMap));
+      } catch (err: any) {
+        setError(err.message ?? "Failed to filter");
+      } finally {
+        setFilterFetching(false);
+      }
+    },
+    [user, allEnriched, catMap],
+  );
+
   if (loading || !user) return null;
-
-  // Enrich
-  const enriched: EnrichedProject[] = userProjects
-    .map((up) => {
-      const cat = catalogue.find((c) => c.id === up.project_id);
-      return cat ? { user: up, catalogue: cat } : null;
-    })
-    .filter(Boolean) as EnrichedProject[];
-
-  // Sort: active first, then completed, then abandoned
-  const sorted = [...enriched].sort((a, b) => {
-    const order: Record<string, number> = {
-      in_progress: 0,
-      completed: 1,
-      abandoned: 2,
-    };
-    return (order[a.user.status] ?? 3) - (order[b.user.status] ?? 3);
-  });
-
-  const visible =
-    filter === "all"
-      ? sorted
-      : sorted.filter((ep) => ep.user.status === filter);
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (fetching) {
@@ -493,7 +539,7 @@ export default function MyProjectsPage() {
   }
 
   // ── Empty ──────────────────────────────────────────────────────────────────
-  if (enriched.length === 0) {
+  if (allEnriched.length === 0) {
     return (
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen flex flex-col">
         <div className="mb-10">
@@ -541,39 +587,47 @@ export default function MyProjectsPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="font-(family-name:--font-dm) text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-3">
-          My Projects
+          Catalogue
         </div>
         <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-none mb-2">
-          Constellation
+          My Projects
         </h1>
         <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
-          Each project is a star in your learning universe — watch your
-          constellation grow.
+          Track your active builds, completed work, and archived experiments all
+          in one place.
         </p>
       </div>
 
       {/* Mobile stats */}
-      <MobileStats projects={enriched} />
+      <MobileStats projects={allEnriched} />
 
       {/* Filter tabs */}
       <div className="flex gap-1 mb-8 border-b border-border-s">
         {FILTERS.map((f) => {
           const count =
             f.value === "all"
-              ? enriched.length
-              : enriched.filter((ep) => ep.user.status === f.value).length;
+              ? allEnriched.length
+              : allEnriched.filter(
+                  (ep: EnrichedProject) => ep.user.status === f.value,
+                ).length;
           if (count === 0 && f.value !== "all") return null;
           return (
             <button
               key={f.value}
-              onClick={() => setFilter(f.value)}
+              onClick={() => handleFilterChange(f.value)}
               className={`relative font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-4 py-3 transition-colors cursor-pointer
                 ${filter === f.value ? "text-txt" : "text-txt-ghost hover:text-txt-muted"}`}
             >
-              {f.label}
-              {count > 0 && (
-                <span className="ml-1.5 text-[9px] opacity-40">{count}</span>
-              )}
+              <span className="flex items-center gap-1.5">
+                {f.label}
+                {filterFetching && filter === f.value ? (
+                  <span className="w-1 h-1 rounded-full bg-accent animate-pulse" />
+                ) : (
+                  count > 0 && (
+                    <span className="text-[9px] opacity-40">{count}</span>
+                  )
+                )}
+              </span>
               {filter === f.value && (
                 <span className="absolute bottom-0 left-0 right-0 h-px bg-accent" />
               )}
@@ -582,7 +636,7 @@ export default function MyProjectsPage() {
         })}
       </div>
 
-      {visible.length === 0 ? (
+      {!filterFetching && visible.length === 0 ? (
         <div className="py-16 text-center">
           <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
             No {filter.replace("_", " ")} projects
@@ -590,10 +644,12 @@ export default function MyProjectsPage() {
         </div>
       ) : (
         /* Constellation layout: Nucleus (left on lg) + vertical spine with alternating nodes */
-        <div className="flex gap-10">
+        <div
+          className={`flex gap-10 transition-opacity duration-300 ${filterFetching ? "opacity-40 pointer-events-none" : "opacity-100"}`}
+        >
           {/* Nucleus — desktop sidebar */}
           <div className="hidden lg:block w-44 shrink-0">
-            <Nucleus projects={enriched} />
+            <Nucleus projects={allEnriched} />
           </div>
 
           {/* Spine + nodes */}

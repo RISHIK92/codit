@@ -37,6 +37,7 @@ import { create } from "zustand";
 import {
   getAllUserProjects,
   getUserProjectById,
+  getProjectWithPhases,
   type UserProjectDTO,
 } from "@/lib/api/projectsApi";
 
@@ -231,6 +232,76 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       // Accept both so the client works regardless of the marshaller.
       const projects = data.user_projects ?? data.userProjects ?? [];
       set({ userProjects: projects, projectsLoading: false });
+
+      // Find the active project and hydrate currentProject + phases from the catalogue
+      const active = projects.find((p) => p.status === "in_progress");
+      if (active) {
+        try {
+          const detail = await getProjectWithPhases(idToken, active.project_id);
+          const cat = detail.project;
+          const phaseList = detail.phases ?? [];
+          // current_phase is 0-indexed: 0 = working on phase 1, 1 = working on phase 2, etc.
+          // phase_number in the DB/proto is 1-indexed (1, 2, 3…)
+          const currentPhaseIdx = active.current_phase ?? 0;
+          // The phase the user is currently working on has phase_number = currentPhaseIdx + 1
+          const currentPhaseNumber = currentPhaseIdx + 1;
+
+          if (cat) {
+            // Derive overall progress: phases completed / total phases
+            // currentPhaseIdx phases are fully done (0-indexed)
+            const pct =
+              cat.phase_count > 0
+                ? Math.round((currentPhaseIdx / cat.phase_count) * 100)
+                : 0;
+
+            // Match by 1-indexed phase_number
+            const currentPhaseData = phaseList.find(
+              (p) => p.phase_number === currentPhaseNumber,
+            );
+            const nextObjective = currentPhaseData?.title ?? cat.goal ?? "";
+
+            set({
+              currentProject: {
+                id: active.project_id,
+                title: cat.name,
+                // Store 1-indexed for display (Phase 1, Phase 2…)
+                phase: currentPhaseNumber,
+                description: currentPhaseData?.description ?? cat.goal ?? "",
+                progress: pct,
+                nextObjective,
+              },
+            });
+          }
+
+          // Map phases into the Phase shape expected by the dashboard UI
+          // phase_number is 1-indexed in the DB
+          const mappedPhases = phaseList
+            .slice()
+            .sort((a, b) => a.phase_number - b.phase_number)
+            .map((p) => {
+              let status: PhaseStatus;
+              if (p.phase_number < currentPhaseNumber) status = "completed";
+              else if (p.phase_number === currentPhaseNumber) status = "active";
+              else status = "locked";
+
+              const phaseProgress =
+                status === "completed" ? 100 : status === "active" ? 20 : 0;
+
+              return {
+                // id is the 1-indexed phase_number, zero-padded
+                id: String(p.phase_number).padStart(2, "0"),
+                title: p.title,
+                description: p.description,
+                status,
+                progress: phaseProgress,
+              };
+            });
+
+          set({ phases: mappedPhases });
+        } catch {
+          // Catalogue fetch failed — leave currentProject/phases as empty defaults
+        }
+      }
     } catch (err: any) {
       set({
         projectsError: err.message ?? "Failed to fetch projects",
