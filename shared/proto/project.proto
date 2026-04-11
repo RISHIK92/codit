@@ -50,6 +50,7 @@ message LearningPhaseProto {
   string goal              = 4;  // JSON-encoded string
   int32  phase_number      = 5;
   int32  estimated_minutes = 6;
+  string long_description  = 7;
 }
 
 message GetProjectWithPhasesRequest {

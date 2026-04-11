@@ -70,6 +70,7 @@ export const getCatalogueProjectById = async (projectId: string) => {
           id: true,
           title: true,
           description: true,
+          long_description: true,
           goal: true,
           phase_number: true,
           estimated_minutes: true,

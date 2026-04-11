@@ -56,6 +56,7 @@ export interface LearningPhaseProto {
   goal: string;
   phaseNumber: number;
   estimatedMinutes: number;
+  longDescription: string;
 }
 
 export interface GetProjectWithPhasesRequest {
@@ -521,7 +522,7 @@ export const Project: MessageFns<Project> = {
 };
 
 function createBaseLearningPhaseProto(): LearningPhaseProto {
-  return { id: "", title: "", description: "", goal: "", phaseNumber: 0, estimatedMinutes: 0 };
+  return { id: "", title: "", description: "", goal: "", phaseNumber: 0, estimatedMinutes: 0, longDescription: "" };
 }
 
 export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
@@ -543,6 +544,9 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
     }
     if (message.estimatedMinutes !== 0) {
       writer.uint32(48).int32(message.estimatedMinutes);
+    }
+    if (message.longDescription !== "") {
+      writer.uint32(58).string(message.longDescription);
     }
     return writer;
   },
@@ -602,6 +606,14 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
           message.estimatedMinutes = reader.int32();
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.longDescription = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -627,6 +639,11 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
         : isSet(object.estimated_minutes)
         ? globalThis.Number(object.estimated_minutes)
         : 0,
+      longDescription: isSet(object.longDescription)
+        ? globalThis.String(object.longDescription)
+        : isSet(object.long_description)
+        ? globalThis.String(object.long_description)
+        : "",
     };
   },
 
@@ -650,6 +667,9 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
     if (message.estimatedMinutes !== 0) {
       obj.estimatedMinutes = Math.round(message.estimatedMinutes);
     }
+    if (message.longDescription !== "") {
+      obj.longDescription = message.longDescription;
+    }
     return obj;
   },
 
@@ -664,6 +684,7 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
     message.goal = object.goal ?? "";
     message.phaseNumber = object.phaseNumber ?? 0;
     message.estimatedMinutes = object.estimatedMinutes ?? 0;
+    message.longDescription = object.longDescription ?? "";
     return message;
   },
 };

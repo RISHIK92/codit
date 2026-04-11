@@ -307,6 +307,7 @@ type LearningPhaseProto struct {
 	Goal             string                 `protobuf:"bytes,4,opt,name=goal,proto3" json:"goal,omitempty"` // JSON-encoded string
 	PhaseNumber      int32                  `protobuf:"varint,5,opt,name=phase_number,json=phaseNumber,proto3" json:"phase_number,omitempty"`
 	EstimatedMinutes int32                  `protobuf:"varint,6,opt,name=estimated_minutes,json=estimatedMinutes,proto3" json:"estimated_minutes,omitempty"`
+	LongDescription  string                 `protobuf:"bytes,7,opt,name=long_description,json=longDescription,proto3" json:"long_description,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -381,6 +382,13 @@ func (x *LearningPhaseProto) GetEstimatedMinutes() int32 {
 		return x.EstimatedMinutes
 	}
 	return 0
+}
+
+func (x *LearningPhaseProto) GetLongDescription() string {
+	if x != nil {
+		return x.LongDescription
+	}
+	return ""
 }
 
 type GetProjectWithPhasesRequest struct {
@@ -528,14 +536,15 @@ const file_project_proto_rawDesc = "" +
 	"phaseCount\x12\x12\n" +
 	"\x04goal\x18\a \x01(\tR\x04goal\x12\x19\n" +
 	"\bdemo_url\x18\b \x01(\tR\ademoUrl\x12\"\n" +
-	"\fdeliverables\x18\t \x03(\tR\fdeliverables\"\xc0\x01\n" +
+	"\fdeliverables\x18\t \x03(\tR\fdeliverables\"\xeb\x01\n" +
 	"\x12LearningPhaseProto\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x12\n" +
 	"\x04goal\x18\x04 \x01(\tR\x04goal\x12!\n" +
 	"\fphase_number\x18\x05 \x01(\x05R\vphaseNumber\x12+\n" +
-	"\x11estimated_minutes\x18\x06 \x01(\x05R\x10estimatedMinutes\"R\n" +
+	"\x11estimated_minutes\x18\x06 \x01(\x05R\x10estimatedMinutes\x12)\n" +
+	"\x10long_description\x18\a \x01(\tR\x0flongDescription\"R\n" +
 	"\x1bGetProjectWithPhasesRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +

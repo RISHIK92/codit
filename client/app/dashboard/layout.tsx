@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const { profile, profileLoading, fetchProfile } = useUserStore();
 
   const isSandbox = pathname?.includes("/sandbox");
+  const isBuild = pathname?.includes("/build/");
   // Hide sidebar only on individual project detail pages, not the browse page
   const isProjectDetailPage =
     pathname?.match(/\/dashboard\/projects\/[^/]+/) != null && !isSandbox;
@@ -34,7 +35,7 @@ export default function DashboardLayout({
     }
   }, [authLoading, profileLoading, profile, router]);
 
-  if (isSandbox) {
+  if (isSandbox || isBuild) {
     return <div className="bg-void min-h-screen text-txt">{children}</div>;
   }
 

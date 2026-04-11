@@ -4,6 +4,18 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // WebContainers require cross-origin isolation
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
+        ],
+      },x2
+    ];
+  },
 };
 
 export default nextConfig;

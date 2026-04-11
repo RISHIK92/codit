@@ -207,7 +207,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <Link
-            href={`/dashboard/projects/${currentProject.id}`}
+            href={`/dashboard/build/${currentProject.id}`}
             className="inline-flex items-center justify-center px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
           >
             Continue Learning →

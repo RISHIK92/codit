@@ -129,6 +129,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           id: ph.id,
           title: ph.title,
           description: ph.description,
+          longDescription: ph.long_description ?? "",
           goal: ph.goal ? JSON.stringify(ph.goal) : "",
           phaseNumber: ph.phase_number,
           estimatedMinutes: ph.estimated_minutes,

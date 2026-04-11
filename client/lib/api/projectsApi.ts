@@ -149,6 +149,8 @@ export interface LearningPhaseDTO {
   id: string;
   title: string;
   description: string;
+  /** Full markdown/prose description of the phase shown in the build view */
+  long_description?: string;
   goal: string; // JSON-encoded string from DB
   phase_number: number;
   estimated_minutes: number;
