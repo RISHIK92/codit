@@ -18,6 +18,7 @@ async function main() {
       tech_stack: ["HTML", "CSS", "JavaScript"],
       skill_level: Skill_Level.beginner,
       estimated_minutes: 180,
+      goal: "Build and deploy a fully responsive personal portfolio website from scratch.",
     },
   });
   console.log(`✅ Created project: ${portfolio.name} (${portfolio.id})`);
@@ -171,6 +172,7 @@ async function main() {
       tech_stack: ["React", "TypeScript", "Tailwind CSS"],
       skill_level: Skill_Level.beginner,
       estimated_minutes: 240,
+      goal: "Build a fully functional to-do list application with CRUD operations and local state management.",
     },
   });
   console.log(`✅ Created project: ${todo.name} (${todo.id})`);
@@ -304,6 +306,7 @@ async function main() {
       tech_stack: ["Node.js", "Express", "PostgreSQL", "JWT", "Prisma"],
       skill_level: Skill_Level.intermediate,
       estimated_minutes: 360,
+      goal: "Build a secure REST API with JWT-based authentication, protected routes, and database integration.",
     },
   });
   console.log(`✅ Created project: ${restApi.name} (${restApi.id})`);
@@ -468,6 +471,7 @@ async function main() {
       tech_stack: ["Next.js", "Socket.IO", "Redis", "TypeScript"],
       skill_level: Skill_Level.intermediate,
       estimated_minutes: 480,
+      goal: "Build a scalable real-time chat application with rooms, presence, and message persistence.",
     },
   });
   console.log(`✅ Created project: ${chat.name} (${chat.id})`);
@@ -623,6 +627,7 @@ async function main() {
       tech_stack: ["Go", "gRPC", "Redis", "PostgreSQL", "Docker"],
       skill_level: Skill_Level.advanced,
       estimated_minutes: 720,
+      goal: "Design and implement a production-grade distributed task queue with workers, retries, and observability.",
     },
   });
   console.log(`✅ Created project: ${taskQueue.name} (${taskQueue.id})`);
@@ -805,6 +810,7 @@ async function main() {
       ],
       skill_level: Skill_Level.advanced,
       estimated_minutes: 600,
+      goal: "Build an ML-powered code review bot that analyses pull requests and provides automated feedback using LLMs.",
     },
   });
   console.log(`✅ Created project: ${codeBot.name} (${codeBot.id})`);
@@ -984,6 +990,8 @@ async function main() {
         correct_option: 1,
         explanation:
           "<nav> is the semantic element for groups of navigation links.",
+        description:
+          "<nav> is the semantic element for groups of navigation links.",
         difficulty: Difficulty.easy,
         topic: "HTML",
       },
@@ -997,6 +1005,8 @@ async function main() {
         ],
         correct_option: 1,
         explanation:
+          "CSS stands for Cascading Style Sheets — it describes how HTML elements are displayed.",
+        description:
           "CSS stands for Cascading Style Sheets — it describes how HTML elements are displayed.",
         difficulty: Difficulty.easy,
         topic: "CSS",
@@ -1013,6 +1023,8 @@ async function main() {
         correct_option: 1,
         explanation:
           "Array.push() adds one or more elements to the end of an array and returns the new length.",
+        description:
+          "Array.push() adds one or more elements to the end of an array and returns the new length.",
         difficulty: Difficulty.easy,
         topic: "JavaScript",
       },
@@ -1023,6 +1035,8 @@ async function main() {
         correct_option: 2,
         explanation:
           "useState returns a state value and a setter function for local component state.",
+        description:
+          "useState returns a state value and a setter function for local component state.",
         difficulty: Difficulty.easy,
         topic: "React",
       },
@@ -1032,6 +1046,8 @@ async function main() {
         options: ["POST", "PUT", "GET", "DELETE"],
         correct_option: 2,
         explanation:
+          "GET requests retrieve data without modifying the server state.",
+        description:
           "GET requests retrieve data without modifying the server state.",
         difficulty: Difficulty.easy,
         topic: "HTTP",
@@ -1046,6 +1062,8 @@ async function main() {
         ],
         correct_option: 1,
         explanation:
+          "Responsive design uses flexible layouts and media queries to adapt to any viewport size.",
+        description:
           "Responsive design uses flexible layouts and media queries to adapt to any viewport size.",
         difficulty: Difficulty.easy,
         topic: "CSS",
@@ -1063,6 +1081,8 @@ async function main() {
         correct_option: 1,
         explanation:
           "Indexes allow the database engine to find rows quickly without scanning the full table.",
+        description:
+          "Indexes allow the database engine to find rows quickly without scanning the full table.",
         difficulty: Difficulty.intermediate,
         topic: "Databases",
       },
@@ -1072,6 +1092,8 @@ async function main() {
         options: ["200 OK", "204 No Content", "201 Created", "202 Accepted"],
         correct_option: 2,
         explanation:
+          "201 Created is the standard response for a successful POST that creates a new resource.",
+        description:
           "201 Created is the standard response for a successful POST that creates a new resource.",
         difficulty: Difficulty.intermediate,
         topic: "REST APIs",
@@ -1088,6 +1110,8 @@ async function main() {
         correct_option: 1,
         explanation:
           "Asynchronous code (via Promises/async-await) allows the event loop to continue while I/O operations complete.",
+        description:
+          "Asynchronous code (via Promises/async-await) allows the event loop to continue while I/O operations complete.",
         difficulty: Difficulty.intermediate,
         topic: "JavaScript",
       },
@@ -1102,6 +1126,8 @@ async function main() {
         ],
         correct_option: 0,
         explanation:
+          "A JWT is a Base64-encoded Header + Payload (claims) + Signature, separated by dots.",
+        description:
           "A JWT is a Base64-encoded Header + Payload (claims) + Signature, separated by dots.",
         difficulty: Difficulty.intermediate,
         topic: "Authentication",
@@ -1118,6 +1144,8 @@ async function main() {
         correct_option: 2,
         explanation:
           "An empty dependency array tells React to run the effect only after the first render (mount).",
+        description:
+          "An empty dependency array tells React to run the effect only after the first render (mount).",
         difficulty: Difficulty.intermediate,
         topic: "React",
       },
@@ -1127,6 +1155,8 @@ async function main() {
         options: ["WHERE", "FILTER", "HAVING", "AND"],
         correct_option: 2,
         explanation:
+          "HAVING filters grouped rows, whereas WHERE filters individual rows before grouping.",
+        description:
           "HAVING filters grouped rows, whereas WHERE filters individual rows before grouping.",
         difficulty: Difficulty.intermediate,
         topic: "Databases",
@@ -1144,6 +1174,8 @@ async function main() {
         correct_option: 1,
         explanation:
           "CAP theorem: in the presence of a network partition, you must choose between consistency and availability.",
+        description:
+          "CAP theorem: in the presence of a network partition, you must choose between consistency and availability.",
         difficulty: Difficulty.advanced,
         topic: "System Design",
       },
@@ -1158,6 +1190,8 @@ async function main() {
         correct_option: 1,
         explanation:
           "Read replicas scale out read throughput by directing SELECT queries away from the write primary.",
+        description:
+          "Read replicas scale out read throughput by directing SELECT queries away from the write primary.",
         difficulty: Difficulty.advanced,
         topic: "System Design",
       },
@@ -1171,6 +1205,8 @@ async function main() {
         ],
         correct_option: 2,
         explanation:
+          "defer pushes a function call onto a stack that is executed in LIFO order when the surrounding function returns.",
+        description:
           "defer pushes a function call onto a stack that is executed in LIFO order when the surrounding function returns.",
         difficulty: Difficulty.advanced,
         topic: "Go",
@@ -1187,6 +1223,8 @@ async function main() {
         correct_option: 2,
         explanation:
           "Protobuf binary encoding is typically 3-10x smaller and 5-10x faster to parse than equivalent JSON.",
+        description:
+          "Protobuf binary encoding is typically 3-10x smaller and 5-10x faster to parse than equivalent JSON.",
         difficulty: Difficulty.advanced,
         topic: "gRPC",
       },
@@ -1200,6 +1238,8 @@ async function main() {
         ],
         correct_option: 1,
         explanation:
+          "Opening a DB connection is expensive; a pool keeps a set of connections open and reuses them across requests.",
+        description:
           "Opening a DB connection is expensive; a pool keeps a set of connections open and reuses them across requests.",
         difficulty: Difficulty.advanced,
         topic: "Databases",
@@ -1215,6 +1255,8 @@ async function main() {
         ],
         correct_option: 1,
         explanation:
+          "React uses key to match old and new tree nodes. Using index as key breaks diffing when items are reordered.",
+        description:
           "React uses key to match old and new tree nodes. Using index as key breaks diffing when items are reordered.",
         difficulty: Difficulty.advanced,
         topic: "React",

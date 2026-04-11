@@ -6,10 +6,12 @@
  * ─── Authenticated endpoints (require Bearer token) ───────────────────────────
  *   GET  /api/user-projects/get-all        → GetAllUserProjectsResponse
  *   GET  /api/user-projects/get?projectId= → GetUserProjectByIdResponse
+ *   POST /api/user-projects/create         → { success: boolean }
  *
  * ─── Public endpoints (no auth) ───────────────────────────────────────────────
- *   GET  /public/api/projects/get-all        → GetAllCatalogueProjectsResponse
- *   GET  /public/api/projects/get?projectId= → GetCatalogueProjectByIdResponse
+ *   GET  /public/api/projects/get-all           → GetAllCatalogueProjectsResponse
+ *   GET  /public/api/projects/get?projectId=    → GetCatalogueProjectByIdResponse
+ *   GET  /public/api/projects/detail?projectId= → GetProjectWithPhasesResponse
  *
  * ─── Wire format note ────────────────────────────────────────────────────────
  * Go's encoding/json serialises proto struct tags as snake_case, e.g.
@@ -113,6 +115,26 @@ export interface CatalogueProjectDTO {
   skill_level: string;
   estimated_minutes: number;
   phase_count: number;
+  goal: string;
+  demo_url: string;
+}
+
+export interface LearningPhaseDTO {
+  id: string;
+  title: string;
+  description: string;
+  goal: string; // JSON-encoded string from DB
+  phase_number: number;
+  estimated_minutes: number;
+}
+
+export interface GetProjectWithPhasesResponse {
+  project?: CatalogueProjectDTO;
+  phases?: LearningPhaseDTO[];
+  /** true when the user already has this project in_progress */
+  already_started?: boolean;
+  /** true when the user has a *different* project in_progress (slot occupied) */
+  locked?: boolean;
 }
 
 export interface GetAllCatalogueProjectsResponse {
@@ -160,4 +182,60 @@ export async function getCatalogueProjectById(
   }
 
   return res.json() as Promise<GetCatalogueProjectByIdResponse>;
+}
+
+/**
+ * Fetch a catalogue project with its full learning phases.
+ * Auth-protected — the gateway uses the token to compute locked / already_started.
+ * Hits GET /api/projects/detail?projectId= on the gateway.
+ *
+ * @param idToken   Firebase ID token
+ * @param projectId The catalogue project id to look up
+ */
+export async function getProjectWithPhases(
+  idToken: string,
+  projectId: string,
+): Promise<GetProjectWithPhasesResponse> {
+  const url = new URL(`${GATEWAY_URL}/api/projects/detail`);
+  url.searchParams.set("projectId", projectId);
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: authHeader(idToken),
+  });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json() as Promise<GetProjectWithPhasesResponse>;
+}
+
+/**
+ * Add a project to the authenticated user's projects list.
+ * Hits POST /api/user-projects/create on the gateway.
+ *
+ * @param idToken   Firebase ID token
+ * @param projectId The catalogue project id to start
+ */
+export async function createUserProject(
+  idToken: string,
+  projectId: string,
+): Promise<{ success: boolean }> {
+  const res = await fetch(`${GATEWAY_URL}/api/user-projects/create`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ projectId, status: "in_progress", currentPhase: 0 }),
+  });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json() as Promise<{ success: boolean }>;
 }

@@ -43,6 +43,33 @@ export interface Project {
   skillLevel: string;
   estimatedMinutes: number;
   phaseCount: number;
+  goal: string;
+  demoUrl: string;
+}
+
+export interface LearningPhaseProto {
+  id: string;
+  title: string;
+  description: string;
+  /** JSON-encoded string */
+  goal: string;
+  phaseNumber: number;
+  estimatedMinutes: number;
+}
+
+export interface GetProjectWithPhasesRequest {
+  projectId: string;
+  /** optional – when provided, locked/already_started are computed */
+  email: string;
+}
+
+export interface GetProjectWithPhasesResponse {
+  project: Project | undefined;
+  phases: LearningPhaseProto[];
+  /** true when user has another in_progress project */
+  locked: boolean;
+  /** true when user already owns this project */
+  alreadyStarted: boolean;
 }
 
 function createBaseGetAllProjectsRequest(): GetAllProjectsRequest {
@@ -273,7 +300,7 @@ export const GetProjectByIdResponse: MessageFns<GetProjectByIdResponse> = {
 };
 
 function createBaseProject(): Project {
-  return { id: "", name: "", techStack: [], skillLevel: "", estimatedMinutes: 0, phaseCount: 0 };
+  return { id: "", name: "", techStack: [], skillLevel: "", estimatedMinutes: 0, phaseCount: 0, goal: "", demoUrl: "" };
 }
 
 export const Project: MessageFns<Project> = {
@@ -295,6 +322,12 @@ export const Project: MessageFns<Project> = {
     }
     if (message.phaseCount !== 0) {
       writer.uint32(48).int32(message.phaseCount);
+    }
+    if (message.goal !== "") {
+      writer.uint32(58).string(message.goal);
+    }
+    if (message.demoUrl !== "") {
+      writer.uint32(66).string(message.demoUrl);
     }
     return writer;
   },
@@ -354,6 +387,22 @@ export const Project: MessageFns<Project> = {
           message.phaseCount = reader.int32();
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.goal = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.demoUrl = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -387,6 +436,12 @@ export const Project: MessageFns<Project> = {
         : isSet(object.phase_count)
         ? globalThis.Number(object.phase_count)
         : 0,
+      goal: isSet(object.goal) ? globalThis.String(object.goal) : "",
+      demoUrl: isSet(object.demoUrl)
+        ? globalThis.String(object.demoUrl)
+        : isSet(object.demo_url)
+        ? globalThis.String(object.demo_url)
+        : "",
     };
   },
 
@@ -410,6 +465,12 @@ export const Project: MessageFns<Project> = {
     if (message.phaseCount !== 0) {
       obj.phaseCount = Math.round(message.phaseCount);
     }
+    if (message.goal !== "") {
+      obj.goal = message.goal;
+    }
+    if (message.demoUrl !== "") {
+      obj.demoUrl = message.demoUrl;
+    }
     return obj;
   },
 
@@ -424,6 +485,352 @@ export const Project: MessageFns<Project> = {
     message.skillLevel = object.skillLevel ?? "";
     message.estimatedMinutes = object.estimatedMinutes ?? 0;
     message.phaseCount = object.phaseCount ?? 0;
+    message.goal = object.goal ?? "";
+    message.demoUrl = object.demoUrl ?? "";
+    return message;
+  },
+};
+
+function createBaseLearningPhaseProto(): LearningPhaseProto {
+  return { id: "", title: "", description: "", goal: "", phaseNumber: 0, estimatedMinutes: 0 };
+}
+
+export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
+  encode(message: LearningPhaseProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.title !== "") {
+      writer.uint32(18).string(message.title);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    if (message.goal !== "") {
+      writer.uint32(34).string(message.goal);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(40).int32(message.phaseNumber);
+    }
+    if (message.estimatedMinutes !== 0) {
+      writer.uint32(48).int32(message.estimatedMinutes);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LearningPhaseProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLearningPhaseProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.goal = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.estimatedMinutes = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): LearningPhaseProto {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      goal: isSet(object.goal) ? globalThis.String(object.goal) : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+      estimatedMinutes: isSet(object.estimatedMinutes)
+        ? globalThis.Number(object.estimatedMinutes)
+        : isSet(object.estimated_minutes)
+        ? globalThis.Number(object.estimated_minutes)
+        : 0,
+    };
+  },
+
+  toJSON(message: LearningPhaseProto): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.title !== "") {
+      obj.title = message.title;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.goal !== "") {
+      obj.goal = message.goal;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    if (message.estimatedMinutes !== 0) {
+      obj.estimatedMinutes = Math.round(message.estimatedMinutes);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<LearningPhaseProto>, I>>(base?: I): LearningPhaseProto {
+    return LearningPhaseProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<LearningPhaseProto>, I>>(object: I): LearningPhaseProto {
+    const message = createBaseLearningPhaseProto();
+    message.id = object.id ?? "";
+    message.title = object.title ?? "";
+    message.description = object.description ?? "";
+    message.goal = object.goal ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    message.estimatedMinutes = object.estimatedMinutes ?? 0;
+    return message;
+  },
+};
+
+function createBaseGetProjectWithPhasesRequest(): GetProjectWithPhasesRequest {
+  return { projectId: "", email: "" };
+}
+
+export const GetProjectWithPhasesRequest: MessageFns<GetProjectWithPhasesRequest> = {
+  encode(message: GetProjectWithPhasesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.projectId !== "") {
+      writer.uint32(10).string(message.projectId);
+    }
+    if (message.email !== "") {
+      writer.uint32(18).string(message.email);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetProjectWithPhasesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetProjectWithPhasesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetProjectWithPhasesRequest {
+    return {
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+    };
+  },
+
+  toJSON(message: GetProjectWithPhasesRequest): unknown {
+    const obj: any = {};
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetProjectWithPhasesRequest>, I>>(base?: I): GetProjectWithPhasesRequest {
+    return GetProjectWithPhasesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetProjectWithPhasesRequest>, I>>(object: I): GetProjectWithPhasesRequest {
+    const message = createBaseGetProjectWithPhasesRequest();
+    message.projectId = object.projectId ?? "";
+    message.email = object.email ?? "";
+    return message;
+  },
+};
+
+function createBaseGetProjectWithPhasesResponse(): GetProjectWithPhasesResponse {
+  return { project: undefined, phases: [], locked: false, alreadyStarted: false };
+}
+
+export const GetProjectWithPhasesResponse: MessageFns<GetProjectWithPhasesResponse> = {
+  encode(message: GetProjectWithPhasesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.project !== undefined) {
+      Project.encode(message.project, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.phases) {
+      LearningPhaseProto.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.locked !== false) {
+      writer.uint32(24).bool(message.locked);
+    }
+    if (message.alreadyStarted !== false) {
+      writer.uint32(32).bool(message.alreadyStarted);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetProjectWithPhasesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetProjectWithPhasesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.project = Project.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.phases.push(LearningPhaseProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.locked = reader.bool();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.alreadyStarted = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetProjectWithPhasesResponse {
+    return {
+      project: isSet(object.project) ? Project.fromJSON(object.project) : undefined,
+      phases: globalThis.Array.isArray(object?.phases)
+        ? object.phases.map((e: any) => LearningPhaseProto.fromJSON(e))
+        : [],
+      locked: isSet(object.locked) ? globalThis.Boolean(object.locked) : false,
+      alreadyStarted: isSet(object.alreadyStarted)
+        ? globalThis.Boolean(object.alreadyStarted)
+        : isSet(object.already_started)
+        ? globalThis.Boolean(object.already_started)
+        : false,
+    };
+  },
+
+  toJSON(message: GetProjectWithPhasesResponse): unknown {
+    const obj: any = {};
+    if (message.project !== undefined) {
+      obj.project = Project.toJSON(message.project);
+    }
+    if (message.phases?.length) {
+      obj.phases = message.phases.map((e) => LearningPhaseProto.toJSON(e));
+    }
+    if (message.locked !== false) {
+      obj.locked = message.locked;
+    }
+    if (message.alreadyStarted !== false) {
+      obj.alreadyStarted = message.alreadyStarted;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetProjectWithPhasesResponse>, I>>(base?: I): GetProjectWithPhasesResponse {
+    return GetProjectWithPhasesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetProjectWithPhasesResponse>, I>>(object: I): GetProjectWithPhasesResponse {
+    const message = createBaseGetProjectWithPhasesResponse();
+    message.project = (object.project !== undefined && object.project !== null)
+      ? Project.fromPartial(object.project)
+      : undefined;
+    message.phases = object.phases?.map((e) => LearningPhaseProto.fromPartial(e)) || [];
+    message.locked = object.locked ?? false;
+    message.alreadyStarted = object.alreadyStarted ?? false;
     return message;
   },
 };
@@ -454,6 +861,18 @@ export const ProjectServiceService = {
       Buffer.from(GetProjectByIdResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): GetProjectByIdResponse => GetProjectByIdResponse.decode(value),
   },
+  /** Returns a project with all its learning phases */
+  getProjectWithPhases: {
+    path: "/project.ProjectService/GetProjectWithPhases" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetProjectWithPhasesRequest): Buffer =>
+      Buffer.from(GetProjectWithPhasesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetProjectWithPhasesRequest => GetProjectWithPhasesRequest.decode(value),
+    responseSerialize: (value: GetProjectWithPhasesResponse): Buffer =>
+      Buffer.from(GetProjectWithPhasesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetProjectWithPhasesResponse => GetProjectWithPhasesResponse.decode(value),
+  },
 } as const;
 
 export interface ProjectServiceServer extends UntypedServiceImplementation {
@@ -461,6 +880,8 @@ export interface ProjectServiceServer extends UntypedServiceImplementation {
   getAllProjects: handleUnaryCall<GetAllProjectsRequest, GetAllProjectsResponse>;
   /** Returns a single project by its id */
   getProjectById: handleUnaryCall<GetProjectByIdRequest, GetProjectByIdResponse>;
+  /** Returns a project with all its learning phases */
+  getProjectWithPhases: handleUnaryCall<GetProjectWithPhasesRequest, GetProjectWithPhasesResponse>;
 }
 
 export interface ProjectServiceClient extends Client {
@@ -495,6 +916,22 @@ export interface ProjectServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: GetProjectByIdResponse) => void,
+  ): ClientUnaryCall;
+  /** Returns a project with all its learning phases */
+  getProjectWithPhases(
+    request: GetProjectWithPhasesRequest,
+    callback: (error: ServiceError | null, response: GetProjectWithPhasesResponse) => void,
+  ): ClientUnaryCall;
+  getProjectWithPhases(
+    request: GetProjectWithPhasesRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetProjectWithPhasesResponse) => void,
+  ): ClientUnaryCall;
+  getProjectWithPhases(
+    request: GetProjectWithPhasesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetProjectWithPhasesResponse) => void,
   ): ClientUnaryCall;
 }
 

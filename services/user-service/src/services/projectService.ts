@@ -40,3 +40,7 @@ export const getAllCatalogueProjects = async () => {
 export const getCatalogueProjectById = async (projectId: string) => {
   return await projectRepo.getCatalogueProjectById(projectId);
 };
+
+export const getProjectWithPhases = async (projectId: string) => {
+  return await projectRepo.getCatalogueProjectById(projectId);
+};

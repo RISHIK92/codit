@@ -21,8 +21,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_GetAllProjects_FullMethodName = "/project.ProjectService/GetAllProjects"
-	ProjectService_GetProjectById_FullMethodName = "/project.ProjectService/GetProjectById"
+	ProjectService_GetAllProjects_FullMethodName       = "/project.ProjectService/GetAllProjects"
+	ProjectService_GetProjectById_FullMethodName       = "/project.ProjectService/GetProjectById"
+	ProjectService_GetProjectWithPhases_FullMethodName = "/project.ProjectService/GetProjectWithPhases"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -33,6 +34,8 @@ type ProjectServiceClient interface {
 	GetAllProjects(ctx context.Context, in *GetAllProjectsRequest, opts ...grpc.CallOption) (*GetAllProjectsResponse, error)
 	// Returns a single project by its id
 	GetProjectById(ctx context.Context, in *GetProjectByIdRequest, opts ...grpc.CallOption) (*GetProjectByIdResponse, error)
+	// Returns a project with all its learning phases
+	GetProjectWithPhases(ctx context.Context, in *GetProjectWithPhasesRequest, opts ...grpc.CallOption) (*GetProjectWithPhasesResponse, error)
 }
 
 type projectServiceClient struct {
@@ -63,6 +66,16 @@ func (c *projectServiceClient) GetProjectById(ctx context.Context, in *GetProjec
 	return out, nil
 }
 
+func (c *projectServiceClient) GetProjectWithPhases(ctx context.Context, in *GetProjectWithPhasesRequest, opts ...grpc.CallOption) (*GetProjectWithPhasesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProjectWithPhasesResponse)
+	err := c.cc.Invoke(ctx, ProjectService_GetProjectWithPhases_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
@@ -71,6 +84,8 @@ type ProjectServiceServer interface {
 	GetAllProjects(context.Context, *GetAllProjectsRequest) (*GetAllProjectsResponse, error)
 	// Returns a single project by its id
 	GetProjectById(context.Context, *GetProjectByIdRequest) (*GetProjectByIdResponse, error)
+	// Returns a project with all its learning phases
+	GetProjectWithPhases(context.Context, *GetProjectWithPhasesRequest) (*GetProjectWithPhasesResponse, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -86,6 +101,9 @@ func (UnimplementedProjectServiceServer) GetAllProjects(context.Context, *GetAll
 }
 func (UnimplementedProjectServiceServer) GetProjectById(context.Context, *GetProjectByIdRequest) (*GetProjectByIdResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProjectById not implemented")
+}
+func (UnimplementedProjectServiceServer) GetProjectWithPhases(context.Context, *GetProjectWithPhasesRequest) (*GetProjectWithPhasesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProjectWithPhases not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -144,6 +162,24 @@ func _ProjectService_GetProjectById_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_GetProjectWithPhases_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProjectWithPhasesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).GetProjectWithPhases(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_GetProjectWithPhases_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).GetProjectWithPhases(ctx, req.(*GetProjectWithPhasesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -158,6 +194,10 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProjectById",
 			Handler:    _ProjectService_GetProjectById_Handler,
+		},
+		{
+			MethodName: "GetProjectWithPhases",
+			Handler:    _ProjectService_GetProjectWithPhases_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,197 +1,406 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useAuthStore, useUserStore } from "@/lib/stores";
+import {
+  getProjectWithPhases,
+  createUserProject,
+  type CatalogueProjectDTO,
+  type LearningPhaseDTO,
+} from "@/lib/api/projectsApi";
 
-export default function ProjectDetailPage() {
-  const [selectedQuizOption, setSelectedQuizOption] = useState<number | null>(null);
-  const [showExplanation, setShowExplanation] = useState(false);
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-  // Mock quiz checking
-  const handleOptionSelect = (index: number) => {
-    setSelectedQuizOption(index);
-    setShowExplanation(true);
-  };
+type SkillLevel = "beginner" | "intermediate" | "advanced";
+
+const SKILL_META: Record<
+  SkillLevel,
+  { label: string; color: string; dot: string }
+> = {
+  beginner: {
+    label: "Beginner",
+    color: "text-success border-success/30 bg-success/5",
+    dot: "bg-success",
+  },
+  intermediate: {
+    label: "Intermediate",
+    color: "text-warning border-warning/30 bg-warning/5",
+    dot: "bg-warning",
+  },
+  advanced: {
+    label: "Advanced",
+    color: "text-[#b8a4e8] border-[#b8a4e8]/30 bg-[#b8a4e8]/5",
+    dot: "bg-[#b8a4e8]",
+  },
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function fmtMinutes(mins: number): string {
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function calcEndDate(
+  estimatedMinutes: number,
+  hoursPerWeek: number | null | undefined,
+): string {
+  if (!hoursPerWeek || hoursPerWeek <= 0) return "Set weekly hours in profile";
+  const totalHours = estimatedMinutes / 60;
+  const daysNeeded = Math.ceil((totalHours / hoursPerWeek) * 7);
+  const end = new Date();
+  end.setDate(end.getDate() + daysNeeded);
+  return end.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// ─── Phase Accordion Item ─────────────────────────────────────────────────────
+
+function PhaseItem({
+  phase,
+  index,
+}: {
+  phase: LearningPhaseDTO;
+  index: number;
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Parse goal — DB stores it as a JSON string or plain string
+  let goalText = "";
+  try {
+    const parsed = JSON.parse(phase.goal);
+    if (typeof parsed === "string") goalText = parsed;
+    else if (typeof parsed === "object" && parsed !== null) {
+      goalText = Object.values(parsed).join(" · ");
+    }
+  } catch {
+    goalText = phase.goal ?? "";
+  }
 
   return (
-    <div className="flex min-h-[calc(100vh-80px)]">
-      {/* ── PHASE NAVIGATION (LEFT MINI-SIDEBAR) ── */}
-      <aside className="w-[200px] bg-surface border-r border-border-s p-6 sticky top-[80px] h-[calc(100vh-80px)] overflow-y-auto hidden md:block">
-        <div className="mb-6">
-          <Link href="/dashboard" className="flex items-center gap-2 font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] text-txt-secondary transition-colors hover:text-accent">
-            <span>←</span> Back to Dashboard
-          </Link>
-          <h2 className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-txt mt-4 mb-2">
-            Invoice Generator
-          </h2>
-          <div className="font-[family-name:var(--font-dm)] text-[10px] text-txt-ghost">
-            Phase 2 Progress: 40%
-          </div>
+    <div
+      className={`border border-border-s rounded-sm bg-void transition-all duration-200 ${open ? "border-border-a/30" : "hover:border-border-a/20"}`}
+    >
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-4 p-5 text-left"
+      >
+        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-(family-name:--font-dm) text-[11px] text-txt-ghost">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="flex-1 font-(family-name:--font-cormorant) text-[18px] font-medium text-txt leading-tight">
+          {phase.title}
+        </span>
+        <span className="shrink-0 font-(family-name:--font-dm) text-[11px] text-txt-ghost">
+          {fmtMinutes(phase.estimated_minutes)}
+        </span>
+        <span
+          className={`shrink-0 transition-transform duration-200 text-txt-ghost text-xs ${open ? "rotate-180" : ""}`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 pt-0 flex flex-col gap-4 border-t border-border-s">
+          {phase.description && (
+            <div className="pt-4">
+              <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-2">
+                Description
+              </p>
+              <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-txt-muted">
+                {phase.description}
+              </p>
+            </div>
+          )}
+          {goalText && (
+            <div>
+              <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-2">
+                Learning Goal
+              </p>
+              <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-accent/80">
+                {goalText}
+              </p>
+            </div>
+          )}
         </div>
+      )}
+    </div>
+  );
+}
 
-        <ul className="list-none p-0 flex flex-col gap-1">
-          <li className="flex items-center gap-3 p-2 rounded-md font-[family-name:var(--font-dm)] text-xs text-status-complete cursor-pointer relative">
-            <span className="w-2 h-2 rounded-full border-[1.5px] border-status-complete bg-status-complete shrink-0" />
-            Introduction
-          </li>
-          <li className="flex items-center gap-3 p-2 rounded-md font-[family-name:var(--font-dm)] text-xs text-status-complete cursor-pointer relative">
-            <span className="w-2 h-2 rounded-full border-[1.5px] border-status-complete bg-status-complete shrink-0" />
-            Backend Setup
-          </li>
-          <li className="flex items-center gap-3 p-2 rounded-md font-[family-name:var(--font-dm)] text-xs text-accent bg-[rgba(200,240,232,0.08)] cursor-pointer relative overflow-hidden">
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-accent rounded-r-sm" />
-            <span className="w-2 h-2 rounded-full border-[1.5px] border-accent bg-accent shadow-[0_0_12px_var(--accent-primary)] animate-[pulse_2s_ease-in-out_infinite] shrink-0" />
-            API Endpoints (Current)
-          </li>
-          <li className="flex items-center gap-3 p-2 rounded-md font-[family-name:var(--font-dm)] text-xs text-txt-secondary hover:text-txt hover:bg-glass cursor-pointer relative">
-            <span className="w-2 h-2 rounded-full border-[1.5px] border-current shrink-0" />
-            Database Models
-          </li>
-          <li className="flex items-center gap-3 p-2 rounded-md font-[family-name:var(--font-dm)] text-xs text-txt-secondary opacity-30 cursor-not-allowed relative">
-            <span className="w-2 h-2 rounded-full border-[1.5px] border-current shrink-0" />
-            Testing
-          </li>
-          
-          <div className="my-2 border-t border-border-s border-dashed" />
-          
-          <li className="flex items-center gap-3 p-2 rounded-md font-[family-name:var(--font-dm)] text-xs text-txt-secondary opacity-30 cursor-not-allowed relative">
-            <span className="w-2 h-2 rounded-full border-[1.5px] border-current shrink-0" />
-            Submit Project
-          </li>
-        </ul>
-      </aside>
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
-      {/* ── LEARNING CANVAS (CENTER) ── */}
-      <div className="flex-1 p-[48px_64px] max-w-[1000px] mx-auto">
-        <div className="mb-8 animate-fadeUp">
-          <div className="flex items-center gap-2 font-[family-name:var(--font-dm)] text-[11px] text-txt-ghost mb-4">
-            <span>Phase 2</span>
-            <span>/</span>
-            <span className="text-txt-secondary">API Endpoints</span>
-          </div>
-          <h1 className="font-[family-name:var(--font-cormorant)] text-[42px] font-semibold text-txt leading-[1.2] mb-3">
-            Building the Invoice API
-          </h1>
-          <p className="font-[family-name:var(--font-dm)] text-sm leading-[1.8] text-txt-secondary max-w-[700px]">
-            In this lesson, we will implement the RESTful endpoints for invoice creation and retrieval. You&apos;ll learn advanced state lifting techniques for when our frontend connects to this API.
+export default function ProjectDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const projectId = params?.id as string;
+
+  const { user } = useAuthStore();
+  const { profile } = useUserStore();
+
+  const [project, setProject] = useState<CatalogueProjectDTO | null>(null);
+  const [phases, setPhases] = useState<LearningPhaseDTO[]>([]);
+  const [locked, setLocked] = useState(false);
+  const [alreadyStarted, setAlreadyStarted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+
+  // Fetch project detail on mount — auth-protected so backend computes lock state
+  useEffect(() => {
+    if (!projectId || !user) return;
+    setLoading(true);
+    user.getIdToken().then((token) =>
+      getProjectWithPhases(token, projectId)
+        .then((data) => {
+          setProject(data.project ?? null);
+          setPhases(data.phases ?? []);
+          setLocked(data.locked ?? false);
+          setAlreadyStarted(data.already_started ?? false);
+          setLoading(false);
+        })
+        .catch((err: Error) => {
+          setError(err.message);
+          setLoading(false);
+        }),
+    );
+  }, [projectId, user]);
+
+  const handleContinue = async () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    setAdding(true);
+    setAddError(null);
+    try {
+      const token = await user.getIdToken();
+      await createUserProject(token, projectId);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setAddError(err.message ?? "Failed to add project");
+      setAdding(false);
+    }
+  };
+
+  const skill = (project?.skill_level ?? "beginner") as SkillLevel;
+  const meta = SKILL_META[skill] ?? SKILL_META.beginner;
+  const endDate = calcEndDate(
+    project?.estimated_minutes ?? 0,
+    profile?.hours_per_week,
+  );
+
+  // ── Loading ────────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
+          <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost tracking-widest uppercase">
+            Loading project
           </p>
         </div>
+      </div>
+    );
+  }
 
-        {/* Video Player Block */}
-        <div className="bg-elevated border border-border-s rounded-2xl p-8 mb-8 relative overflow-hidden animate-fadeUp [animation-delay:0.1s]">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-[var(--gradient-iris)]" />
-          
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-txt flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-void flex items-center justify-center text-lg shrink-0">
-                ▶
-              </div>
-              Core Concept Video
-            </h2>
-            <div className="flex items-center gap-4 font-[family-name:var(--font-dm)] text-[11px] text-txt-ghost">
-              <span>⏱ 14:20</span>
-            </div>
+  // ── Error ──────────────────────────────────────────────────────────────────
+  if (error || !project) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
+        <div className="text-center">
+          <p className="font-(family-name:--font-cormorant) text-2xl text-txt mb-2">
+            Project not found
+          </p>
+          <p className="font-(family-name:--font-dm) text-sm text-txt-muted mb-6">
+            {error}
+          </p>
+          <Link
+            href="/dashboard/projects"
+            className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors"
+          >
+            ← Browse Projects
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main ───────────────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-[calc(100vh-80px)] bg-surface">
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        {/* Back link */}
+        <Link
+          href="/dashboard/projects"
+          className="inline-flex items-center gap-2 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt-muted transition-colors mb-10"
+        >
+          ← Browse Projects
+        </Link>
+
+        {/* Header card */}
+        <div className="bg-void border border-border-s rounded-sm p-8 mb-6 relative overflow-hidden">
+          {/* Subtle gradient line top */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-accent/20 to-transparent" />
+
+          {/* Skill badge */}
+          <div className="flex items-center gap-3 mb-5">
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${meta.color}`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+              {meta.label}
+            </span>
+            {project.demo_url && (
+              <a
+                href={project.demo_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-gray-400 hover:text-accent transition-colors border border-border-s px-2.5 py-0.5 rounded-sm"
+              >
+                View Demo ↗
+              </a>
+            )}
           </div>
 
-          <div className="w-full aspect-video rounded-xl bg-void mb-5 border border-border-s relative overflow-hidden flex items-center justify-center">
-            {/* Generic Video Placeholder */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(127,255,212,0.1)_0%,transparent_70%)]" />
-            <button className="w-16 h-16 rounded-full bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.2)] backdrop-blur text-2xl flex items-center justify-center transition-transform hover:scale-110 pl-1">
-              ▶
-            </button>
-          </div>
+          {/* Title */}
+          <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-tight mb-4">
+            {project.name}
+          </h1>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { time: "0:00", label: "Intro" },
-              { time: "3:45", label: "State vs Context" },
-              { time: "8:20", label: "API Structure" },
-              { time: "12:10", label: "Implementation" },
-            ].map((ts, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-[rgba(200,240,232,0.04)] border border-[rgba(200,240,232,0.1)] rounded-lg cursor-pointer transition-all hover:bg-[rgba(200,240,232,0.08)] hover:border-[rgba(200,240,232,0.2)] hover:translate-x-1">
-                <span className="font-[family-name:var(--font-bebas)] text-lg text-accent">{ts.time}</span>
-                <span className="font-[family-name:var(--font-dm)] text-xs text-txt-secondary">{ts.label}</span>
-              </div>
+          {/* Goal */}
+          {project.goal && (
+            <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-txt-muted mb-6 max-w-2xl">
+              {project.goal}
+            </p>
+          )}
+
+          {/* Tech stack */}
+          <div className="flex flex-wrap gap-2">
+            {project.tech_stack.map((t) => (
+              <span
+                key={t}
+                className="font-(family-name:--font-dm) text-[10px] text-txt-ghost border border-border-s rounded-sm px-2 py-0.5 bg-surface"
+              >
+                {t}
+              </span>
             ))}
           </div>
         </div>
 
-        {/* Knowledge Check Quiz Block */}
-        <div className="bg-elevated border border-border-s rounded-2xl p-8 mb-8 relative overflow-hidden animate-fadeUp [animation-delay:0.2s]">
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-[var(--gradient-iris)]" />
-          
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-2xl font-semibold text-txt flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-void flex items-center justify-center text-lg shrink-0">
-                📝
-              </div>
-              Knowledge Check
-            </h2>
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-void border border-border-s rounded-sm p-4 flex flex-col gap-1">
+            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+              Total Time
+            </p>
+            <p className="font-(family-name:--font-cormorant) text-2xl text-txt">
+              {fmtMinutes(project.estimated_minutes)}
+            </p>
           </div>
+          <div className="bg-void border border-border-s rounded-sm p-4 flex flex-col gap-1">
+            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+              Phases
+            </p>
+            <p className="font-(family-name:--font-cormorant) text-2xl text-txt">
+              {phases.length || project.phase_count}
+            </p>
+          </div>
+          <div className="bg-void border border-border-s rounded-sm p-4 flex flex-col gap-1">
+            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+              {profile?.hours_per_week ? "Est. Completion" : "Completion Date"}
+            </p>
+            <p
+              className={`font-(family-name:--font-cormorant) text-xl leading-tight ${profile?.hours_per_week ? "text-txt" : "text-txt-ghost italic text-base"}`}
+            >
+              {endDate}
+            </p>
+          </div>
+        </div>
 
-          <div className="py-2">
-            <h3 className="font-[family-name:var(--font-cormorant)] text-[22px] font-semibold text-txt mb-6 leading-[1.4]">
-              Where should generic application state be kept when multiple deeply nested components need it?
-            </h3>
-
-            <div className="flex flex-col gap-3 mb-6">
-              {[
-                { text: "At the topmost common ancestor using useState and prop drilling", correct: false },
-                { text: "In a dedicated Context API provider wrapping those components", correct: true },
-                { text: "Inside standard HTML data-attributes", correct: false },
-              ].map((option, i) => {
-                const isSelected = selectedQuizOption === i;
-                const isCorrect = showExplanation && option.correct;
-                const isWrong = showExplanation && isSelected && !option.correct;
-
-                return (
-                  <div 
-                    key={i} 
-                    onClick={() => !showExplanation && handleOptionSelect(i)}
-                    className={`flex items-start gap-4 p-5 bg-void border-2 border-border-s rounded-xl relative transition-all duration-250 cursor-pointer 
-                      ${!showExplanation ? "hover:border-border-a hover:bg-[var(--bg-glass)] hover:translate-x-1" : ""}
-                      ${isSelected && !showExplanation ? "border-accent bg-[rgba(200,240,232,0.06)]" : ""}
-                      ${isCorrect ? "border-status-complete bg-[rgba(168,230,207,0.08)]" : ""}
-                      ${isWrong ? "border-error bg-[rgba(255,107,122,0.08)]" : ""}
-                    `}
-                  >
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                      ${!isSelected && !showExplanation ? "border-border-a" : ""}
-                      ${isSelected && !showExplanation ? "bg-accent border-accent" : ""}
-                      ${isCorrect ? "bg-status-complete border-status-complete text-void font-bold text-sm" : ""}
-                      ${isWrong ? "bg-error border-error text-white font-bold text-sm" : ""}
-                    `}>
-                      {isCorrect && "✓"}
-                      {isWrong && "✕"}
-                    </div>
-                    <div className="flex-1 font-[family-name:var(--font-dm)] text-sm leading-[1.6] text-txt">
-                      {option.text}
-                    </div>
-                  </div>
-                );
-              })}
+        {/* Learning Phases */}
+        {phases.length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-(family-name:--font-cormorant) text-2xl text-txt mb-4">
+              Learning Phases
+            </h2>
+            <div className="flex flex-col gap-3">
+              {phases.map((phase, i) => (
+                <PhaseItem key={phase.id} phase={phase} index={i} />
+              ))}
             </div>
+          </div>
+        )}
 
-            {showExplanation && (
-              <div className="p-5 bg-[rgba(127,255,212,0.06)] border border-[rgba(127,255,212,0.2)] rounded-xl mt-5 font-[family-name:var(--font-dm)] text-[13px] leading-[1.7] text-txt animate-fadeUp">
-                <strong>Explanation: </strong>
-                Using a React Context Provider allows deeply nested components to access generic application state directly without needing to forcefully prop-drill via intermediate layers.
-              </div>
+        {/* CTA */}
+        <div className="bg-void border border-border-s rounded-sm p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="font-(family-name:--font-cormorant) text-xl text-txt mb-1">
+              {alreadyStarted
+                ? "Continue your journey"
+                : locked
+                  ? "Project slot occupied"
+                  : "Ready to start?"}
+            </p>
+            <p className="font-(family-name:--font-dm) text-xs text-txt-muted">
+              {alreadyStarted
+                ? "This project is already in your workspace."
+                : locked
+                  ? "Complete or archive your current project before starting a new one."
+                  : "Add this project to your workspace and start building."}
+            </p>
+            {addError && (
+              <p className="font-(family-name:--font-dm) text-[11px] text-error mt-2">
+                {addError}
+              </p>
             )}
           </div>
+
+          {alreadyStarted ? (
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="shrink-0 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          ) : locked ? (
+            <div className="shrink-0 flex flex-col items-end gap-1.5">
+              <button
+                disabled
+                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border border-border-s text-txt-ghost px-6 py-2.5 rounded-sm cursor-not-allowed opacity-50"
+              >
+                Locked
+              </button>
+              <p className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+                Finish your current project first
+              </p>
+            </div>
+          ) : (
+            <button
+              onClick={handleContinue}
+              disabled={adding}
+              className="shrink-0 font-(family-name:--font-dm) text-[11px] cursor-pointer uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {adding ? (
+                <>
+                  <span className="w-3 h-3 rounded-full border border-accent/40 border-t-accent animate-spin" />
+                  Adding…
+                </>
+              ) : (
+                "Continue with this project →"
+              )}
+            </button>
+          )}
         </div>
-
-        {/* Navigation Footer */}
-        <div className="flex justify-between items-center pt-12 mt-12 border-t border-border-s">
-          <button className="flex items-center gap-2 px-7 py-3.5 bg-elevated border border-border-s text-txt rounded-lg font-[family-name:var(--font-dm)] text-[13px] tracking-[0.06em] uppercase cursor-pointer transition-all hover:border-border-a hover:-translate-x-1">
-            <span>←</span> Backend Setup
-          </button>
-
-          <Link href="/dashboard/projects/1/sandbox" className="flex items-center gap-2 px-7 py-3.5 bg-accent text-void rounded-lg font-[family-name:var(--font-dm)] text-[13px] tracking-[0.06em] uppercase cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(127,255,212,0.25)]">
-            Open Sandbox <span>→</span>
-          </Link>
-        </div>
-
       </div>
     </div>
   );

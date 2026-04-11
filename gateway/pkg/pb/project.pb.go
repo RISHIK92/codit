@@ -199,6 +199,8 @@ type Project struct {
 	SkillLevel       string                 `protobuf:"bytes,4,opt,name=skill_level,json=skillLevel,proto3" json:"skill_level,omitempty"`
 	EstimatedMinutes int32                  `protobuf:"varint,5,opt,name=estimated_minutes,json=estimatedMinutes,proto3" json:"estimated_minutes,omitempty"`
 	PhaseCount       int32                  `protobuf:"varint,6,opt,name=phase_count,json=phaseCount,proto3" json:"phase_count,omitempty"`
+	Goal             string                 `protobuf:"bytes,7,opt,name=goal,proto3" json:"goal,omitempty"`
+	DemoUrl          string                 `protobuf:"bytes,8,opt,name=demo_url,json=demoUrl,proto3" json:"demo_url,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -275,6 +277,224 @@ func (x *Project) GetPhaseCount() int32 {
 	return 0
 }
 
+func (x *Project) GetGoal() string {
+	if x != nil {
+		return x.Goal
+	}
+	return ""
+}
+
+func (x *Project) GetDemoUrl() string {
+	if x != nil {
+		return x.DemoUrl
+	}
+	return ""
+}
+
+type LearningPhaseProto struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title            string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Description      string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Goal             string                 `protobuf:"bytes,4,opt,name=goal,proto3" json:"goal,omitempty"` // JSON-encoded string
+	PhaseNumber      int32                  `protobuf:"varint,5,opt,name=phase_number,json=phaseNumber,proto3" json:"phase_number,omitempty"`
+	EstimatedMinutes int32                  `protobuf:"varint,6,opt,name=estimated_minutes,json=estimatedMinutes,proto3" json:"estimated_minutes,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *LearningPhaseProto) Reset() {
+	*x = LearningPhaseProto{}
+	mi := &file_project_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LearningPhaseProto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LearningPhaseProto) ProtoMessage() {}
+
+func (x *LearningPhaseProto) ProtoReflect() protoreflect.Message {
+	mi := &file_project_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LearningPhaseProto.ProtoReflect.Descriptor instead.
+func (*LearningPhaseProto) Descriptor() ([]byte, []int) {
+	return file_project_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *LearningPhaseProto) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LearningPhaseProto) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *LearningPhaseProto) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *LearningPhaseProto) GetGoal() string {
+	if x != nil {
+		return x.Goal
+	}
+	return ""
+}
+
+func (x *LearningPhaseProto) GetPhaseNumber() int32 {
+	if x != nil {
+		return x.PhaseNumber
+	}
+	return 0
+}
+
+func (x *LearningPhaseProto) GetEstimatedMinutes() int32 {
+	if x != nil {
+		return x.EstimatedMinutes
+	}
+	return 0
+}
+
+type GetProjectWithPhasesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"` // optional – when provided, locked/already_started are computed
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectWithPhasesRequest) Reset() {
+	*x = GetProjectWithPhasesRequest{}
+	mi := &file_project_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectWithPhasesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectWithPhasesRequest) ProtoMessage() {}
+
+func (x *GetProjectWithPhasesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_project_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectWithPhasesRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectWithPhasesRequest) Descriptor() ([]byte, []int) {
+	return file_project_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetProjectWithPhasesRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *GetProjectWithPhasesRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type GetProjectWithPhasesResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Project        *Project               `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
+	Phases         []*LearningPhaseProto  `protobuf:"bytes,2,rep,name=phases,proto3" json:"phases,omitempty"`
+	Locked         bool                   `protobuf:"varint,3,opt,name=locked,proto3" json:"locked,omitempty"`                                       // true when user has another in_progress project
+	AlreadyStarted bool                   `protobuf:"varint,4,opt,name=already_started,json=alreadyStarted,proto3" json:"already_started,omitempty"` // true when user already owns this project
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetProjectWithPhasesResponse) Reset() {
+	*x = GetProjectWithPhasesResponse{}
+	mi := &file_project_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectWithPhasesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectWithPhasesResponse) ProtoMessage() {}
+
+func (x *GetProjectWithPhasesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_project_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectWithPhasesResponse.ProtoReflect.Descriptor instead.
+func (*GetProjectWithPhasesResponse) Descriptor() ([]byte, []int) {
+	return file_project_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetProjectWithPhasesResponse) GetProject() *Project {
+	if x != nil {
+		return x.Project
+	}
+	return nil
+}
+
+func (x *GetProjectWithPhasesResponse) GetPhases() []*LearningPhaseProto {
+	if x != nil {
+		return x.Phases
+	}
+	return nil
+}
+
+func (x *GetProjectWithPhasesResponse) GetLocked() bool {
+	if x != nil {
+		return x.Locked
+	}
+	return false
+}
+
+func (x *GetProjectWithPhasesResponse) GetAlreadyStarted() bool {
+	if x != nil {
+		return x.AlreadyStarted
+	}
+	return false
+}
+
 var File_project_proto protoreflect.FileDescriptor
 
 const file_project_proto_rawDesc = "" +
@@ -287,7 +507,7 @@ const file_project_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"D\n" +
 	"\x16GetProjectByIdResponse\x12*\n" +
-	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\"\xbb\x01\n" +
+	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\"\xea\x01\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -297,10 +517,29 @@ const file_project_proto_rawDesc = "" +
 	"skillLevel\x12+\n" +
 	"\x11estimated_minutes\x18\x05 \x01(\x05R\x10estimatedMinutes\x12\x1f\n" +
 	"\vphase_count\x18\x06 \x01(\x05R\n" +
-	"phaseCount2\xb6\x01\n" +
+	"phaseCount\x12\x12\n" +
+	"\x04goal\x18\a \x01(\tR\x04goal\x12\x19\n" +
+	"\bdemo_url\x18\b \x01(\tR\ademoUrl\"\xc0\x01\n" +
+	"\x12LearningPhaseProto\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x12\n" +
+	"\x04goal\x18\x04 \x01(\tR\x04goal\x12!\n" +
+	"\fphase_number\x18\x05 \x01(\x05R\vphaseNumber\x12+\n" +
+	"\x11estimated_minutes\x18\x06 \x01(\x05R\x10estimatedMinutes\"R\n" +
+	"\x1bGetProjectWithPhasesRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\"\xc0\x01\n" +
+	"\x1cGetProjectWithPhasesResponse\x12*\n" +
+	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\x123\n" +
+	"\x06phases\x18\x02 \x03(\v2\x1b.project.LearningPhaseProtoR\x06phases\x12\x16\n" +
+	"\x06locked\x18\x03 \x01(\bR\x06locked\x12'\n" +
+	"\x0falready_started\x18\x04 \x01(\bR\x0ealreadyStarted2\x9b\x02\n" +
 	"\x0eProjectService\x12Q\n" +
 	"\x0eGetAllProjects\x12\x1e.project.GetAllProjectsRequest\x1a\x1f.project.GetAllProjectsResponse\x12Q\n" +
-	"\x0eGetProjectById\x12\x1e.project.GetProjectByIdRequest\x1a\x1f.project.GetProjectByIdResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x0eGetProjectById\x12\x1e.project.GetProjectByIdRequest\x1a\x1f.project.GetProjectByIdResponse\x12c\n" +
+	"\x14GetProjectWithPhases\x12$.project.GetProjectWithPhasesRequest\x1a%.project.GetProjectWithPhasesResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_project_proto_rawDescOnce sync.Once
@@ -314,26 +553,33 @@ func file_project_proto_rawDescGZIP() []byte {
 	return file_project_proto_rawDescData
 }
 
-var file_project_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_project_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_project_proto_goTypes = []any{
-	(*GetAllProjectsRequest)(nil),  // 0: project.GetAllProjectsRequest
-	(*GetAllProjectsResponse)(nil), // 1: project.GetAllProjectsResponse
-	(*GetProjectByIdRequest)(nil),  // 2: project.GetProjectByIdRequest
-	(*GetProjectByIdResponse)(nil), // 3: project.GetProjectByIdResponse
-	(*Project)(nil),                // 4: project.Project
+	(*GetAllProjectsRequest)(nil),        // 0: project.GetAllProjectsRequest
+	(*GetAllProjectsResponse)(nil),       // 1: project.GetAllProjectsResponse
+	(*GetProjectByIdRequest)(nil),        // 2: project.GetProjectByIdRequest
+	(*GetProjectByIdResponse)(nil),       // 3: project.GetProjectByIdResponse
+	(*Project)(nil),                      // 4: project.Project
+	(*LearningPhaseProto)(nil),           // 5: project.LearningPhaseProto
+	(*GetProjectWithPhasesRequest)(nil),  // 6: project.GetProjectWithPhasesRequest
+	(*GetProjectWithPhasesResponse)(nil), // 7: project.GetProjectWithPhasesResponse
 }
 var file_project_proto_depIdxs = []int32{
 	4, // 0: project.GetAllProjectsResponse.projects:type_name -> project.Project
 	4, // 1: project.GetProjectByIdResponse.project:type_name -> project.Project
-	0, // 2: project.ProjectService.GetAllProjects:input_type -> project.GetAllProjectsRequest
-	2, // 3: project.ProjectService.GetProjectById:input_type -> project.GetProjectByIdRequest
-	1, // 4: project.ProjectService.GetAllProjects:output_type -> project.GetAllProjectsResponse
-	3, // 5: project.ProjectService.GetProjectById:output_type -> project.GetProjectByIdResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 2: project.GetProjectWithPhasesResponse.project:type_name -> project.Project
+	5, // 3: project.GetProjectWithPhasesResponse.phases:type_name -> project.LearningPhaseProto
+	0, // 4: project.ProjectService.GetAllProjects:input_type -> project.GetAllProjectsRequest
+	2, // 5: project.ProjectService.GetProjectById:input_type -> project.GetProjectByIdRequest
+	6, // 6: project.ProjectService.GetProjectWithPhases:input_type -> project.GetProjectWithPhasesRequest
+	1, // 7: project.ProjectService.GetAllProjects:output_type -> project.GetAllProjectsResponse
+	3, // 8: project.ProjectService.GetProjectById:output_type -> project.GetProjectByIdResponse
+	7, // 9: project.ProjectService.GetProjectWithPhases:output_type -> project.GetProjectWithPhasesResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_project_proto_init() }
@@ -347,7 +593,7 @@ func file_project_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_project_proto_rawDesc), len(file_project_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

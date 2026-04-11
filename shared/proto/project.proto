@@ -12,6 +12,9 @@ service ProjectService {
 
   // Returns a single project by its id
   rpc GetProjectById (GetProjectByIdRequest) returns (GetProjectByIdResponse);
+
+  // Returns a project with all its learning phases
+  rpc GetProjectWithPhases (GetProjectWithPhasesRequest) returns (GetProjectWithPhasesResponse);
 }
 
 message GetAllProjectsRequest {}
@@ -35,4 +38,27 @@ message Project {
   string skill_level         = 4;
   int32  estimated_minutes   = 5;
   int32  phase_count         = 6;
+  string goal                = 7;
+  string demo_url            = 8;
+}
+
+message LearningPhaseProto {
+  string id                = 1;
+  string title             = 2;
+  string description       = 3;
+  string goal              = 4;  // JSON-encoded string
+  int32  phase_number      = 5;
+  int32  estimated_minutes = 6;
+}
+
+message GetProjectWithPhasesRequest {
+  string project_id = 1;
+  string email      = 2;  // optional – when provided, locked/already_started are computed
+}
+
+message GetProjectWithPhasesResponse {
+  Project                      project         = 1;
+  repeated LearningPhaseProto  phases          = 2;
+  bool                         locked          = 3;  // true when user has another in_progress project
+  bool                         already_started = 4;  // true when user already owns this project
 }

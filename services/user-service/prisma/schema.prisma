@@ -26,6 +26,8 @@ model Projects {
   name              String
   tech_stack        String[]
   skill_level       Skill_Level
+  goal              String
+  demo_url          String?
   estimated_minutes Int
   createdAt         DateTime  @default(now())
 
@@ -33,12 +35,12 @@ model Projects {
   userProjects        UserProjects[]
 }
 
-// ── Adaptive entrance test question pool ────────────────────────────────────
 model EntranceQuestion {
   id             String     @default(uuid()) @unique
   question       String
-  options        String[]   // always 4 entries
-  correct_option Int        // 0-3 index
+  options        String[]
+  correct_option Int
+  description    String
   explanation    String
   difficulty     Difficulty
   topic          String
@@ -58,16 +60,6 @@ model EntranceTestAttempt {
   user         User        @relation(fields: [user_email], references: [email])
 }
 
-enum Difficulty {
-  easy
-  intermediate
-  advanced
-}
-
-enum TestStatus {
-  in_progress
-  completed
-}
 
 model UserProjects {
   id              String   @default(uuid()) @unique
@@ -77,7 +69,8 @@ model UserProjects {
   current_phase   Int      @default(0)
   started_at      DateTime @default(now())
   completed_at    DateTime?
-  
+  archived        Boolean?  @default(false)
+
   user            User @relation(fields: [user_email], references: [email])
   projects        Projects @relation(fields: [project_id], references: [id])
 }
@@ -140,6 +133,17 @@ enum Question_Type {
   code_completion
   multiple_choice
   debug
+}
+
+enum Difficulty {
+  easy
+  intermediate
+  advanced
+}
+
+enum TestStatus {
+  in_progress
+  completed
 }
 
 enum PhaseStatus {

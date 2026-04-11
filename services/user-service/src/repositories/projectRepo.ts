@@ -55,6 +55,17 @@ export const getCatalogueProjectById = async (projectId: string) => {
     where: { id: projectId },
     include: {
       _count: { select: { learningPhases: true } },
+      learningPhases: {
+        orderBy: { phase_number: "asc" },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          goal: true,
+          phase_number: true,
+          estimated_minutes: true,
+        },
+      },
     },
   });
 };
