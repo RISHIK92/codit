@@ -46,6 +46,7 @@ export async function spawnShell(
   term: import("@xterm/xterm").Terminal,
   fitAddon: import("@xterm/addon-fit").FitAddon,
   wc: import("@webcontainer/api").WebContainer,
+  onNameChange?: (name: string) => void
 ): Promise<import("@webcontainer/api").WebContainerProcess> {
   const { cols, rows } = term;
   const shell = await wc.spawn("jsh", { terminal: { cols, rows } });
@@ -56,6 +57,22 @@ export async function spawnShell(
     new WritableStream({
       write: (data) => {
         let out = data;
+
+        // Try to parse the directory from the prompt
+        // eslint-disable-next-line no-control-regex
+        const plainText = out.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, "");
+        const promptMatch = plainText.match(/~(?:\/([^\s❯$]+))?\s*[❯$]/);
+        if (promptMatch) {
+          const path = promptMatch[1];
+          if (path) {
+            const parts = path.split("/");
+            const currentFolder = parts[parts.length - 1];
+            onNameChange?.(currentFolder || "bash");
+          } else {
+            onNameChange?.("bash");
+          }
+        }
+
         if (pendingNewline && out.match(/^\r?\n\x1b\[[0-9;]*m?~\//)) {
           out = out.replace(/^\r?\n/, "");
         }

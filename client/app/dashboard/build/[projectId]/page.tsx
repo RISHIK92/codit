@@ -1413,7 +1413,15 @@ export default function BuildPage() {
                          zIndex: activeTerminalId === t.id ? 10 : 0,
                        }}
                      >
-                       <XTermPanel visible={terminalOpen && activeTerminalId === t.id} wcRef={wcRef} />
+                       <XTermPanel 
+                         visible={terminalOpen && activeTerminalId === t.id} 
+                         wcRef={wcRef} 
+                         onNameChange={(newName) => {
+                           setTerminals(prev => 
+                             prev.map(term => term.id === t.id && term.name !== newName ? { ...term, name: newName } : term)
+                           );
+                         }}
+                       />
                      </div>
                   ))}
                 </div>

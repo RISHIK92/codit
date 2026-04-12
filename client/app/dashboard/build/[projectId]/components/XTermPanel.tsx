@@ -6,12 +6,18 @@ import { spawnShell } from "../utils/wcUtils";
 interface XTermPanelProps {
   visible: boolean;
   wcRef: React.RefObject<import("@webcontainer/api").WebContainer | null>;
+  onNameChange?: (name: string) => void;
 }
 
-export function XTermPanel({ visible, wcRef }: XTermPanelProps) {
+export function XTermPanel({ visible, wcRef, onNameChange }: XTermPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<import("@xterm/xterm").Terminal | null>(null);
   const fitRef = useRef<import("@xterm/addon-fit").FitAddon | null>(null);
+  const onNameChangeRef = useRef(onNameChange);
+
+  useEffect(() => {
+    onNameChangeRef.current = onNameChange;
+  }, [onNameChange]);
 
   useEffect(() => {
     let shellProcess: import("@webcontainer/api").WebContainerProcess | null = null;
@@ -70,14 +76,14 @@ export function XTermPanel({ visible, wcRef }: XTermPanelProps) {
       resizeObserver.observe(containerRef.current);
 
       if (wcRef.current) {
-        shellProcess = await spawnShell(term, fitAddon, wcRef.current);
+        shellProcess = await spawnShell(term, fitAddon, wcRef.current, (name) => onNameChangeRef.current?.(name));
       } else {
         term.writeln("\x1b[2mWaiting for WebContainer to boot…\x1b[0m");
         pollInterval = setInterval(async () => {
           if (wcRef.current) {
             if (pollInterval) clearInterval(pollInterval);
             term.reset();
-            shellProcess = await spawnShell(term, fitAddon, wcRef.current);
+            shellProcess = await spawnShell(term, fitAddon, wcRef.current, (name) => onNameChangeRef.current?.(name));
           }
         }, 300);
       }
