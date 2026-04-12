@@ -41,6 +41,9 @@ message Project {
   string goal                = 7;
   string demo_url            = 8;
   repeated string deliverables = 9;
+  // JSON-encoded array of { filePath, content, isDirectory } entries
+  // representing the project's initial file structure. Empty string means use defaults.
+  string initial_files       = 10;
 }
 
 message LearningPhaseProto {

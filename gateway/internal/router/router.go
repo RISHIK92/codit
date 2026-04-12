@@ -28,6 +28,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	userProjectClient := pb.NewUserProjectServiceClient(conn)
 	projectClient := pb.NewProjectServiceClient(conn)
 	entranceTestClient := pb.NewEntranceTestServiceClient(conn)
+	fileClient := pb.NewFileServiceClient(conn)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
@@ -52,6 +53,13 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Get("/api/projects/detail", proxy.GetProjectWithPhasesProxy(projectClient, userProjectClient))
 		r.Post("/api/entrance-test/start", proxy.StartEntranceTestProxy(entranceTestClient))
 		r.Post("/api/entrance-test/submit", proxy.SubmitEntranceRoundProxy(entranceTestClient))
+
+		// ── File system (relational FS) ─────────────────────────────────────
+		r.Put("/api/files/upsert", proxy.UpsertFileProxy(fileClient))
+		r.Get("/api/files/get", proxy.GetFileProxy(fileClient))
+		r.Get("/api/files/list", proxy.ListFilesProxy(fileClient))
+		r.Delete("/api/files/delete", proxy.DeleteFileProxy(fileClient))
+		r.Post("/api/files/batch-upsert", proxy.BatchUpsertProxy(fileClient))
 	})
 
 	return r

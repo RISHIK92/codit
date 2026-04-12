@@ -1,0 +1,89 @@
+// /shared/proto/file.proto
+
+syntax = "proto3";
+
+package file;
+
+option go_package = "gateway/pkg/pb";
+
+service FileService {
+  rpc UpsertFile    (UpsertFileRequest)    returns (UpsertFileResponse);
+  rpc GetFile       (GetFileRequest)       returns (GetFileResponse);
+  rpc ListFiles     (ListFilesRequest)     returns (ListFilesResponse);
+  rpc DeleteFile    (DeleteFileRequest)    returns (DeleteFileResponse);
+  rpc BatchUpsert   (BatchUpsertRequest)   returns (BatchUpsertResponse);
+}
+
+// ── Upsert (create-or-update) a single file / directory ───────────────────────
+message UpsertFileRequest {
+  string project_id    = 1;
+  string user_email    = 2;
+  string file_path     = 3;   // e.g. /src/components/Button.js
+  string content       = 4;
+  bool   is_directory  = 5;
+}
+
+message UpsertFileResponse {
+  ProjectFile file = 1;
+}
+
+// ── Get a single file ─────────────────────────────────────────────────────────
+message GetFileRequest {
+  string project_id = 1;
+  string user_email = 2;
+  string file_path  = 3;
+}
+
+message GetFileResponse {
+  ProjectFile file = 1;
+}
+
+// ── List all files for a project ──────────────────────────────────────────────
+message ListFilesRequest {
+  string project_id = 1;
+  string user_email = 2;
+}
+
+message ListFilesResponse {
+  repeated ProjectFile files = 1;
+}
+
+// ── Delete a file / directory (+ children if directory) ──────────────────────
+message DeleteFileRequest {
+  string project_id = 1;
+  string user_email = 2;
+  string file_path  = 3;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+}
+
+// ── Batch upsert many files at once (e.g. on initial project load) ────────────
+message BatchUpsertRequest {
+  string           project_id = 1;
+  string           user_email = 2;
+  repeated UpsertEntry entries = 3;
+}
+
+message UpsertEntry {
+  string file_path    = 1;
+  string content      = 2;
+  bool   is_directory = 3;
+}
+
+message BatchUpsertResponse {
+  int32 upserted_count = 1;
+}
+
+// ── Shared message ────────────────────────────────────────────────────────────
+message ProjectFile {
+  string id           = 1;
+  string project_id   = 2;
+  string user_email   = 3;
+  string file_path    = 4;
+  string content      = 5;
+  bool   is_directory = 6;
+  string created_at   = 7;
+  string updated_at   = 8;
+}

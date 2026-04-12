@@ -9,11 +9,12 @@
 package pb
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -202,6 +203,8 @@ type Project struct {
 	Goal             string                 `protobuf:"bytes,7,opt,name=goal,proto3" json:"goal,omitempty"`
 	DemoUrl          string                 `protobuf:"bytes,8,opt,name=demo_url,json=demoUrl,proto3" json:"demo_url,omitempty"`
 	Deliverables     []string               `protobuf:"bytes,9,rep,name=deliverables,proto3" json:"deliverables,omitempty"`
+	// JSON-encoded array of { filePath, content, isDirectory } entries
+	InitialFiles     string                 `protobuf:"bytes,10,opt,name=initial_files,json=initialFiles,proto3" json:"initial_files,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -297,6 +300,13 @@ func (x *Project) GetDeliverables() []string {
 		return x.Deliverables
 	}
 	return nil
+}
+
+func (x *Project) GetInitialFiles() string {
+	if x != nil {
+		return x.InitialFiles
+	}
+	return ""
 }
 
 type LearningPhaseProto struct {

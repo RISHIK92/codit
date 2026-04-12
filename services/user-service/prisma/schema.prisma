@@ -29,6 +29,7 @@ model Projects {
   goal              String
   demo_url          String?
   estimated_minutes Int
+  initial_files     Json?
   createdAt         DateTime  @default(now())
 
   learningPhases      LearningPhase[]
@@ -71,6 +72,22 @@ model EntranceTestAttempt {
 }
 
 
+model ProjectFile {
+  id           String   @id @default(uuid())
+  project_id   String
+  user_email   String
+  file_path    String
+  content      String   @default("")
+  is_directory Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  userProject  UserProjects @relation(fields: [project_id, user_email], references: [project_id, user_email])
+
+  @@unique([project_id, user_email, file_path])
+  @@index([project_id, user_email])
+}
+
 model UserProjects {
   id              String   @default(uuid()) @unique
   project_id      String
@@ -83,6 +100,9 @@ model UserProjects {
 
   user            User @relation(fields: [user_email], references: [email])
   projects        Projects @relation(fields: [project_id], references: [id])
+  projectFiles    ProjectFile[]
+
+  @@unique([project_id, user_email])
 }
 
 model LearningPhase {

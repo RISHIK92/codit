@@ -5,12 +5,6 @@ import { useState } from "react";
 
 export default function SandboxPage() {
   const [activeTab, setActiveTab] = useState("console");
-  const [isRunning, setIsRunning] = useState(false);
-
-  const handleRun = () => {
-    setIsRunning(true);
-    setTimeout(() => setIsRunning(false), 2000);
-  };
 
   const codeString = `import React, { useState } from 'react';
 
@@ -55,23 +49,6 @@ export default function InvoiceForm() {
           <div className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-txt">
             Invoice Form Component
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleRun}
-            disabled={isRunning}
-            className={`flex items-center gap-2 p-[10px_20px] rounded-md text-[12px] font-medium tracking-[0.06em] uppercase text-void transition-all duration-300
-              ${
-                isRunning
-                  ? "bg-warning cursor-not-allowed"
-                  : "bg-accent hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(127,255,212,0.3)] cursor-pointer"
-              }
-            `}
-          >
-            <span>{isRunning ? "⏸" : "▶"}</span>{" "}
-            {isRunning ? "Running..." : "Run"}
-          </button>
         </div>
       </div>
 
@@ -245,12 +222,6 @@ export default function InvoiceForm() {
                 <span className="text-txt-ghost">14:02:46</span>
                 Server running at localhost:3000
               </div>
-              {isRunning && (
-                <div className="flex gap-3 py-1 text-status-complete animate-fadeUp">
-                  <span className="text-txt-ghost">14:02:50</span>
-                  Rebuilding App... Success
-                </div>
-              )}
             </div>
           )}
           {activeTab === "tests" && (

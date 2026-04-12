@@ -10,6 +10,8 @@ import { ProjectServiceService } from "./src/generated/project";
 import { projectCatalogueHandler } from "./src/handlers/projectCatalogueHandler";
 import { EntranceTestServiceService } from "./src/generated/entranceTest";
 import { entranceTestHandler } from "./src/handlers/entranceTestHandler";
+import { FileServiceService } from "./src/generated/file";
+import { fileHandler } from "./src/handlers/fileHandler";
 
 const startServer = () => {
   const server = new grpc.Server();
@@ -18,6 +20,7 @@ const startServer = () => {
   server.addService(UserProjectServiceService, projectHandler);
   server.addService(ProjectServiceService, projectCatalogueHandler);
   server.addService(EntranceTestServiceService, entranceTestHandler);
+  server.addService(FileServiceService, fileHandler);
 
   // Reflection Configuration
   const PROTO_PATH = path.join(__dirname, "../../../shared/proto/user.proto");

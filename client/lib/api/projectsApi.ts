@@ -143,6 +143,17 @@ export interface CatalogueProjectDTO {
   demo_url: string;
   /** Ordered list of project deliverables, e.g. "You'll understand React hooks" */
   deliverables?: string[];
+  /**
+   * Optional per-project seed file-system. If present, the build workspace
+   * loads this structure instead of the generic language default tree.
+   * Shape: Array<{ filePath: string; content: string; isDirectory: boolean }>
+   * The gateway sends this as a JSON-encoded string that is parsed client-side.
+   */
+  initial_files?: Array<{
+    filePath: string;
+    content: string;
+    isDirectory: boolean;
+  }>;
 }
 
 export interface LearningPhaseDTO {
@@ -237,7 +248,27 @@ export async function getProjectWithPhases(
     throw new Error(msg || `Gateway error ${res.status}`);
   }
 
-  return res.json() as Promise<GetProjectWithPhasesResponse>;
+  const data = (await res.json()) as GetProjectWithPhasesResponse & {
+    project?: CatalogueProjectDTO & { initial_files?: unknown };
+  };
+
+  // The gateway sends `initial_files` as a JSON-encoded string (proto field).
+  // Parse it into the expected array shape here so the rest of the app
+  // can treat it as Array<{ filePath, content, isDirectory }>.
+  if (data.project && typeof (data.project as any).initial_files === "string") {
+    const raw = (data.project as any).initial_files as string;
+    if (raw) {
+      try {
+        data.project.initial_files = JSON.parse(raw);
+      } catch {
+        data.project.initial_files = undefined;
+      }
+    } else {
+      data.project.initial_files = undefined;
+    }
+  }
+
+  return data;
 }
 
 /**
