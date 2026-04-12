@@ -1366,50 +1366,16 @@ export default function BuildPage() {
               {/* Terminal header bar */}
               <div
                 onMouseDown={terminalOpen ? handleDragStart : undefined}
-                className={`h-9 shrink-0 flex items-center gap-0 border-b border-border-s bg-surface/50 ${terminalOpen ? "cursor-row-resize" : ""}`}
+                className={`h-9 shrink-0 flex items-center justify-between px-3 border-b border-border-s bg-surface/50 ${terminalOpen ? "cursor-row-resize" : ""}`}
               >
-                <div className="px-3 border-r border-border-s h-full flex items-center shrink-0">
+                <div className="flex items-center gap-2">
                   <Terminal size={12} className="text-accent/70" />
-                </div>
-                
-                <div className="flex-1 flex items-center h-full overflow-x-auto no-scrollbar">
-                  {terminals.map((t) => (
-                    <div
-                      key={t.id}
-                      onClick={(e) => { e.stopPropagation(); setActiveTerminalId(t.id); setTerminalOpen(true); }}
-                      className={`flex items-center gap-2 px-3 h-full border-r border-border-s cursor-pointer group transition-colors shrink-0
-                        ${
-                          activeTerminalId === t.id && terminalOpen
-                            ? "bg-void border-b-2 border-b-accent text-accent"
-                            : "text-txt-ghost hover:text-txt hover:bg-void/50"
-                        }
-                      `}
-                    >
-                      <span className="font-(family-name:--font-dm) text-[11px]">{t.name}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTerminals(prev => {
-                            const next = prev.filter(x => x.id !== t.id);
-                            if (activeTerminalId === t.id && next.length > 0) {
-                                setActiveTerminalId(next[next.length - 1].id);
-                            } else if (next.length === 0) {
-                                const newId = `term-${Date.now()}`;
-                                setActiveTerminalId(newId);
-                                return [{ id: newId, name: "bash" }];
-                            }
-                            return next;
-                          });
-                        }}
-                        className="ml-1 p-0.5 rounded-sm opacity-0 group-hover:opacity-100 hover:bg-surface transition-all cursor-pointer"
-                      >
-                        <X size={9} />
-                      </button>
-                    </div>
-                  ))}
+                  <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+                    Terminal
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-1 px-2 border-l border-border-s h-full shrink-0">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1433,21 +1399,67 @@ export default function BuildPage() {
                 </div>
               </div>
 
-              {/* XTerm instances */}
-              <div className="flex-1 overflow-hidden relative">
-                {terminals.map((t) => (
-                   <div
-                     key={t.id}
-                     className="absolute inset-0"
-                     style={{
-                       opacity: activeTerminalId === t.id ? 1 : 0,
-                       pointerEvents: activeTerminalId === t.id ? "auto" : "none",
-                       zIndex: activeTerminalId === t.id ? 10 : 0,
-                     }}
-                   >
-                     <XTermPanel visible={terminalOpen && activeTerminalId === t.id} wcRef={wcRef} />
-                   </div>
-                ))}
+              {/* Terminal Body: XTerm instances + Right Tabs */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Left side: XTerm instances */}
+                <div className="flex-1 relative overflow-hidden">
+                  {terminals.map((t) => (
+                     <div
+                       key={t.id}
+                       className="absolute inset-0"
+                       style={{
+                         opacity: activeTerminalId === t.id ? 1 : 0,
+                         pointerEvents: activeTerminalId === t.id ? "auto" : "none",
+                         zIndex: activeTerminalId === t.id ? 10 : 0,
+                       }}
+                     >
+                       <XTermPanel visible={terminalOpen && activeTerminalId === t.id} wcRef={wcRef} />
+                     </div>
+                  ))}
+                </div>
+
+                {/* Right side: Terminal list sidebar */}
+                {terminalOpen && (
+                  <div className="w-32 shrink-0 border-l border-border-s bg-[#0f0f0f] flex flex-col overflow-y-auto no-scrollbar py-1">
+                    {terminals.map((t) => (
+                      <div
+                        key={t.id}
+                        onClick={(e) => { e.stopPropagation(); setActiveTerminalId(t.id); }}
+                        className={`flex items-center justify-between px-3 py-1.5 cursor-pointer group transition-colors mx-1 rounded-sm
+                          ${
+                            activeTerminalId === t.id
+                              ? "bg-accent/10 text-accent"
+                              : "text-txt-ghost hover:text-txt hover:bg-surface/50"
+                          }
+                        `}
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <Terminal size={10} className={activeTerminalId === t.id ? "text-accent" : "text-txt-ghost"} />
+                          <span className="font-(family-name:--font-dm) text-[11px] truncate">{t.name}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTerminals(prev => {
+                              const next = prev.filter(x => x.id !== t.id);
+                              if (activeTerminalId === t.id && next.length > 0) {
+                                  setActiveTerminalId(next[next.length - 1].id);
+                              } else if (next.length === 0) {
+                                  const newId = `term-${Date.now()}`;
+                                  setActiveTerminalId(newId);
+                                  return [{ id: newId, name: "bash" }];
+                              }
+                              return next;
+                            });
+                          }}
+                          className="p-0.5 rounded-sm opacity-0 group-hover:opacity-100 hover:bg-surface transition-all cursor-pointer shrink-0"
+                        >
+                          <X size={9} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
