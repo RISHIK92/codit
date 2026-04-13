@@ -115,7 +115,6 @@ export function ResourcesPanel({
     fetchResources();
   }, [fetchResources]);
 
-  // ── Toggle completion ─────────────────────────────────────────────────────
   const handleToggle = useCallback(
     async (resource: ResourceItemDTO) => {
       if (toggling.has(resource.id)) return;
