@@ -148,7 +148,7 @@ function ConstellationNode({
 
       {/* Card */}
       <Link
-        href={`/dashboard/projects/${ep.catalogue.id}`}
+        href={`/dashboard/build/${ep.catalogue.id}`}
         className="block flex-1 max-w-lg"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

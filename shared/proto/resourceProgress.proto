@@ -1,0 +1,75 @@
+// /shared/proto/resourceProgress.proto
+
+syntax = "proto3";
+
+package resourceProgress;
+
+option go_package = "gateway/pkg/pb";
+
+// ── Service ───────────────────────────────────────────────────────────────────
+
+service ResourceProgressService {
+  // Fetch all resources for a phase, with per-user completion status
+  rpc GetPhaseResources  (GetPhaseResourcesRequest)  returns (GetPhaseResourcesResponse);
+
+  // Mark or unmark a single resource as completed
+  rpc MarkCompleted      (MarkCompletedRequest)       returns (MarkCompletedResponse);
+
+  // Fetch all completion records for a user+project (lightweight, all phases)
+  rpc GetProgress        (GetProgressRequest)         returns (GetProgressResponse);
+}
+
+// ── Resources ─────────────────────────────────────────────────────────────────
+
+message GetPhaseResourcesRequest {
+  string phase_id    = 1;
+  string user_email  = 2;
+  string project_id  = 3;
+}
+
+message ResourceItem {
+  string id               = 1;
+  string phase_id         = 2;
+  string type             = 3;   // "video" | "article" | "docs" | etc.
+  string title            = 4;
+  string url              = 5;
+  int32  duration_minutes = 6;
+  string provider         = 7;
+  float  quality_score    = 8;
+  bool   completed        = 9;   // per-user completion, injected server-side
+  string completed_at     = 10;  // ISO string, empty if not completed
+}
+
+message GetPhaseResourcesResponse {
+  repeated ResourceItem resources = 1;
+}
+
+// ── Mark completed ────────────────────────────────────────────────────────────
+
+message MarkCompletedRequest {
+  string resource_id = 1;
+  string user_email  = 2;
+  string project_id  = 3;
+  bool   completed   = 4;
+}
+
+message MarkCompletedResponse {
+  bool success = 1;
+}
+
+// ── Bulk progress (all phases for a project) ──────────────────────────────────
+
+message GetProgressRequest {
+  string user_email = 1;
+  string project_id = 2;
+}
+
+message ProgressEntry {
+  string resource_id  = 1;
+  bool   completed    = 2;
+  string completed_at = 3;  // ISO string, empty if not completed
+}
+
+message GetProgressResponse {
+  repeated ProgressEntry entries = 1;
+}

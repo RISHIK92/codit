@@ -29,6 +29,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	projectClient := pb.NewProjectServiceClient(conn)
 	entranceTestClient := pb.NewEntranceTestServiceClient(conn)
 	fileClient := pb.NewFileServiceClient(conn)
+	resourceProgressClient := pb.NewResourceProgressServiceClient(conn)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
@@ -60,6 +61,11 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Get("/api/files/list", proxy.ListFilesProxy(fileClient))
 		r.Delete("/api/files/delete", proxy.DeleteFileProxy(fileClient))
 		r.Post("/api/files/batch-upsert", proxy.BatchUpsertProxy(fileClient))
+
+		// ── Resource progress ───────────────────────────────────────────────
+		r.Get("/api/resources", proxy.GetPhaseResourcesProxy(resourceProgressClient))
+		r.Post("/api/resources/progress", proxy.MarkCompletedProxy(resourceProgressClient))
+		r.Get("/api/resources/progress", proxy.GetProgressProxy(resourceProgressClient))
 	})
 
 	return r

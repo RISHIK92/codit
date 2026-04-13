@@ -65,6 +65,7 @@ import { PhaseSelector } from "./components/PhaseSelector";
 import { DescriptionPanel } from "./components/DescriptionPanel";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
+import { ResourcesPanel } from "./components/ResourcesPanel";
 
 // Monaco is SSR-incompatible — load it client-side only
 const MonacoEditor = dynamic(
@@ -99,6 +100,11 @@ export default function BuildPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Left panel tab: "description" | "resources"
+  const [leftTab, setLeftTab] = useState<"description" | "resources">(
+    "description",
+  );
+
   // Editor state
   const [language, setLanguage] = useState<Language>("javascript");
   const [fileTree, setFileTree] = useState<FileNode[]>(
@@ -117,6 +123,7 @@ export default function BuildPage() {
     "idle",
   );
   const [aiOpen, setAiOpen] = useState(false);
+  const [aiInitialMsg, setAiInitialMsg] = useState<string | undefined>();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminals, setTerminals] = useState([{ id: "term-1", name: "bash" }]);
@@ -832,12 +839,18 @@ export default function BuildPage() {
       const token = await user.getIdToken();
       // Skip files whose content contains null bytes (binary files)
       const isBinary = (content: string) => content.includes("\x00");
-      
-      const fileNodes = fileTree.flatMap(function flat(n: FileNode): FileNode[] {
+
+      const fileNodes = fileTree.flatMap(function flat(
+        n: FileNode,
+      ): FileNode[] {
         return n.type === "file" ? [n] : (n.children ?? []).flatMap(flat);
       });
-      
-      const entries: Array<{filePath: string, content: string, isDirectory: boolean}> = [];
+
+      const entries: Array<{
+        filePath: string;
+        content: string;
+        isDirectory: boolean;
+      }> = [];
       for (const n of fileNodes) {
         if (isSaveExcluded(n.id)) continue;
         let content = fileContentsRef.current[n.id];
@@ -1059,7 +1072,33 @@ export default function BuildPage() {
             </span>
           </div>
 
-          <DescriptionPanel phase={activePhase} projectName={projectName} />
+          {/* Guide sub-tabs: Description | Resources */}
+          <div className="flex shrink-0 border-b border-border-s">
+            {(["description", "resources"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setLeftTab(tab)}
+                className={`px-4 py-2 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest border-b-2 transition-colors cursor-pointer ${
+                  leftTab === tab
+                    ? "text-accent border-accent"
+                    : "text-txt-ghost border-transparent hover:text-txt"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {leftTab === "description" ? (
+            <DescriptionPanel phase={activePhase} projectName={projectName} />
+          ) : (
+            <ResourcesPanel
+              phaseId={activePhase?.id ?? null}
+              phaseNumber={activePhase?.phase_number}
+              projectId={projectId}
+              getToken={() => user!.getIdToken()}
+            />
+          )}
         </div>
 
         {/* Phase guide ↔ Explorer drag divider */}
@@ -1262,6 +1301,207 @@ export default function BuildPage() {
                       editorRef.current = editor;
                       monacoRef.current = monaco as unknown as typeof Monaco;
 
+                      // ── Cmd/Ctrl+Click word popup ─────────────────────────
+                      let popup: HTMLDivElement | null = null;
+
+                      const removePopup = () => {
+                        popup?.remove();
+                        popup = null;
+                      };
+
+                      editor.onMouseDown((e) => {
+                        // Option (Mac) / Alt (Windows/Linux)
+                        const isCmdClick = e.event.altKey;
+                        if (!isCmdClick) {
+                          removePopup();
+                          return;
+                        }
+                        if (
+                          e.target.type !==
+                          monaco.editor.MouseTargetType.CONTENT_TEXT
+                        ) {
+                          removePopup();
+                          return;
+                        }
+
+                        const pos = e.target.position;
+                        if (!pos) return;
+
+                        const model = editor.getModel();
+                        if (!model) return;
+
+                        const wordInfo = model.getWordAtPosition(pos);
+                        if (!wordInfo) return;
+
+                        e.event.preventDefault();
+                        removePopup();
+
+                        // Get pixel coords of the word's start
+                        const wordPos = editor.getScrolledVisiblePosition({
+                          lineNumber: pos.lineNumber,
+                          column: wordInfo.startColumn,
+                        });
+                        if (!wordPos) return;
+
+                        const editorDom = editor.getDomNode();
+                        if (!editorDom) return;
+                        const editorRect = editorDom.getBoundingClientRect();
+
+                        const x = editorRect.left + wordPos.left;
+                        const y = editorRect.top + wordPos.top;
+
+                        // Build popup
+                        popup = document.createElement("div");
+                        popup.style.cssText = `
+                          position: fixed;
+                          left: ${x}px;
+                          top: ${y - 8}px;
+                          transform: translateY(-100%);
+                          z-index: 9999;
+                          background: #12141a;
+                          border: 1px solid rgba(127,255,212,0.18);
+                          border-radius: 6px;
+                          padding: 10px 14px;
+                          min-width: 220px;
+                          max-width: 340px;
+                          box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+                          font-family: 'DM Sans', system-ui, sans-serif;
+                          font-size: 12px;
+                          color: #a0aabf;
+                          pointer-events: none;
+                        `;
+
+                        // Arrow pointing down
+                        const arrow = document.createElement("div");
+                        arrow.style.cssText = `
+                          position: absolute;
+                          bottom: -5px;
+                          left: 16px;
+                          width: 8px;
+                          height: 8px;
+                          background: #12141a;
+                          border-right: 1px solid rgba(127,255,212,0.18);
+                          border-bottom: 1px solid rgba(127,255,212,0.18);
+                          transform: rotate(45deg);
+                        `;
+                        popup.appendChild(arrow);
+
+                        // Word label
+                        const label = document.createElement("div");
+                        label.style.cssText = `
+                          font-size: 10px;
+                          text-transform: uppercase;
+                          letter-spacing: 0.12em;
+                          color: rgba(127,255,212,0.7);
+                          margin-bottom: 6px;
+                        `;
+                        label.textContent = wordInfo.word;
+                        popup.appendChild(label);
+
+                        // Content area (loading → text)
+                        const content = document.createElement("div");
+                        content.style.cssText = `line-height: 1.6;`;
+
+                        const spinner = document.createElement("div");
+                        spinner.style.cssText = `
+                          display: flex;
+                          align-items: center;
+                          gap: 6px;
+                          color: rgba(160,170,191,0.5);
+                          font-size: 11px;
+                        `;
+                        spinner.innerHTML = `
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(127,255,212,0.5)" stroke-width="2.5"
+                            style="animation: spin 0.8s linear infinite; flex-shrink:0;">
+                            <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke-opacity="0.2"/>
+                            <path d="M21 12a9 9 0 0 1-9 9" stroke="rgba(127,255,212,0.7)"/>
+                          </svg>
+                          Looking up…
+                        `;
+
+                        if (!document.getElementById("__popup_spin_style")) {
+                          const s = document.createElement("style");
+                          s.id = "__popup_spin_style";
+                          s.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
+                          document.head.appendChild(s);
+                        }
+
+                        content.appendChild(spinner);
+                        popup.appendChild(content);
+                        document.body.appendChild(popup);
+
+                        // After 1 s replace spinner with Explain button
+                        setTimeout(() => {
+                          if (!popup) return;
+                          spinner.remove();
+
+                          // Brief description line
+                          const desc = document.createElement("div");
+                          desc.style.cssText = `
+                            font-size: 11px;
+                            color: rgba(160,170,191,0.7);
+                            line-height: 1.6;
+                            margin-bottom: 10px;
+                          `;
+                          desc.textContent = `Want a full explanation of "${wordInfo.word}"?`;
+                          content.appendChild(desc);
+
+                          // "Explain with AI" button — pointer-events re-enabled
+                          popup.style.pointerEvents = "auto";
+                          const btn = document.createElement("button");
+                          btn.style.cssText = `
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 5px;
+                            padding: 5px 11px;
+                            background: rgba(127,255,212,0.08);
+                            border: 1px solid rgba(127,255,212,0.25);
+                            border-radius: 4px;
+                            color: rgba(127,255,212,0.9);
+                            font-size: 10px;
+                            font-family: 'DM Sans', system-ui, sans-serif;
+                            text-transform: uppercase;
+                            letter-spacing: 0.1em;
+                            cursor: pointer;
+                            transition: background 0.15s;
+                          `;
+                          btn.innerHTML = `
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7 3H9l-.7-3A7 7 0 0 1 5 9a7 7 0 0 1 7-7z"/>
+                              <line x1="9" y1="21" x2="15" y2="21"/>
+                            </svg>
+                            Explain with AI
+                          `;
+                          btn.onmouseenter = () => {
+                            btn.style.background = "rgba(127,255,212,0.14)";
+                          };
+                          btn.onmouseleave = () => {
+                            btn.style.background = "rgba(127,255,212,0.08)";
+                          };
+                          btn.onclick = () => {
+                            const prompt = `Explain what "${wordInfo.word}" means in the context of this code file (${activeTabId}). Keep it concise and practical.`;
+                            removePopup();
+                            setAiInitialMsg(prompt);
+                            setAiOpen(true);
+                          };
+                          content.appendChild(btn);
+                        }, 1000);
+                      });
+
+                      // Dismiss on Escape or click elsewhere
+                      editor.onKeyDown((e) => {
+                        if (e.keyCode === monaco.KeyCode.Escape) removePopup();
+                      });
+                      document.addEventListener(
+                        "mousedown",
+                        (e) => {
+                          if (popup && !popup.contains(e.target as Node))
+                            removePopup();
+                        },
+                        { capture: true },
+                      );
+
+                      // ── Live WC file sync ─────────────────────────────────
                       let writeTimer: ReturnType<typeof setTimeout> | null =
                         null;
                       editor.onDidChangeModelContent(() => {
@@ -1380,7 +1620,10 @@ export default function BuildPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       const newId = `term-${Date.now()}`;
-                      setTerminals(prev => [...prev, { id: newId, name: "bash" }]);
+                      setTerminals((prev) => [
+                        ...prev,
+                        { id: newId, name: "bash" },
+                      ]);
                       setActiveTerminalId(newId);
                       setTerminalOpen(true);
                     }}
@@ -1392,9 +1635,15 @@ export default function BuildPage() {
                   <button
                     onClick={() => setTerminalOpen((v) => !v)}
                     className="p-1 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
-                    title={terminalOpen ? "Collapse terminal" : "Expand terminal"}
+                    title={
+                      terminalOpen ? "Collapse terminal" : "Expand terminal"
+                    }
                   >
-                    {terminalOpen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                    {terminalOpen ? (
+                      <Minimize2 size={12} />
+                    ) : (
+                      <Maximize2 size={12} />
+                    )}
                   </button>
                 </div>
               </div>
@@ -1404,25 +1653,30 @@ export default function BuildPage() {
                 {/* Left side: XTerm instances */}
                 <div className="flex-1 relative overflow-hidden">
                   {terminals.map((t) => (
-                     <div
-                       key={t.id}
-                       className="absolute inset-0"
-                       style={{
-                         opacity: activeTerminalId === t.id ? 1 : 0,
-                         pointerEvents: activeTerminalId === t.id ? "auto" : "none",
-                         zIndex: activeTerminalId === t.id ? 10 : 0,
-                       }}
-                     >
-                       <XTermPanel 
-                         visible={terminalOpen && activeTerminalId === t.id} 
-                         wcRef={wcRef} 
-                         onNameChange={(newName) => {
-                           setTerminals(prev => 
-                             prev.map(term => term.id === t.id && term.name !== newName ? { ...term, name: newName } : term)
-                           );
-                         }}
-                       />
-                     </div>
+                    <div
+                      key={t.id}
+                      className="absolute inset-0"
+                      style={{
+                        opacity: activeTerminalId === t.id ? 1 : 0,
+                        pointerEvents:
+                          activeTerminalId === t.id ? "auto" : "none",
+                        zIndex: activeTerminalId === t.id ? 10 : 0,
+                      }}
+                    >
+                      <XTermPanel
+                        visible={terminalOpen && activeTerminalId === t.id}
+                        wcRef={wcRef}
+                        onNameChange={(newName) => {
+                          setTerminals((prev) =>
+                            prev.map((term) =>
+                              term.id === t.id && term.name !== newName
+                                ? { ...term, name: newName }
+                                : term,
+                            ),
+                          );
+                        }}
+                      />
+                    </div>
                   ))}
                 </div>
 
@@ -1432,7 +1686,10 @@ export default function BuildPage() {
                     {terminals.map((t) => (
                       <div
                         key={t.id}
-                        onClick={(e) => { e.stopPropagation(); setActiveTerminalId(t.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveTerminalId(t.id);
+                        }}
                         className={`flex items-center justify-between px-3 py-1.5 cursor-pointer group transition-colors mx-1 rounded-sm
                           ${
                             activeTerminalId === t.id
@@ -1442,20 +1699,32 @@ export default function BuildPage() {
                         `}
                       >
                         <div className="flex items-center gap-2 overflow-hidden">
-                          <Terminal size={10} className={activeTerminalId === t.id ? "text-accent" : "text-txt-ghost"} />
-                          <span className="font-(family-name:--font-dm) text-[11px] truncate">{t.name}</span>
+                          <Terminal
+                            size={10}
+                            className={
+                              activeTerminalId === t.id
+                                ? "text-accent"
+                                : "text-txt-ghost"
+                            }
+                          />
+                          <span className="font-(family-name:--font-dm) text-[11px] truncate">
+                            {t.name}
+                          </span>
                         </div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setTerminals(prev => {
-                              const next = prev.filter(x => x.id !== t.id);
-                              if (activeTerminalId === t.id && next.length > 0) {
-                                  setActiveTerminalId(next[next.length - 1].id);
+                            setTerminals((prev) => {
+                              const next = prev.filter((x) => x.id !== t.id);
+                              if (
+                                activeTerminalId === t.id &&
+                                next.length > 0
+                              ) {
+                                setActiveTerminalId(next[next.length - 1].id);
                               } else if (next.length === 0) {
-                                  const newId = `term-${Date.now()}`;
-                                  setActiveTerminalId(newId);
-                                  return [{ id: newId, name: "bash" }];
+                                const newId = `term-${Date.now()}`;
+                                setActiveTerminalId(newId);
+                                return [{ id: newId, name: "bash" }];
                               }
                               return next;
                             });
@@ -1484,6 +1753,8 @@ export default function BuildPage() {
         getFileContent={(id) =>
           fileContentsRef.current[id] ?? getFileContent(id)
         }
+        initialMessage={aiInitialMsg}
+        onInitialMessageConsumed={() => setAiInitialMsg(undefined)}
       />
     </div>
   );

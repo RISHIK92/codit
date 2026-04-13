@@ -1,7 +1,11 @@
 // ─── WebContainer filesystem scanner + shell spawner ─────────────────────────
 
 import type { FileNode } from "../types";
-import { getFileLanguage, IGNORED_DIRECTORIES, IGNORED_FILES } from "./fileUtils";
+import {
+  getFileLanguage,
+  IGNORED_DIRECTORIES,
+  IGNORED_FILES,
+} from "./fileUtils";
 
 /** Recursively read the WC filesystem and return a FileNode[] tree */
 export async function scanWcFs(
@@ -44,9 +48,9 @@ export async function scanWcFs(
 /** Spawn an interactive shell inside WebContainer and pipe it to an XTerm terminal */
 export async function spawnShell(
   term: import("@xterm/xterm").Terminal,
-  fitAddon: import("@xterm/addon-fit").FitAddon,
+  _fitAddon: import("@xterm/addon-fit").FitAddon,
   wc: import("@webcontainer/api").WebContainer,
-  onNameChange?: (name: string) => void
+  onNameChange?: (name: string) => void,
 ): Promise<import("@webcontainer/api").WebContainerProcess> {
   const { cols, rows } = term;
   const shell = await wc.spawn("jsh", { terminal: { cols, rows } });
@@ -85,8 +89,9 @@ export async function spawnShell(
 
   const input = shell.input.getWriter();
   term.onData((data) => input.write(data));
+  // onResize is triggered BY fitAddon.fit() — do NOT call fit() here again
+  // or it creates an infinite resize → fit → resize loop.
   term.onResize(({ cols, rows }) => {
-    fitAddon.fit();
     shell.resize({ cols, rows });
   });
 

@@ -146,6 +146,23 @@ model Resources {
   quality_score     Float
 
   learningPhase     LearningPhase @relation(fields: [phase_id], references: [id])
+  userProgress      ResourceProgress[]
+}
+
+model ResourceProgress {
+  id          String   @id @default(uuid())
+  resource_id String
+  user_email  String
+  project_id  String
+  completed   Boolean  @default(false)
+  completed_at DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  resource    Resources @relation(fields: [resource_id], references: [id])
+
+  @@unique([resource_id, user_email, project_id])
+  @@index([user_email, project_id])
 }
 
 enum Skill_Level {

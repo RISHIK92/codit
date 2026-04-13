@@ -29,6 +29,9 @@ interface AiAssistantProps {
   activePhaseTitle?: string;
   activeFileId?: string;
   getFileContent: (id: string) => string;
+  /** When set, the panel auto-sends this message as soon as it opens */
+  initialMessage?: string;
+  onInitialMessageConsumed?: () => void;
 }
 
 // ── Content renderer ───────────────────────────────────────────────────────
@@ -87,6 +90,8 @@ export function AiAssistant({
   activePhaseTitle,
   activeFileId,
   getFileContent,
+  initialMessage,
+  onInitialMessageConsumed,
 }: AiAssistantProps) {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [input, setInput] = useState("");
@@ -104,8 +109,20 @@ export function AiAssistant({
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
 
-  async function sendMessage() {
-    const text = input.trim();
+  // Auto-send an injected message (e.g. from Option+Click popup)
+  useEffect(() => {
+    if (open && initialMessage) {
+      setInput(initialMessage);
+      onInitialMessageConsumed?.();
+      // Let the panel paint first, then fire
+      setTimeout(() => {
+        sendMessageWithText(initialMessage);
+      }, 120);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialMessage]);
+
+  async function sendMessageWithText(text: string) {
     if (!text || loading) return;
 
     const userMsg: AiMessage = {
@@ -218,6 +235,11 @@ Keep answers short, practical, and use markdown code blocks where relevant.`;
       setLoading(false);
       abortRef.current = null;
     }
+  }
+
+  async function sendMessage() {
+    const text = input.trim();
+    await sendMessageWithText(text);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
