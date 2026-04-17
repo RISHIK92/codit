@@ -35,6 +35,7 @@ import {
   Globe,
   RefreshCw,
   Plus,
+  Columns2,
 } from "lucide-react";
 
 // Types, constants, utils
@@ -66,6 +67,34 @@ import { DescriptionPanel } from "./components/DescriptionPanel";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
 import { ResourcesPanel } from "./components/ResourcesPanel";
+
+let wcBootPromise: Promise<import("@webcontainer/api").WebContainer> | null =
+  null;
+let wcLiveInstance: import("@webcontainer/api").WebContainer | null = null;
+
+function getOrBootWebContainer(): Promise<
+  import("@webcontainer/api").WebContainer
+> {
+  // Reuse existing live instance (covers navigate-away-and-back).
+  if (wcLiveInstance) {
+    return Promise.resolve(wcLiveInstance);
+  }
+  // Reuse in-flight boot promise (covers StrictMode double-invoke).
+  if (!wcBootPromise) {
+    wcBootPromise = import("@webcontainer/api")
+      .then(({ WebContainer }) => WebContainer.boot())
+      .then((wc) => {
+        wcLiveInstance = wc;
+        return wc;
+      })
+      .catch((err) => {
+        wcBootPromise = null;
+        wcLiveInstance = null;
+        throw err;
+      });
+  }
+  return wcBootPromise;
+}
 
 // Monaco is SSR-incompatible — load it client-side only
 const MonacoEditor = dynamic(
@@ -131,10 +160,12 @@ export default function BuildPage() {
 
   // Preview panel state
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [activePanel, setActivePanel] = useState<"editor" | "preview">(
-    "editor",
-  );
+  const [activePanel, setActivePanel] = useState<
+    "editor" | "preview" | "split"
+  >("editor");
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [splitPos, setSplitPos] = useState(50); // percent
+  const isSplitDragging = useRef(false);
   const [terminalHeight, setTerminalHeight] = useState(220);
   const [explorerWidth, setExplorerWidth] = useState(192);
   const [phaseGuideWidth, setPhaseGuideWidth] = useState(320);
@@ -260,24 +291,22 @@ export default function BuildPage() {
   // Boot WebContainer once on mount
   useEffect(() => {
     let mounted = true;
-    import("@webcontainer/api").then(({ WebContainer }) => {
-      WebContainer.boot()
-        .then((wc) => {
-          if (!mounted) return;
-          wcRef.current = wc;
-          // Signal WC readiness — fetch-phases effect owns all mounting
-          wcReadyRef.current = true;
-          wcReadyCallbackRef.current?.();
+    getOrBootWebContainer()
+      .then((wc) => {
+        if (!mounted) return;
+        wcRef.current = wc;
+        // Signal WC readiness — fetch-phases effect owns all mounting
+        wcReadyRef.current = true;
+        wcReadyCallbackRef.current?.();
 
-          // Listen for any dev server the user starts in the terminal
-          wc.on("server-ready", (_port: number, url: string) => {
-            setPreviewUrl(url);
-          });
-        })
-        .catch((err: unknown) => {
-          console.error("[WebContainer] boot failed:", err);
+        // Listen for any dev server the user starts in the terminal
+        wc.on("server-ready", (_port: number, url: string) => {
+          setPreviewUrl(url);
         });
-    });
+      })
+      .catch((err: unknown) => {
+        console.error("[WebContainer] boot failed:", err);
+      });
     return () => {
       mounted = false;
     };
@@ -1213,8 +1242,8 @@ export default function BuildPage() {
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
             {/* Panel tab bar: open file tabs + Preview toggle */}
             <div className="h-9 shrink-0 flex items-center gap-0 border-b border-border-s bg-surface/50 overflow-x-auto no-scrollbar">
-              {/* File tabs — only shown in editor mode */}
-              {activePanel === "editor" &&
+              {/* File tabs — shown in editor and split modes */}
+              {activePanel !== "preview" &&
                 openTabs.map((tab) => (
                   <div
                     key={tab.id}
@@ -1257,10 +1286,19 @@ export default function BuildPage() {
                   Editor
                 </button>
                 <button
+                  onClick={() => setActivePanel("split")}
+                  title="Split view"
+                  className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
+                    ${activePanel === "split" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}`}
+                >
+                  <Columns2 size={11} />
+                  Split
+                </button>
+                <button
                   onClick={() => setActivePanel("preview")}
                   className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
                     ${activePanel === "preview" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}
-                    ${previewUrl ? "text-accent/80" : ""}
+                    ${previewUrl && activePanel !== "preview" ? "text-accent/60" : ""}
                   `}
                 >
                   <Globe size={11} />
@@ -1273,10 +1311,21 @@ export default function BuildPage() {
             </div>
 
             {/* Panel content */}
-            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-              {/* Monaco editor — hidden (not unmounted) when preview is active */}
+            <div className="flex-1 flex overflow-hidden min-h-0">
+              {/* ── EDITOR pane — visible in "editor" and "split" ── */}
               <div
-                className={`flex-1 overflow-hidden min-h-0 ${activePanel === "preview" ? "hidden" : "flex flex-col"}`}
+                className={`flex flex-col overflow-hidden min-h-0 min-w-0 ${
+                  activePanel === "preview"
+                    ? "hidden"
+                    : activePanel === "split"
+                      ? "h-full"
+                      : "flex-1"
+                }`}
+                style={
+                  activePanel === "split"
+                    ? { width: `${splitPos}%`, flexShrink: 0 }
+                    : undefined
+                }
               >
                 {openTabs.length === 0 ? (
                   <div className="h-full flex items-center justify-center bg-void">
@@ -1438,10 +1487,10 @@ export default function BuildPage() {
                           // Brief description line
                           const desc = document.createElement("div");
                           desc.style.cssText = `
-                            font-size: 11px;
+                            font-size: 12px;
                             color: rgba(160,170,191,0.7);
-                            line-height: 1.6;
-                            margin-bottom: 10px;
+                            line-height: 1.5;
+                            margin-bottom: 7px;
                           `;
                           desc.textContent = `Want a full explanation of "${wordInfo.word}"?`;
                           content.appendChild(desc);
@@ -1452,26 +1501,19 @@ export default function BuildPage() {
                           btn.style.cssText = `
                             display: inline-flex;
                             align-items: center;
-                            gap: 5px;
-                            padding: 5px 11px;
+                            padding: 3px 7px;
                             background: rgba(127,255,212,0.08);
                             border: 1px solid rgba(127,255,212,0.25);
-                            border-radius: 4px;
+                            border-radius: 3px;
                             color: rgba(127,255,212,0.9);
-                            font-size: 10px;
+                            font-size: 9px;
                             font-family: 'DM Sans', system-ui, sans-serif;
                             text-transform: uppercase;
-                            letter-spacing: 0.1em;
+                            letter-spacing: 0.08em;
                             cursor: pointer;
                             transition: background 0.15s;
                           `;
-                          btn.innerHTML = `
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                              <path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7 3H9l-.7-3A7 7 0 0 1 5 9a7 7 0 0 1 7-7z"/>
-                              <line x1="9" y1="21" x2="15" y2="21"/>
-                            </svg>
-                            Explain with AI
-                          `;
+                          btn.innerHTML = `✦ Ask AI`;
                           btn.onmouseenter = () => {
                             btn.style.background = "rgba(127,255,212,0.14)";
                           };
@@ -1544,9 +1586,44 @@ export default function BuildPage() {
                 )}
               </div>
 
-              {/* Preview panel */}
-              {activePanel === "preview" && (
-                <div className="flex-1 flex flex-col bg-void overflow-hidden">
+              {/* ── Split drag divider ── */}
+              {activePanel === "split" && (
+                <div
+                  className="w-1.5 shrink-0 bg-border-s hover:bg-accent/40 cursor-col-resize transition-colors z-20"
+                  onMouseDown={(e) => {
+                    isSplitDragging.current = true;
+                    const container = (e.currentTarget as HTMLElement)
+                      .parentElement!;
+                    document.body.style.cursor = "col-resize";
+                    document.body.style.userSelect = "none";
+                    const onMove = (ev: MouseEvent) => {
+                      if (!isSplitDragging.current) return;
+                      const rect = container.getBoundingClientRect();
+                      const pct = Math.min(
+                        80,
+                        Math.max(
+                          20,
+                          ((ev.clientX - rect.left) / rect.width) * 100,
+                        ),
+                      );
+                      setSplitPos(pct);
+                    };
+                    const onUp = () => {
+                      isSplitDragging.current = false;
+                      document.body.style.cursor = "";
+                      document.body.style.userSelect = "";
+                      window.removeEventListener("mousemove", onMove);
+                      window.removeEventListener("mouseup", onUp);
+                    };
+                    window.addEventListener("mousemove", onMove);
+                    window.addEventListener("mouseup", onUp);
+                  }}
+                />
+              )}
+
+              {/* ── PREVIEW pane — visible in "preview" and "split" ── */}
+              {(activePanel === "preview" || activePanel === "split") && (
+                <div className="flex flex-col bg-void overflow-hidden min-w-0 min-h-0 flex-1">
                   {previewUrl ? (
                     <>
                       {/* Preview address bar */}

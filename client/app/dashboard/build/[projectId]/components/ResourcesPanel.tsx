@@ -91,7 +91,6 @@ export function ResourcesPanel({
     getTokenRef.current = getToken;
   });
 
-  // ── Fetch resources for the active phase ──────────────────────────────────
   const fetchResources = useCallback(async () => {
     if (!phaseId) return;
     setLoading(true);
