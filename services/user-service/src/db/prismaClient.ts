@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+// Re-export the shared singleton so all existing imports within user-service
+// continue to work without modification.
+export { prisma } from "../../../shared/src/index";
 
-const prisma = new PrismaClient();
-
-export default prisma;
+export * from "../../../shared/src/index";

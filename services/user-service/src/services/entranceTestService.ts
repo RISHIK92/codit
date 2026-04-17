@@ -1,8 +1,8 @@
-import { Difficulty, Skill_Level } from "@prisma/client";
+import { Difficulty, Skill_Level } from "../db/prismaClient";
 import * as repo from "../repositories/entranceTestRepo";
 import * as userRepo from "../repositories/userRepo";
-import { EntranceQuestion } from "@prisma/client";
-import prisma from "../db/prismaClient";
+import { EntranceQuestion } from "../db/prismaClient";
+import { prisma } from "../db/prismaClient";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

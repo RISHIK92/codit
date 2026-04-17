@@ -1,5 +1,5 @@
-import prisma from "../db/prismaClient";
-import { Skill_Level } from "@prisma/client";
+import { prisma } from "../db/prismaClient";
+import { Skill_Level } from "../db/prismaClient";
 
 export const createUserInDb = async (uid: string, email: string) => {
   return await prisma.user.create({

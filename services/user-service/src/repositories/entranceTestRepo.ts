@@ -1,5 +1,5 @@
-import prisma from "../db/prismaClient";
-import { Difficulty, Skill_Level, TestStatus } from "@prisma/client";
+import { prisma } from "../db/prismaClient";
+import { Difficulty, Skill_Level, TestStatus } from "../db/prismaClient";
 
 // ── Question pool ─────────────────────────────────────────────────────────────
 

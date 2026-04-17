@@ -12,8 +12,6 @@ import { EntranceTestServiceService } from "./src/generated/entranceTest";
 import { entranceTestHandler } from "./src/handlers/entranceTestHandler";
 import { FileServiceService } from "./src/generated/file";
 import { fileHandler } from "./src/handlers/fileHandler";
-import { ResourceProgressServiceService } from "./src/generated/resourceProgress";
-import { resourceProgressHandler } from "./src/handlers/resourceProgressHandler";
 
 const startServer = () => {
   const server = new grpc.Server();
@@ -23,10 +21,12 @@ const startServer = () => {
   server.addService(ProjectServiceService, projectCatalogueHandler);
   server.addService(EntranceTestServiceService, entranceTestHandler);
   server.addService(FileServiceService, fileHandler);
-  server.addService(ResourceProgressServiceService, resourceProgressHandler);
 
   // Reflection Configuration
-  const PROTO_PATH = path.join(__dirname, "../../../shared/proto/user.proto");
+  const PROTO_PATH = path.join(
+    __dirname,
+    "../../../../shared/proto/user.proto",
+  );
   const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
     longs: String,

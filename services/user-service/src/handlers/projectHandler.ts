@@ -11,7 +11,7 @@ import {
   GetUserProjectsByStatusResponse,
 } from "../generated/userProject";
 import * as projectService from "../services/projectService";
-import { Status } from "@prisma/client";
+import { Status } from "../db/prismaClient";
 
 export const projectHandler: UserProjectServiceServer = {
   createProject: async (
@@ -115,7 +115,7 @@ export const projectHandler: UserProjectServiceServer = {
       const dbProjects = await projectService.getAllProjects(email);
 
       callback(null, {
-        userProjects: dbProjects.map((p) => ({
+        userProjects: dbProjects.map((p: any) => ({
           projectId: p.project_id,
           email: p.user_email,
           status: p.status,
@@ -161,7 +161,7 @@ export const projectHandler: UserProjectServiceServer = {
       );
 
       callback(null, {
-        userProjects: dbProjects.map((p) => ({
+        userProjects: dbProjects.map((p: any) => ({
           projectId: p.project_id,
           email: p.user_email,
           status: p.status,

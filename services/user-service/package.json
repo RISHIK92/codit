@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/user-service/server.js",
     "dev": "npm run build && npm run start",
     "generate:proto": "buf generate ../../shared/proto",
     "test": "echo \"Error: no test specified\" && exit 1"

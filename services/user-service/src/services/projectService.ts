@@ -1,5 +1,5 @@
 import * as projectRepo from "../repositories/projectRepo";
-import { Status } from "@prisma/client";
+import { Status } from "../db/prismaClient";
 
 export const createProject = async (
   projectId: string,

@@ -1,5 +1,5 @@
-import prisma from "../db/prismaClient";
-import { Status } from "@prisma/client";
+import { prisma } from "../db/prismaClient";
+import { Status } from "../db/prismaClient";
 
 export const createProject = async (
   projectId: string,

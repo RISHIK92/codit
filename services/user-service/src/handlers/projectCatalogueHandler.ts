@@ -21,7 +21,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
       const rows = await projectService.getAllCatalogueProjects();
 
       callback(null, {
-        projects: rows.map((p) => ({
+        projects: rows.map((p: any) => ({
           id: p.id,
           name: p.name,
           techStack: p.tech_stack,
@@ -30,7 +30,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           phaseCount: p._count.learningPhases,
           goal: p.goal ?? "",
           demoUrl: p.demo_url ?? "",
-          deliverables: p.deliverables.map((d) => d.text),
+          deliverables: p.deliverables.map((d: any) => d.text),
           initialFiles: p.initial_files ? JSON.stringify(p.initial_files) : "",
         })),
       });
@@ -72,7 +72,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
               phaseCount: p._count.learningPhases,
               goal: p.goal ?? "",
               demoUrl: p.demo_url ?? "",
-              deliverables: p.deliverables?.map((d) => d.text) ?? [],
+              deliverables: p.deliverables?.map((d: any) => d.text) ?? [],
               initialFiles: p.initial_files
                 ? JSON.stringify(p.initial_files)
                 : "",
@@ -127,10 +127,10 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           phaseCount: p._count.learningPhases,
           goal: p.goal ?? "",
           demoUrl: p.demo_url ?? "",
-          deliverables: p.deliverables?.map((d) => d.text) ?? [],
+          deliverables: p.deliverables?.map((d: any) => d.text) ?? [],
           initialFiles: p.initial_files ? JSON.stringify(p.initial_files) : "",
         },
-        phases: p.learningPhases.map((ph) => ({
+        phases: p.learningPhases.map((ph: any) => ({
           id: ph.id,
           title: ph.title,
           description: ph.description,

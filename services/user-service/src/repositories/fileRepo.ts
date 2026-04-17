@@ -1,4 +1,4 @@
-import prisma from "../db/prismaClient";
+import { prisma } from "../db/prismaClient";
 
 /** Strip null bytes and other non-UTF8-safe characters Postgres rejects. */
 function sanitize(content: string): string {
