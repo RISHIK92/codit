@@ -11,8 +11,9 @@ import (
 )
 
 type Config struct {
-	Port			string
-	UserServiceUrl	string
+	Port				string
+	UserServiceUrl		string
+	ResourceServiceUrl 	string
 }
 
 func LoadConfig() (*Config) {
@@ -22,6 +23,7 @@ func LoadConfig() (*Config) {
 	return &Config{
 		Port: getEnv("PORT", "8081"),
 		UserServiceUrl: getEnv("USER_SERVICE_URL", "localhost:50051"),
+		ResourceServiceUrl: getEnv("RESOURCE_SERVICE_URL", "localhost:50052"),
 	}
 }
 

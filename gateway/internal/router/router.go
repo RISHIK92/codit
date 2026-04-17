@@ -19,17 +19,18 @@ import (
 func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	r := chi.NewMux()
 
-	conn, err := grpc.NewClient(cfg.UserServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn_user, err := grpc.NewClient(cfg.UserServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn_resource, err := grpc.NewClient(cfg.ResourceServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to User Service: %v", err)
 	}
 
-	userClient := pb.NewUserServiceClient(conn)
-	userProjectClient := pb.NewUserProjectServiceClient(conn)
-	projectClient := pb.NewProjectServiceClient(conn)
-	entranceTestClient := pb.NewEntranceTestServiceClient(conn)
-	fileClient := pb.NewFileServiceClient(conn)
-	resourceProgressClient := pb.NewResourceProgressServiceClient(conn)
+	userClient := pb.NewUserServiceClient(conn_user)
+	userProjectClient := pb.NewUserProjectServiceClient(conn_user)
+	projectClient := pb.NewProjectServiceClient(conn_user)
+	entranceTestClient := pb.NewEntranceTestServiceClient(conn_user)
+	fileClient := pb.NewFileServiceClient(conn_user)
+	resourceProgressClient := pb.NewResourceProgressServiceClient(conn_resource)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
