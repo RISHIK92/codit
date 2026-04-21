@@ -20,7 +20,6 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	r := chi.NewMux()
 
 	conn_user, err := grpc.NewClient(cfg.UserServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn_resource, err := grpc.NewClient(cfg.ResourceServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to User Service: %v", err)
 	}
@@ -30,7 +29,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	projectClient := pb.NewProjectServiceClient(conn_user)
 	entranceTestClient := pb.NewEntranceTestServiceClient(conn_user)
 	fileClient := pb.NewFileServiceClient(conn_user)
-	resourceProgressClient := pb.NewResourceProgressServiceClient(conn_resource)
+	resourceProgressClient := pb.NewResourceProgressServiceClient(conn_user)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)

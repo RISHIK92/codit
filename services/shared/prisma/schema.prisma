@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  uid           String   @id
+  email         String   @unique
+  skillLevel    Skill_Level?
+  learningModes String[]
+  hoursPerWeek  Int?
+  name          String?
+  createdAt     DateTime @default(now())
+
+  userProjects        UserProjects[]
+  entranceTestAttempt EntranceTestAttempt?
+  @@index([email])
+}
+
+model Projects {
+  id                String    @default(uuid()) @unique
+  name              String
+  tech_stack        String[]
+  skill_level       Skill_Level
+  goal              String
+  demo_url          String?
+  estimated_minutes Int
+  initial_files     Json?
+  createdAt         DateTime  @default(now())
+
+  learningPhases      LearningPhase[]
+  userProjects        UserProjects[]
+  deliverables        Deliverable[]
+}
+
+model Deliverable {
+  id         String   @default(uuid()) @unique
+  project_id String
+  text       String
+  order      Int
+
+  project    Projects @relation(fields: [project_id], references: [id])
+}
+
+model EntranceQuestion {
+  id             String     @default(uuid()) @unique
+  question       String
+  options        String[]
+  correct_option Int
+  description    String
+  explanation    String
+  difficulty     Difficulty
+  topic          String
+  createdAt      DateTime   @default(now())
+}
+
+model EntranceTestAttempt {
+  id           String      @default(uuid()) @unique
+  user_email   String      @unique
+  status       TestStatus  @default(in_progress)
+  round        Int         @default(1)
+  answers      Json        @default("[]")
+  result_level Skill_Level?
+  started_at   DateTime    @default(now())
+  completed_at DateTime?
+
+  user         User        @relation(fields: [user_email], references: [email])
+}
+
+
+model ProjectFile {
+  id           String   @id @default(uuid())
+  project_id   String
+  user_email   String
+  file_path    String
+  content      String   @default("")
+  is_directory Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  userProject  UserProjects @relation(fields: [project_id, user_email], references: [project_id, user_email])
+
+  @@unique([project_id, user_email, file_path])
+  @@index([project_id, user_email])
+}
+
+model UserProjects {
+  id              String   @default(uuid()) @unique
+  project_id      String
+  user_email      String
+  status          Status   @default(in_progress)
+  current_phase   Int      @default(0)
+  started_at      DateTime @default(now())
+  completed_at    DateTime?
+  archived        Boolean?  @default(false)
+
+  user            User @relation(fields: [user_email], references: [email])
+  projects        Projects @relation(fields: [project_id], references: [id])
+  projectFiles    ProjectFile[]
+
+  @@unique([project_id, user_email])
+}
+
+model LearningPhase {
+  id                String    @default(uuid()) @unique
+  project_id        String
+  title             String
+  description       String
+  long_description  String   @default("")
+  concepts          String[]
+  goal              Json?
+  phase_number      Int
+  phase_status      PhaseStatus   @default(locked)
+  estimated_minutes Int
+  createdAt         DateTime  @default(now())
+  
+  project         Projects @relation(fields: [project_id], references: [id])
+  resources       Resources[]
+  knowledgeChecks KnowledgeChecks[]
+}
+
+model KnowledgeChecks {
+  id                String    @default(uuid()) @unique
+  phase_id          String
+  question          String
+  correct_answer    String?
+  explanation       String
+  question_type     Question_Type
+
+  learningPhase     LearningPhase @relation(fields: [phase_id], references: [id])
+}
+
+model Resources {
+  id                String     @default(uuid()) @unique
+  phase_id          String
+  type              String
+  title             String
+  url               String
+  duration_minutes  Int
+  provider          String
+  timestamps        Json?
+  quality_score     Float
+
+  learningPhase     LearningPhase @relation(fields: [phase_id], references: [id])
+  userProgress      ResourceProgress[]
+}
+
+model ResourceProgress {
+  id          String   @id @default(uuid())
+  resource_id String
+  user_email  String
+  project_id  String
+  completed   Boolean  @default(false)
+  completed_at DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  resource    Resources @relation(fields: [resource_id], references: [id])
+
+  @@unique([resource_id, user_email, project_id])
+  @@index([user_email, project_id])
+}
+
+enum Skill_Level {
+  beginner
+  intermediate
+  advanced
+}
+
+enum Status {
+  in_progress
+  completed
+  abandoned
+}
+
+enum Question_Type {
+  code_completion
+  multiple_choice
+  debug
+}
+
+enum Difficulty {
+  easy
+  intermediate
+  advanced
+}
+
+enum TestStatus {
+  in_progress
+  completed
+}
+
+enum PhaseStatus {
+  in_progress
+  completed
+  locked
+}

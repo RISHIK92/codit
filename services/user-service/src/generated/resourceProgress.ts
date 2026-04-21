@@ -79,10 +79,7 @@ function createBaseGetPhaseResourcesRequest(): GetPhaseResourcesRequest {
 }
 
 export const GetPhaseResourcesRequest: MessageFns<GetPhaseResourcesRequest> = {
-  encode(
-    message: GetPhaseResourcesRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: GetPhaseResourcesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.phaseId !== "") {
       writer.uint32(10).string(message.phaseId);
     }
@@ -95,12 +92,8 @@ export const GetPhaseResourcesRequest: MessageFns<GetPhaseResourcesRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): GetPhaseResourcesRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPhaseResourcesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetPhaseResourcesRequest();
     while (reader.pos < end) {
@@ -144,18 +137,18 @@ export const GetPhaseResourcesRequest: MessageFns<GetPhaseResourcesRequest> = {
       phaseId: isSet(object.phaseId)
         ? globalThis.String(object.phaseId)
         : isSet(object.phase_id)
-          ? globalThis.String(object.phase_id)
-          : "",
+        ? globalThis.String(object.phase_id)
+        : "",
       userEmail: isSet(object.userEmail)
         ? globalThis.String(object.userEmail)
         : isSet(object.user_email)
-          ? globalThis.String(object.user_email)
-          : "",
+        ? globalThis.String(object.user_email)
+        : "",
       projectId: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
-          ? globalThis.String(object.project_id)
-          : "",
+        ? globalThis.String(object.project_id)
+        : "",
     };
   },
 
@@ -173,14 +166,10 @@ export const GetPhaseResourcesRequest: MessageFns<GetPhaseResourcesRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetPhaseResourcesRequest>, I>>(
-    base?: I,
-  ): GetPhaseResourcesRequest {
+  create<I extends Exact<DeepPartial<GetPhaseResourcesRequest>, I>>(base?: I): GetPhaseResourcesRequest {
     return GetPhaseResourcesRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetPhaseResourcesRequest>, I>>(
-    object: I,
-  ): GetPhaseResourcesRequest {
+  fromPartial<I extends Exact<DeepPartial<GetPhaseResourcesRequest>, I>>(object: I): GetPhaseResourcesRequest {
     const message = createBaseGetPhaseResourcesRequest();
     message.phaseId = object.phaseId ?? "";
     message.userEmail = object.userEmail ?? "";
@@ -205,10 +194,7 @@ function createBaseResourceItem(): ResourceItem {
 }
 
 export const ResourceItem: MessageFns<ResourceItem> = {
-  encode(
-    message: ResourceItem,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ResourceItem, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -243,8 +229,7 @@ export const ResourceItem: MessageFns<ResourceItem> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ResourceItem {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseResourceItem();
     while (reader.pos < end) {
@@ -345,32 +330,28 @@ export const ResourceItem: MessageFns<ResourceItem> = {
       phaseId: isSet(object.phaseId)
         ? globalThis.String(object.phaseId)
         : isSet(object.phase_id)
-          ? globalThis.String(object.phase_id)
-          : "",
+        ? globalThis.String(object.phase_id)
+        : "",
       type: isSet(object.type) ? globalThis.String(object.type) : "",
       title: isSet(object.title) ? globalThis.String(object.title) : "",
       url: isSet(object.url) ? globalThis.String(object.url) : "",
       durationMinutes: isSet(object.durationMinutes)
         ? globalThis.Number(object.durationMinutes)
         : isSet(object.duration_minutes)
-          ? globalThis.Number(object.duration_minutes)
-          : 0,
-      provider: isSet(object.provider)
-        ? globalThis.String(object.provider)
-        : "",
+        ? globalThis.Number(object.duration_minutes)
+        : 0,
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
       qualityScore: isSet(object.qualityScore)
         ? globalThis.Number(object.qualityScore)
         : isSet(object.quality_score)
-          ? globalThis.Number(object.quality_score)
-          : 0,
-      completed: isSet(object.completed)
-        ? globalThis.Boolean(object.completed)
-        : false,
+        ? globalThis.Number(object.quality_score)
+        : 0,
+      completed: isSet(object.completed) ? globalThis.Boolean(object.completed) : false,
       completedAt: isSet(object.completedAt)
         ? globalThis.String(object.completedAt)
         : isSet(object.completed_at)
-          ? globalThis.String(object.completed_at)
-          : "",
+        ? globalThis.String(object.completed_at)
+        : "",
     };
   },
 
@@ -409,14 +390,10 @@ export const ResourceItem: MessageFns<ResourceItem> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ResourceItem>, I>>(
-    base?: I,
-  ): ResourceItem {
+  create<I extends Exact<DeepPartial<ResourceItem>, I>>(base?: I): ResourceItem {
     return ResourceItem.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ResourceItem>, I>>(
-    object: I,
-  ): ResourceItem {
+  fromPartial<I extends Exact<DeepPartial<ResourceItem>, I>>(object: I): ResourceItem {
     const message = createBaseResourceItem();
     message.id = object.id ?? "";
     message.phaseId = object.phaseId ?? "";
@@ -436,88 +413,70 @@ function createBaseGetPhaseResourcesResponse(): GetPhaseResourcesResponse {
   return { resources: [] };
 }
 
-export const GetPhaseResourcesResponse: MessageFns<GetPhaseResourcesResponse> =
-  {
-    encode(
-      message: GetPhaseResourcesResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      for (const v of message.resources) {
-        ResourceItem.encode(v!, writer.uint32(10).fork()).join();
-      }
-      return writer;
-    },
+export const GetPhaseResourcesResponse: MessageFns<GetPhaseResourcesResponse> = {
+  encode(message: GetPhaseResourcesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.resources) {
+      ResourceItem.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
 
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetPhaseResourcesResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetPhaseResourcesResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.resources.push(
-              ResourceItem.decode(reader, reader.uint32()),
-            );
-            continue;
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPhaseResourcesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetPhaseResourcesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
           }
+
+          message.resources.push(ResourceItem.decode(reader, reader.uint32()));
+          continue;
         }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
       }
-      return message;
-    },
-
-    fromJSON(object: any): GetPhaseResourcesResponse {
-      return {
-        resources: globalThis.Array.isArray(object?.resources)
-          ? object.resources.map((e: any) => ResourceItem.fromJSON(e))
-          : [],
-      };
-    },
-
-    toJSON(message: GetPhaseResourcesResponse): unknown {
-      const obj: any = {};
-      if (message.resources?.length) {
-        obj.resources = message.resources.map((e) => ResourceItem.toJSON(e));
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
       }
-      return obj;
-    },
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
 
-    create<I extends Exact<DeepPartial<GetPhaseResourcesResponse>, I>>(
-      base?: I,
-    ): GetPhaseResourcesResponse {
-      return GetPhaseResourcesResponse.fromPartial(base ?? ({} as any));
-    },
-    fromPartial<I extends Exact<DeepPartial<GetPhaseResourcesResponse>, I>>(
-      object: I,
-    ): GetPhaseResourcesResponse {
-      const message = createBaseGetPhaseResourcesResponse();
-      message.resources =
-        object.resources?.map((e) => ResourceItem.fromPartial(e)) || [];
-      return message;
-    },
-  };
+  fromJSON(object: any): GetPhaseResourcesResponse {
+    return {
+      resources: globalThis.Array.isArray(object?.resources)
+        ? object.resources.map((e: any) => ResourceItem.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GetPhaseResourcesResponse): unknown {
+    const obj: any = {};
+    if (message.resources?.length) {
+      obj.resources = message.resources.map((e) => ResourceItem.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetPhaseResourcesResponse>, I>>(base?: I): GetPhaseResourcesResponse {
+    return GetPhaseResourcesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetPhaseResourcesResponse>, I>>(object: I): GetPhaseResourcesResponse {
+    const message = createBaseGetPhaseResourcesResponse();
+    message.resources = object.resources?.map((e) => ResourceItem.fromPartial(e)) || [];
+    return message;
+  },
+};
 
 function createBaseMarkCompletedRequest(): MarkCompletedRequest {
   return { resourceId: "", userEmail: "", projectId: "", completed: false };
 }
 
 export const MarkCompletedRequest: MessageFns<MarkCompletedRequest> = {
-  encode(
-    message: MarkCompletedRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: MarkCompletedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.resourceId !== "") {
       writer.uint32(10).string(message.resourceId);
     }
@@ -533,12 +492,8 @@ export const MarkCompletedRequest: MessageFns<MarkCompletedRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): MarkCompletedRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkCompletedRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMarkCompletedRequest();
     while (reader.pos < end) {
@@ -590,21 +545,19 @@ export const MarkCompletedRequest: MessageFns<MarkCompletedRequest> = {
       resourceId: isSet(object.resourceId)
         ? globalThis.String(object.resourceId)
         : isSet(object.resource_id)
-          ? globalThis.String(object.resource_id)
-          : "",
+        ? globalThis.String(object.resource_id)
+        : "",
       userEmail: isSet(object.userEmail)
         ? globalThis.String(object.userEmail)
         : isSet(object.user_email)
-          ? globalThis.String(object.user_email)
-          : "",
+        ? globalThis.String(object.user_email)
+        : "",
       projectId: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
-          ? globalThis.String(object.project_id)
-          : "",
-      completed: isSet(object.completed)
-        ? globalThis.Boolean(object.completed)
-        : false,
+        ? globalThis.String(object.project_id)
+        : "",
+      completed: isSet(object.completed) ? globalThis.Boolean(object.completed) : false,
     };
   },
 
@@ -625,14 +578,10 @@ export const MarkCompletedRequest: MessageFns<MarkCompletedRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MarkCompletedRequest>, I>>(
-    base?: I,
-  ): MarkCompletedRequest {
+  create<I extends Exact<DeepPartial<MarkCompletedRequest>, I>>(base?: I): MarkCompletedRequest {
     return MarkCompletedRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MarkCompletedRequest>, I>>(
-    object: I,
-  ): MarkCompletedRequest {
+  fromPartial<I extends Exact<DeepPartial<MarkCompletedRequest>, I>>(object: I): MarkCompletedRequest {
     const message = createBaseMarkCompletedRequest();
     message.resourceId = object.resourceId ?? "";
     message.userEmail = object.userEmail ?? "";
@@ -647,22 +596,15 @@ function createBaseMarkCompletedResponse(): MarkCompletedResponse {
 }
 
 export const MarkCompletedResponse: MessageFns<MarkCompletedResponse> = {
-  encode(
-    message: MarkCompletedResponse,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: MarkCompletedResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
     }
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): MarkCompletedResponse {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkCompletedResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMarkCompletedResponse();
     while (reader.pos < end) {
@@ -686,11 +628,7 @@ export const MarkCompletedResponse: MessageFns<MarkCompletedResponse> = {
   },
 
   fromJSON(object: any): MarkCompletedResponse {
-    return {
-      success: isSet(object.success)
-        ? globalThis.Boolean(object.success)
-        : false,
-    };
+    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
   },
 
   toJSON(message: MarkCompletedResponse): unknown {
@@ -701,14 +639,10 @@ export const MarkCompletedResponse: MessageFns<MarkCompletedResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MarkCompletedResponse>, I>>(
-    base?: I,
-  ): MarkCompletedResponse {
+  create<I extends Exact<DeepPartial<MarkCompletedResponse>, I>>(base?: I): MarkCompletedResponse {
     return MarkCompletedResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MarkCompletedResponse>, I>>(
-    object: I,
-  ): MarkCompletedResponse {
+  fromPartial<I extends Exact<DeepPartial<MarkCompletedResponse>, I>>(object: I): MarkCompletedResponse {
     const message = createBaseMarkCompletedResponse();
     message.success = object.success ?? false;
     return message;
@@ -720,10 +654,7 @@ function createBaseGetProgressRequest(): GetProgressRequest {
 }
 
 export const GetProgressRequest: MessageFns<GetProgressRequest> = {
-  encode(
-    message: GetProgressRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: GetProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.userEmail !== "") {
       writer.uint32(10).string(message.userEmail);
     }
@@ -733,12 +664,8 @@ export const GetProgressRequest: MessageFns<GetProgressRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): GetProgressRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): GetProgressRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetProgressRequest();
     while (reader.pos < end) {
@@ -774,13 +701,13 @@ export const GetProgressRequest: MessageFns<GetProgressRequest> = {
       userEmail: isSet(object.userEmail)
         ? globalThis.String(object.userEmail)
         : isSet(object.user_email)
-          ? globalThis.String(object.user_email)
-          : "",
+        ? globalThis.String(object.user_email)
+        : "",
       projectId: isSet(object.projectId)
         ? globalThis.String(object.projectId)
         : isSet(object.project_id)
-          ? globalThis.String(object.project_id)
-          : "",
+        ? globalThis.String(object.project_id)
+        : "",
     };
   },
 
@@ -795,14 +722,10 @@ export const GetProgressRequest: MessageFns<GetProgressRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetProgressRequest>, I>>(
-    base?: I,
-  ): GetProgressRequest {
+  create<I extends Exact<DeepPartial<GetProgressRequest>, I>>(base?: I): GetProgressRequest {
     return GetProgressRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetProgressRequest>, I>>(
-    object: I,
-  ): GetProgressRequest {
+  fromPartial<I extends Exact<DeepPartial<GetProgressRequest>, I>>(object: I): GetProgressRequest {
     const message = createBaseGetProgressRequest();
     message.userEmail = object.userEmail ?? "";
     message.projectId = object.projectId ?? "";
@@ -815,10 +738,7 @@ function createBaseProgressEntry(): ProgressEntry {
 }
 
 export const ProgressEntry: MessageFns<ProgressEntry> = {
-  encode(
-    message: ProgressEntry,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ProgressEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.resourceId !== "") {
       writer.uint32(10).string(message.resourceId);
     }
@@ -832,8 +752,7 @@ export const ProgressEntry: MessageFns<ProgressEntry> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ProgressEntry {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProgressEntry();
     while (reader.pos < end) {
@@ -877,16 +796,14 @@ export const ProgressEntry: MessageFns<ProgressEntry> = {
       resourceId: isSet(object.resourceId)
         ? globalThis.String(object.resourceId)
         : isSet(object.resource_id)
-          ? globalThis.String(object.resource_id)
-          : "",
-      completed: isSet(object.completed)
-        ? globalThis.Boolean(object.completed)
-        : false,
+        ? globalThis.String(object.resource_id)
+        : "",
+      completed: isSet(object.completed) ? globalThis.Boolean(object.completed) : false,
       completedAt: isSet(object.completedAt)
         ? globalThis.String(object.completedAt)
         : isSet(object.completed_at)
-          ? globalThis.String(object.completed_at)
-          : "",
+        ? globalThis.String(object.completed_at)
+        : "",
     };
   },
 
@@ -904,14 +821,10 @@ export const ProgressEntry: MessageFns<ProgressEntry> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ProgressEntry>, I>>(
-    base?: I,
-  ): ProgressEntry {
+  create<I extends Exact<DeepPartial<ProgressEntry>, I>>(base?: I): ProgressEntry {
     return ProgressEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ProgressEntry>, I>>(
-    object: I,
-  ): ProgressEntry {
+  fromPartial<I extends Exact<DeepPartial<ProgressEntry>, I>>(object: I): ProgressEntry {
     const message = createBaseProgressEntry();
     message.resourceId = object.resourceId ?? "";
     message.completed = object.completed ?? false;
@@ -925,22 +838,15 @@ function createBaseGetProgressResponse(): GetProgressResponse {
 }
 
 export const GetProgressResponse: MessageFns<GetProgressResponse> = {
-  encode(
-    message: GetProgressResponse,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: GetProgressResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.entries) {
       ProgressEntry.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): GetProgressResponse {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): GetProgressResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetProgressResponse();
     while (reader.pos < end) {
@@ -979,23 +885,17 @@ export const GetProgressResponse: MessageFns<GetProgressResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetProgressResponse>, I>>(
-    base?: I,
-  ): GetProgressResponse {
+  create<I extends Exact<DeepPartial<GetProgressResponse>, I>>(base?: I): GetProgressResponse {
     return GetProgressResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetProgressResponse>, I>>(
-    object: I,
-  ): GetProgressResponse {
+  fromPartial<I extends Exact<DeepPartial<GetProgressResponse>, I>>(object: I): GetProgressResponse {
     const message = createBaseGetProgressResponse();
-    message.entries =
-      object.entries?.map((e) => ProgressEntry.fromPartial(e)) || [];
+    message.entries = object.entries?.map((e) => ProgressEntry.fromPartial(e)) || [];
     return message;
   },
 };
 
-export type ResourceProgressServiceService =
-  typeof ResourceProgressServiceService;
+export type ResourceProgressServiceService = typeof ResourceProgressServiceService;
 export const ResourceProgressServiceService = {
   /** Fetch all resources for a phase, with per-user completion status */
   getPhaseResources: {
@@ -1004,49 +904,37 @@ export const ResourceProgressServiceService = {
     responseStream: false as const,
     requestSerialize: (value: GetPhaseResourcesRequest): Buffer =>
       Buffer.from(GetPhaseResourcesRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetPhaseResourcesRequest =>
-      GetPhaseResourcesRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetPhaseResourcesRequest => GetPhaseResourcesRequest.decode(value),
     responseSerialize: (value: GetPhaseResourcesResponse): Buffer =>
       Buffer.from(GetPhaseResourcesResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetPhaseResourcesResponse =>
-      GetPhaseResourcesResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetPhaseResourcesResponse => GetPhaseResourcesResponse.decode(value),
   },
   /** Mark or unmark a single resource as completed */
   markCompleted: {
     path: "/resourceProgress.ResourceProgressService/MarkCompleted" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: MarkCompletedRequest): Buffer =>
-      Buffer.from(MarkCompletedRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): MarkCompletedRequest =>
-      MarkCompletedRequest.decode(value),
+    requestSerialize: (value: MarkCompletedRequest): Buffer => Buffer.from(MarkCompletedRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): MarkCompletedRequest => MarkCompletedRequest.decode(value),
     responseSerialize: (value: MarkCompletedResponse): Buffer =>
       Buffer.from(MarkCompletedResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): MarkCompletedResponse =>
-      MarkCompletedResponse.decode(value),
+    responseDeserialize: (value: Buffer): MarkCompletedResponse => MarkCompletedResponse.decode(value),
   },
   /** Fetch all completion records for a user+project (lightweight, all phases) */
   getProgress: {
     path: "/resourceProgress.ResourceProgressService/GetProgress" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: GetProgressRequest): Buffer =>
-      Buffer.from(GetProgressRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetProgressRequest =>
-      GetProgressRequest.decode(value),
-    responseSerialize: (value: GetProgressResponse): Buffer =>
-      Buffer.from(GetProgressResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetProgressResponse =>
-      GetProgressResponse.decode(value),
+    requestSerialize: (value: GetProgressRequest): Buffer => Buffer.from(GetProgressRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetProgressRequest => GetProgressRequest.decode(value),
+    responseSerialize: (value: GetProgressResponse): Buffer => Buffer.from(GetProgressResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetProgressResponse => GetProgressResponse.decode(value),
   },
 } as const;
 
 export interface ResourceProgressServiceServer extends UntypedServiceImplementation {
   /** Fetch all resources for a phase, with per-user completion status */
-  getPhaseResources: handleUnaryCall<
-    GetPhaseResourcesRequest,
-    GetPhaseResourcesResponse
-  >;
+  getPhaseResources: handleUnaryCall<GetPhaseResourcesRequest, GetPhaseResourcesResponse>;
   /** Mark or unmark a single resource as completed */
   markCompleted: handleUnaryCall<MarkCompletedRequest, MarkCompletedResponse>;
   /** Fetch all completion records for a user+project (lightweight, all phases) */
@@ -1057,77 +945,50 @@ export interface ResourceProgressServiceClient extends Client {
   /** Fetch all resources for a phase, with per-user completion status */
   getPhaseResources(
     request: GetPhaseResourcesRequest,
-    callback: (
-      error: ServiceError | null,
-      response: GetPhaseResourcesResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetPhaseResourcesResponse) => void,
   ): ClientUnaryCall;
   getPhaseResources(
     request: GetPhaseResourcesRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetPhaseResourcesResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetPhaseResourcesResponse) => void,
   ): ClientUnaryCall;
   getPhaseResources(
     request: GetPhaseResourcesRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetPhaseResourcesResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetPhaseResourcesResponse) => void,
   ): ClientUnaryCall;
   /** Mark or unmark a single resource as completed */
   markCompleted(
     request: MarkCompletedRequest,
-    callback: (
-      error: ServiceError | null,
-      response: MarkCompletedResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: MarkCompletedResponse) => void,
   ): ClientUnaryCall;
   markCompleted(
     request: MarkCompletedRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: MarkCompletedResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: MarkCompletedResponse) => void,
   ): ClientUnaryCall;
   markCompleted(
     request: MarkCompletedRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: MarkCompletedResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: MarkCompletedResponse) => void,
   ): ClientUnaryCall;
   /** Fetch all completion records for a user+project (lightweight, all phases) */
   getProgress(
     request: GetProgressRequest,
-    callback: (
-      error: ServiceError | null,
-      response: GetProgressResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetProgressResponse) => void,
   ): ClientUnaryCall;
   getProgress(
     request: GetProgressRequest,
     metadata: Metadata,
-    callback: (
-      error: ServiceError | null,
-      response: GetProgressResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetProgressResponse) => void,
   ): ClientUnaryCall;
   getProgress(
     request: GetProgressRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (
-      error: ServiceError | null,
-      response: GetProgressResponse,
-    ) => void,
+    callback: (error: ServiceError | null, response: GetProgressResponse) => void,
   ): ClientUnaryCall;
 }
 
@@ -1144,31 +1005,17 @@ export const ResourceProgressServiceClient = makeGenericClientConstructor(
   serviceName: string;
 };
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends globalThis.Array<infer U>
-    ? globalThis.Array<DeepPartial<U>>
-    : T extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepPartial<U>>
-      : T extends {}
-        ? { [K in keyof T]?: DeepPartial<T[K]> }
-        : Partial<T>;
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

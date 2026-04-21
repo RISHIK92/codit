@@ -100,7 +100,13 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["./src/**/*", "../shared/**/*", "./server.ts"],
+  "include": [
+    "./src/**/*",
+    "../shared/**/*",
+    "./server.ts",
+    "../user-service/src/handlers/resourceProgressHandler.ts",
+    "../user-service/src/repositories/resourceProgressRepo.ts"
+  ],
   "exclude": [
     "node_modules",
     "../shared/node_modules",

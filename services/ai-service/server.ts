@@ -3,7 +3,7 @@ import * as protoLoader from "@grpc/proto-loader";
 import { ReflectionService } from "@grpc/reflection";
 import path from "path";
 import { ResourceProgressServiceService } from "./src/generated/resourceProgress";
-import { resourceProgressHandler } from "./src/handlers/resourceProgressHandler";
+import { resourceProgressHandler } from "../user-service/src/handlers/resourceProgressHandler";
 
 const startServer = () => {
   const server = new grpc.Server();
