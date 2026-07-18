@@ -95,9 +95,11 @@
   --color-phase-backend: var(--phase-backend);
   --color-phase-deploy: var(--phase-deploy);
 
+  /* UI copy uses a readable sans; display and mono fonts stay opt-in. */
+  --font-sans: var(--font-dm-sans);
   --font-serif: var(--font-cormorant);
   --font-mono: var(--font-dm-mono);
-  --font-sans: var(--font-bebas);
+  --font-display: var(--font-bebas);
 
   --animate-fadeUp: fadeUp 0.8s var(--ease-out-expo) both;
   --animate-fadeUp-fast: fadeUp 0.4s var(--ease-out-expo) both;
@@ -141,6 +143,12 @@ body {
       transparent 60%
     );
   color: var(--text-primary);
+}
+
+/* Keep the project-detail screen readable and consistent with the UI font. */
+.project-detail,
+.project-detail * {
+  font-family: var(--font-dm-sans), sans-serif;
 }
 
 /* --- Keyframes --- */
