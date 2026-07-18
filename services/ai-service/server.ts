@@ -1,20 +1,21 @@
+import "./src/config/loadEnv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import { ReflectionService } from "@grpc/reflection";
 import path from "path";
-import { ResourceProgressServiceService } from "./src/generated/resourceProgress";
-import { resourceProgressHandler } from "../user-service/src/handlers/resourceProgressHandler";
+import { AiServiceService } from "./src/generated/ai";
+import { aiServiceHandler } from "./src/handlers/chatHandler";
 
 const startServer = () => {
   const server = new grpc.Server();
 
-  server.addService(ResourceProgressServiceService, resourceProgressHandler);
+  server.addService(AiServiceService, aiServiceHandler);
 
   // Reflection Configuration
-  const PROTO_PATH = path.join(
-    __dirname,
-    "../../../../shared/proto/user.proto",
-  );
+  // Anchored on cwd (always this service's own directory, via npm scripts),
+  // not __dirname — __dirname differs by one level between the compiled
+  // dist/<service>/server.js and running server.ts directly (ts-node-dev).
+  const PROTO_PATH = path.join(process.cwd(), "../../shared/proto/ai.proto");
   const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
     longs: String,
@@ -25,7 +26,7 @@ const startServer = () => {
   const reflection = new ReflectionService(packageDefinition);
   reflection.addToServer(server);
 
-  const PORT = process.env.PORT || "50052";
+  const PORT = process.env.PORT || "50053";
   const URI = `0.0.0.0:${PORT}`;
 
   server.bindAsync(
@@ -36,7 +37,7 @@ const startServer = () => {
         console.error(`Failed to bind server: ${error.message}`);
         return;
       }
-      console.log(`Node.js User Service running via gRPC on ${URI}`);
+      console.log(`Node.js AI Service running via gRPC on ${URI}`);
     },
   );
 };
