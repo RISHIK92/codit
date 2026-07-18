@@ -2,16 +2,23 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useDashboardStore } from "@/lib/stores";
+import { useDashboardStore, useUserStore, useEntranceTestStore } from "@/lib/stores";
 import { signOutUser } from "@/lib/authActions";
 
 export default function LeftSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { currentProject } = useDashboardStore();
+  const { clearProfile } = useUserStore();
+  const { reset: resetEntranceTest } = useEntranceTestStore();
 
   async function handleSignOut() {
     await signOutUser();
+    // Clear user-scoped client state so a different account signing in on
+    // the same tab doesn't inherit the previous user's stale profile
+    // (which gates the onboarding redirect via profile.is_new).
+    clearProfile();
+    resetEntranceTest();
     router.replace("/login");
   }
 
