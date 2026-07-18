@@ -1,4 +1,5 @@
 import * as userRepo from "../repositories/userRepo";
+import * as entranceTestRepo from "../repositories/entranceTestRepo";
 
 export const syncUser = async (uid: string, email: string, name: string) => {
   if (!email) {
@@ -7,6 +8,36 @@ export const syncUser = async (uid: string, email: string, name: string) => {
 
   const user = await userRepo.upsertUser(uid, email, name);
   return user;
+};
+
+export const isProfileNew = (user: {
+  skillLevel: string | null;
+  learningModes: string[];
+  hoursPerWeek: number | null;
+}) =>
+  !user.skillLevel ||
+  !user.learningModes ||
+  user.learningModes.length === 0 ||
+  !user.hoursPerWeek;
+
+/**
+ * Onboarding status for a user, combining profile completeness with the
+ * entrance-test attempt state. Used by LoginUser so the client can route
+ * straight to /onboarding or /dashboard without a separate profile fetch.
+ */
+export const getOnboardingStatus = async (email: string) => {
+  const [user, attempt] = await Promise.all([
+    userRepo.findUserByEmail(email),
+    entranceTestRepo.getAttempt(email),
+  ]);
+  if (!user) throw new Error("User not found");
+
+  return {
+    isNew: isProfileNew(user),
+    skillLevel: user.skillLevel ?? "",
+    entranceTestStatus: attempt?.status ?? "",
+    entranceTestRound: attempt?.round ?? 0,
+  };
 };
 
 export const getUserProfile = async (email: string) => {
