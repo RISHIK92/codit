@@ -1,7 +1,14 @@
 import type { ChatProvider } from "./types";
 import { groqProvider } from "./groq";
 
-export type { ChatProvider, ChatTurn, ToolDefinition, ToolCall } from "./types";
+export type {
+  ChatProvider,
+  ChatTurn,
+  ToolDefinition,
+  ToolCall,
+  ChatCompletionResult,
+  TokenUsage,
+} from "./types";
 
 const PROVIDERS: Record<string, ChatProvider> = {
   groq: groqProvider,
