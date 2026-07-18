@@ -14,11 +14,24 @@ import { auth } from "./firebase";
 const GATEWAY_URL =
   process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8081";
 
+export interface OnboardingStatus {
+  isNew: boolean;
+  skillLevel: string;
+  entranceTestStatus: string; // "" | "in_progress" | "completed"
+  entranceTestRound: number;
+}
+
 export type AuthResult =
-  | { success: true; user: User; isNew: boolean }
+  | { success: true; user: User; isNew: boolean; onboarding: OnboardingStatus }
   | { success: false; message: string };
 
-async function callGatewayLogin(user: User): Promise<void> {
+/**
+ * Calls the gateway's login endpoint, which upserts the user and returns
+ * onboarding status inline (is_new, skill_level, entrance test attempt) —
+ * this lets the caller route straight to /onboarding or /dashboard without
+ * a separate profile fetch + redirect hop (which caused a visible flash).
+ */
+async function callGatewayLogin(user: User): Promise<OnboardingStatus> {
   const idToken = await user.getIdToken();
   const res = await fetch(`${GATEWAY_URL}/api/users/login`, {
     method: "POST",
@@ -31,6 +44,16 @@ async function callGatewayLogin(user: User): Promise<void> {
     const msg = (await res.text()).trim();
     throw new Error(msg || `Gateway error ${res.status}`);
   }
+  const data = await res.json();
+  // Go's encoding/json `omitempty` strips zero-value fields (false, "", 0)
+  // from the response entirely, so an absent key means the falsy default —
+  // not "unknown". Boolean(undefined) correctly resolves to false here.
+  return {
+    isNew: Boolean(data.is_new ?? data.isNew),
+    skillLevel: data.skill_level ?? data.skillLevel ?? "",
+    entranceTestStatus: data.entrance_test_status ?? data.entranceTestStatus ?? "",
+    entranceTestRound: data.entrance_test_round ?? data.entranceTestRound ?? 0,
+  };
 }
 
 export async function authenticateWithEmail(
@@ -41,8 +64,13 @@ export async function authenticateWithEmail(
     // 1. Try to sign in
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await callGatewayLogin(cred.user);
-      return { success: true, user: cred.user, isNew: false };
+      const onboarding = await callGatewayLogin(cred.user);
+      return {
+        success: true,
+        user: cred.user,
+        isNew: onboarding.isNew,
+        onboarding,
+      };
     } catch (signInErr: any) {
       // 2. If sign-in fails, try to create the account
       try {
@@ -55,8 +83,13 @@ export async function authenticateWithEmail(
           url: `${window.location.origin}/login`,
           handleCodeInApp: false,
         });
-        await callGatewayLogin(cred.user);
-        return { success: true, user: cred.user, isNew: true };
+        const onboarding = await callGatewayLogin(cred.user);
+        return {
+          success: true,
+          user: cred.user,
+          isNew: onboarding.isNew,
+          onboarding,
+        };
       } catch (createErr: any) {
         if (createErr.code === "auth/email-already-in-use") {
           // Scenario A: This email exists but sign-in failed.
@@ -95,12 +128,30 @@ export async function signInWithGoogle(): Promise<AuthResult> {
   provider.setCustomParameters({ prompt: "select_account" });
   try {
     const cred = await signInWithPopup(auth, provider);
-    await callGatewayLogin(cred.user);
-    return { success: true, user: cred.user, isNew: false };
+    const onboarding = await callGatewayLogin(cred.user);
+    return {
+      success: true,
+      user: cred.user,
+      isNew: onboarding.isNew,
+      onboarding,
+    };
   } catch (err: any) {
     if (err.code === "auth/popup-blocked") {
       await signInWithRedirect(auth, provider);
-      return { success: true, user: auth.currentUser!, isNew: false };
+      // Redirect flow completes on a different page load — no onboarding
+      // data is available here; the dashboard layout's fallback redirect
+      // (based on a real profile fetch) handles routing in that case.
+      return {
+        success: true,
+        user: auth.currentUser!,
+        isNew: false,
+        onboarding: {
+          isNew: false,
+          skillLevel: "",
+          entranceTestStatus: "",
+          entranceTestRound: 0,
+        },
+      };
     }
     if (err.code === "auth/popup-closed-by-user") {
       return { success: false, message: "" };
