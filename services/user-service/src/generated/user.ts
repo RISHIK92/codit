@@ -38,6 +38,17 @@ export interface LoginUserRequest {
 
 export interface LoginUserResponse {
   success: boolean;
+  /**
+   * Onboarding status, returned inline so the client can route straight to
+   * /onboarding or /dashboard after login without a separate profile fetch.
+   */
+  isNew: boolean;
+  /** "" if not set yet */
+  skillLevel: string;
+  /** "" | "in_progress" | "completed" */
+  entranceTestStatus: string;
+  /** meaningful only when status != "" */
+  entranceTestRound: number;
 }
 
 export interface GetUserProfileRequest {
@@ -291,13 +302,25 @@ export const LoginUserRequest: MessageFns<LoginUserRequest> = {
 };
 
 function createBaseLoginUserResponse(): LoginUserResponse {
-  return { success: false };
+  return { success: false, isNew: false, skillLevel: "", entranceTestStatus: "", entranceTestRound: 0 };
 }
 
 export const LoginUserResponse: MessageFns<LoginUserResponse> = {
   encode(message: LoginUserResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
+    }
+    if (message.isNew !== false) {
+      writer.uint32(16).bool(message.isNew);
+    }
+    if (message.skillLevel !== "") {
+      writer.uint32(26).string(message.skillLevel);
+    }
+    if (message.entranceTestStatus !== "") {
+      writer.uint32(34).string(message.entranceTestStatus);
+    }
+    if (message.entranceTestRound !== 0) {
+      writer.uint32(40).int32(message.entranceTestRound);
     }
     return writer;
   },
@@ -317,6 +340,38 @@ export const LoginUserResponse: MessageFns<LoginUserResponse> = {
           message.success = reader.bool();
           continue;
         }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.isNew = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.skillLevel = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.entranceTestStatus = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.entranceTestRound = reader.int32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -327,13 +382,47 @@ export const LoginUserResponse: MessageFns<LoginUserResponse> = {
   },
 
   fromJSON(object: any): LoginUserResponse {
-    return { success: isSet(object.success) ? globalThis.Boolean(object.success) : false };
+    return {
+      success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
+      isNew: isSet(object.isNew)
+        ? globalThis.Boolean(object.isNew)
+        : isSet(object.is_new)
+        ? globalThis.Boolean(object.is_new)
+        : false,
+      skillLevel: isSet(object.skillLevel)
+        ? globalThis.String(object.skillLevel)
+        : isSet(object.skill_level)
+        ? globalThis.String(object.skill_level)
+        : "",
+      entranceTestStatus: isSet(object.entranceTestStatus)
+        ? globalThis.String(object.entranceTestStatus)
+        : isSet(object.entrance_test_status)
+        ? globalThis.String(object.entrance_test_status)
+        : "",
+      entranceTestRound: isSet(object.entranceTestRound)
+        ? globalThis.Number(object.entranceTestRound)
+        : isSet(object.entrance_test_round)
+        ? globalThis.Number(object.entrance_test_round)
+        : 0,
+    };
   },
 
   toJSON(message: LoginUserResponse): unknown {
     const obj: any = {};
     if (message.success !== false) {
       obj.success = message.success;
+    }
+    if (message.isNew !== false) {
+      obj.isNew = message.isNew;
+    }
+    if (message.skillLevel !== "") {
+      obj.skillLevel = message.skillLevel;
+    }
+    if (message.entranceTestStatus !== "") {
+      obj.entranceTestStatus = message.entranceTestStatus;
+    }
+    if (message.entranceTestRound !== 0) {
+      obj.entranceTestRound = Math.round(message.entranceTestRound);
     }
     return obj;
   },
@@ -344,6 +433,10 @@ export const LoginUserResponse: MessageFns<LoginUserResponse> = {
   fromPartial<I extends Exact<DeepPartial<LoginUserResponse>, I>>(object: I): LoginUserResponse {
     const message = createBaseLoginUserResponse();
     message.success = object.success ?? false;
+    message.isNew = object.isNew ?? false;
+    message.skillLevel = object.skillLevel ?? "";
+    message.entranceTestStatus = object.entranceTestStatus ?? "";
+    message.entranceTestRound = object.entranceTestRound ?? 0;
     return message;
   },
 };
