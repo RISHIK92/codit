@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/stores";
+import { Zap, CheckCircle2, Archive, Rocket } from "lucide-react";
 import {
   getAllUserProjects,
   getUserProjectsByStatus,
@@ -44,6 +45,19 @@ const STATUS_CONFIG: Record<
     color: "text-txt-ghost",
     ring: "border-border-s",
   },
+};
+
+const FILTER_EMPTY_META: Record<
+  Exclude<Filter, "all">,
+  { icon: typeof Zap; color: string; ring: string }
+> = {
+  in_progress: { icon: Zap, color: "text-accent", ring: "border-accent/30" },
+  completed: {
+    icon: CheckCircle2,
+    color: "text-success",
+    ring: "border-success/30",
+  },
+  abandoned: { icon: Archive, color: "text-txt-ghost", ring: "border-border-s" },
 };
 
 function fmtMinutes(m: number) {
@@ -547,27 +561,23 @@ export default function MyProjectsPage() {
             My Projects
           </div>
           <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-none">
-            Constellation
+            My Projects
           </h1>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 text-center">
-          {/* Empty constellation art */}
-          <div className="relative w-48 h-48 opacity-20">
-            <div className="absolute inset-0 rounded-full border border-dashed border-border-s" />
-            <div className="absolute inset-6 rounded-full border border-dashed border-border-s" />
-            <div className="absolute inset-12 rounded-full border border-dashed border-border-s" />
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-accent/50" />
-            <div className="absolute bottom-8 right-6 w-1.5 h-1.5 rounded-full bg-warning/50" />
-            <div className="absolute top-1/2 left-4 w-1.5 h-1.5 rounded-full bg-[#b8a4e8]/50" />
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
+          {/* Icon badge */}
+          <div className="relative flex items-center justify-center w-16 h-16 rounded-full border border-accent/25 bg-accent/5">
+            <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(127,255,212,0.12)_0%,transparent_70%)]" />
+            <Rocket size={22} className="relative text-accent" />
           </div>
 
           <div>
             <p className="font-(family-name:--font-cormorant) text-2xl text-txt mb-2">
-              Your constellation is empty
+              No projects yet
             </p>
             <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-6">
-              Every project you start becomes a star here.
+              Start your first build and track its progress here.
             </p>
             <Link
               href="/dashboard/projects"
@@ -637,7 +647,18 @@ export default function MyProjectsPage() {
       </div>
 
       {!filterFetching && visible.length === 0 ? (
-        <div className="py-16 text-center">
+        <div className="py-16 flex flex-col items-center gap-4 text-center">
+          {(() => {
+            const meta = FILTER_EMPTY_META[filter as Exclude<Filter, "all">];
+            const Icon = meta?.icon ?? Zap;
+            return (
+              <div
+                className={`flex items-center justify-center w-12 h-12 rounded-full border ${meta?.ring ?? "border-border-s"} bg-void`}
+              >
+                <Icon size={18} className={meta?.color ?? "text-txt-ghost"} />
+              </div>
+            );
+          })()}
           <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
             No {filter.replace("_", " ")} projects
           </p>
