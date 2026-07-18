@@ -23,9 +23,14 @@ export const userHandler: UserServiceServer = {
       console.log(`Received gRPC request to create user: ${email}`);
 
       await userService.syncUser(uid, email, name);
+      const onboarding = await userService.getOnboardingStatus(email);
 
       callback(null, {
         success: true,
+        isNew: onboarding.isNew,
+        skillLevel: onboarding.skillLevel,
+        entranceTestStatus: onboarding.entranceTestStatus,
+        entranceTestRound: onboarding.entranceTestRound,
       });
     } catch (error: any) {
       console.error("Failed to create user:", error.message);
@@ -54,12 +59,7 @@ export const userHandler: UserServiceServer = {
     try {
       const { email } = call.request;
       const user = await userService.getUserProfile(email);
-
-      const isNew =
-        !user.skillLevel ||
-        !user.learningModes ||
-        user.learningModes.length === 0 ||
-        !user.hoursPerWeek;
+      const isNew = userService.isProfileNew(user);
 
       callback(null, {
         uid: user.uid,
