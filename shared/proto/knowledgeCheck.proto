@@ -1,0 +1,72 @@
+// /shared/proto/knowledgeCheck.proto
+
+syntax = "proto3";
+
+package knowledgeCheck;
+
+option go_package = "gateway/pkg/pb";
+
+service KnowledgeCheckService {
+  // Fetch all knowledge checks for a phase, with the user's attempt status
+  rpc GetPhaseKnowledgeChecks (GetPhaseKnowledgeChecksRequest) returns (GetPhaseKnowledgeChecksResponse);
+
+  // Submit an answer for a single knowledge check (graded server-side)
+  rpc SubmitAnswer (SubmitAnswerRequest) returns (SubmitAnswerResponse);
+
+  // Fetch the user's quiz average (% correct) per skill level, for progression gating
+  rpc GetQuizAverages (GetQuizAveragesRequest) returns (GetQuizAveragesResponse);
+}
+
+// ── Phase knowledge checks ──────────────────────────────────────────────────
+
+message GetPhaseKnowledgeChecksRequest {
+  string phase_id   = 1;
+  string user_email = 2;
+}
+
+message KnowledgeCheckItem {
+  string id                = 1;
+  string phase_id          = 2;
+  string question          = 3;
+  repeated string options  = 4;   // only populated for multiple_choice
+  string question_type     = 5;   // "code_completion" | "multiple_choice" | "debug"
+  bool   attempted         = 6;
+  bool   is_correct        = 7;   // meaningful only when attempted = true
+  string explanation       = 8;   // only revealed once attempted
+  string submitted_answer  = 9;   // user's last submitted answer, "" if unattempted
+}
+
+message GetPhaseKnowledgeChecksResponse {
+  repeated KnowledgeCheckItem checks = 1;
+}
+
+// ── Submit answer ────────────────────────────────────────────────────────────
+
+message SubmitAnswerRequest {
+  string knowledge_check_id = 1;
+  string user_email         = 2;
+  string project_id         = 3;
+  string answer             = 4;
+}
+
+message SubmitAnswerResponse {
+  bool   is_correct  = 1;
+  string explanation = 2;
+}
+
+// ── Quiz averages (per skill level, for progression gating) ─────────────────
+
+message GetQuizAveragesRequest {
+  string user_email = 1;
+}
+
+message SkillLevelAverage {
+  string skill_level     = 1;  // "beginner" | "intermediate" | "advanced"
+  float  average_pct     = 2;  // 0-100, percent correct across attempted checks
+  int32  attempted_count = 3;
+  int32  total_count     = 4;  // total knowledge checks that exist at that level
+}
+
+message GetQuizAveragesResponse {
+  repeated SkillLevelAverage averages = 1;
+}
