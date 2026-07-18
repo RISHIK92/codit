@@ -4,7 +4,7 @@
  * Typed fetch helper for the AI assistant endpoint.
  *
  * ─── Authenticated endpoint (requires Bearer token) ──────────────────────────
- *   POST /api/ai/chat → { reply: string }
+ *   POST /api/ai/chat → streamed plain-text body, one chunk per flush
  */
 
 const GATEWAY_URL =
@@ -15,18 +15,6 @@ export interface ChatHistoryEntry {
   content: string;
 }
 
-export interface ChatResponse {
-  reply?: string;
-}
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(text || `HTTP ${res.status}`);
-  }
-  return res.json() as Promise<T>;
-}
-
 /**
  * "chat" (default) routes through the full agentic assistant (can fetch other
  * project files via tools). "explain" is a direct, single-shot call scoped to
@@ -34,7 +22,12 @@ async function handleResponse<T>(res: Response): Promise<T> {
  */
 export type ChatMode = "chat" | "explain";
 
-/** Send a message to the AI assistant; context is assembled server-side. */
+/**
+ * Send a message to the AI assistant; context is assembled server-side.
+ * The reply streams in over the response body — `onChunk` fires once per
+ * chunk as it arrives, and the returned promise resolves with the full
+ * concatenated text once the stream ends.
+ */
 export async function sendChatMessage(
   token: string,
   params: {
@@ -45,8 +38,9 @@ export async function sendChatMessage(
     history: ChatHistoryEntry[];
     mode?: ChatMode;
   },
+  onChunk: (text: string) => void,
   signal?: AbortSignal,
-): Promise<ChatResponse> {
+): Promise<string> {
   const res = await fetch(`${GATEWAY_URL}/api/ai/chat`, {
     method: "POST",
     headers: {
@@ -63,5 +57,30 @@ export async function sendChatMessage(
       mode: params.mode ?? "chat",
     }),
   });
-  return handleResponse<ChatResponse>(res);
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+
+  if (!res.body) {
+    // No streaming body support — fall back to a single read.
+    const text = await res.text();
+    if (text) onChunk(text);
+    return text;
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const text = decoder.decode(value, { stream: true });
+    if (text) {
+      full += text;
+      onChunk(text);
+    }
+  }
+  return full;
 }
