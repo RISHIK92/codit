@@ -38,6 +38,70 @@ interface AiAssistantProps {
 }
 
 // ── Content renderer ───────────────────────────────────────────────────────
+// Hand-rolled, not a full markdown parser — just enough to cover what the
+// assistant actually produces: fenced code, inline code, bold, and lists.
+// Streamed text can briefly show an unclosed ``` or ** as literal
+// characters until the closing marker arrives; it self-corrects.
+
+function renderInline(text: string, keyPrefix: string) {
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+  return parts.map((part, j) => {
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code
+          key={`${keyPrefix}-${j}`}
+          className="px-1 py-0.5 bg-void rounded text-[11px] font-mono text-accent/80 border border-border-s"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return (
+        <strong key={`${keyPrefix}-${j}`} className="font-semibold text-txt">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <span key={`${keyPrefix}-${j}`}>{part}</span>;
+  });
+}
+
+function renderTextBlock(block: string, blockKey: string) {
+  const lines = block.split("\n");
+  return (
+    <span key={blockKey}>
+      {lines.map((line, li) => {
+        const lineKey = `${blockKey}-l${li}`;
+        const numbered = line.match(/^(\d+)\.\s+(.*)/);
+        const bulleted = line.match(/^[-*]\s+(.*)/);
+
+        if (numbered) {
+          return (
+            <div key={lineKey} className="flex gap-1.5 pl-0.5">
+              <span className="text-txt-ghost shrink-0">{numbered[1]}.</span>
+              <span>{renderInline(numbered[2], lineKey)}</span>
+            </div>
+          );
+        }
+        if (bulleted) {
+          return (
+            <div key={lineKey} className="flex gap-1.5 pl-0.5">
+              <span className="text-txt-ghost shrink-0">•</span>
+              <span>{renderInline(bulleted[1], lineKey)}</span>
+            </div>
+          );
+        }
+        return (
+          <span key={lineKey}>
+            {renderInline(line, lineKey)}
+            {li < lines.length - 1 && <br />}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
 
 function renderContent(text: string) {
   if (!text)
@@ -64,23 +128,7 @@ function renderContent(text: string) {
         </pre>
       );
     }
-    const parts = block.split(/(`[^`]+`)/g);
-    return (
-      <span key={i}>
-        {parts.map((part, j) =>
-          part.startsWith("`") && part.endsWith("`") ? (
-            <code
-              key={j}
-              className="px-1 py-0.5 bg-void rounded text-[11px] font-mono text-accent/80 border border-border-s"
-            >
-              {part.slice(1, -1)}
-            </code>
-          ) : (
-            <span key={j}>{part}</span>
-          ),
-        )}
-      </span>
-    );
+    return renderTextBlock(block, `b${i}`);
   });
 }
 
@@ -155,7 +203,7 @@ export function AiAssistant({
 
     try {
       const token = await getToken();
-      const res = await sendChatMessage(
+      await sendChatMessage(
         token,
         {
           projectId,
@@ -165,15 +213,16 @@ export function AiAssistant({
           history: messages.map((m) => ({ role: m.role, content: m.content })),
           mode,
         },
+        (chunk) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantMsgId
+                ? { ...m, content: m.content + chunk }
+                : m,
+            ),
+          );
+        },
         abort.signal,
-      );
-
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantMsgId
-            ? { ...m, content: res.reply ?? "" }
-            : m,
-        ),
       );
     } catch (err: unknown) {
       if ((err as Error).name !== "AbortError") {
