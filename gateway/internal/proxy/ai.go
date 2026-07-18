@@ -2,6 +2,8 @@ package proxy
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 
 	"gateway/pkg/pb"
@@ -13,6 +15,8 @@ import (
 
 // ChatProxy handles POST /api/ai/chat
 // Body: { "projectId": "...", "phaseId": "...", "activeFilePath": "...", "message": "...", "history": [{ "role": "...", "content": "..." }], "mode": "chat" | "explain" }
+// Streams the reply back as it's generated — the response body is plain text,
+// one chunk per flush, not a single JSON object.
 func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.Header.Get("X-User-Email")
@@ -42,7 +46,7 @@ func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 			history = append(history, &pb.ChatMessage{Role: h.Role, Content: h.Content})
 		}
 
-		res, err := client.Chat(r.Context(), &pb.ChatRequest{
+		stream, err := client.Chat(withRequestID(r.Context()), &pb.ChatRequest{
 			UserEmail:      email,
 			ProjectId:      body.ProjectId,
 			PhaseId:        body.PhaseId,
@@ -57,7 +61,31 @@ func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+
+		flusher, canFlush := w.(http.Flusher)
+		startedBody := false
+
+		for {
+			chunk, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				return
+			}
+			if err != nil {
+				if !startedBody {
+					st, _ := status.FromError(err)
+					http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+				}
+				// Headers (and possibly some body) already sent — nothing more
+				// we can do but stop; the client sees a truncated stream.
+				return
+			}
+			startedBody = true
+			w.Write([]byte(chunk.Reply))
+			if canFlush {
+				flusher.Flush()
+			}
+		}
 	}
 }
