@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import LeftSidebar from "@/components/dashboard/LeftSidebar";
 import { useAuthStore, useUserStore } from "@/lib/stores";
@@ -13,7 +13,8 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading: authLoading } = useAuthStore();
-  const { profile, profileLoading, fetchProfile } = useUserStore();
+  const { profile, profileLoading, profileError, fetchProfile } = useUserStore();
+  const profileRequestedFor = useRef<string | null>(null);
 
   const isSandbox = pathname?.includes("/sandbox");
   const isBuild = pathname?.includes("/build/");
@@ -23,10 +24,30 @@ export default function DashboardLayout({
 
   // Fetch user profile once auth resolves
   useEffect(() => {
-    if (!authLoading && user && !profile && !profileLoading) {
+    if (!user) {
+      profileRequestedFor.current = null;
+      return;
+    }
+
+    if (
+      !authLoading &&
+      !profile &&
+      !profileLoading &&
+      !profileError &&
+      profileRequestedFor.current !== user.uid
+    ) {
+      // Record this synchronously so React Strict Mode cannot duplicate it.
+      profileRequestedFor.current = user.uid;
       user.getIdToken().then((token) => fetchProfile(token));
     }
-  }, [authLoading, user, profile, profileLoading, fetchProfile]);
+  }, [
+    authLoading,
+    user,
+    profile,
+    profileLoading,
+    profileError,
+    fetchProfile,
+  ]);
 
   // Redirect to onboarding if the user is new (missing preferences)
   useEffect(() => {
