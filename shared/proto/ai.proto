@@ -1,0 +1,40 @@
+// /shared/proto/ai.proto
+
+syntax = "proto3";
+
+package ai;
+
+option go_package = "gateway/pkg/pb";
+
+// ── Service ───────────────────────────────────────────────────────────────────
+
+service AiService {
+  // Send one assistant message; the service assembles context itself
+  // (user profile via UserService, active file content via FileService)
+  // rather than trusting whatever the client happens to have in memory.
+  rpc Chat (ChatRequest) returns (ChatResponse);
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+
+message ChatMessage {
+  string role    = 1; // "user" | "assistant"
+  string content = 2;
+}
+
+message ChatRequest {
+  string user_email        = 1;
+  string project_id        = 2;
+  string phase_id          = 3;
+  string active_file_path  = 4; // empty if no file is open
+  string message           = 5; // latest user message
+  repeated ChatMessage history = 6; // prior turns, oldest first
+  // "" or "chat" = full agentic assistant (tool-calling, multi-file context).
+  // "explain" = direct single-shot call, no tools, no file-fetching loop —
+  // used for the cheap Option+Click "explain this" flow.
+  string mode               = 7;
+}
+
+message ChatResponse {
+  string reply = 1;
+}
