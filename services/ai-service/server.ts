@@ -5,6 +5,9 @@ import { ReflectionService } from "@grpc/reflection";
 import path from "path";
 import { AiServiceService } from "./src/generated/ai";
 import { aiServiceHandler } from "./src/handlers/chatHandler";
+import { createLogger } from "../shared/src/index";
+
+const logger = createLogger("ai-service");
 
 const startServer = () => {
   const server = new grpc.Server();
@@ -34,10 +37,10 @@ const startServer = () => {
     grpc.ServerCredentials.createInsecure(),
     (error, port) => {
       if (error) {
-        console.error(`Failed to bind server: ${error.message}`);
+        logger.error({ err: error.message }, "Failed to bind server");
         return;
       }
-      console.log(`Node.js AI Service running via gRPC on ${URI}`);
+      logger.info({ uri: URI }, "AI Service running via gRPC");
     },
   );
 };
