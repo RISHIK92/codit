@@ -29,6 +29,13 @@ message LoginUserRequest {
 
 message LoginUserResponse {
   bool success = 1;
+
+  // Onboarding status, returned inline so the client can route straight to
+  // /onboarding or /dashboard after login without a separate profile fetch.
+  bool is_new = 2;
+  string skill_level = 3;             // "" if not set yet
+  string entrance_test_status = 4;    // "" | "in_progress" | "completed"
+  int32 entrance_test_round = 5;      // meaningful only when status != ""
 }
 
 message GetUserProfileRequest {
