@@ -11,11 +11,10 @@ import {
   type ChannelCredentials,
   Client,
   type ClientOptions,
-  type ClientUnaryCall,
-  type handleUnaryCall,
+  type ClientReadableStream,
+  type handleServerStreamingCall,
   makeGenericClientConstructor,
   type Metadata,
-  type ServiceError,
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
 
@@ -46,6 +45,10 @@ export interface ChatRequest {
 }
 
 export interface ChatResponse {
+  /**
+   * One text delta of the reply. Concatenate all deltas received on the
+   * stream, in order, to reconstruct the full message.
+   */
   reply: string;
 }
 
@@ -363,11 +366,13 @@ export const AiServiceService = {
    * Send one assistant message; the service assembles context itself
    * (user profile via UserService, active file content via FileService)
    * rather than trusting whatever the client happens to have in memory.
+   * Server-streaming: each ChatResponse carries one text delta, not the
+   * full reply — the stream ending signals completion.
    */
   chat: {
     path: "/ai.AiService/Chat" as const,
     requestStream: false as const,
-    responseStream: false as const,
+    responseStream: true as const,
     requestSerialize: (value: ChatRequest): Buffer => Buffer.from(ChatRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer): ChatRequest => ChatRequest.decode(value),
     responseSerialize: (value: ChatResponse): Buffer => Buffer.from(ChatResponse.encode(value).finish()),
@@ -380,8 +385,10 @@ export interface AiServiceServer extends UntypedServiceImplementation {
    * Send one assistant message; the service assembles context itself
    * (user profile via UserService, active file content via FileService)
    * rather than trusting whatever the client happens to have in memory.
+   * Server-streaming: each ChatResponse carries one text delta, not the
+   * full reply — the stream ending signals completion.
    */
-  chat: handleUnaryCall<ChatRequest, ChatResponse>;
+  chat: handleServerStreamingCall<ChatRequest, ChatResponse>;
 }
 
 export interface AiServiceClient extends Client {
@@ -389,19 +396,11 @@ export interface AiServiceClient extends Client {
    * Send one assistant message; the service assembles context itself
    * (user profile via UserService, active file content via FileService)
    * rather than trusting whatever the client happens to have in memory.
+   * Server-streaming: each ChatResponse carries one text delta, not the
+   * full reply — the stream ending signals completion.
    */
-  chat(request: ChatRequest, callback: (error: ServiceError | null, response: ChatResponse) => void): ClientUnaryCall;
-  chat(
-    request: ChatRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: ChatResponse) => void,
-  ): ClientUnaryCall;
-  chat(
-    request: ChatRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ChatResponse) => void,
-  ): ClientUnaryCall;
+  chat(request: ChatRequest, options?: Partial<CallOptions>): ClientReadableStream<ChatResponse>;
+  chat(request: ChatRequest, metadata?: Metadata, options?: Partial<CallOptions>): ClientReadableStream<ChatResponse>;
 }
 
 export const AiServiceClient = makeGenericClientConstructor(AiServiceService, "ai.AiService") as unknown as {
