@@ -213,9 +213,21 @@ exports.Prisma.KnowledgeChecksScalarFieldEnum = {
   id: 'id',
   phase_id: 'phase_id',
   question: 'question',
+  options: 'options',
   correct_answer: 'correct_answer',
   explanation: 'explanation',
   question_type: 'question_type'
+};
+
+exports.Prisma.KnowledgeCheckAttemptScalarFieldEnum = {
+  id: 'id',
+  knowledge_check_id: 'knowledge_check_id',
+  user_email: 'user_email',
+  project_id: 'project_id',
+  answer: 'answer',
+  is_correct: 'is_correct',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.ResourcesScalarFieldEnum = {
@@ -315,6 +327,7 @@ exports.Prisma.ModelName = {
   UserProjects: 'UserProjects',
   LearningPhase: 'LearningPhase',
   KnowledgeChecks: 'KnowledgeChecks',
+  KnowledgeCheckAttempt: 'KnowledgeCheckAttempt',
   Resources: 'Resources',
   ResourceProgress: 'ResourceProgress'
 };
