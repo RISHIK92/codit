@@ -26,15 +26,37 @@ export interface ChatTurn {
   toolCallId?: string;
 }
 
+export interface TokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
 export interface ChatCompletionResult {
   content: string | null;
   toolCalls?: ToolCall[];
+  /** absent if the provider's response didn't include usage data */
+  usage?: TokenUsage;
+  /** wall-clock time spent in this call, including any internal retry */
+  durationMs: number;
 }
 
 export interface ChatProvider {
   name: string;
   getChatCompletion(
     messages: ChatTurn[],
+    tools?: ToolDefinition[],
+    maxTokens?: number,
+  ): Promise<ChatCompletionResult>;
+  /**
+   * Same contract as getChatCompletion, but invokes `onDelta` with each text
+   * chunk as it arrives. Tool-call data still only appears in the final
+   * result — tool-call rounds naturally produce no content deltas, so this
+   * only actually streams for a turn where the model is answering directly.
+   */
+  getChatCompletionStream(
+    messages: ChatTurn[],
+    onDelta: (text: string) => void,
     tools?: ToolDefinition[],
     maxTokens?: number,
   ): Promise<ChatCompletionResult>;
