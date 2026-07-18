@@ -1,6 +1,12 @@
 # gateway/Makefile
 
-.PHONY: generate
+.PHONY: generate dev run build
+
+dev run:
+	go run ./cmd/server/
+
+build:
+	go build -o bin/server ./cmd/server
 
 # Add Go binaries to PATH for current shell
 export PATH := $(shell go env GOPATH)/bin:$(PATH)
