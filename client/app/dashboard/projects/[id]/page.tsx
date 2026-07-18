@@ -200,7 +200,7 @@ export default function ProjectDetailPage() {
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
+      <div className="project-detail min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
           <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost tracking-widest uppercase">
@@ -214,7 +214,7 @@ export default function ProjectDetailPage() {
   // ── Error ──────────────────────────────────────────────────────────────────
   if (error || !project) {
     return (
-      <div className="min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
+      <div className="project-detail min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
         <div className="text-center">
           <p className="font-(family-name:--font-cormorant) text-2xl text-txt mb-2">
             Project not found
@@ -235,7 +235,7 @@ export default function ProjectDetailPage() {
 
   // ── Main ───────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-surface">
+    <div className="project-detail min-h-[calc(100vh-80px)] bg-surface">
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Back link */}
         <Link
