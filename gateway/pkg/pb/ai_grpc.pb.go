@@ -31,7 +31,9 @@ type AiServiceClient interface {
 	// Send one assistant message; the service assembles context itself
 	// (user profile via UserService, active file content via FileService)
 	// rather than trusting whatever the client happens to have in memory.
-	Chat(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (*ChatResponse, error)
+	// Server-streaming: each ChatResponse carries one text delta, not the
+	// full reply — the stream ending signals completion.
+	Chat(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ChatResponse], error)
 }
 
 type aiServiceClient struct {
@@ -42,15 +44,24 @@ func NewAiServiceClient(cc grpc.ClientConnInterface) AiServiceClient {
 	return &aiServiceClient{cc}
 }
 
-func (c *aiServiceClient) Chat(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (*ChatResponse, error) {
+func (c *aiServiceClient) Chat(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ChatResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ChatResponse)
-	err := c.cc.Invoke(ctx, AiService_Chat_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &AiService_ServiceDesc.Streams[0], AiService_Chat_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[ChatRequest, ChatResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AiService_ChatClient = grpc.ServerStreamingClient[ChatResponse]
 
 // AiServiceServer is the server API for AiService service.
 // All implementations must embed UnimplementedAiServiceServer
@@ -59,7 +70,9 @@ type AiServiceServer interface {
 	// Send one assistant message; the service assembles context itself
 	// (user profile via UserService, active file content via FileService)
 	// rather than trusting whatever the client happens to have in memory.
-	Chat(context.Context, *ChatRequest) (*ChatResponse, error)
+	// Server-streaming: each ChatResponse carries one text delta, not the
+	// full reply — the stream ending signals completion.
+	Chat(*ChatRequest, grpc.ServerStreamingServer[ChatResponse]) error
 	mustEmbedUnimplementedAiServiceServer()
 }
 
@@ -70,8 +83,8 @@ type AiServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiServiceServer struct{}
 
-func (UnimplementedAiServiceServer) Chat(context.Context, *ChatRequest) (*ChatResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Chat not implemented")
+func (UnimplementedAiServiceServer) Chat(*ChatRequest, grpc.ServerStreamingServer[ChatResponse]) error {
+	return status.Error(codes.Unimplemented, "method Chat not implemented")
 }
 func (UnimplementedAiServiceServer) mustEmbedUnimplementedAiServiceServer() {}
 func (UnimplementedAiServiceServer) testEmbeddedByValue()                   {}
@@ -94,23 +107,16 @@ func RegisterAiServiceServer(s grpc.ServiceRegistrar, srv AiServiceServer) {
 	s.RegisterService(&AiService_ServiceDesc, srv)
 }
 
-func _AiService_Chat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChatRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _AiService_Chat_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ChatRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(AiServiceServer).Chat(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AiService_Chat_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiServiceServer).Chat(ctx, req.(*ChatRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(AiServiceServer).Chat(m, &grpc.GenericServerStream[ChatRequest, ChatResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AiService_ChatServer = grpc.ServerStreamingServer[ChatResponse]
 
 // AiService_ServiceDesc is the grpc.ServiceDesc for AiService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -118,12 +124,13 @@ func _AiService_Chat_Handler(srv interface{}, ctx context.Context, dec func(inte
 var AiService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "ai.AiService",
 	HandlerType: (*AiServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "Chat",
-			Handler:    _AiService_Chat_Handler,
+			StreamName:    "Chat",
+			Handler:       _AiService_Chat_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "ai.proto",
 }
