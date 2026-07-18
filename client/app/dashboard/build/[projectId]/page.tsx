@@ -15,6 +15,7 @@ import {
   deleteFile as deleteProjectFile,
   type ProjectFileDTO,
 } from "@/lib/api/filesApi";
+import { sendChatMessage } from "@/lib/api/aiApi";
 import type * as Monaco from "monaco-editor";
 import type { editor as EditorNS } from "monaco-editor";
 import {
@@ -59,6 +60,13 @@ import {
   isSaveExcluded,
 } from "./utils/fileUtils";
 import { scanWcFs, spawnShell } from "./utils/wcUtils";
+import {
+  parseImportLine,
+  getQuotedStringAt,
+  resolveModulePath,
+  findFileNodeById,
+  findDefinitionLine,
+} from "./utils/importNav";
 
 // Components
 import { FileExplorer, getFileIcon, TreeNode } from "./components/FileExplorer";
@@ -67,6 +75,7 @@ import { DescriptionPanel } from "./components/DescriptionPanel";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
 import { ResourcesPanel } from "./components/ResourcesPanel";
+import { KnowledgeChecksPanel } from "./components/KnowledgeChecksPanel";
 
 let wcBootPromise: Promise<import("@webcontainer/api").WebContainer> | null =
   null;
@@ -129,10 +138,10 @@ export default function BuildPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Left panel tab: "description" | "resources"
-  const [leftTab, setLeftTab] = useState<"description" | "resources">(
-    "description",
-  );
+  // Left panel tab: "description" | "resources" | "knowledge-checks"
+  const [leftTab, setLeftTab] = useState<
+    "description" | "resources" | "knowledge-checks"
+  >("description");
 
   // Editor state
   const [language, setLanguage] = useState<Language>("javascript");
@@ -148,11 +157,13 @@ export default function BuildPage() {
   // In-memory mirror of WC filesystem — source of truth for Monaco defaultValue
   // Start empty; fetch-phases effect populates it (DB → initial_files → defaults)
   const fileContentsRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    fileTreeRef.current = fileTree;
+  }, [fileTree]);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
     "idle",
   );
   const [aiOpen, setAiOpen] = useState(false);
-  const [aiInitialMsg, setAiInitialMsg] = useState<string | undefined>();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminals, setTerminals] = useState([{ id: "term-1", name: "bash" }]);
@@ -169,6 +180,7 @@ export default function BuildPage() {
   const [terminalHeight, setTerminalHeight] = useState(220);
   const [explorerWidth, setExplorerWidth] = useState(192);
   const [phaseGuideWidth, setPhaseGuideWidth] = useState(320);
+  const [aiPanelWidth, setAiPanelWidth] = useState(380);
   const isDragging = useRef(false);
   const dragStartY = useRef(0);
   const dragStartHeight = useRef(0);
@@ -178,6 +190,9 @@ export default function BuildPage() {
   const isPhaseGuideDragging = useRef(false);
   const phaseGuideDragStartX = useRef(0);
   const phaseGuideDragStartWidth = useRef(0);
+  const isAiPanelDragging = useRef(false);
+  const aiPanelDragStartX = useRef(0);
+  const aiPanelDragStartWidth = useRef(0);
 
   const handleDragStart = useCallback(
     (e: React.MouseEvent) => {
@@ -269,6 +284,39 @@ export default function BuildPage() {
     [phaseGuideWidth],
   );
 
+  const handleAiPanelDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      isAiPanelDragging.current = true;
+      aiPanelDragStartX.current = e.clientX;
+      aiPanelDragStartWidth.current = aiPanelWidth;
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+
+      const onMove = (ev: MouseEvent) => {
+        if (!isAiPanelDragging.current) return;
+        // Handle sits on the panel's left edge — dragging left (negative
+        // clientX delta) should grow the panel, so the delta is inverted
+        // relative to the explorer/phase-guide handles on the left side.
+        const delta = aiPanelDragStartX.current - ev.clientX;
+        const next = Math.min(
+          Math.max(aiPanelDragStartWidth.current + delta, 280),
+          640,
+        );
+        setAiPanelWidth(next);
+      };
+      const onUp = () => {
+        isAiPanelDragging.current = false;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    },
+    [aiPanelWidth],
+  );
+
   const [pendingParentId, setPendingParentId] = useState<
     string | null | undefined
   >(undefined);
@@ -280,6 +328,16 @@ export default function BuildPage() {
   // Monaco model registry
   const monacoRef = useRef<typeof Monaco | null>(null);
   const editorRef = useRef<EditorNS.IStandaloneCodeEditor | null>(null);
+  // Cmd/Ctrl+Click "go to definition" — set right before switching tabs,
+  // consumed once the target model is mounted (see reveal effect below).
+  const pendingRevealRef = useRef<{
+    fileId: string;
+    line: number;
+    word?: string;
+  } | null>(null);
+  // Monaco's onMount closure is captured once and outlives tab switches, so
+  // reads of React state inside it go stale — mirror what it needs into refs.
+  const fileTreeRef = useRef<FileNode[]>([]);
 
   // WebContainer instance
   const wcRef = useRef<import("@webcontainer/api").WebContainer | null>(null);
@@ -846,6 +904,53 @@ export default function BuildPage() {
     setSelectedExplorerItemId(node.id);
   }, []);
 
+  // Applies a pending Cmd/Ctrl+Click navigation once its target tab/model is
+  // actually mounted in Monaco (tab switches are async: state → model swap).
+  useEffect(() => {
+    const pending = pendingRevealRef.current;
+    if (!pending || pending.fileId !== activeTabId) return;
+
+    const tryReveal = () => {
+      const editor = editorRef.current;
+      const monaco = monacoRef.current;
+      if (!editor || !monaco) return false;
+      const uri = monaco.Uri.parse(`file:///${pending.fileId}`);
+      const model = monaco.editor.getModel(uri);
+      if (!model || editor.getModel() !== model) return false;
+
+      const line = Math.min(pending.line, model.getLineCount());
+      const lineContent = model.getLineContent(line);
+      const col = pending.word
+        ? Math.max(1, lineContent.indexOf(pending.word) + 1)
+        : 1;
+      const endCol = pending.word ? col + pending.word.length : col;
+
+      editor.setSelection({
+        startLineNumber: line,
+        startColumn: col,
+        endLineNumber: line,
+        endColumn: endCol,
+      });
+      editor.revealLineInCenter(line);
+      editor.focus();
+      return true;
+    };
+
+    if (tryReveal()) {
+      pendingRevealRef.current = null;
+      return;
+    }
+    let attempts = 0;
+    const id = setInterval(() => {
+      attempts += 1;
+      if (tryReveal() || attempts > 20) {
+        clearInterval(id);
+        pendingRevealRef.current = null;
+      }
+    }, 50);
+    return () => clearInterval(id);
+  }, [activeTabId]);
+
   const handleTabClose = useCallback(
     (tabId: string) => {
       setOpenTabs((prev) => {
@@ -1101,27 +1206,40 @@ export default function BuildPage() {
             </span>
           </div>
 
-          {/* Guide sub-tabs: Description | Resources */}
+          {/* Guide sub-tabs: Description | Resources | Knowledge Checks */}
           <div className="flex shrink-0 border-b border-border-s">
-            {(["description", "resources"] as const).map((tab) => (
+            {(
+              [
+                { id: "description", label: "Description" },
+                { id: "resources", label: "Resources" },
+                { id: "knowledge-checks", label: "Knowledge Checks" },
+              ] as const
+            ).map((tab) => (
               <button
-                key={tab}
-                onClick={() => setLeftTab(tab)}
+                key={tab.id}
+                onClick={() => setLeftTab(tab.id)}
                 className={`px-4 py-2 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest border-b-2 transition-colors cursor-pointer ${
-                  leftTab === tab
+                  leftTab === tab.id
                     ? "text-accent border-accent"
                     : "text-txt-ghost border-transparent hover:text-txt"
                 }`}
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </div>
 
           {leftTab === "description" ? (
             <DescriptionPanel phase={activePhase} projectName={projectName} />
-          ) : (
+          ) : leftTab === "resources" ? (
             <ResourcesPanel
+              phaseId={activePhase?.id ?? null}
+              phaseNumber={activePhase?.phase_number}
+              projectId={projectId}
+              getToken={() => user!.getIdToken()}
+            />
+          ) : (
+            <KnowledgeChecksPanel
               phaseId={activePhase?.id ?? null}
               phaseNumber={activePhase?.phase_number}
               projectId={projectId}
@@ -1359,6 +1477,95 @@ export default function BuildPage() {
                       };
 
                       editor.onMouseDown((e) => {
+                        // ── Real Cmd (Mac) / Ctrl (Win/Linux) click: go to
+                        // the import's definition — file and/or symbol ──
+                        const isGotoClick = e.event.metaKey || e.event.ctrlKey;
+                        if (isGotoClick) {
+                          // Always swallow it: Monaco's default binding for
+                          // this chord adds a secondary cursor, which we
+                          // don't want here regardless of whether we can
+                          // resolve a target.
+                          e.event.preventDefault();
+                          removePopup();
+
+                          if (
+                            e.target.type !==
+                            monaco.editor.MouseTargetType.CONTENT_TEXT
+                          ) {
+                            return;
+                          }
+                          const pos = e.target.position;
+                          const model = editor.getModel();
+                          if (!pos || !model) return;
+
+                          const currentFileId = model.uri.path.replace(
+                            /^\//,
+                            "",
+                          );
+                          const lineContent = model.getLineContent(
+                            pos.lineNumber,
+                          );
+                          const parsed = parseImportLine(lineContent);
+                          if (!parsed) return;
+
+                          const isPython = model.getLanguageId() === "python";
+
+                          const resolvedId = resolveModulePath(
+                            currentFileId,
+                            parsed.specifier,
+                            fileTreeRef.current,
+                            isPython,
+                          );
+                          if (!resolvedId) return;
+
+                          const clickedInSpecifier =
+                            pos.column >= parsed.specifierStart &&
+                            pos.column <= parsed.specifierEnd;
+
+                          const wordInfo = model.getWordAtPosition(pos);
+                          const clickedName = clickedInSpecifier
+                            ? null
+                            : parsed.names.find(
+                                (n) => n.local === wordInfo?.word,
+                              );
+
+                          if (!clickedInSpecifier && !clickedName) return;
+
+                          const targetNode = findFileNodeById(
+                            fileTreeRef.current,
+                            resolvedId,
+                          );
+                          if (!targetNode) return;
+
+                          const navigate = (content: string) => {
+                            const line = clickedName
+                              ? (findDefinitionLine(
+                                  content,
+                                  clickedName.imported,
+                                ) ?? 1)
+                              : 1;
+                            pendingRevealRef.current = {
+                              fileId: resolvedId,
+                              line,
+                              word: clickedName?.imported,
+                            };
+                            handleFileOpen(targetNode);
+                          };
+
+                          const cached = fileContentsRef.current[resolvedId];
+                          if (cached !== undefined) {
+                            navigate(cached);
+                          } else if (wcRef.current) {
+                            wcRef.current.fs
+                              .readFile(resolvedId, "utf-8")
+                              .then(navigate)
+                              .catch(() => handleFileOpen(targetNode));
+                          } else {
+                            handleFileOpen(targetNode);
+                          }
+                          return;
+                        }
+
                         // Option (Mac) / Alt (Windows/Linux)
                         const isCmdClick = e.event.altKey;
                         if (!isCmdClick) {
@@ -1381,6 +1588,8 @@ export default function BuildPage() {
 
                         const wordInfo = model.getWordAtPosition(pos);
                         if (!wordInfo) return;
+
+                        const lineContent = model.getLineContent(pos.lineNumber);
 
                         e.event.preventDefault();
                         removePopup();
@@ -1479,55 +1688,45 @@ export default function BuildPage() {
                         popup.appendChild(content);
                         document.body.appendChild(popup);
 
-                        // After 1 s replace spinner with Explain button
-                        setTimeout(() => {
-                          if (!popup) return;
-                          spinner.remove();
-
-                          // Brief description line
-                          const desc = document.createElement("div");
-                          desc.style.cssText = `
-                            font-size: 12px;
-                            color: rgba(160,170,191,0.7);
-                            line-height: 1.5;
-                            margin-bottom: 7px;
-                          `;
-                          desc.textContent = `Want a full explanation of "${wordInfo.word}"?`;
-                          content.appendChild(desc);
-
-                          // "Explain with AI" button — pointer-events re-enabled
-                          popup.style.pointerEvents = "auto";
-                          const btn = document.createElement("button");
-                          btn.style.cssText = `
-                            display: inline-flex;
-                            align-items: center;
-                            padding: 3px 7px;
-                            background: rgba(127,255,212,0.08);
-                            border: 1px solid rgba(127,255,212,0.25);
-                            border-radius: 3px;
-                            color: rgba(127,255,212,0.9);
-                            font-size: 9px;
-                            font-family: 'DM Sans', system-ui, sans-serif;
-                            text-transform: uppercase;
-                            letter-spacing: 0.08em;
-                            cursor: pointer;
-                            transition: background 0.15s;
-                          `;
-                          btn.innerHTML = `✦ Ask AI`;
-                          btn.onmouseenter = () => {
-                            btn.style.background = "rgba(127,255,212,0.14)";
-                          };
-                          btn.onmouseleave = () => {
-                            btn.style.background = "rgba(127,255,212,0.08)";
-                          };
-                          btn.onclick = () => {
-                            const prompt = `Explain what "${wordInfo.word}" means in the context of this code file (${activeTabId}). Keep it concise and practical.`;
-                            removePopup();
-                            setAiInitialMsg(prompt);
-                            setAiOpen(true);
-                          };
-                          content.appendChild(btn);
-                        }, 1000);
+                        // Fire the real explain call immediately — capture this
+                        // popup instance so a stale response (popup already
+                        // dismissed / a newer click fired) is a no-op.
+                        const thisPopup = popup;
+                        (async () => {
+                          try {
+                            const token = await user!.getIdToken();
+                            const res = await sendChatMessage(token, {
+                              projectId,
+                              activeFilePath: activeTabId,
+                              message: `Explain what "${wordInfo.word}" means in this line of code:\n${lineContent}`,
+                              history: [],
+                              mode: "explain",
+                            });
+                            if (popup !== thisPopup) return;
+                            spinner.remove();
+                            const answer = document.createElement("div");
+                            answer.style.cssText = `
+                              font-size: 12px;
+                              color: rgba(224,228,238,0.9);
+                              line-height: 1.6;
+                              white-space: pre-wrap;
+                            `;
+                            answer.textContent =
+                              res.reply || "No explanation available.";
+                            content.appendChild(answer);
+                          } catch {
+                            if (popup !== thisPopup) return;
+                            spinner.remove();
+                            const errEl = document.createElement("div");
+                            errEl.style.cssText = `
+                              font-size: 11px;
+                              color: rgba(255,140,140,0.8);
+                            `;
+                            errEl.textContent =
+                              "Couldn't reach the AI service — try again.";
+                            content.appendChild(errEl);
+                          }
+                        })();
                       });
 
                       // Dismiss on Escape or click elsewhere
@@ -1818,21 +2017,30 @@ export default function BuildPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── AI ASSISTANT ────────────────────────────────────────────────── */}
-      <AiAssistant
-        open={aiOpen}
-        onClose={() => setAiOpen(false)}
-        projectName={projectName}
-        activePhaseTitle={phases[activePhaseIdx]?.title}
-        activeFileId={activeTabId || undefined}
-        getFileContent={(id) =>
-          fileContentsRef.current[id] ?? getFileContent(id)
-        }
-        initialMessage={aiInitialMsg}
-        onInitialMessageConsumed={() => setAiInitialMsg(undefined)}
-      />
+        {/* ── AI ASSISTANT — resizable sidebar alongside the editor, not a modal ── */}
+        {aiOpen && (
+          <>
+            <div
+              onMouseDown={handleAiPanelDragStart}
+              className="w-1.5 shrink-0 bg-border-s hover:bg-accent/40 cursor-col-resize transition-colors z-20"
+            />
+            <div
+              className="shrink-0 bg-void border-l border-border-s flex flex-col overflow-hidden"
+              style={{ width: aiPanelWidth }}
+            >
+              <AiAssistant
+                open={aiOpen}
+                onClose={() => setAiOpen(false)}
+                projectId={projectId}
+                phaseId={phases[activePhaseIdx]?.id}
+                activeFileId={activeTabId || undefined}
+                getToken={() => user!.getIdToken()}
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
