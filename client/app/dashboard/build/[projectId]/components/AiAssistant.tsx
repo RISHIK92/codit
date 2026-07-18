@@ -10,6 +10,7 @@ import {
   Check,
   X,
 } from "lucide-react";
+import { sendChatMessage, type ChatMode } from "@/lib/api/aiApi";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -25,12 +26,14 @@ export type AiMessage = {
 interface AiAssistantProps {
   open: boolean;
   onClose: () => void;
-  projectName: string;
-  activePhaseTitle?: string;
+  projectId: string;
+  phaseId?: string;
   activeFileId?: string;
-  getFileContent: (id: string) => string;
+  getToken: () => Promise<string>;
   /** When set, the panel auto-sends this message as soon as it opens */
   initialMessage?: string;
+  /** Mode for the auto-sent initialMessage — defaults to "chat" (agentic) */
+  initialMessageMode?: ChatMode;
   onInitialMessageConsumed?: () => void;
 }
 
@@ -86,11 +89,12 @@ function renderContent(text: string) {
 export function AiAssistant({
   open,
   onClose,
-  projectName,
-  activePhaseTitle,
+  projectId,
+  phaseId,
   activeFileId,
-  getFileContent,
+  getToken,
   initialMessage,
+  initialMessageMode,
   onInitialMessageConsumed,
 }: AiAssistantProps) {
   const [messages, setMessages] = useState<AiMessage[]>([]);
@@ -116,13 +120,13 @@ export function AiAssistant({
       onInitialMessageConsumed?.();
       // Let the panel paint first, then fire
       setTimeout(() => {
-        sendMessageWithText(initialMessage);
+        sendMessageWithText(initialMessage, initialMessageMode);
       }, 120);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialMessage]);
 
-  async function sendMessageWithText(text: string) {
+  async function sendMessageWithText(text: string, mode: ChatMode = "chat") {
     if (!text || loading) return;
 
     const userMsg: AiMessage = {
@@ -134,20 +138,6 @@ export function AiAssistant({
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
-
-    const context = [
-      `Project: ${projectName}`,
-      activePhaseTitle ? `Current phase: ${activePhaseTitle}` : "",
-      activeFileId
-        ? `Active file: ${activeFileId}\n\`\`\`\n${getFileContent(activeFileId).slice(0, 800)}\n\`\`\``
-        : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const systemPrompt = `You are a concise coding assistant inside a learn-by-doing IDE called Codit. Help the user with their code and learning.
-${context ? `\nContext:\n${context}` : ""}
-Keep answers short, practical, and use markdown code blocks where relevant.`;
 
     const abort = new AbortController();
     abortRef.current = abort;
@@ -164,58 +154,27 @@ Keep answers short, practical, and use markdown code blocks where relevant.`;
     ]);
 
     try {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY ?? ""}`,
+      const token = await getToken();
+      const res = await sendChatMessage(
+        token,
+        {
+          projectId,
+          phaseId,
+          activeFilePath: activeFileId,
+          message: text,
+          history: messages.map((m) => ({ role: m.role, content: m.content })),
+          mode,
         },
-        signal: abort.signal,
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          stream: true,
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...messages.map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content: text },
-          ],
-        }),
-      });
+        abort.signal,
+      );
 
-      if (!res.ok || !res.body) throw new Error(`API error ${res.status}`);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6).trim();
-          if (data === "[DONE]") break;
-          try {
-            const parsed = JSON.parse(data);
-            const delta = parsed.choices?.[0]?.delta?.content ?? "";
-            if (delta) {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantMsgId
-                    ? { ...m, content: m.content + delta }
-                    : m,
-                ),
-              );
-            }
-          } catch {
-            // skip malformed chunks
-          }
-        }
-      }
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMsgId
+            ? { ...m, content: res.reply ?? "" }
+            : m,
+        ),
+      );
     } catch (err: unknown) {
       if ((err as Error).name !== "AbortError") {
         setMessages((prev) =>
@@ -225,7 +184,7 @@ Keep answers short, practical, and use markdown code blocks where relevant.`;
                   ...m,
                   content:
                     m.content ||
-                    "Sorry, I couldn't reach the AI service. Check your API key in `.env`.",
+                    "Sorry, I couldn't reach the AI service. Please try again.",
                 }
               : m,
           ),
@@ -268,13 +227,7 @@ Keep answers short, practical, and use markdown code blocks where relevant.`;
   if (!open) return null;
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-void/20" onClick={onClose} />
-
-      <div
-        className="fixed top-0 right-0 h-full z-50 flex flex-col bg-void border-l border-border-s shadow-[-8px_0_40px_rgba(0,0,0,0.5)]"
-        style={{ width: 380 }}
-      >
+    <div className="h-full w-full flex flex-col bg-void">
         {/* Header */}
         <div className="h-12 shrink-0 flex items-center gap-2.5 px-4 border-b border-border-s bg-surface/60">
           <Sparkles size={13} className="text-accent shrink-0" />
@@ -413,7 +366,6 @@ Keep answers short, practical, and use markdown code blocks where relevant.`;
             Enter to send · Shift+Enter for newline
           </p>
         </div>
-      </div>
-    </>
+    </div>
   );
 }
