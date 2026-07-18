@@ -111,9 +111,13 @@ export default function LoginPage() {
       }
 
       if (result.isNew) {
+        // Freshly-created account — needs email verification before anything else.
         animateStep("verification_pending");
       } else {
-        router.push("/dashboard");
+        // Route straight to onboarding or dashboard using the status returned
+        // inline by login, instead of always landing on /dashboard and
+        // waiting on a separate profile fetch + redirect (visible flash).
+        router.push(result.onboarding.isNew ? "/onboarding" : "/dashboard");
       }
       return;
     }
@@ -141,7 +145,7 @@ export default function LoginPage() {
       if (result.message) setToast({ message: result.message, type: "error" });
       return;
     }
-    router.push("/dashboard");
+    router.push(result.onboarding.isNew ? "/onboarding" : "/dashboard");
   };
 
   /* ── Resend verification email ── */
