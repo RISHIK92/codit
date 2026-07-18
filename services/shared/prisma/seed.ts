@@ -4,7 +4,7 @@ import {
   PhaseStatus,
   Question_Type,
   Difficulty,
-} from "@prisma/client";
+} from "../src/generated/prisma-client";
 
 const prisma = new PrismaClient();
 
@@ -139,6 +139,7 @@ async function main() {
         phase_id: portfolioPhase1.id,
         question:
           "Which HTML element is most appropriate for a site-wide navigation menu?",
+        options: ["<div>", "<nav>", "<header>", "<section>"],
         correct_answer: "<nav>",
         explanation:
           "The <nav> element semantically represents a section of the page intended for navigation links.",
@@ -290,6 +291,12 @@ async function main() {
       {
         phase_id: todoPhase2.id,
         question: "Why should you never mutate state directly in React?",
+        options: [
+          "React compares references to detect changes; mutating in place bypasses this and prevents re-renders.",
+          "Mutating state causes memory leaks in the JavaScript engine.",
+          "It violates the virtual DOM's diffing algorithm entirely, crashing the app.",
+          "State is stored in read-only memory and mutation throws a runtime error.",
+        ],
         correct_answer:
           "React compares references to detect changes; mutating in place bypasses this and prevents re-renders.",
         explanation:
@@ -446,6 +453,12 @@ async function main() {
         phase_id: restPhase2.id,
         question:
           "What is the purpose of a refresh token alongside an access token?",
+        options: [
+          "Refresh tokens replace access tokens entirely once issued.",
+          "Refresh tokens are long-lived and used to obtain new short-lived access tokens without re-authentication.",
+          "Refresh tokens are sent with every API request instead of access tokens.",
+          "Refresh tokens encrypt the access token for transport.",
+        ],
         correct_answer:
           "Refresh tokens are long-lived and used to obtain new short-lived access tokens without re-authentication.",
         explanation:
@@ -602,6 +615,12 @@ async function main() {
         phase_id: chatPhase1.id,
         question:
           "What is the key difference between socket.emit() and socket.broadcast.emit()?",
+        options: [
+          "socket.emit() sends to everyone; socket.broadcast.emit() sends only to the sender.",
+          "socket.emit() sends only to the sender; socket.broadcast.emit() sends to everyone except the sender.",
+          "There is no functional difference between the two methods.",
+          "socket.broadcast.emit() requires a room name while socket.emit() does not.",
+        ],
         correct_answer:
           "socket.emit() sends only to the sender; socket.broadcast.emit() sends to everyone except the sender.",
         explanation:
@@ -787,6 +806,12 @@ async function main() {
         phase_id: tqPhase3.id,
         question:
           "What distinguishes a server-streaming RPC from a unary RPC in Protocol Buffers?",
+        options: [
+          "The request type is prefixed with `stream` instead of the response.",
+          "The response type is prefixed with `stream`, e.g. `rpc Watch(JobId) returns (stream JobStatus);`",
+          "Server-streaming RPCs require a separate .proto file from unary RPCs.",
+          "There is no syntactic difference; it's determined entirely by server-side code.",
+        ],
         correct_answer:
           "The response type is prefixed with `stream`, e.g. `rpc Watch(JobId) returns (stream JobStatus);`",
         explanation:
@@ -949,6 +974,12 @@ async function main() {
       {
         phase_id: cbPhase1.id,
         question: "How do you verify a GitHub webhook payload is authentic?",
+        options: [
+          "Check that the request originates from a GitHub IP address range.",
+          "Verify the payload's Content-Type header equals application/json.",
+          "Compute HMAC-SHA256 of the raw request body using the webhook secret and compare to the X-Hub-Signature-256 header using a constant-time comparison.",
+          "Decode the JWT included in the Authorization header.",
+        ],
         correct_answer:
           "Compute HMAC-SHA256 of the raw request body using the webhook secret and compare to the X-Hub-Signature-256 header using a constant-time comparison.",
         explanation:
