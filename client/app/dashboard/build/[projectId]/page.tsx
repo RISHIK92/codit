@@ -1693,38 +1693,48 @@ export default function BuildPage() {
                         // dismissed / a newer click fired) is a no-op.
                         const thisPopup = popup;
                         (async () => {
-                          try {
-                            const token = await user!.getIdToken();
-                            const res = await sendChatMessage(token, {
-                              projectId,
-                              activeFilePath: activeTabId,
-                              message: `Explain what "${wordInfo.word}" means in this line of code:\n${lineContent}`,
-                              history: [],
-                              mode: "explain",
-                            });
-                            if (popup !== thisPopup) return;
+                          let answer: HTMLDivElement | null = null;
+                          const ensureAnswerEl = () => {
+                            if (answer) return answer;
                             spinner.remove();
-                            const answer = document.createElement("div");
+                            answer = document.createElement("div");
                             answer.style.cssText = `
                               font-size: 12px;
                               color: rgba(224,228,238,0.9);
                               line-height: 1.6;
                               white-space: pre-wrap;
                             `;
-                            answer.textContent =
-                              res.reply || "No explanation available.";
                             content.appendChild(answer);
+                            return answer;
+                          };
+
+                          try {
+                            const token = await user!.getIdToken();
+                            const full = await sendChatMessage(
+                              token,
+                              {
+                                projectId,
+                                activeFilePath: activeTabId,
+                                message: `Explain what "${wordInfo.word}" means in this line of code:\n${lineContent}`,
+                                history: [],
+                                mode: "explain",
+                              },
+                              (chunk) => {
+                                if (popup !== thisPopup) return;
+                                ensureAnswerEl().textContent += chunk;
+                              },
+                            );
+                            if (popup !== thisPopup) return;
+                            if (!full) {
+                              ensureAnswerEl().textContent =
+                                "No explanation available.";
+                            }
                           } catch {
                             if (popup !== thisPopup) return;
-                            spinner.remove();
-                            const errEl = document.createElement("div");
-                            errEl.style.cssText = `
-                              font-size: 11px;
-                              color: rgba(255,140,140,0.8);
-                            `;
+                            const errEl = ensureAnswerEl();
+                            errEl.style.color = "rgba(255,140,140,0.8)";
                             errEl.textContent =
                               "Couldn't reach the AI service — try again.";
-                            content.appendChild(errEl);
                           }
                         })();
                       });
