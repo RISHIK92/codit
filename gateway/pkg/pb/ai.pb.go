@@ -171,8 +171,10 @@ func (x *ChatRequest) GetMode() string {
 }
 
 type ChatResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Reply         string                 `protobuf:"bytes,1,opt,name=reply,proto3" json:"reply,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// One text delta of the reply. Concatenate all deltas received on the
+	// stream, in order, to reconstruct the full message.
+	Reply         string `protobuf:"bytes,1,opt,name=reply,proto3" json:"reply,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -233,9 +235,9 @@ const file_ai_proto_rawDesc = "" +
 	"\ahistory\x18\x06 \x03(\v2\x0f.ai.ChatMessageR\ahistory\x12\x12\n" +
 	"\x04mode\x18\a \x01(\tR\x04mode\"$\n" +
 	"\fChatResponse\x12\x14\n" +
-	"\x05reply\x18\x01 \x01(\tR\x05reply26\n" +
-	"\tAiService\x12)\n" +
-	"\x04Chat\x12\x0f.ai.ChatRequest\x1a\x10.ai.ChatResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x05reply\x18\x01 \x01(\tR\x05reply28\n" +
+	"\tAiService\x12+\n" +
+	"\x04Chat\x12\x0f.ai.ChatRequest\x1a\x10.ai.ChatResponse0\x01B\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_ai_proto_rawDescOnce sync.Once
