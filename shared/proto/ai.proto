@@ -12,7 +12,9 @@ service AiService {
   // Send one assistant message; the service assembles context itself
   // (user profile via UserService, active file content via FileService)
   // rather than trusting whatever the client happens to have in memory.
-  rpc Chat (ChatRequest) returns (ChatResponse);
+  // Server-streaming: each ChatResponse carries one text delta, not the
+  // full reply — the stream ending signals completion.
+  rpc Chat (ChatRequest) returns (stream ChatResponse);
 }
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
@@ -36,5 +38,7 @@ message ChatRequest {
 }
 
 message ChatResponse {
+  // One text delta of the reply. Concatenate all deltas received on the
+  // stream, in order, to reconstruct the full message.
   string reply = 1;
 }
