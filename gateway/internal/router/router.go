@@ -42,6 +42,7 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	aiClient := pb.NewAiServiceClient(connAi)
 
 	r.Use(customMiddleware.CORS)
+	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
