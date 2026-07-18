@@ -23,13 +23,23 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 	if err != nil {
 		log.Fatalf("Failed to connect to User Service: %v", err)
 	}
+	connResource, err := grpc.NewClient(cfg.ResourceServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to Resource Service: %v", err)
+	}
+	connAi, err := grpc.NewClient(cfg.AiServiceUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to AI Service: %v", err)
+	}
 
 	userClient := pb.NewUserServiceClient(conn_user)
 	userProjectClient := pb.NewUserProjectServiceClient(conn_user)
 	projectClient := pb.NewProjectServiceClient(conn_user)
 	entranceTestClient := pb.NewEntranceTestServiceClient(conn_user)
 	fileClient := pb.NewFileServiceClient(conn_user)
-	resourceProgressClient := pb.NewResourceProgressServiceClient(conn_user)
+	resourceProgressClient := pb.NewResourceProgressServiceClient(connResource)
+	knowledgeCheckClient := pb.NewKnowledgeCheckServiceClient(conn_user)
+	aiClient := pb.NewAiServiceClient(connAi)
 
 	r.Use(customMiddleware.CORS)
 	r.Use(middleware.Logger)
@@ -66,6 +76,14 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Get("/api/resources", proxy.GetPhaseResourcesProxy(resourceProgressClient))
 		r.Post("/api/resources/progress", proxy.MarkCompletedProxy(resourceProgressClient))
 		r.Get("/api/resources/progress", proxy.GetProgressProxy(resourceProgressClient))
+
+		// ── Knowledge checks ──────────────────────────────────────────────────
+		r.Get("/api/knowledge-checks", proxy.GetPhaseKnowledgeChecksProxy(knowledgeCheckClient))
+		r.Post("/api/knowledge-checks/submit", proxy.SubmitAnswerProxy(knowledgeCheckClient))
+		r.Get("/api/knowledge-checks/quiz-averages", proxy.GetQuizAveragesProxy(knowledgeCheckClient))
+
+		// ── AI assistant ─────────────────────────────────────────────────────
+		r.Post("/api/ai/chat", proxy.ChatProxy(aiClient))
 	})
 
 	return r
