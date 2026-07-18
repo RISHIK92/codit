@@ -59,6 +59,11 @@ export type LearningPhase = $Result.DefaultSelection<Prisma.$LearningPhasePayloa
  */
 export type KnowledgeChecks = $Result.DefaultSelection<Prisma.$KnowledgeChecksPayload>
 /**
+ * Model KnowledgeCheckAttempt
+ * 
+ */
+export type KnowledgeCheckAttempt = $Result.DefaultSelection<Prisma.$KnowledgeCheckAttemptPayload>
+/**
  * Model Resources
  * 
  */
@@ -358,6 +363,16 @@ export class PrismaClient<
     * ```
     */
   get knowledgeChecks(): Prisma.KnowledgeChecksDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.knowledgeCheckAttempt`: Exposes CRUD operations for the **KnowledgeCheckAttempt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KnowledgeCheckAttempts
+    * const knowledgeCheckAttempts = await prisma.knowledgeCheckAttempt.findMany()
+    * ```
+    */
+  get knowledgeCheckAttempt(): Prisma.KnowledgeCheckAttemptDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.resources`: Exposes CRUD operations for the **Resources** model.
@@ -828,6 +843,7 @@ export namespace Prisma {
     UserProjects: 'UserProjects',
     LearningPhase: 'LearningPhase',
     KnowledgeChecks: 'KnowledgeChecks',
+    KnowledgeCheckAttempt: 'KnowledgeCheckAttempt',
     Resources: 'Resources',
     ResourceProgress: 'ResourceProgress'
   };
@@ -848,7 +864,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "userProjects" | "learningPhase" | "knowledgeChecks" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "userProjects" | "learningPhase" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1518,6 +1534,80 @@ export namespace Prisma {
           }
         }
       }
+      KnowledgeCheckAttempt: {
+        payload: Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>
+        fields: Prisma.KnowledgeCheckAttemptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KnowledgeCheckAttemptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KnowledgeCheckAttemptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>
+          }
+          findFirst: {
+            args: Prisma.KnowledgeCheckAttemptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KnowledgeCheckAttemptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>
+          }
+          findMany: {
+            args: Prisma.KnowledgeCheckAttemptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>[]
+          }
+          create: {
+            args: Prisma.KnowledgeCheckAttemptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>
+          }
+          createMany: {
+            args: Prisma.KnowledgeCheckAttemptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KnowledgeCheckAttemptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>[]
+          }
+          delete: {
+            args: Prisma.KnowledgeCheckAttemptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>
+          }
+          update: {
+            args: Prisma.KnowledgeCheckAttemptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>
+          }
+          deleteMany: {
+            args: Prisma.KnowledgeCheckAttemptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KnowledgeCheckAttemptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.KnowledgeCheckAttemptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>[]
+          }
+          upsert: {
+            args: Prisma.KnowledgeCheckAttemptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KnowledgeCheckAttemptPayload>
+          }
+          aggregate: {
+            args: Prisma.KnowledgeCheckAttemptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKnowledgeCheckAttempt>
+          }
+          groupBy: {
+            args: Prisma.KnowledgeCheckAttemptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KnowledgeCheckAttemptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KnowledgeCheckAttemptCountArgs<ExtArgs>
+            result: $Utils.Optional<KnowledgeCheckAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
       Resources: {
         payload: Prisma.$ResourcesPayload<ExtArgs>
         fields: Prisma.ResourcesFieldRefs
@@ -1771,6 +1861,7 @@ export namespace Prisma {
     userProjects?: UserProjectsOmit
     learningPhase?: LearningPhaseOmit
     knowledgeChecks?: KnowledgeChecksOmit
+    knowledgeCheckAttempt?: KnowledgeCheckAttemptOmit
     resources?: ResourcesOmit
     resourceProgress?: ResourceProgressOmit
   }
@@ -1996,6 +2087,37 @@ export namespace Prisma {
    */
   export type LearningPhaseCountOutputTypeCountKnowledgeChecksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: KnowledgeChecksWhereInput
+  }
+
+
+  /**
+   * Count Type KnowledgeChecksCountOutputType
+   */
+
+  export type KnowledgeChecksCountOutputType = {
+    attempts: number
+  }
+
+  export type KnowledgeChecksCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attempts?: boolean | KnowledgeChecksCountOutputTypeCountAttemptsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * KnowledgeChecksCountOutputType without action
+   */
+  export type KnowledgeChecksCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeChecksCountOutputType
+     */
+    select?: KnowledgeChecksCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * KnowledgeChecksCountOutputType without action
+   */
+  export type KnowledgeChecksCountOutputTypeCountAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KnowledgeCheckAttemptWhereInput
   }
 
 
@@ -11192,6 +11314,7 @@ export namespace Prisma {
     id: number
     phase_id: number
     question: number
+    options: number
     correct_answer: number
     explanation: number
     question_type: number
@@ -11221,6 +11344,7 @@ export namespace Prisma {
     id?: true
     phase_id?: true
     question?: true
+    options?: true
     correct_answer?: true
     explanation?: true
     question_type?: true
@@ -11303,6 +11427,7 @@ export namespace Prisma {
     id: string
     phase_id: string
     question: string
+    options: string[]
     correct_answer: string | null
     explanation: string
     question_type: $Enums.Question_Type
@@ -11329,16 +11454,20 @@ export namespace Prisma {
     id?: boolean
     phase_id?: boolean
     question?: boolean
+    options?: boolean
     correct_answer?: boolean
     explanation?: boolean
     question_type?: boolean
     learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+    attempts?: boolean | KnowledgeChecks$attemptsArgs<ExtArgs>
+    _count?: boolean | KnowledgeChecksCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["knowledgeChecks"]>
 
   export type KnowledgeChecksSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     phase_id?: boolean
     question?: boolean
+    options?: boolean
     correct_answer?: boolean
     explanation?: boolean
     question_type?: boolean
@@ -11349,6 +11478,7 @@ export namespace Prisma {
     id?: boolean
     phase_id?: boolean
     question?: boolean
+    options?: boolean
     correct_answer?: boolean
     explanation?: boolean
     question_type?: boolean
@@ -11359,14 +11489,17 @@ export namespace Prisma {
     id?: boolean
     phase_id?: boolean
     question?: boolean
+    options?: boolean
     correct_answer?: boolean
     explanation?: boolean
     question_type?: boolean
   }
 
-  export type KnowledgeChecksOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phase_id" | "question" | "correct_answer" | "explanation" | "question_type", ExtArgs["result"]["knowledgeChecks"]>
+  export type KnowledgeChecksOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phase_id" | "question" | "options" | "correct_answer" | "explanation" | "question_type", ExtArgs["result"]["knowledgeChecks"]>
   export type KnowledgeChecksInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+    attempts?: boolean | KnowledgeChecks$attemptsArgs<ExtArgs>
+    _count?: boolean | KnowledgeChecksCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type KnowledgeChecksIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
@@ -11379,11 +11512,13 @@ export namespace Prisma {
     name: "KnowledgeChecks"
     objects: {
       learningPhase: Prisma.$LearningPhasePayload<ExtArgs>
+      attempts: Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       phase_id: string
       question: string
+      options: string[]
       correct_answer: string | null
       explanation: string
       question_type: $Enums.Question_Type
@@ -11782,6 +11917,7 @@ export namespace Prisma {
   export interface Prisma__KnowledgeChecksClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     learningPhase<T extends LearningPhaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LearningPhaseDefaultArgs<ExtArgs>>): Prisma__LearningPhaseClient<$Result.GetResult<Prisma.$LearningPhasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    attempts<T extends KnowledgeChecks$attemptsArgs<ExtArgs> = {}>(args?: Subset<T, KnowledgeChecks$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11814,6 +11950,7 @@ export namespace Prisma {
     readonly id: FieldRef<"KnowledgeChecks", 'String'>
     readonly phase_id: FieldRef<"KnowledgeChecks", 'String'>
     readonly question: FieldRef<"KnowledgeChecks", 'String'>
+    readonly options: FieldRef<"KnowledgeChecks", 'String[]'>
     readonly correct_answer: FieldRef<"KnowledgeChecks", 'String'>
     readonly explanation: FieldRef<"KnowledgeChecks", 'String'>
     readonly question_type: FieldRef<"KnowledgeChecks", 'Question_Type'>
@@ -12213,6 +12350,30 @@ export namespace Prisma {
   }
 
   /**
+   * KnowledgeChecks.attempts
+   */
+  export type KnowledgeChecks$attemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    where?: KnowledgeCheckAttemptWhereInput
+    orderBy?: KnowledgeCheckAttemptOrderByWithRelationInput | KnowledgeCheckAttemptOrderByWithRelationInput[]
+    cursor?: KnowledgeCheckAttemptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KnowledgeCheckAttemptScalarFieldEnum | KnowledgeCheckAttemptScalarFieldEnum[]
+  }
+
+  /**
    * KnowledgeChecks without action
    */
   export type KnowledgeChecksDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12228,6 +12389,1103 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: KnowledgeChecksInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KnowledgeCheckAttempt
+   */
+
+  export type AggregateKnowledgeCheckAttempt = {
+    _count: KnowledgeCheckAttemptCountAggregateOutputType | null
+    _min: KnowledgeCheckAttemptMinAggregateOutputType | null
+    _max: KnowledgeCheckAttemptMaxAggregateOutputType | null
+  }
+
+  export type KnowledgeCheckAttemptMinAggregateOutputType = {
+    id: string | null
+    knowledge_check_id: string | null
+    user_email: string | null
+    project_id: string | null
+    answer: string | null
+    is_correct: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type KnowledgeCheckAttemptMaxAggregateOutputType = {
+    id: string | null
+    knowledge_check_id: string | null
+    user_email: string | null
+    project_id: string | null
+    answer: string | null
+    is_correct: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type KnowledgeCheckAttemptCountAggregateOutputType = {
+    id: number
+    knowledge_check_id: number
+    user_email: number
+    project_id: number
+    answer: number
+    is_correct: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type KnowledgeCheckAttemptMinAggregateInputType = {
+    id?: true
+    knowledge_check_id?: true
+    user_email?: true
+    project_id?: true
+    answer?: true
+    is_correct?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type KnowledgeCheckAttemptMaxAggregateInputType = {
+    id?: true
+    knowledge_check_id?: true
+    user_email?: true
+    project_id?: true
+    answer?: true
+    is_correct?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type KnowledgeCheckAttemptCountAggregateInputType = {
+    id?: true
+    knowledge_check_id?: true
+    user_email?: true
+    project_id?: true
+    answer?: true
+    is_correct?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type KnowledgeCheckAttemptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KnowledgeCheckAttempt to aggregate.
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KnowledgeCheckAttempts to fetch.
+     */
+    orderBy?: KnowledgeCheckAttemptOrderByWithRelationInput | KnowledgeCheckAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KnowledgeCheckAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KnowledgeCheckAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KnowledgeCheckAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KnowledgeCheckAttempts
+    **/
+    _count?: true | KnowledgeCheckAttemptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KnowledgeCheckAttemptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KnowledgeCheckAttemptMaxAggregateInputType
+  }
+
+  export type GetKnowledgeCheckAttemptAggregateType<T extends KnowledgeCheckAttemptAggregateArgs> = {
+        [P in keyof T & keyof AggregateKnowledgeCheckAttempt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKnowledgeCheckAttempt[P]>
+      : GetScalarType<T[P], AggregateKnowledgeCheckAttempt[P]>
+  }
+
+
+
+
+  export type KnowledgeCheckAttemptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KnowledgeCheckAttemptWhereInput
+    orderBy?: KnowledgeCheckAttemptOrderByWithAggregationInput | KnowledgeCheckAttemptOrderByWithAggregationInput[]
+    by: KnowledgeCheckAttemptScalarFieldEnum[] | KnowledgeCheckAttemptScalarFieldEnum
+    having?: KnowledgeCheckAttemptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KnowledgeCheckAttemptCountAggregateInputType | true
+    _min?: KnowledgeCheckAttemptMinAggregateInputType
+    _max?: KnowledgeCheckAttemptMaxAggregateInputType
+  }
+
+  export type KnowledgeCheckAttemptGroupByOutputType = {
+    id: string
+    knowledge_check_id: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at: Date
+    updated_at: Date
+    _count: KnowledgeCheckAttemptCountAggregateOutputType | null
+    _min: KnowledgeCheckAttemptMinAggregateOutputType | null
+    _max: KnowledgeCheckAttemptMaxAggregateOutputType | null
+  }
+
+  type GetKnowledgeCheckAttemptGroupByPayload<T extends KnowledgeCheckAttemptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KnowledgeCheckAttemptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KnowledgeCheckAttemptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KnowledgeCheckAttemptGroupByOutputType[P]>
+            : GetScalarType<T[P], KnowledgeCheckAttemptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KnowledgeCheckAttemptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    knowledge_check_id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    answer?: boolean
+    is_correct?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    knowledgeCheck?: boolean | KnowledgeChecksDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["knowledgeCheckAttempt"]>
+
+  export type KnowledgeCheckAttemptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    knowledge_check_id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    answer?: boolean
+    is_correct?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    knowledgeCheck?: boolean | KnowledgeChecksDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["knowledgeCheckAttempt"]>
+
+  export type KnowledgeCheckAttemptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    knowledge_check_id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    answer?: boolean
+    is_correct?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    knowledgeCheck?: boolean | KnowledgeChecksDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["knowledgeCheckAttempt"]>
+
+  export type KnowledgeCheckAttemptSelectScalar = {
+    id?: boolean
+    knowledge_check_id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    answer?: boolean
+    is_correct?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type KnowledgeCheckAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "knowledge_check_id" | "user_email" | "project_id" | "answer" | "is_correct" | "created_at" | "updated_at", ExtArgs["result"]["knowledgeCheckAttempt"]>
+  export type KnowledgeCheckAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    knowledgeCheck?: boolean | KnowledgeChecksDefaultArgs<ExtArgs>
+  }
+  export type KnowledgeCheckAttemptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    knowledgeCheck?: boolean | KnowledgeChecksDefaultArgs<ExtArgs>
+  }
+  export type KnowledgeCheckAttemptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    knowledgeCheck?: boolean | KnowledgeChecksDefaultArgs<ExtArgs>
+  }
+
+  export type $KnowledgeCheckAttemptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KnowledgeCheckAttempt"
+    objects: {
+      knowledgeCheck: Prisma.$KnowledgeChecksPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      knowledge_check_id: string
+      user_email: string
+      project_id: string
+      answer: string
+      is_correct: boolean
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["knowledgeCheckAttempt"]>
+    composites: {}
+  }
+
+  type KnowledgeCheckAttemptGetPayload<S extends boolean | null | undefined | KnowledgeCheckAttemptDefaultArgs> = $Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload, S>
+
+  type KnowledgeCheckAttemptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<KnowledgeCheckAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: KnowledgeCheckAttemptCountAggregateInputType | true
+    }
+
+  export interface KnowledgeCheckAttemptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KnowledgeCheckAttempt'], meta: { name: 'KnowledgeCheckAttempt' } }
+    /**
+     * Find zero or one KnowledgeCheckAttempt that matches the filter.
+     * @param {KnowledgeCheckAttemptFindUniqueArgs} args - Arguments to find a KnowledgeCheckAttempt
+     * @example
+     * // Get one KnowledgeCheckAttempt
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KnowledgeCheckAttemptFindUniqueArgs>(args: SelectSubset<T, KnowledgeCheckAttemptFindUniqueArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one KnowledgeCheckAttempt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {KnowledgeCheckAttemptFindUniqueOrThrowArgs} args - Arguments to find a KnowledgeCheckAttempt
+     * @example
+     * // Get one KnowledgeCheckAttempt
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KnowledgeCheckAttemptFindUniqueOrThrowArgs>(args: SelectSubset<T, KnowledgeCheckAttemptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KnowledgeCheckAttempt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptFindFirstArgs} args - Arguments to find a KnowledgeCheckAttempt
+     * @example
+     * // Get one KnowledgeCheckAttempt
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KnowledgeCheckAttemptFindFirstArgs>(args?: SelectSubset<T, KnowledgeCheckAttemptFindFirstArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first KnowledgeCheckAttempt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptFindFirstOrThrowArgs} args - Arguments to find a KnowledgeCheckAttempt
+     * @example
+     * // Get one KnowledgeCheckAttempt
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KnowledgeCheckAttemptFindFirstOrThrowArgs>(args?: SelectSubset<T, KnowledgeCheckAttemptFindFirstOrThrowArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more KnowledgeCheckAttempts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KnowledgeCheckAttempts
+     * const knowledgeCheckAttempts = await prisma.knowledgeCheckAttempt.findMany()
+     * 
+     * // Get first 10 KnowledgeCheckAttempts
+     * const knowledgeCheckAttempts = await prisma.knowledgeCheckAttempt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const knowledgeCheckAttemptWithIdOnly = await prisma.knowledgeCheckAttempt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KnowledgeCheckAttemptFindManyArgs>(args?: SelectSubset<T, KnowledgeCheckAttemptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a KnowledgeCheckAttempt.
+     * @param {KnowledgeCheckAttemptCreateArgs} args - Arguments to create a KnowledgeCheckAttempt.
+     * @example
+     * // Create one KnowledgeCheckAttempt
+     * const KnowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.create({
+     *   data: {
+     *     // ... data to create a KnowledgeCheckAttempt
+     *   }
+     * })
+     * 
+     */
+    create<T extends KnowledgeCheckAttemptCreateArgs>(args: SelectSubset<T, KnowledgeCheckAttemptCreateArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many KnowledgeCheckAttempts.
+     * @param {KnowledgeCheckAttemptCreateManyArgs} args - Arguments to create many KnowledgeCheckAttempts.
+     * @example
+     * // Create many KnowledgeCheckAttempts
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KnowledgeCheckAttemptCreateManyArgs>(args?: SelectSubset<T, KnowledgeCheckAttemptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KnowledgeCheckAttempts and returns the data saved in the database.
+     * @param {KnowledgeCheckAttemptCreateManyAndReturnArgs} args - Arguments to create many KnowledgeCheckAttempts.
+     * @example
+     * // Create many KnowledgeCheckAttempts
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KnowledgeCheckAttempts and only return the `id`
+     * const knowledgeCheckAttemptWithIdOnly = await prisma.knowledgeCheckAttempt.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KnowledgeCheckAttemptCreateManyAndReturnArgs>(args?: SelectSubset<T, KnowledgeCheckAttemptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a KnowledgeCheckAttempt.
+     * @param {KnowledgeCheckAttemptDeleteArgs} args - Arguments to delete one KnowledgeCheckAttempt.
+     * @example
+     * // Delete one KnowledgeCheckAttempt
+     * const KnowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.delete({
+     *   where: {
+     *     // ... filter to delete one KnowledgeCheckAttempt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KnowledgeCheckAttemptDeleteArgs>(args: SelectSubset<T, KnowledgeCheckAttemptDeleteArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one KnowledgeCheckAttempt.
+     * @param {KnowledgeCheckAttemptUpdateArgs} args - Arguments to update one KnowledgeCheckAttempt.
+     * @example
+     * // Update one KnowledgeCheckAttempt
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KnowledgeCheckAttemptUpdateArgs>(args: SelectSubset<T, KnowledgeCheckAttemptUpdateArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more KnowledgeCheckAttempts.
+     * @param {KnowledgeCheckAttemptDeleteManyArgs} args - Arguments to filter KnowledgeCheckAttempts to delete.
+     * @example
+     * // Delete a few KnowledgeCheckAttempts
+     * const { count } = await prisma.knowledgeCheckAttempt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KnowledgeCheckAttemptDeleteManyArgs>(args?: SelectSubset<T, KnowledgeCheckAttemptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KnowledgeCheckAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KnowledgeCheckAttempts
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KnowledgeCheckAttemptUpdateManyArgs>(args: SelectSubset<T, KnowledgeCheckAttemptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KnowledgeCheckAttempts and returns the data updated in the database.
+     * @param {KnowledgeCheckAttemptUpdateManyAndReturnArgs} args - Arguments to update many KnowledgeCheckAttempts.
+     * @example
+     * // Update many KnowledgeCheckAttempts
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more KnowledgeCheckAttempts and only return the `id`
+     * const knowledgeCheckAttemptWithIdOnly = await prisma.knowledgeCheckAttempt.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends KnowledgeCheckAttemptUpdateManyAndReturnArgs>(args: SelectSubset<T, KnowledgeCheckAttemptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one KnowledgeCheckAttempt.
+     * @param {KnowledgeCheckAttemptUpsertArgs} args - Arguments to update or create a KnowledgeCheckAttempt.
+     * @example
+     * // Update or create a KnowledgeCheckAttempt
+     * const knowledgeCheckAttempt = await prisma.knowledgeCheckAttempt.upsert({
+     *   create: {
+     *     // ... data to create a KnowledgeCheckAttempt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KnowledgeCheckAttempt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KnowledgeCheckAttemptUpsertArgs>(args: SelectSubset<T, KnowledgeCheckAttemptUpsertArgs<ExtArgs>>): Prisma__KnowledgeCheckAttemptClient<$Result.GetResult<Prisma.$KnowledgeCheckAttemptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of KnowledgeCheckAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptCountArgs} args - Arguments to filter KnowledgeCheckAttempts to count.
+     * @example
+     * // Count the number of KnowledgeCheckAttempts
+     * const count = await prisma.knowledgeCheckAttempt.count({
+     *   where: {
+     *     // ... the filter for the KnowledgeCheckAttempts we want to count
+     *   }
+     * })
+    **/
+    count<T extends KnowledgeCheckAttemptCountArgs>(
+      args?: Subset<T, KnowledgeCheckAttemptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KnowledgeCheckAttemptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KnowledgeCheckAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KnowledgeCheckAttemptAggregateArgs>(args: Subset<T, KnowledgeCheckAttemptAggregateArgs>): Prisma.PrismaPromise<GetKnowledgeCheckAttemptAggregateType<T>>
+
+    /**
+     * Group by KnowledgeCheckAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KnowledgeCheckAttemptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KnowledgeCheckAttemptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KnowledgeCheckAttemptGroupByArgs['orderBy'] }
+        : { orderBy?: KnowledgeCheckAttemptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KnowledgeCheckAttemptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKnowledgeCheckAttemptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KnowledgeCheckAttempt model
+   */
+  readonly fields: KnowledgeCheckAttemptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KnowledgeCheckAttempt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KnowledgeCheckAttemptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    knowledgeCheck<T extends KnowledgeChecksDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KnowledgeChecksDefaultArgs<ExtArgs>>): Prisma__KnowledgeChecksClient<$Result.GetResult<Prisma.$KnowledgeChecksPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KnowledgeCheckAttempt model
+   */
+  interface KnowledgeCheckAttemptFieldRefs {
+    readonly id: FieldRef<"KnowledgeCheckAttempt", 'String'>
+    readonly knowledge_check_id: FieldRef<"KnowledgeCheckAttempt", 'String'>
+    readonly user_email: FieldRef<"KnowledgeCheckAttempt", 'String'>
+    readonly project_id: FieldRef<"KnowledgeCheckAttempt", 'String'>
+    readonly answer: FieldRef<"KnowledgeCheckAttempt", 'String'>
+    readonly is_correct: FieldRef<"KnowledgeCheckAttempt", 'Boolean'>
+    readonly created_at: FieldRef<"KnowledgeCheckAttempt", 'DateTime'>
+    readonly updated_at: FieldRef<"KnowledgeCheckAttempt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KnowledgeCheckAttempt findUnique
+   */
+  export type KnowledgeCheckAttemptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which KnowledgeCheckAttempt to fetch.
+     */
+    where: KnowledgeCheckAttemptWhereUniqueInput
+  }
+
+  /**
+   * KnowledgeCheckAttempt findUniqueOrThrow
+   */
+  export type KnowledgeCheckAttemptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which KnowledgeCheckAttempt to fetch.
+     */
+    where: KnowledgeCheckAttemptWhereUniqueInput
+  }
+
+  /**
+   * KnowledgeCheckAttempt findFirst
+   */
+  export type KnowledgeCheckAttemptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which KnowledgeCheckAttempt to fetch.
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KnowledgeCheckAttempts to fetch.
+     */
+    orderBy?: KnowledgeCheckAttemptOrderByWithRelationInput | KnowledgeCheckAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KnowledgeCheckAttempts.
+     */
+    cursor?: KnowledgeCheckAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KnowledgeCheckAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KnowledgeCheckAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KnowledgeCheckAttempts.
+     */
+    distinct?: KnowledgeCheckAttemptScalarFieldEnum | KnowledgeCheckAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * KnowledgeCheckAttempt findFirstOrThrow
+   */
+  export type KnowledgeCheckAttemptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which KnowledgeCheckAttempt to fetch.
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KnowledgeCheckAttempts to fetch.
+     */
+    orderBy?: KnowledgeCheckAttemptOrderByWithRelationInput | KnowledgeCheckAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KnowledgeCheckAttempts.
+     */
+    cursor?: KnowledgeCheckAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KnowledgeCheckAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KnowledgeCheckAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KnowledgeCheckAttempts.
+     */
+    distinct?: KnowledgeCheckAttemptScalarFieldEnum | KnowledgeCheckAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * KnowledgeCheckAttempt findMany
+   */
+  export type KnowledgeCheckAttemptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which KnowledgeCheckAttempts to fetch.
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KnowledgeCheckAttempts to fetch.
+     */
+    orderBy?: KnowledgeCheckAttemptOrderByWithRelationInput | KnowledgeCheckAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KnowledgeCheckAttempts.
+     */
+    cursor?: KnowledgeCheckAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KnowledgeCheckAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KnowledgeCheckAttempts.
+     */
+    skip?: number
+    distinct?: KnowledgeCheckAttemptScalarFieldEnum | KnowledgeCheckAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * KnowledgeCheckAttempt create
+   */
+  export type KnowledgeCheckAttemptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KnowledgeCheckAttempt.
+     */
+    data: XOR<KnowledgeCheckAttemptCreateInput, KnowledgeCheckAttemptUncheckedCreateInput>
+  }
+
+  /**
+   * KnowledgeCheckAttempt createMany
+   */
+  export type KnowledgeCheckAttemptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KnowledgeCheckAttempts.
+     */
+    data: KnowledgeCheckAttemptCreateManyInput | KnowledgeCheckAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KnowledgeCheckAttempt createManyAndReturn
+   */
+  export type KnowledgeCheckAttemptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to create many KnowledgeCheckAttempts.
+     */
+    data: KnowledgeCheckAttemptCreateManyInput | KnowledgeCheckAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KnowledgeCheckAttempt update
+   */
+  export type KnowledgeCheckAttemptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KnowledgeCheckAttempt.
+     */
+    data: XOR<KnowledgeCheckAttemptUpdateInput, KnowledgeCheckAttemptUncheckedUpdateInput>
+    /**
+     * Choose, which KnowledgeCheckAttempt to update.
+     */
+    where: KnowledgeCheckAttemptWhereUniqueInput
+  }
+
+  /**
+   * KnowledgeCheckAttempt updateMany
+   */
+  export type KnowledgeCheckAttemptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KnowledgeCheckAttempts.
+     */
+    data: XOR<KnowledgeCheckAttemptUpdateManyMutationInput, KnowledgeCheckAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which KnowledgeCheckAttempts to update
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * Limit how many KnowledgeCheckAttempts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * KnowledgeCheckAttempt updateManyAndReturn
+   */
+  export type KnowledgeCheckAttemptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to update KnowledgeCheckAttempts.
+     */
+    data: XOR<KnowledgeCheckAttemptUpdateManyMutationInput, KnowledgeCheckAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which KnowledgeCheckAttempts to update
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * Limit how many KnowledgeCheckAttempts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KnowledgeCheckAttempt upsert
+   */
+  export type KnowledgeCheckAttemptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KnowledgeCheckAttempt to update in case it exists.
+     */
+    where: KnowledgeCheckAttemptWhereUniqueInput
+    /**
+     * In case the KnowledgeCheckAttempt found by the `where` argument doesn't exist, create a new KnowledgeCheckAttempt with this data.
+     */
+    create: XOR<KnowledgeCheckAttemptCreateInput, KnowledgeCheckAttemptUncheckedCreateInput>
+    /**
+     * In case the KnowledgeCheckAttempt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KnowledgeCheckAttemptUpdateInput, KnowledgeCheckAttemptUncheckedUpdateInput>
+  }
+
+  /**
+   * KnowledgeCheckAttempt delete
+   */
+  export type KnowledgeCheckAttemptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
+    /**
+     * Filter which KnowledgeCheckAttempt to delete.
+     */
+    where: KnowledgeCheckAttemptWhereUniqueInput
+  }
+
+  /**
+   * KnowledgeCheckAttempt deleteMany
+   */
+  export type KnowledgeCheckAttemptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KnowledgeCheckAttempts to delete
+     */
+    where?: KnowledgeCheckAttemptWhereInput
+    /**
+     * Limit how many KnowledgeCheckAttempts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * KnowledgeCheckAttempt without action
+   */
+  export type KnowledgeCheckAttemptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KnowledgeCheckAttempt
+     */
+    select?: KnowledgeCheckAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the KnowledgeCheckAttempt
+     */
+    omit?: KnowledgeCheckAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KnowledgeCheckAttemptInclude<ExtArgs> | null
   }
 
 
@@ -14632,12 +15890,27 @@ export namespace Prisma {
     id: 'id',
     phase_id: 'phase_id',
     question: 'question',
+    options: 'options',
     correct_answer: 'correct_answer',
     explanation: 'explanation',
     question_type: 'question_type'
   };
 
   export type KnowledgeChecksScalarFieldEnum = (typeof KnowledgeChecksScalarFieldEnum)[keyof typeof KnowledgeChecksScalarFieldEnum]
+
+
+  export const KnowledgeCheckAttemptScalarFieldEnum: {
+    id: 'id',
+    knowledge_check_id: 'knowledge_check_id',
+    user_email: 'user_email',
+    project_id: 'project_id',
+    answer: 'answer',
+    is_correct: 'is_correct',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type KnowledgeCheckAttemptScalarFieldEnum = (typeof KnowledgeCheckAttemptScalarFieldEnum)[keyof typeof KnowledgeCheckAttemptScalarFieldEnum]
 
 
   export const ResourcesScalarFieldEnum: {
@@ -15487,20 +16760,24 @@ export namespace Prisma {
     id?: StringFilter<"KnowledgeChecks"> | string
     phase_id?: StringFilter<"KnowledgeChecks"> | string
     question?: StringFilter<"KnowledgeChecks"> | string
+    options?: StringNullableListFilter<"KnowledgeChecks">
     correct_answer?: StringNullableFilter<"KnowledgeChecks"> | string | null
     explanation?: StringFilter<"KnowledgeChecks"> | string
     question_type?: EnumQuestion_TypeFilter<"KnowledgeChecks"> | $Enums.Question_Type
     learningPhase?: XOR<LearningPhaseScalarRelationFilter, LearningPhaseWhereInput>
+    attempts?: KnowledgeCheckAttemptListRelationFilter
   }
 
   export type KnowledgeChecksOrderByWithRelationInput = {
     id?: SortOrder
     phase_id?: SortOrder
     question?: SortOrder
+    options?: SortOrder
     correct_answer?: SortOrderInput | SortOrder
     explanation?: SortOrder
     question_type?: SortOrder
     learningPhase?: LearningPhaseOrderByWithRelationInput
+    attempts?: KnowledgeCheckAttemptOrderByRelationAggregateInput
   }
 
   export type KnowledgeChecksWhereUniqueInput = Prisma.AtLeast<{
@@ -15510,16 +16787,19 @@ export namespace Prisma {
     NOT?: KnowledgeChecksWhereInput | KnowledgeChecksWhereInput[]
     phase_id?: StringFilter<"KnowledgeChecks"> | string
     question?: StringFilter<"KnowledgeChecks"> | string
+    options?: StringNullableListFilter<"KnowledgeChecks">
     correct_answer?: StringNullableFilter<"KnowledgeChecks"> | string | null
     explanation?: StringFilter<"KnowledgeChecks"> | string
     question_type?: EnumQuestion_TypeFilter<"KnowledgeChecks"> | $Enums.Question_Type
     learningPhase?: XOR<LearningPhaseScalarRelationFilter, LearningPhaseWhereInput>
+    attempts?: KnowledgeCheckAttemptListRelationFilter
   }, "id">
 
   export type KnowledgeChecksOrderByWithAggregationInput = {
     id?: SortOrder
     phase_id?: SortOrder
     question?: SortOrder
+    options?: SortOrder
     correct_answer?: SortOrderInput | SortOrder
     explanation?: SortOrder
     question_type?: SortOrder
@@ -15535,9 +16815,81 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"KnowledgeChecks"> | string
     phase_id?: StringWithAggregatesFilter<"KnowledgeChecks"> | string
     question?: StringWithAggregatesFilter<"KnowledgeChecks"> | string
+    options?: StringNullableListFilter<"KnowledgeChecks">
     correct_answer?: StringNullableWithAggregatesFilter<"KnowledgeChecks"> | string | null
     explanation?: StringWithAggregatesFilter<"KnowledgeChecks"> | string
     question_type?: EnumQuestion_TypeWithAggregatesFilter<"KnowledgeChecks"> | $Enums.Question_Type
+  }
+
+  export type KnowledgeCheckAttemptWhereInput = {
+    AND?: KnowledgeCheckAttemptWhereInput | KnowledgeCheckAttemptWhereInput[]
+    OR?: KnowledgeCheckAttemptWhereInput[]
+    NOT?: KnowledgeCheckAttemptWhereInput | KnowledgeCheckAttemptWhereInput[]
+    id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    knowledge_check_id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    user_email?: StringFilter<"KnowledgeCheckAttempt"> | string
+    project_id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    answer?: StringFilter<"KnowledgeCheckAttempt"> | string
+    is_correct?: BoolFilter<"KnowledgeCheckAttempt"> | boolean
+    created_at?: DateTimeFilter<"KnowledgeCheckAttempt"> | Date | string
+    updated_at?: DateTimeFilter<"KnowledgeCheckAttempt"> | Date | string
+    knowledgeCheck?: XOR<KnowledgeChecksScalarRelationFilter, KnowledgeChecksWhereInput>
+  }
+
+  export type KnowledgeCheckAttemptOrderByWithRelationInput = {
+    id?: SortOrder
+    knowledge_check_id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    answer?: SortOrder
+    is_correct?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    knowledgeCheck?: KnowledgeChecksOrderByWithRelationInput
+  }
+
+  export type KnowledgeCheckAttemptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    knowledge_check_id_user_email?: KnowledgeCheckAttemptKnowledge_check_idUser_emailCompoundUniqueInput
+    AND?: KnowledgeCheckAttemptWhereInput | KnowledgeCheckAttemptWhereInput[]
+    OR?: KnowledgeCheckAttemptWhereInput[]
+    NOT?: KnowledgeCheckAttemptWhereInput | KnowledgeCheckAttemptWhereInput[]
+    knowledge_check_id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    user_email?: StringFilter<"KnowledgeCheckAttempt"> | string
+    project_id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    answer?: StringFilter<"KnowledgeCheckAttempt"> | string
+    is_correct?: BoolFilter<"KnowledgeCheckAttempt"> | boolean
+    created_at?: DateTimeFilter<"KnowledgeCheckAttempt"> | Date | string
+    updated_at?: DateTimeFilter<"KnowledgeCheckAttempt"> | Date | string
+    knowledgeCheck?: XOR<KnowledgeChecksScalarRelationFilter, KnowledgeChecksWhereInput>
+  }, "id" | "knowledge_check_id_user_email">
+
+  export type KnowledgeCheckAttemptOrderByWithAggregationInput = {
+    id?: SortOrder
+    knowledge_check_id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    answer?: SortOrder
+    is_correct?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: KnowledgeCheckAttemptCountOrderByAggregateInput
+    _max?: KnowledgeCheckAttemptMaxOrderByAggregateInput
+    _min?: KnowledgeCheckAttemptMinOrderByAggregateInput
+  }
+
+  export type KnowledgeCheckAttemptScalarWhereWithAggregatesInput = {
+    AND?: KnowledgeCheckAttemptScalarWhereWithAggregatesInput | KnowledgeCheckAttemptScalarWhereWithAggregatesInput[]
+    OR?: KnowledgeCheckAttemptScalarWhereWithAggregatesInput[]
+    NOT?: KnowledgeCheckAttemptScalarWhereWithAggregatesInput | KnowledgeCheckAttemptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KnowledgeCheckAttempt"> | string
+    knowledge_check_id?: StringWithAggregatesFilter<"KnowledgeCheckAttempt"> | string
+    user_email?: StringWithAggregatesFilter<"KnowledgeCheckAttempt"> | string
+    project_id?: StringWithAggregatesFilter<"KnowledgeCheckAttempt"> | string
+    answer?: StringWithAggregatesFilter<"KnowledgeCheckAttempt"> | string
+    is_correct?: BoolWithAggregatesFilter<"KnowledgeCheckAttempt"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"KnowledgeCheckAttempt"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"KnowledgeCheckAttempt"> | Date | string
   }
 
   export type ResourcesWhereInput = {
@@ -16333,43 +17685,52 @@ export namespace Prisma {
   export type KnowledgeChecksCreateInput = {
     id?: string
     question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
     correct_answer?: string | null
     explanation: string
     question_type: $Enums.Question_Type
     learningPhase: LearningPhaseCreateNestedOneWithoutKnowledgeChecksInput
+    attempts?: KnowledgeCheckAttemptCreateNestedManyWithoutKnowledgeCheckInput
   }
 
   export type KnowledgeChecksUncheckedCreateInput = {
     id?: string
     phase_id: string
     question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
     correct_answer?: string | null
     explanation: string
     question_type: $Enums.Question_Type
+    attempts?: KnowledgeCheckAttemptUncheckedCreateNestedManyWithoutKnowledgeCheckInput
   }
 
   export type KnowledgeChecksUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
     learningPhase?: LearningPhaseUpdateOneRequiredWithoutKnowledgeChecksNestedInput
+    attempts?: KnowledgeCheckAttemptUpdateManyWithoutKnowledgeCheckNestedInput
   }
 
   export type KnowledgeChecksUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     phase_id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+    attempts?: KnowledgeCheckAttemptUncheckedUpdateManyWithoutKnowledgeCheckNestedInput
   }
 
   export type KnowledgeChecksCreateManyInput = {
     id?: string
     phase_id: string
     question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
     correct_answer?: string | null
     explanation: string
     question_type: $Enums.Question_Type
@@ -16378,6 +17739,7 @@ export namespace Prisma {
   export type KnowledgeChecksUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
@@ -16387,9 +17749,86 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     phase_id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+  }
+
+  export type KnowledgeCheckAttemptCreateInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    knowledgeCheck: KnowledgeChecksCreateNestedOneWithoutAttemptsInput
+  }
+
+  export type KnowledgeCheckAttemptUncheckedCreateInput = {
+    id?: string
+    knowledge_check_id: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type KnowledgeCheckAttemptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    knowledgeCheck?: KnowledgeChecksUpdateOneRequiredWithoutAttemptsNestedInput
+  }
+
+  export type KnowledgeCheckAttemptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    knowledge_check_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KnowledgeCheckAttemptCreateManyInput = {
+    id?: string
+    knowledge_check_id: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type KnowledgeCheckAttemptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KnowledgeCheckAttemptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    knowledge_check_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResourcesCreateInput = {
@@ -17375,10 +18814,21 @@ export namespace Prisma {
     isNot?: LearningPhaseWhereInput
   }
 
+  export type KnowledgeCheckAttemptListRelationFilter = {
+    every?: KnowledgeCheckAttemptWhereInput
+    some?: KnowledgeCheckAttemptWhereInput
+    none?: KnowledgeCheckAttemptWhereInput
+  }
+
+  export type KnowledgeCheckAttemptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type KnowledgeChecksCountOrderByAggregateInput = {
     id?: SortOrder
     phase_id?: SortOrder
     question?: SortOrder
+    options?: SortOrder
     correct_answer?: SortOrder
     explanation?: SortOrder
     question_type?: SortOrder
@@ -17410,6 +18860,49 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumQuestion_TypeFilter<$PrismaModel>
     _max?: NestedEnumQuestion_TypeFilter<$PrismaModel>
+  }
+
+  export type KnowledgeChecksScalarRelationFilter = {
+    is?: KnowledgeChecksWhereInput
+    isNot?: KnowledgeChecksWhereInput
+  }
+
+  export type KnowledgeCheckAttemptKnowledge_check_idUser_emailCompoundUniqueInput = {
+    knowledge_check_id: string
+    user_email: string
+  }
+
+  export type KnowledgeCheckAttemptCountOrderByAggregateInput = {
+    id?: SortOrder
+    knowledge_check_id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    answer?: SortOrder
+    is_correct?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type KnowledgeCheckAttemptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    knowledge_check_id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    answer?: SortOrder
+    is_correct?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type KnowledgeCheckAttemptMinOrderByAggregateInput = {
+    id?: SortOrder
+    knowledge_check_id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    answer?: SortOrder
+    is_correct?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -18047,10 +19540,33 @@ export namespace Prisma {
     deleteMany?: KnowledgeChecksScalarWhereInput | KnowledgeChecksScalarWhereInput[]
   }
 
+  export type KnowledgeChecksCreateoptionsInput = {
+    set: string[]
+  }
+
   export type LearningPhaseCreateNestedOneWithoutKnowledgeChecksInput = {
     create?: XOR<LearningPhaseCreateWithoutKnowledgeChecksInput, LearningPhaseUncheckedCreateWithoutKnowledgeChecksInput>
     connectOrCreate?: LearningPhaseCreateOrConnectWithoutKnowledgeChecksInput
     connect?: LearningPhaseWhereUniqueInput
+  }
+
+  export type KnowledgeCheckAttemptCreateNestedManyWithoutKnowledgeCheckInput = {
+    create?: XOR<KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput> | KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput[] | KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput[]
+    connectOrCreate?: KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput | KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput[]
+    createMany?: KnowledgeCheckAttemptCreateManyKnowledgeCheckInputEnvelope
+    connect?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+  }
+
+  export type KnowledgeCheckAttemptUncheckedCreateNestedManyWithoutKnowledgeCheckInput = {
+    create?: XOR<KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput> | KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput[] | KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput[]
+    connectOrCreate?: KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput | KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput[]
+    createMany?: KnowledgeCheckAttemptCreateManyKnowledgeCheckInputEnvelope
+    connect?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+  }
+
+  export type KnowledgeChecksUpdateoptionsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type EnumQuestion_TypeFieldUpdateOperationsInput = {
@@ -18063,6 +19579,48 @@ export namespace Prisma {
     upsert?: LearningPhaseUpsertWithoutKnowledgeChecksInput
     connect?: LearningPhaseWhereUniqueInput
     update?: XOR<XOR<LearningPhaseUpdateToOneWithWhereWithoutKnowledgeChecksInput, LearningPhaseUpdateWithoutKnowledgeChecksInput>, LearningPhaseUncheckedUpdateWithoutKnowledgeChecksInput>
+  }
+
+  export type KnowledgeCheckAttemptUpdateManyWithoutKnowledgeCheckNestedInput = {
+    create?: XOR<KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput> | KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput[] | KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput[]
+    connectOrCreate?: KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput | KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput[]
+    upsert?: KnowledgeCheckAttemptUpsertWithWhereUniqueWithoutKnowledgeCheckInput | KnowledgeCheckAttemptUpsertWithWhereUniqueWithoutKnowledgeCheckInput[]
+    createMany?: KnowledgeCheckAttemptCreateManyKnowledgeCheckInputEnvelope
+    set?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    disconnect?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    delete?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    connect?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    update?: KnowledgeCheckAttemptUpdateWithWhereUniqueWithoutKnowledgeCheckInput | KnowledgeCheckAttemptUpdateWithWhereUniqueWithoutKnowledgeCheckInput[]
+    updateMany?: KnowledgeCheckAttemptUpdateManyWithWhereWithoutKnowledgeCheckInput | KnowledgeCheckAttemptUpdateManyWithWhereWithoutKnowledgeCheckInput[]
+    deleteMany?: KnowledgeCheckAttemptScalarWhereInput | KnowledgeCheckAttemptScalarWhereInput[]
+  }
+
+  export type KnowledgeCheckAttemptUncheckedUpdateManyWithoutKnowledgeCheckNestedInput = {
+    create?: XOR<KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput> | KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput[] | KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput[]
+    connectOrCreate?: KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput | KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput[]
+    upsert?: KnowledgeCheckAttemptUpsertWithWhereUniqueWithoutKnowledgeCheckInput | KnowledgeCheckAttemptUpsertWithWhereUniqueWithoutKnowledgeCheckInput[]
+    createMany?: KnowledgeCheckAttemptCreateManyKnowledgeCheckInputEnvelope
+    set?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    disconnect?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    delete?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    connect?: KnowledgeCheckAttemptWhereUniqueInput | KnowledgeCheckAttemptWhereUniqueInput[]
+    update?: KnowledgeCheckAttemptUpdateWithWhereUniqueWithoutKnowledgeCheckInput | KnowledgeCheckAttemptUpdateWithWhereUniqueWithoutKnowledgeCheckInput[]
+    updateMany?: KnowledgeCheckAttemptUpdateManyWithWhereWithoutKnowledgeCheckInput | KnowledgeCheckAttemptUpdateManyWithWhereWithoutKnowledgeCheckInput[]
+    deleteMany?: KnowledgeCheckAttemptScalarWhereInput | KnowledgeCheckAttemptScalarWhereInput[]
+  }
+
+  export type KnowledgeChecksCreateNestedOneWithoutAttemptsInput = {
+    create?: XOR<KnowledgeChecksCreateWithoutAttemptsInput, KnowledgeChecksUncheckedCreateWithoutAttemptsInput>
+    connectOrCreate?: KnowledgeChecksCreateOrConnectWithoutAttemptsInput
+    connect?: KnowledgeChecksWhereUniqueInput
+  }
+
+  export type KnowledgeChecksUpdateOneRequiredWithoutAttemptsNestedInput = {
+    create?: XOR<KnowledgeChecksCreateWithoutAttemptsInput, KnowledgeChecksUncheckedCreateWithoutAttemptsInput>
+    connectOrCreate?: KnowledgeChecksCreateOrConnectWithoutAttemptsInput
+    upsert?: KnowledgeChecksUpsertWithoutAttemptsInput
+    connect?: KnowledgeChecksWhereUniqueInput
+    update?: XOR<XOR<KnowledgeChecksUpdateToOneWithWhereWithoutAttemptsInput, KnowledgeChecksUpdateWithoutAttemptsInput>, KnowledgeChecksUncheckedUpdateWithoutAttemptsInput>
   }
 
   export type LearningPhaseCreateNestedOneWithoutResourcesInput = {
@@ -19277,17 +20835,21 @@ export namespace Prisma {
   export type KnowledgeChecksCreateWithoutLearningPhaseInput = {
     id?: string
     question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
     correct_answer?: string | null
     explanation: string
     question_type: $Enums.Question_Type
+    attempts?: KnowledgeCheckAttemptCreateNestedManyWithoutKnowledgeCheckInput
   }
 
   export type KnowledgeChecksUncheckedCreateWithoutLearningPhaseInput = {
     id?: string
     question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
     correct_answer?: string | null
     explanation: string
     question_type: $Enums.Question_Type
+    attempts?: KnowledgeCheckAttemptUncheckedCreateNestedManyWithoutKnowledgeCheckInput
   }
 
   export type KnowledgeChecksCreateOrConnectWithoutLearningPhaseInput = {
@@ -19393,6 +20955,7 @@ export namespace Prisma {
     id?: StringFilter<"KnowledgeChecks"> | string
     phase_id?: StringFilter<"KnowledgeChecks"> | string
     question?: StringFilter<"KnowledgeChecks"> | string
+    options?: StringNullableListFilter<"KnowledgeChecks">
     correct_answer?: StringNullableFilter<"KnowledgeChecks"> | string | null
     explanation?: StringFilter<"KnowledgeChecks"> | string
     question_type?: EnumQuestion_TypeFilter<"KnowledgeChecks"> | $Enums.Question_Type
@@ -19431,6 +20994,36 @@ export namespace Prisma {
   export type LearningPhaseCreateOrConnectWithoutKnowledgeChecksInput = {
     where: LearningPhaseWhereUniqueInput
     create: XOR<LearningPhaseCreateWithoutKnowledgeChecksInput, LearningPhaseUncheckedCreateWithoutKnowledgeChecksInput>
+  }
+
+  export type KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type KnowledgeCheckAttemptCreateOrConnectWithoutKnowledgeCheckInput = {
+    where: KnowledgeCheckAttemptWhereUniqueInput
+    create: XOR<KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput>
+  }
+
+  export type KnowledgeCheckAttemptCreateManyKnowledgeCheckInputEnvelope = {
+    data: KnowledgeCheckAttemptCreateManyKnowledgeCheckInput | KnowledgeCheckAttemptCreateManyKnowledgeCheckInput[]
+    skipDuplicates?: boolean
   }
 
   export type LearningPhaseUpsertWithoutKnowledgeChecksInput = {
@@ -19472,6 +21065,92 @@ export namespace Prisma {
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resources?: ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput
+  }
+
+  export type KnowledgeCheckAttemptUpsertWithWhereUniqueWithoutKnowledgeCheckInput = {
+    where: KnowledgeCheckAttemptWhereUniqueInput
+    update: XOR<KnowledgeCheckAttemptUpdateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedUpdateWithoutKnowledgeCheckInput>
+    create: XOR<KnowledgeCheckAttemptCreateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedCreateWithoutKnowledgeCheckInput>
+  }
+
+  export type KnowledgeCheckAttemptUpdateWithWhereUniqueWithoutKnowledgeCheckInput = {
+    where: KnowledgeCheckAttemptWhereUniqueInput
+    data: XOR<KnowledgeCheckAttemptUpdateWithoutKnowledgeCheckInput, KnowledgeCheckAttemptUncheckedUpdateWithoutKnowledgeCheckInput>
+  }
+
+  export type KnowledgeCheckAttemptUpdateManyWithWhereWithoutKnowledgeCheckInput = {
+    where: KnowledgeCheckAttemptScalarWhereInput
+    data: XOR<KnowledgeCheckAttemptUpdateManyMutationInput, KnowledgeCheckAttemptUncheckedUpdateManyWithoutKnowledgeCheckInput>
+  }
+
+  export type KnowledgeCheckAttemptScalarWhereInput = {
+    AND?: KnowledgeCheckAttemptScalarWhereInput | KnowledgeCheckAttemptScalarWhereInput[]
+    OR?: KnowledgeCheckAttemptScalarWhereInput[]
+    NOT?: KnowledgeCheckAttemptScalarWhereInput | KnowledgeCheckAttemptScalarWhereInput[]
+    id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    knowledge_check_id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    user_email?: StringFilter<"KnowledgeCheckAttempt"> | string
+    project_id?: StringFilter<"KnowledgeCheckAttempt"> | string
+    answer?: StringFilter<"KnowledgeCheckAttempt"> | string
+    is_correct?: BoolFilter<"KnowledgeCheckAttempt"> | boolean
+    created_at?: DateTimeFilter<"KnowledgeCheckAttempt"> | Date | string
+    updated_at?: DateTimeFilter<"KnowledgeCheckAttempt"> | Date | string
+  }
+
+  export type KnowledgeChecksCreateWithoutAttemptsInput = {
+    id?: string
+    question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
+    correct_answer?: string | null
+    explanation: string
+    question_type: $Enums.Question_Type
+    learningPhase: LearningPhaseCreateNestedOneWithoutKnowledgeChecksInput
+  }
+
+  export type KnowledgeChecksUncheckedCreateWithoutAttemptsInput = {
+    id?: string
+    phase_id: string
+    question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
+    correct_answer?: string | null
+    explanation: string
+    question_type: $Enums.Question_Type
+  }
+
+  export type KnowledgeChecksCreateOrConnectWithoutAttemptsInput = {
+    where: KnowledgeChecksWhereUniqueInput
+    create: XOR<KnowledgeChecksCreateWithoutAttemptsInput, KnowledgeChecksUncheckedCreateWithoutAttemptsInput>
+  }
+
+  export type KnowledgeChecksUpsertWithoutAttemptsInput = {
+    update: XOR<KnowledgeChecksUpdateWithoutAttemptsInput, KnowledgeChecksUncheckedUpdateWithoutAttemptsInput>
+    create: XOR<KnowledgeChecksCreateWithoutAttemptsInput, KnowledgeChecksUncheckedCreateWithoutAttemptsInput>
+    where?: KnowledgeChecksWhereInput
+  }
+
+  export type KnowledgeChecksUpdateToOneWithWhereWithoutAttemptsInput = {
+    where?: KnowledgeChecksWhereInput
+    data: XOR<KnowledgeChecksUpdateWithoutAttemptsInput, KnowledgeChecksUncheckedUpdateWithoutAttemptsInput>
+  }
+
+  export type KnowledgeChecksUpdateWithoutAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
+    correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
+    explanation?: StringFieldUpdateOperationsInput | string
+    question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+    learningPhase?: LearningPhaseUpdateOneRequiredWithoutKnowledgeChecksNestedInput
+  }
+
+  export type KnowledgeChecksUncheckedUpdateWithoutAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_id?: StringFieldUpdateOperationsInput | string
+    question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
+    correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
+    explanation?: StringFieldUpdateOperationsInput | string
+    question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
   }
 
   export type LearningPhaseCreateWithoutResourcesInput = {
@@ -19888,6 +21567,7 @@ export namespace Prisma {
   export type KnowledgeChecksCreateManyLearningPhaseInput = {
     id?: string
     question: string
+    options?: KnowledgeChecksCreateoptionsInput | string[]
     correct_answer?: string | null
     explanation: string
     question_type: $Enums.Question_Type
@@ -19931,25 +21611,70 @@ export namespace Prisma {
   export type KnowledgeChecksUpdateWithoutLearningPhaseInput = {
     id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+    attempts?: KnowledgeCheckAttemptUpdateManyWithoutKnowledgeCheckNestedInput
   }
 
   export type KnowledgeChecksUncheckedUpdateWithoutLearningPhaseInput = {
     id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+    attempts?: KnowledgeCheckAttemptUncheckedUpdateManyWithoutKnowledgeCheckNestedInput
   }
 
   export type KnowledgeChecksUncheckedUpdateManyWithoutLearningPhaseInput = {
     id?: StringFieldUpdateOperationsInput | string
     question?: StringFieldUpdateOperationsInput | string
+    options?: KnowledgeChecksUpdateoptionsInput | string[]
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+  }
+
+  export type KnowledgeCheckAttemptCreateManyKnowledgeCheckInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    answer: string
+    is_correct: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type KnowledgeCheckAttemptUpdateWithoutKnowledgeCheckInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KnowledgeCheckAttemptUncheckedUpdateWithoutKnowledgeCheckInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KnowledgeCheckAttemptUncheckedUpdateManyWithoutKnowledgeCheckInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    is_correct?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResourceProgressCreateManyResourceInput = {
