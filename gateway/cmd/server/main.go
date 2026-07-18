@@ -2,6 +2,7 @@ package main
 
 import (
 	"gateway/internal/config"
+	"gateway/internal/health"
 	"gateway/internal/router"
 	"log"
 	"net/http"
@@ -12,9 +13,11 @@ func main() {
 	app := config.InitFirebase()
 
 	r := router.New(app, cfg)
+	health.CheckDependencies(cfg)
 
-	log.Println("Starting server on :8081")
-	if err := http.ListenAndServe(":8081", r); err != nil {
+	address := ":" + cfg.Port
+	log.Printf("Starting server on %s", address)
+	if err := http.ListenAndServe(address, r); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
