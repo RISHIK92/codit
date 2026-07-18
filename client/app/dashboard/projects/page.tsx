@@ -8,6 +8,7 @@ import {
   getAllCatalogueProjects,
   type CatalogueProjectDTO,
 } from "@/lib/api/projectsApi";
+import { getQuizAverages } from "@/lib/api/knowledgeCheckApi";
 
 type SkillLevel = "beginner" | "intermediate" | "advanced";
 
@@ -32,27 +33,56 @@ const SKILL_META: Record<
   },
 };
 
-const LOCK_RULES: Record<
-  SkillLevel,
-  { title: string; requirements: string[] } | null
-> = {
-  beginner: null, // always unlocked
-  intermediate: {
-    title: "Intermediate Locked",
-    requirements: [
-      "Complete at least 1 beginner project",
-      "Quiz average > 80%",
-    ],
-  },
-  advanced: {
+interface LockRequirement {
+  text: string;
+  met: boolean;
+}
+
+interface LockProgress {
+  completedBeginnerCount: number;
+  completedIntermediateCount: number;
+  beginnerQuizAvg: number;
+  intermediateQuizAvg: number;
+}
+
+function getLockRequirements(
+  level: SkillLevel,
+  progress: LockProgress,
+): { title: string; requirements: LockRequirement[] } | null {
+  if (level === "beginner") return null; // always unlocked
+  if (level === "intermediate") {
+    return {
+      title: "Intermediate Locked",
+      requirements: [
+        {
+          text: `Complete at least 1 beginner project (${Math.min(progress.completedBeginnerCount, 1)}/1)`,
+          met: progress.completedBeginnerCount >= 1,
+        },
+        {
+          text: `Quiz average > 80% (currently ${Math.round(progress.beginnerQuizAvg)}%)`,
+          met: progress.beginnerQuizAvg > 80,
+        },
+      ],
+    };
+  }
+  return {
     title: "Advanced Locked",
     requirements: [
-      "Complete 2 intermediate projects",
-      "Quiz average > 80%",
-      "Build at least 1 custom feature in any intermediate project",
+      {
+        text: `Complete 2 intermediate projects (${Math.min(progress.completedIntermediateCount, 2)}/2)`,
+        met: progress.completedIntermediateCount >= 2,
+      },
+      {
+        text: `Quiz average > 80% (currently ${Math.round(progress.intermediateQuizAvg)}%)`,
+        met: progress.intermediateQuizAvg > 80,
+      },
+      {
+        text: "Build at least 1 custom feature in any intermediate project (coming soon — not yet enforced)",
+        met: false,
+      },
     ],
-  },
-};
+  };
+}
 
 function formatTime(minutes: number) {
   const h = Math.floor(minutes / 60);
@@ -83,12 +113,14 @@ function LockIcon({ className }: { className?: string }) {
 // ─── Lock Modal ───────────────────────────────────────────────────────────────
 function LockModal({
   level,
+  progress,
   onClose,
 }: {
   level: SkillLevel;
+  progress: LockProgress;
   onClose: () => void;
 }) {
-  const rule = LOCK_RULES[level];
+  const rule = getLockRequirements(level, progress);
   if (!rule) return null;
 
   const levelMeta = SKILL_META[level];
@@ -148,11 +180,39 @@ function LockModal({
         <ul className="relative z-10 flex flex-col gap-3">
           {rule.requirements.map((req, i) => (
             <li key={i} className="flex items-start gap-3">
-              <span className="mt-0.5 w-4 h-4 rounded-sm border border-border-s bg-void flex items-center justify-center shrink-0">
-                <LockIcon className="w-2.5 h-2.5 text-txt-ghost" />
+              <span
+                className={`mt-0.5 w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 ${
+                  req.met
+                    ? "border-success/40 bg-success/10"
+                    : "border-border-s bg-void"
+                }`}
+              >
+                {req.met ? (
+                  <svg
+                    width="9"
+                    height="9"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    className="text-success"
+                  >
+                    <path
+                      d="M2 7l3.5 3.5L12 3.5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : (
+                  <LockIcon className="w-2.5 h-2.5 text-txt-ghost" />
+                )}
               </span>
-              <span className="font-(family-name:--font-dm) text-[12px] text-txt-muted leading-relaxed">
-                {req}
+              <span
+                className={`font-(family-name:--font-dm) text-[12px] leading-relaxed ${
+                  req.met ? "text-txt" : "text-txt-muted"
+                }`}
+              >
+                {req.text}
               </span>
             </li>
           ))}
@@ -183,6 +243,9 @@ export default function ProjectsBrowsePage() {
   const [catalogueLoading, setCatalogueLoading] = useState(true);
   const [catalogueError, setCatalogueError] = useState<string | null>(null);
   const [lockedModal, setLockedModal] = useState<SkillLevel | null>(null);
+  const [quizAverages, setQuizAverages] = useState<
+    Record<string, number>
+  >({});
 
   // Fetch catalogue
   useEffect(() => {
@@ -204,6 +267,23 @@ export default function ProjectsBrowsePage() {
       user.getIdToken().then((token) => fetchUserProjects(token));
     }
   }, [loading, user, fetchUserProjects]);
+
+  // Fetch quiz averages per skill level (needed for lock logic)
+  useEffect(() => {
+    if (!loading && user) {
+      user.getIdToken().then((token) =>
+        getQuizAverages(token)
+          .then(({ averages }) => {
+            const byLevel: Record<string, number> = {};
+            for (const a of averages) byLevel[a.skill_level] = a.average_pct;
+            setQuizAverages(byLevel);
+          })
+          .catch(() => {
+            // Non-fatal: lock logic just treats missing averages as 0%.
+          }),
+      );
+    }
+  }, [loading, user]);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -247,20 +327,15 @@ export default function ProjectsBrowsePage() {
   }
 
   // ── Lock logic ─────────────────────────────────────────────────────────────
+  // Two independent paths unlock a level: the entrance test can place a user
+  // above it outright, or they can progress into it by completing enough
+  // projects (+ quiz average) at the level below.
   const userSkill = (profile?.skill_level as SkillLevel) || "beginner";
-
-  const completedByLevel = {
-    beginner: userProjects.filter(
-      (p) => p.status === "completed" && /* level looked up below */ true,
-    ).length,
-    intermediate: 0,
-    advanced: 0,
+  const SKILL_ORDER: Record<SkillLevel, number> = {
+    beginner: 0,
+    intermediate: 1,
+    advanced: 2,
   };
-  // We don't have skill_level on UserProjectDTO yet, so approximate:
-  // A project is "beginner-completed" if the user has ANY completed project.
-  const completedProjectCount = userProjects.filter(
-    (p) => p.status === "completed",
-  ).length;
 
   // Count completed projects per catalogue level by joining with projects list
   const completedBeginnerCount = userProjects.filter((up) => {
@@ -275,17 +350,21 @@ export default function ProjectsBrowsePage() {
     return catalogueProject?.skill_level === "intermediate";
   }).length;
 
+  const beginnerQuizAvg = quizAverages["beginner"] ?? 0;
+  const intermediateQuizAvg = quizAverages["intermediate"] ?? 0;
+
   function isLocked(projectLevel: string): boolean {
     const level = projectLevel as SkillLevel;
-    if (userSkill === "advanced") return false; // advanced users unlock everything
-    if (userSkill === "intermediate") {
-      if (level === "beginner") return false;
-      if (level === "intermediate") return false;
-      if (level === "advanced") return true;
+    if (level === "beginner") return false; // always unlocked
+
+    // Entrance-test placement shortcut: placed at or above this level.
+    if (SKILL_ORDER[userSkill] >= SKILL_ORDER[level]) return false;
+
+    if (level === "intermediate") {
+      return !(completedBeginnerCount >= 1 && beginnerQuizAvg > 80);
     }
-    // beginner users: only beginner unlocked
-    if (userSkill === "beginner") {
-      return level !== "beginner";
+    if (level === "advanced") {
+      return !(completedIntermediateCount >= 2 && intermediateQuizAvg > 80);
     }
     return false;
   }
@@ -312,7 +391,16 @@ export default function ProjectsBrowsePage() {
     <>
       {/* Lock modal */}
       {lockedModal && (
-        <LockModal level={lockedModal} onClose={() => setLockedModal(null)} />
+        <LockModal
+          level={lockedModal}
+          progress={{
+            completedBeginnerCount,
+            completedIntermediateCount,
+            beginnerQuizAvg,
+            intermediateQuizAvg,
+          }}
+          onClose={() => setLockedModal(null)}
+        />
       )}
 
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen">
