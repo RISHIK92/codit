@@ -17,6 +17,9 @@ import { resourceProgressHandler } from "./src/handlers/resourceProgressHandler"
 import { ResourceProgressServiceService } from "./src/generated/resourceProgress";
 import { knowledgeCheckHandler } from "./src/handlers/knowledgeCheckHandler";
 import { KnowledgeCheckServiceService } from "./src/generated/knowledgeCheck";
+import { createLogger } from "../shared/src/index";
+
+const logger = createLogger("user-service");
 
 const startServer = () => {
   const server = new grpc.Server();
@@ -55,10 +58,10 @@ const startServer = () => {
     grpc.ServerCredentials.createInsecure(),
     (error, port) => {
       if (error) {
-        console.error(`Failed to bind server: ${error.message}`);
+        logger.error({ err: error.message }, "Failed to bind server");
         return;
       }
-      console.log(`Node.js User Service running via gRPC on ${URI}`);
+      logger.info({ uri: URI }, "User Service running via gRPC");
     },
   );
 };
