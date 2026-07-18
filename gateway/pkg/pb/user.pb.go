@@ -180,10 +180,16 @@ func (x *LoginUserRequest) GetBio() string {
 }
 
 type LoginUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	// Onboarding status, returned inline so the client can route straight to
+	// /onboarding or /dashboard after login without a separate profile fetch.
+	IsNew              bool   `protobuf:"varint,2,opt,name=is_new,json=isNew,proto3" json:"is_new,omitempty"`
+	SkillLevel         string `protobuf:"bytes,3,opt,name=skill_level,json=skillLevel,proto3" json:"skill_level,omitempty"`                           // "" if not set yet
+	EntranceTestStatus string `protobuf:"bytes,4,opt,name=entrance_test_status,json=entranceTestStatus,proto3" json:"entrance_test_status,omitempty"` // "" | "in_progress" | "completed"
+	EntranceTestRound  int32  `protobuf:"varint,5,opt,name=entrance_test_round,json=entranceTestRound,proto3" json:"entrance_test_round,omitempty"`   // meaningful only when status != ""
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *LoginUserResponse) Reset() {
@@ -221,6 +227,34 @@ func (x *LoginUserResponse) GetSuccess() bool {
 		return x.Success
 	}
 	return false
+}
+
+func (x *LoginUserResponse) GetIsNew() bool {
+	if x != nil {
+		return x.IsNew
+	}
+	return false
+}
+
+func (x *LoginUserResponse) GetSkillLevel() string {
+	if x != nil {
+		return x.SkillLevel
+	}
+	return ""
+}
+
+func (x *LoginUserResponse) GetEntranceTestStatus() string {
+	if x != nil {
+		return x.EntranceTestStatus
+	}
+	return ""
+}
+
+func (x *LoginUserResponse) GetEntranceTestRound() int32 {
+	if x != nil {
+		return x.EntranceTestRound
+	}
+	return 0
 }
 
 type GetUserProfileRequest struct {
@@ -485,9 +519,14 @@ const file_user_proto_rawDesc = "" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x10\n" +
-	"\x03bio\x18\x05 \x01(\tR\x03bio\"-\n" +
+	"\x03bio\x18\x05 \x01(\tR\x03bio\"\xc7\x01\n" +
 	"\x11LoginUserResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"-\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x15\n" +
+	"\x06is_new\x18\x02 \x01(\bR\x05isNew\x12\x1f\n" +
+	"\vskill_level\x18\x03 \x01(\tR\n" +
+	"skillLevel\x120\n" +
+	"\x14entrance_test_status\x18\x04 \x01(\tR\x12entranceTestStatus\x12.\n" +
+	"\x13entrance_test_round\x18\x05 \x01(\x05R\x11entranceTestRound\"-\n" +
 	"\x15GetUserProfileRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"\xd9\x01\n" +
 	"\x16GetUserProfileResponse\x12\x10\n" +
