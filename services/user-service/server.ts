@@ -1,3 +1,4 @@
+import "./src/config/loadEnv";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import { ReflectionService } from "@grpc/reflection";
@@ -14,6 +15,8 @@ import { FileServiceService } from "./src/generated/file";
 import { fileHandler } from "./src/handlers/fileHandler";
 import { resourceProgressHandler } from "./src/handlers/resourceProgressHandler";
 import { ResourceProgressServiceService } from "./src/generated/resourceProgress";
+import { knowledgeCheckHandler } from "./src/handlers/knowledgeCheckHandler";
+import { KnowledgeCheckServiceService } from "./src/generated/knowledgeCheck";
 
 const startServer = () => {
   const server = new grpc.Server();
@@ -24,11 +27,15 @@ const startServer = () => {
   server.addService(EntranceTestServiceService, entranceTestHandler);
   server.addService(FileServiceService, fileHandler);
   server.addService(ResourceProgressServiceService, resourceProgressHandler);
+  server.addService(KnowledgeCheckServiceService, knowledgeCheckHandler);
 
   // Reflection Configuration
+  // Anchored on cwd (always this service's own directory, via npm scripts),
+  // not __dirname — __dirname differs by one level between the compiled
+  // dist/<service>/server.js and running server.ts directly (ts-node-dev).
   const PROTO_PATH = path.join(
-    __dirname,
-    "../../../../shared/proto/user.proto",
+    process.cwd(),
+    "../../shared/proto/user.proto",
   );
   const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
