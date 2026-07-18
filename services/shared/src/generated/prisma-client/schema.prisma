@@ -128,11 +128,29 @@ model KnowledgeChecks {
   id             String        @unique @default(uuid())
   phase_id       String
   question       String
+  options        String[]      @default([])
   correct_answer String?
   explanation    String
   question_type  Question_Type
 
-  learningPhase LearningPhase @relation(fields: [phase_id], references: [id])
+  learningPhase LearningPhase           @relation(fields: [phase_id], references: [id])
+  attempts      KnowledgeCheckAttempt[]
+}
+
+model KnowledgeCheckAttempt {
+  id                 String   @id @default(uuid())
+  knowledge_check_id String
+  user_email         String
+  project_id         String
+  answer             String
+  is_correct         Boolean
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  knowledgeCheck KnowledgeChecks @relation(fields: [knowledge_check_id], references: [id])
+
+  @@unique([knowledge_check_id, user_email])
+  @@index([user_email, project_id])
 }
 
 model Resources {
