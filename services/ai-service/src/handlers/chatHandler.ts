@@ -1,4 +1,5 @@
 import * as grpc from "@grpc/grpc-js";
+import { randomUUID } from "crypto";
 import {
   AiServiceServer,
   ChatRequest,
@@ -9,12 +10,22 @@ import {
   getFileContent,
   listProjectFilePaths,
 } from "../clients/contextClients";
-import { getChatProvider, ChatTurn, ToolDefinition } from "../providers";
+import {
+  getChatProvider,
+  ChatTurn,
+  ToolDefinition,
+  ChatCompletionResult,
+} from "../providers";
 import { getImportGraph } from "../graph/graphCache";
+import { createLogger } from "../../../shared/src/index";
+
+const logger = createLogger("ai-service");
 
 const MAX_TOOL_ROUNDS = 4;
 const MAX_FILE_FETCHES = 6;
 const FILE_CONTENT_CHAR_LIMIT = 4000;
+
+type ChatStream = grpc.ServerWritableStream<ChatRequest, ChatResponse>;
 
 const TOOLS: ToolDefinition[] = [
   {
@@ -70,20 +81,60 @@ const TOOLS: ToolDefinition[] = [
   },
 ];
 
+/** Mutable per-request counters threaded through tool execution. */
+interface RequestMetrics {
+  fetches: number;
+  networkMs: number;
+  llmCalls: number;
+  llmMs: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+function newMetrics(): RequestMetrics {
+  return {
+    fetches: 0,
+    networkMs: 0,
+    llmCalls: 0,
+    llmMs: 0,
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0,
+  };
+}
+
+async function timed<T>(
+  metrics: RequestMetrics,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const start = Date.now();
+  const result = await fn();
+  metrics.networkMs += Date.now() - start;
+  return result;
+}
+
+function getRequestId(call: ChatStream): string {
+  const value = call.metadata.get("x-request-id")[0];
+  return typeof value === "string" && value ? value : randomUUID();
+}
+
 async function runTool(
   name: string,
   rawArgs: string,
   projectId: string,
   userEmail: string,
-  fetchCount: { n: number },
+  metrics: RequestMetrics,
 ): Promise<string> {
   if (name === "list_files") {
-    const paths = await listProjectFilePaths(projectId, userEmail);
+    const paths = await timed(metrics, () =>
+      listProjectFilePaths(projectId, userEmail),
+    );
     return paths.length ? paths.join("\n") : "(no files found)";
   }
 
   if (name === "read_file") {
-    if (fetchCount.n >= MAX_FILE_FETCHES) {
+    if (metrics.fetches >= MAX_FILE_FETCHES) {
       return "Too many files requested this turn — answer with what you already have.";
     }
     let filePath = "";
@@ -93,9 +144,11 @@ async function runTool(
       return "Invalid arguments for read_file.";
     }
     if (!filePath) return "filePath is required.";
-    const content = await getFileContent(projectId, userEmail, filePath);
+    const content = await timed(metrics, () =>
+      getFileContent(projectId, userEmail, filePath),
+    );
     if (content === null) return `File not found: ${filePath}`;
-    fetchCount.n += 1;
+    metrics.fetches += 1;
     return content.slice(0, FILE_CONTENT_CHAR_LIMIT);
   }
 
@@ -108,7 +161,9 @@ async function runTool(
     }
     if (!filePath) return "filePath is required.";
 
-    const graph = await getImportGraph(projectId, userEmail);
+    const graph = await timed(metrics, () =>
+      getImportGraph(projectId, userEmail),
+    );
     const result =
       name === "get_imports"
         ? graph.imports.get(filePath)
@@ -127,19 +182,59 @@ async function runTool(
   return `Unknown tool: ${name}`;
 }
 
-export const aiServiceHandler: AiServiceServer = {
-  chat: async (
-    call: grpc.ServerUnaryCall<ChatRequest, ChatResponse>,
-    callback: grpc.sendUnaryData<ChatResponse>,
-  ) => {
-    try {
-      const { userEmail, projectId, activeFilePath, message, history, mode } =
-        call.request;
+/**
+ * Wraps a streaming provider call, forwarding every text delta straight to
+ * the gRPC stream as it arrives, and folding duration/token usage into
+ * `metrics`. Tool-call rounds naturally produce no content deltas (the model
+ * emits tool_calls, not content), so this one path covers both — only the
+ * round where the model actually answers ends up streaming anything.
+ */
+async function callLlmStreaming(
+  call: ChatStream,
+  metrics: RequestMetrics,
+  fn: (onDelta: (text: string) => void) => Promise<ChatCompletionResult>,
+) {
+  const result = await fn((text) => call.write({ reply: text }));
+  metrics.llmCalls += 1;
+  metrics.llmMs += result.durationMs;
+  if (result.usage) {
+    metrics.promptTokens += result.usage.promptTokens;
+    metrics.completionTokens += result.usage.completionTokens;
+    metrics.totalTokens += result.usage.totalTokens;
+  }
+  return result;
+}
 
+export const aiServiceHandler: AiServiceServer = {
+  chat: async (call: ChatStream) => {
+    const requestId = getRequestId(call);
+    const requestStart = Date.now();
+    const metrics = newMetrics();
+    const { userEmail, projectId, activeFilePath, message, history, mode } =
+      call.request;
+
+    const logSummary = (extra: Record<string, unknown> = {}) => {
+      logger.info({
+        requestId,
+        mode: mode || "chat",
+        projectId,
+        userEmail,
+        totalMs: Date.now() - requestStart,
+        llmCalls: metrics.llmCalls,
+        llmMs: metrics.llmMs,
+        networkMs: metrics.networkMs,
+        promptTokens: metrics.promptTokens,
+        completionTokens: metrics.completionTokens,
+        totalTokens: metrics.totalTokens,
+        ...extra,
+      }, "ai_chat_request");
+    };
+
+    try {
       // ── "explain" mode: tier-1 function explainer — cheap, fast, no extra
       // context fetching. The client already hands us the exact line the
       // word came from in `message`, so there's no user-service/file-service
-      // round trip and no agentic loop, just one direct completion call.
+      // round trip and no agentic loop, just one direct streaming call.
       if (mode === "explain") {
         const explainSystemPrompt = [
           "You are a concise coding tutor inside a learn-by-doing IDE called Codit.",
@@ -148,21 +243,25 @@ export const aiServiceHandler: AiServiceServer = {
         ].join("\n");
 
         const provider = getChatProvider();
-        const result = await provider.getChatCompletion(
-          [
-            { role: "system", content: explainSystemPrompt },
-            { role: "user", content: message },
-          ],
-          undefined,
-          60,
+        await callLlmStreaming(call, metrics, (onDelta) =>
+          provider.getChatCompletionStream(
+            [
+              { role: "system", content: explainSystemPrompt },
+              { role: "user", content: message },
+            ],
+            onDelta,
+            undefined,
+            60,
+          ),
         );
-        callback(null, { reply: result.content ?? "" });
+        call.end();
+        logSummary();
         return;
       }
 
       const [profile, fileContent] = await Promise.all([
-        getUserProfile(userEmail),
-        getFileContent(projectId, userEmail, activeFilePath),
+        timed(metrics, () => getUserProfile(userEmail)),
+        timed(metrics, () => getFileContent(projectId, userEmail, activeFilePath)),
       ]);
 
       const contextLines = [
@@ -189,16 +288,13 @@ export const aiServiceHandler: AiServiceServer = {
       ];
 
       const provider = getChatProvider();
-      const fetchCount = { n: 0 };
-      let reply = "";
 
       for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-        const result = await provider.getChatCompletion(messages, TOOLS);
+        const result = await callLlmStreaming(call, metrics, (onDelta) =>
+          provider.getChatCompletionStream(messages, onDelta, TOOLS),
+        );
 
-        if (!result.toolCalls?.length) {
-          reply = result.content ?? "";
-          break;
-        }
+        if (!result.toolCalls?.length) break;
 
         messages.push({
           role: "assistant",
@@ -212,7 +308,7 @@ export const aiServiceHandler: AiServiceServer = {
             tc.arguments,
             projectId,
             userEmail,
-            fetchCount,
+            metrics,
           );
           messages.push({
             role: "tool",
@@ -223,14 +319,17 @@ export const aiServiceHandler: AiServiceServer = {
 
         if (round === MAX_TOOL_ROUNDS - 1) {
           // Out of rounds — force a final answer with whatever context was gathered.
-          const final = await provider.getChatCompletion(messages);
-          reply = final.content ?? "";
+          await callLlmStreaming(call, metrics, (onDelta) =>
+            provider.getChatCompletionStream(messages, onDelta),
+          );
         }
       }
 
-      callback(null, { reply });
+      call.end();
+      logSummary();
     } catch (err: any) {
-      callback({ code: grpc.status.INTERNAL, message: err.message }, null);
+      logSummary({ error: err.message });
+      call.emit("error", { code: grpc.status.INTERNAL, message: err.message });
     }
   },
 };
