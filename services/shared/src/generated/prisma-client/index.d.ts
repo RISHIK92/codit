@@ -3354,6 +3354,7 @@ export namespace Prisma {
     demo_url: number
     estimated_minutes: number
     initial_files: number
+    prerequisite_ids: number
     createdAt: number
     _all: number
   }
@@ -3396,6 +3397,7 @@ export namespace Prisma {
     demo_url?: true
     estimated_minutes?: true
     initial_files?: true
+    prerequisite_ids?: true
     createdAt?: true
     _all?: true
   }
@@ -3495,6 +3497,7 @@ export namespace Prisma {
     demo_url: string | null
     estimated_minutes: number
     initial_files: JsonValue | null
+    prerequisite_ids: string[]
     createdAt: Date
     _count: ProjectsCountAggregateOutputType | null
     _avg: ProjectsAvgAggregateOutputType | null
@@ -3526,6 +3529,7 @@ export namespace Prisma {
     demo_url?: boolean
     estimated_minutes?: boolean
     initial_files?: boolean
+    prerequisite_ids?: boolean
     createdAt?: boolean
     learningPhases?: boolean | Projects$learningPhasesArgs<ExtArgs>
     userProjects?: boolean | Projects$userProjectsArgs<ExtArgs>
@@ -3542,6 +3546,7 @@ export namespace Prisma {
     demo_url?: boolean
     estimated_minutes?: boolean
     initial_files?: boolean
+    prerequisite_ids?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["projects"]>
 
@@ -3554,6 +3559,7 @@ export namespace Prisma {
     demo_url?: boolean
     estimated_minutes?: boolean
     initial_files?: boolean
+    prerequisite_ids?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["projects"]>
 
@@ -3566,10 +3572,11 @@ export namespace Prisma {
     demo_url?: boolean
     estimated_minutes?: boolean
     initial_files?: boolean
+    prerequisite_ids?: boolean
     createdAt?: boolean
   }
 
-  export type ProjectsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "tech_stack" | "skill_level" | "goal" | "demo_url" | "estimated_minutes" | "initial_files" | "createdAt", ExtArgs["result"]["projects"]>
+  export type ProjectsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "tech_stack" | "skill_level" | "goal" | "demo_url" | "estimated_minutes" | "initial_files" | "prerequisite_ids" | "createdAt", ExtArgs["result"]["projects"]>
   export type ProjectsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     learningPhases?: boolean | Projects$learningPhasesArgs<ExtArgs>
     userProjects?: boolean | Projects$userProjectsArgs<ExtArgs>
@@ -3595,6 +3602,10 @@ export namespace Prisma {
       demo_url: string | null
       estimated_minutes: number
       initial_files: Prisma.JsonValue | null
+      /**
+       * * Ids of Projects that must be completed before this one is unlockable.
+       */
+      prerequisite_ids: string[]
       createdAt: Date
     }, ExtArgs["result"]["projects"]>
     composites: {}
@@ -4030,6 +4041,7 @@ export namespace Prisma {
     readonly demo_url: FieldRef<"Projects", 'String'>
     readonly estimated_minutes: FieldRef<"Projects", 'Int'>
     readonly initial_files: FieldRef<"Projects", 'Json'>
+    readonly prerequisite_ids: FieldRef<"Projects", 'String[]'>
     readonly createdAt: FieldRef<"Projects", 'DateTime'>
   }
     
@@ -15796,6 +15808,7 @@ export namespace Prisma {
     demo_url: 'demo_url',
     estimated_minutes: 'estimated_minutes',
     initial_files: 'initial_files',
+    prerequisite_ids: 'prerequisite_ids',
     createdAt: 'createdAt'
   };
 
@@ -16241,6 +16254,7 @@ export namespace Prisma {
     demo_url?: StringNullableFilter<"Projects"> | string | null
     estimated_minutes?: IntFilter<"Projects"> | number
     initial_files?: JsonNullableFilter<"Projects">
+    prerequisite_ids?: StringNullableListFilter<"Projects">
     createdAt?: DateTimeFilter<"Projects"> | Date | string
     learningPhases?: LearningPhaseListRelationFilter
     userProjects?: UserProjectsListRelationFilter
@@ -16256,6 +16270,7 @@ export namespace Prisma {
     demo_url?: SortOrderInput | SortOrder
     estimated_minutes?: SortOrder
     initial_files?: SortOrderInput | SortOrder
+    prerequisite_ids?: SortOrder
     createdAt?: SortOrder
     learningPhases?: LearningPhaseOrderByRelationAggregateInput
     userProjects?: UserProjectsOrderByRelationAggregateInput
@@ -16274,6 +16289,7 @@ export namespace Prisma {
     demo_url?: StringNullableFilter<"Projects"> | string | null
     estimated_minutes?: IntFilter<"Projects"> | number
     initial_files?: JsonNullableFilter<"Projects">
+    prerequisite_ids?: StringNullableListFilter<"Projects">
     createdAt?: DateTimeFilter<"Projects"> | Date | string
     learningPhases?: LearningPhaseListRelationFilter
     userProjects?: UserProjectsListRelationFilter
@@ -16289,6 +16305,7 @@ export namespace Prisma {
     demo_url?: SortOrderInput | SortOrder
     estimated_minutes?: SortOrder
     initial_files?: SortOrderInput | SortOrder
+    prerequisite_ids?: SortOrder
     createdAt?: SortOrder
     _count?: ProjectsCountOrderByAggregateInput
     _avg?: ProjectsAvgOrderByAggregateInput
@@ -16309,6 +16326,7 @@ export namespace Prisma {
     demo_url?: StringNullableWithAggregatesFilter<"Projects"> | string | null
     estimated_minutes?: IntWithAggregatesFilter<"Projects"> | number
     initial_files?: JsonNullableWithAggregatesFilter<"Projects">
+    prerequisite_ids?: StringNullableListFilter<"Projects">
     createdAt?: DateTimeWithAggregatesFilter<"Projects"> | Date | string
   }
 
@@ -17130,6 +17148,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     learningPhases?: LearningPhaseCreateNestedManyWithoutProjectInput
     userProjects?: UserProjectsCreateNestedManyWithoutProjectsInput
@@ -17145,6 +17164,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     learningPhases?: LearningPhaseUncheckedCreateNestedManyWithoutProjectInput
     userProjects?: UserProjectsUncheckedCreateNestedManyWithoutProjectsInput
@@ -17160,6 +17180,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     learningPhases?: LearningPhaseUpdateManyWithoutProjectNestedInput
     userProjects?: UserProjectsUpdateManyWithoutProjectsNestedInput
@@ -17175,6 +17196,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     learningPhases?: LearningPhaseUncheckedUpdateManyWithoutProjectNestedInput
     userProjects?: UserProjectsUncheckedUpdateManyWithoutProjectsNestedInput
@@ -17190,6 +17212,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
   }
 
@@ -17202,6 +17225,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17214,6 +17238,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18263,6 +18288,7 @@ export namespace Prisma {
     demo_url?: SortOrder
     estimated_minutes?: SortOrder
     initial_files?: SortOrder
+    prerequisite_ids?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -19141,6 +19167,10 @@ export namespace Prisma {
     set: string[]
   }
 
+  export type ProjectsCreateprerequisite_idsInput = {
+    set: string[]
+  }
+
   export type LearningPhaseCreateNestedManyWithoutProjectInput = {
     create?: XOR<LearningPhaseCreateWithoutProjectInput, LearningPhaseUncheckedCreateWithoutProjectInput> | LearningPhaseCreateWithoutProjectInput[] | LearningPhaseUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: LearningPhaseCreateOrConnectWithoutProjectInput | LearningPhaseCreateOrConnectWithoutProjectInput[]
@@ -19198,6 +19228,11 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type ProjectsUpdateprerequisite_idsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type LearningPhaseUpdateManyWithoutProjectNestedInput = {
@@ -20392,6 +20427,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     learningPhases?: LearningPhaseCreateNestedManyWithoutProjectInput
     userProjects?: UserProjectsCreateNestedManyWithoutProjectsInput
@@ -20406,6 +20442,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     learningPhases?: LearningPhaseUncheckedCreateNestedManyWithoutProjectInput
     userProjects?: UserProjectsUncheckedCreateNestedManyWithoutProjectsInput
@@ -20436,6 +20473,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     learningPhases?: LearningPhaseUpdateManyWithoutProjectNestedInput
     userProjects?: UserProjectsUpdateManyWithoutProjectsNestedInput
@@ -20450,6 +20488,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     learningPhases?: LearningPhaseUncheckedUpdateManyWithoutProjectNestedInput
     userProjects?: UserProjectsUncheckedUpdateManyWithoutProjectsNestedInput
@@ -20611,6 +20650,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     learningPhases?: LearningPhaseCreateNestedManyWithoutProjectInput
     deliverables?: DeliverableCreateNestedManyWithoutProjectInput
@@ -20625,6 +20665,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     learningPhases?: LearningPhaseUncheckedCreateNestedManyWithoutProjectInput
     deliverables?: DeliverableUncheckedCreateNestedManyWithoutProjectInput
@@ -20716,6 +20757,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     learningPhases?: LearningPhaseUpdateManyWithoutProjectNestedInput
     deliverables?: DeliverableUpdateManyWithoutProjectNestedInput
@@ -20730,6 +20772,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     learningPhases?: LearningPhaseUncheckedUpdateManyWithoutProjectNestedInput
     deliverables?: DeliverableUncheckedUpdateManyWithoutProjectNestedInput
@@ -20774,6 +20817,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     userProjects?: UserProjectsCreateNestedManyWithoutProjectsInput
     deliverables?: DeliverableCreateNestedManyWithoutProjectInput
@@ -20788,6 +20832,7 @@ export namespace Prisma {
     demo_url?: string | null
     estimated_minutes: number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsCreateprerequisite_idsInput | string[]
     createdAt?: Date | string
     userProjects?: UserProjectsUncheckedCreateNestedManyWithoutProjectsInput
     deliverables?: DeliverableUncheckedCreateNestedManyWithoutProjectInput
@@ -20882,6 +20927,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userProjects?: UserProjectsUpdateManyWithoutProjectsNestedInput
     deliverables?: DeliverableUpdateManyWithoutProjectNestedInput
@@ -20896,6 +20942,7 @@ export namespace Prisma {
     demo_url?: NullableStringFieldUpdateOperationsInput | string | null
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     initial_files?: NullableJsonNullValueInput | InputJsonValue
+    prerequisite_ids?: ProjectsUpdateprerequisite_idsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userProjects?: UserProjectsUncheckedUpdateManyWithoutProjectsNestedInput
     deliverables?: DeliverableUncheckedUpdateManyWithoutProjectNestedInput
