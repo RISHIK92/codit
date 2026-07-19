@@ -38,6 +38,20 @@ interface LockRequirement {
   met: boolean;
 }
 
+/** Prerequisite projects (by id) not yet completed by the user, in catalogue order. */
+function getMissingPrerequisites(
+  project: CatalogueProjectDTO,
+  allProjects: CatalogueProjectDTO[],
+  completedProjectIds: Set<string>,
+): CatalogueProjectDTO[] {
+  if (!project.prerequisite_ids?.length) return [];
+  return project.prerequisite_ids
+    .map((id) => allProjects.find((p) => p.id === id))
+    .filter(
+      (p): p is CatalogueProjectDTO => !!p && !completedProjectIds.has(p.id),
+    );
+}
+
 interface LockProgress {
   completedBeginnerCount: number;
   completedIntermediateCount: number;
@@ -110,21 +124,25 @@ function LockIcon({ className }: { className?: string }) {
   );
 }
 
-// ─── Lock Modal ───────────────────────────────────────────────────────────────
-function LockModal({
-  level,
-  progress,
+// ─── Requirements Modal (shared shell for tier-lock and prerequisite-lock) ────
+function RequirementsModal({
+  badgeLabel,
+  badgeColorClasses,
+  badgeDotClasses,
+  subtitle,
+  requirements,
   onClose,
+  onSkip,
 }: {
-  level: SkillLevel;
-  progress: LockProgress;
+  badgeLabel: string;
+  badgeColorClasses: string;
+  badgeDotClasses: string;
+  subtitle: string;
+  requirements: LockRequirement[];
   onClose: () => void;
+  /** When set, shows a secondary "I already know this" bypass button — used for prerequisites, which are advisory, not a hard gate. */
+  onSkip?: () => void;
 }) {
-  const rule = getLockRequirements(level, progress);
-  if (!rule) return null;
-
-  const levelMeta = SKILL_META[level];
-
   return (
     // Backdrop
     <div
@@ -163,22 +181,22 @@ function LockModal({
         {/* Title */}
         <div className="relative z-10 text-center mb-1">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${levelMeta.color}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${badgeColorClasses}`}
           >
-            <span className={`w-1.5 h-1.5 rounded-full ${levelMeta.dot}`} />
-            {levelMeta.label}
+            <span className={`w-1.5 h-1.5 rounded-full ${badgeDotClasses}`} />
+            {badgeLabel}
           </span>
         </div>
         <h2 className="relative z-10 font-(family-name:--font-cormorant) text-[22px] font-semibold text-txt text-center mt-3 mb-2">
           Unlock Requirements
         </h2>
         <p className="relative z-10 font-(family-name:--font-dm) text-[11px] text-txt-muted text-center mb-6">
-          Complete all of the following to access {levelMeta.label} projects.
+          {subtitle}
         </p>
 
         {/* Requirements list */}
         <ul className="relative z-10 flex flex-col gap-3">
-          {rule.requirements.map((req, i) => (
+          {requirements.map((req, i) => (
             <li key={i} className="flex items-start gap-3">
               <span
                 className={`mt-0.5 w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 ${
@@ -218,13 +236,23 @@ function LockModal({
           ))}
         </ul>
 
-        {/* Dismiss */}
-        <button
-          onClick={onClose}
-          className="relative z-10 mt-7 w-full py-2.5 border border-border-s rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt hover:border-border-a transition-colors"
-        >
-          Got it
-        </button>
+        {/* Dismiss / skip */}
+        <div className="relative z-10 mt-7 flex flex-col gap-2">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 border border-border-s rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt hover:border-border-a transition-colors"
+          >
+            Got it
+          </button>
+          {onSkip && (
+            <button
+              onClick={onSkip}
+              className="w-full py-2.5 border border-accent/30 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent hover:bg-accent/5 transition-colors"
+            >
+              I already know this — skip
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -242,10 +270,37 @@ export default function ProjectsBrowsePage() {
   const [projects, setProjects] = useState<CatalogueProjectDTO[]>([]);
   const [catalogueLoading, setCatalogueLoading] = useState(true);
   const [catalogueError, setCatalogueError] = useState<string | null>(null);
-  const [lockedModal, setLockedModal] = useState<SkillLevel | null>(null);
+  const [lockedModal, setLockedModal] = useState<
+    { type: "tier"; level: SkillLevel } | { type: "prerequisite"; project: CatalogueProjectDTO } | null
+  >(null);
   const [quizAverages, setQuizAverages] = useState<
     Record<string, number>
   >({});
+  // Prerequisites are advisory, not a hard gate — users can dismiss them if
+  // they already know the material. Persisted per-user in localStorage so
+  // the choice sticks across visits.
+  const [skippedPrereqIds, setSkippedPrereqIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!user?.email) return;
+    try {
+      const raw = localStorage.getItem(`codit:skippedPrereqs:${user.email}`);
+      if (raw) setSkippedPrereqIds(new Set(JSON.parse(raw)));
+    } catch {
+      // Corrupt/inaccessible localStorage — treat as no skips.
+    }
+  }, [user?.email]);
+
+  function skipPrerequisite(projectId: string) {
+    if (!user?.email) return;
+    const next = new Set(skippedPrereqIds).add(projectId);
+    setSkippedPrereqIds(next);
+    localStorage.setItem(
+      `codit:skippedPrereqs:${user.email}`,
+      JSON.stringify([...next]),
+    );
+    setLockedModal(null);
+  }
 
   // Fetch catalogue
   useEffect(() => {
@@ -353,7 +408,7 @@ export default function ProjectsBrowsePage() {
   const beginnerQuizAvg = quizAverages["beginner"] ?? 0;
   const intermediateQuizAvg = quizAverages["intermediate"] ?? 0;
 
-  function isLocked(projectLevel: string): boolean {
+  function isTierLocked(projectLevel: string): boolean {
     const level = projectLevel as SkillLevel;
     if (level === "beginner") return false; // always unlocked
 
@@ -367,6 +422,16 @@ export default function ProjectsBrowsePage() {
       return !(completedIntermediateCount >= 2 && intermediateQuizAvg > 80);
     }
     return false;
+  }
+
+  const completedProjectIds = new Set(
+    userProjects.filter((up) => up.status === "completed").map((up) => up.project_id),
+  );
+
+  function isLocked(project: CatalogueProjectDTO): boolean {
+    if (isTierLocked(project.skill_level)) return true;
+    if (skippedPrereqIds.has(project.id)) return false;
+    return getMissingPrerequisites(project, projects, completedProjectIds).length > 0;
   }
 
   // ── Filter / search ────────────────────────────────────────────────────────
@@ -390,18 +455,50 @@ export default function ProjectsBrowsePage() {
   return (
     <>
       {/* Lock modal */}
-      {lockedModal && (
-        <LockModal
-          level={lockedModal}
-          progress={{
+      {lockedModal?.type === "tier" &&
+        (() => {
+          const rule = getLockRequirements(lockedModal.level, {
             completedBeginnerCount,
             completedIntermediateCount,
             beginnerQuizAvg,
             intermediateQuizAvg,
-          }}
-          onClose={() => setLockedModal(null)}
-        />
-      )}
+          });
+          if (!rule) return null;
+          const levelMeta = SKILL_META[lockedModal.level];
+          return (
+            <RequirementsModal
+              badgeLabel={levelMeta.label}
+              badgeColorClasses={levelMeta.color}
+              badgeDotClasses={levelMeta.dot}
+              subtitle={`Complete all of the following to access ${levelMeta.label} projects.`}
+              requirements={rule.requirements}
+              onClose={() => setLockedModal(null)}
+            />
+          );
+        })()}
+
+      {lockedModal?.type === "prerequisite" &&
+        (() => {
+          const missing = getMissingPrerequisites(
+            lockedModal.project,
+            projects,
+            completedProjectIds,
+          );
+          return (
+            <RequirementsModal
+              badgeLabel="Prerequisite"
+              badgeColorClasses="text-accent border-accent/30 bg-accent/5"
+              badgeDotClasses="bg-accent"
+              subtitle={`Complete the following before starting ${lockedModal.project.name}.`}
+              requirements={missing.map((p) => ({
+                text: `Complete "${p.name}"`,
+                met: false,
+              }))}
+              onClose={() => setLockedModal(null)}
+              onSkip={() => skipPrerequisite(lockedModal.project.id)}
+            />
+          );
+        })()}
 
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen">
         {/* ── HEADER ────────────────────────────────────────────────────── */}
@@ -479,7 +576,11 @@ export default function ProjectsBrowsePage() {
               const skill =
                 SKILL_META[project.skill_level as SkillLevel] ??
                 SKILL_META.beginner;
-              const locked = isLocked(project.skill_level);
+              const tierLocked = isTierLocked(project.skill_level);
+              const missingPrereqs = skippedPrereqIds.has(project.id)
+                ? []
+                : getMissingPrerequisites(project, projects, completedProjectIds);
+              const locked = tierLocked || missingPrereqs.length > 0;
 
               if (locked) {
                 return (
@@ -487,7 +588,11 @@ export default function ProjectsBrowsePage() {
                     key={project.id}
                     className="group relative bg-void border border-border-s rounded-sm p-6 flex flex-col gap-5 overflow-hidden cursor-pointer"
                     onClick={() =>
-                      setLockedModal(project.skill_level as SkillLevel)
+                      setLockedModal(
+                        tierLocked
+                          ? { type: "tier", level: project.skill_level as SkillLevel }
+                          : { type: "prerequisite", project },
+                      )
                     }
                   >
                     {/* Blurred content underneath */}
