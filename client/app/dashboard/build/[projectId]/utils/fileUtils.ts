@@ -1,7 +1,7 @@
 // ─── Pure file-system helpers (no React) ─────────────────────────────────────
 
 import type { FileNode, Language, OpenTab } from "../types";
-import { DEFAULT_FILE_CONTENT } from "../constants";
+import { DEFAULT_FILE_CONTENT, STATIC_SERVER_FILENAME } from "../constants";
 
 // ── Language detection ─────────────────────────────────────────────────────
 
@@ -14,6 +14,8 @@ export function getFileLanguage(
   if (n.endsWith(".js") || n.endsWith(".jsx") || n.endsWith(".mjs"))
     return "javascript";
   if (n.endsWith(".py")) return "python";
+  if (n.endsWith(".html") || n.endsWith(".htm")) return "html";
+  if (n.endsWith(".css")) return "css";
   if (n.endsWith(".json")) return "json";
   if (n.endsWith(".md")) return "markdown";
   return "plaintext";
@@ -249,6 +251,7 @@ export const IGNORED_FILES = new Set([
   "bun.lockb",
   ".DS_Store",
   ".env",
+  STATIC_SERVER_FILENAME,
 ]);
 
 export function isSaveExcluded(filePath: string): boolean {
