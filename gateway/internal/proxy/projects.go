@@ -88,7 +88,7 @@ func GetProjectWithPhasesProxy(
 				for _, up := range upRes.UserProjects {
 					if up.ProjectId == projectId {
 						grpcRes.AlreadyStarted = true
-					} else if up.Status == "in_progress" {
+					} else if up.Status == "in_progress" && !up.Archived {
 						grpcRes.Locked = true
 					}
 				}
