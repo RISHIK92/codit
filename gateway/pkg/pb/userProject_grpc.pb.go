@@ -25,6 +25,8 @@ const (
 	UserProjectService_GetUserProjectById_FullMethodName      = "/userProject.UserProjectService/GetUserProjectById"
 	UserProjectService_GetAllUserProjects_FullMethodName      = "/userProject.UserProjectService/GetAllUserProjects"
 	UserProjectService_GetUserProjectsByStatus_FullMethodName = "/userProject.UserProjectService/GetUserProjectsByStatus"
+	UserProjectService_SetUserProjectArchived_FullMethodName  = "/userProject.UserProjectService/SetUserProjectArchived"
+	UserProjectService_AdvancePhase_FullMethodName            = "/userProject.UserProjectService/AdvancePhase"
 )
 
 // UserProjectServiceClient is the client API for UserProjectService service.
@@ -35,6 +37,15 @@ type UserProjectServiceClient interface {
 	GetUserProjectById(ctx context.Context, in *GetUserProjectByIdRequest, opts ...grpc.CallOption) (*GetUserProjectByIdResponse, error)
 	GetAllUserProjects(ctx context.Context, in *GetAllUserProjectsRequest, opts ...grpc.CallOption) (*GetAllUserProjectsResponse, error)
 	GetUserProjectsByStatus(ctx context.Context, in *GetUserProjectsByStatusRequest, opts ...grpc.CallOption) (*GetUserProjectsByStatusResponse, error)
+	// Archives (or un-archives / "resumes") a user's project. A user may have
+	// at most 1 live project (archived = false, status = in_progress) and at
+	// most 1 archived project at a time — archiving the live project frees the
+	// live slot to start a different one; resuming an archived project
+	// requires the live slot to be free first.
+	SetUserProjectArchived(ctx context.Context, in *SetUserProjectArchivedRequest, opts ...grpc.CallOption) (*SetUserProjectArchivedResponse, error)
+	// Advances current_phase by 1 — called after an AI review of a phase's
+	// submitted work judges the phase goal met.
+	AdvancePhase(ctx context.Context, in *AdvancePhaseRequest, opts ...grpc.CallOption) (*AdvancePhaseResponse, error)
 }
 
 type userProjectServiceClient struct {
@@ -85,6 +96,26 @@ func (c *userProjectServiceClient) GetUserProjectsByStatus(ctx context.Context, 
 	return out, nil
 }
 
+func (c *userProjectServiceClient) SetUserProjectArchived(ctx context.Context, in *SetUserProjectArchivedRequest, opts ...grpc.CallOption) (*SetUserProjectArchivedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetUserProjectArchivedResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_SetUserProjectArchived_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userProjectServiceClient) AdvancePhase(ctx context.Context, in *AdvancePhaseRequest, opts ...grpc.CallOption) (*AdvancePhaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdvancePhaseResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_AdvancePhase_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserProjectServiceServer is the server API for UserProjectService service.
 // All implementations must embed UnimplementedUserProjectServiceServer
 // for forward compatibility.
@@ -93,6 +124,15 @@ type UserProjectServiceServer interface {
 	GetUserProjectById(context.Context, *GetUserProjectByIdRequest) (*GetUserProjectByIdResponse, error)
 	GetAllUserProjects(context.Context, *GetAllUserProjectsRequest) (*GetAllUserProjectsResponse, error)
 	GetUserProjectsByStatus(context.Context, *GetUserProjectsByStatusRequest) (*GetUserProjectsByStatusResponse, error)
+	// Archives (or un-archives / "resumes") a user's project. A user may have
+	// at most 1 live project (archived = false, status = in_progress) and at
+	// most 1 archived project at a time — archiving the live project frees the
+	// live slot to start a different one; resuming an archived project
+	// requires the live slot to be free first.
+	SetUserProjectArchived(context.Context, *SetUserProjectArchivedRequest) (*SetUserProjectArchivedResponse, error)
+	// Advances current_phase by 1 — called after an AI review of a phase's
+	// submitted work judges the phase goal met.
+	AdvancePhase(context.Context, *AdvancePhaseRequest) (*AdvancePhaseResponse, error)
 	mustEmbedUnimplementedUserProjectServiceServer()
 }
 
@@ -114,6 +154,12 @@ func (UnimplementedUserProjectServiceServer) GetAllUserProjects(context.Context,
 }
 func (UnimplementedUserProjectServiceServer) GetUserProjectsByStatus(context.Context, *GetUserProjectsByStatusRequest) (*GetUserProjectsByStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserProjectsByStatus not implemented")
+}
+func (UnimplementedUserProjectServiceServer) SetUserProjectArchived(context.Context, *SetUserProjectArchivedRequest) (*SetUserProjectArchivedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetUserProjectArchived not implemented")
+}
+func (UnimplementedUserProjectServiceServer) AdvancePhase(context.Context, *AdvancePhaseRequest) (*AdvancePhaseResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AdvancePhase not implemented")
 }
 func (UnimplementedUserProjectServiceServer) mustEmbedUnimplementedUserProjectServiceServer() {}
 func (UnimplementedUserProjectServiceServer) testEmbeddedByValue()                            {}
@@ -208,6 +254,42 @@ func _UserProjectService_GetUserProjectsByStatus_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserProjectService_SetUserProjectArchived_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserProjectArchivedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).SetUserProjectArchived(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_SetUserProjectArchived_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).SetUserProjectArchived(ctx, req.(*SetUserProjectArchivedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserProjectService_AdvancePhase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdvancePhaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).AdvancePhase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_AdvancePhase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).AdvancePhase(ctx, req.(*AdvancePhaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserProjectService_ServiceDesc is the grpc.ServiceDesc for UserProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -230,6 +312,14 @@ var UserProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserProjectsByStatus",
 			Handler:    _UserProjectService_GetUserProjectsByStatus_Handler,
+		},
+		{
+			MethodName: "SetUserProjectArchived",
+			Handler:    _UserProjectService_SetUserProjectArchived_Handler,
+		},
+		{
+			MethodName: "AdvancePhase",
+			Handler:    _UserProjectService_AdvancePhase_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
