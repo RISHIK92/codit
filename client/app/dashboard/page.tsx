@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useAuthStore, useDashboardStore } from "@/lib/stores";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Archive } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -15,9 +15,28 @@ export default function DashboardPage() {
     activities,
     resources,
     fetchUserProjects,
+    archiveCurrentProject,
     userProjects,
     projectsLoading,
   } = useDashboardStore();
+
+  const [archiving, setArchiving] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState(false);
+
+  async function handleArchive() {
+    if (!user) return;
+    setArchiving(true);
+    try {
+      const token = await user.getIdToken();
+      await archiveCurrentProject(token);
+      setConfirmArchive(false);
+      router.push("/dashboard/projects");
+    } catch {
+      // Non-fatal — leave the confirm dialog open so the user can retry.
+    } finally {
+      setArchiving(false);
+    }
+  }
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeCardRef = useRef<HTMLDivElement>(null);
@@ -100,8 +119,11 @@ export default function DashboardPage() {
     );
   }
 
-  // ── No projects yet ───────────────────────────────────────────────────────
-  if (!projectsLoading && userProjects.length === 0) {
+  // ── No live project (none started yet, or the only one was archived) ───────
+  const hasLiveProject = userProjects.some(
+    (p) => p.status === "in_progress" && !p.archived,
+  );
+  if (!projectsLoading && !hasLiveProject) {
     return (
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen flex flex-col">
         {/* Loading skeleton shimmer while initial fetch resolves */}
@@ -206,12 +228,47 @@ export default function DashboardPage() {
               Phase {currentProject.phase} — {currentProject.description}
             </p>
           </div>
-          <Link
-            href={`/dashboard/build/${currentProject.id}`}
-            className="inline-flex items-center justify-center px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
-          >
-            Continue Learning →
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            {confirmArchive ? (
+              <>
+                <span className="font-[family-name:var(--font-dm)] text-[11px] text-txt-muted">
+                  Archive this project? You can resume it later, as long as no
+                  other project is live.
+                </span>
+                <button
+                  onClick={handleArchive}
+                  disabled={archiving}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-error/40 text-error rounded-[4px] font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] hover:bg-error/5 transition-colors disabled:opacity-50"
+                >
+                  {archiving ? "Archiving…" : "Confirm"}
+                </button>
+                <button
+                  onClick={() => setConfirmArchive(false)}
+                  disabled={archiving}
+                  className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] text-txt-ghost hover:text-txt transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setConfirmArchive(true)}
+                  title="Archive this project to start a different one"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 border border-border-s text-txt-ghost rounded-[4px] font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] hover:text-txt hover:border-border-a transition-colors"
+                >
+                  <Archive size={13} />
+                  Archive
+                </button>
+                <Link
+                  href={`/dashboard/build/${currentProject.id}`}
+                  className="inline-flex items-center justify-center px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
+                >
+                  Continue Learning →
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 relative z-10">
