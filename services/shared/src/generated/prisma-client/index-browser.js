@@ -140,6 +140,7 @@ exports.Prisma.ProjectsScalarFieldEnum = {
   demo_url: 'demo_url',
   estimated_minutes: 'estimated_minutes',
   initial_files: 'initial_files',
+  prerequisite_ids: 'prerequisite_ids',
   createdAt: 'createdAt'
 };
 
