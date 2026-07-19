@@ -28,13 +28,27 @@ interface AiAssistantProps {
   onClose: () => void;
   projectId: string;
   phaseId?: string;
+  /** Short human-readable summary of the current project + phase, e.g. "Project: Recipe Tracker (React, Node) — Phase 2: State Management". */
+  currentTask?: string;
   activeFileId?: string;
   getToken: () => Promise<string>;
   /** When set, the panel auto-sends this message as soon as it opens */
   initialMessage?: string;
+  /**
+   * Bump this (e.g. an incrementing counter) to force a resend of the same
+   * initialMessage text — e.g. clicking "Submit" again for another review
+   * round. Dedup is keyed on this, not on the message text, so identical
+   * text sent via a new nonce still goes out; only an unchanged nonce
+   * (React Strict Mode double-invoking the same trigger) is suppressed.
+   */
+  initialMessageNonce?: number;
   /** Mode for the auto-sent initialMessage — defaults to "chat" (agentic) */
   initialMessageMode?: ChatMode;
   onInitialMessageConsumed?: () => void;
+  /** Called with the full assistant reply once a message finishes streaming successfully. */
+  onReplyComplete?: (fullText: string) => void;
+  /** Mirrors whether a request is in flight — lets callers (e.g. the Submit button) disable themselves only while the AI is actually thinking. */
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 // ── Content renderer ───────────────────────────────────────────────────────
@@ -139,11 +153,15 @@ export function AiAssistant({
   onClose,
   projectId,
   phaseId,
+  currentTask,
   activeFileId,
   getToken,
   initialMessage,
+  initialMessageNonce,
   initialMessageMode,
   onInitialMessageConsumed,
+  onReplyComplete,
+  onLoadingChange,
 }: AiAssistantProps) {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [input, setInput] = useState("");
@@ -152,18 +170,37 @@ export function AiAssistant({
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Dedupes the initialMessage auto-send below against React 18 Strict
+  // Mode's intentional double-invocation of mount effects in dev (this
+  // effect fires a real network request, which is exactly the kind of
+  // non-idempotent mount action Strict Mode double-fires to catch). Keyed on
+  // initialMessageNonce when the caller provides one, so a deliberate resend
+  // of identical text (e.g. clicking "Submit" again) still goes out — only
+  // a genuinely-repeated trigger (same nonce) is suppressed.
+  const sentKeyRef = useRef<string | number | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
   useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
+
+  useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
 
-  // Auto-send an injected message (e.g. from Option+Click popup)
+  // Auto-send an injected message (e.g. from Option+Click popup, or Submit-for-review)
   useEffect(() => {
-    if (open && initialMessage) {
+    const dedupeKey = initialMessageNonce ?? initialMessage ?? null;
+    if (
+      open &&
+      initialMessage &&
+      dedupeKey !== null &&
+      sentKeyRef.current !== dedupeKey
+    ) {
+      sentKeyRef.current = dedupeKey;
       setInput(initialMessage);
       onInitialMessageConsumed?.();
       // Let the panel paint first, then fire
@@ -172,7 +209,7 @@ export function AiAssistant({
       }, 120);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialMessage]);
+  }, [open, initialMessage, initialMessageNonce]);
 
   async function sendMessageWithText(text: string, mode: ChatMode = "chat") {
     if (!text || loading) return;
@@ -203,14 +240,20 @@ export function AiAssistant({
 
     try {
       const token = await getToken();
-      await sendChatMessage(
+      const fullText = await sendChatMessage(
         token,
         {
           projectId,
           phaseId,
+          currentTask,
           activeFilePath: activeFileId,
           message: text,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
+          // "review" is a fresh evaluation of the current submission — prior
+          // unrelated chat turns are noise here, not useful context.
+          history:
+            mode === "review"
+              ? []
+              : messages.map((m) => ({ role: m.role, content: m.content })),
           mode,
         },
         (chunk) => {
@@ -224,6 +267,7 @@ export function AiAssistant({
         },
         abort.signal,
       );
+      onReplyComplete?.(fullText);
     } catch (err: unknown) {
       if ((err as Error).name !== "AbortError") {
         setMessages((prev) =>
