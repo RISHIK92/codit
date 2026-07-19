@@ -131,6 +131,8 @@ func grpcCodeToHTTP(c codes.Code) int {
 		return http.StatusNotFound
 	case codes.AlreadyExists:
 		return http.StatusConflict
+	case codes.FailedPrecondition:
+		return http.StatusConflict
 	case codes.PermissionDenied:
 		return http.StatusForbidden
 	case codes.Unauthenticated:
