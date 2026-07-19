@@ -21,7 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiService_Chat_FullMethodName = "/ai.AiService/Chat"
+	AiService_Chat_FullMethodName        = "/ai.AiService/Chat"
+	AiService_GradeAnswer_FullMethodName = "/ai.AiService/GradeAnswer"
 )
 
 // AiServiceClient is the client API for AiService service.
@@ -34,6 +35,12 @@ type AiServiceClient interface {
 	// Server-streaming: each ChatResponse carries one text delta, not the
 	// full reply — the stream ending signals completion.
 	Chat(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ChatResponse], error)
+	// Grades a free-text knowledge-check answer (code_completion/debug types)
+	// by judging whether it captures the correct fix/concept — not an exact
+	// string match, so equivalent-but-differently-phrased answers (different
+	// variable names, or an answer that states only the crucial change rather
+	// than the whole surrounding snippet) are graded correct.
+	GradeAnswer(ctx context.Context, in *GradeAnswerRequest, opts ...grpc.CallOption) (*GradeAnswerResponse, error)
 }
 
 type aiServiceClient struct {
@@ -63,6 +70,16 @@ func (c *aiServiceClient) Chat(ctx context.Context, in *ChatRequest, opts ...grp
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AiService_ChatClient = grpc.ServerStreamingClient[ChatResponse]
 
+func (c *aiServiceClient) GradeAnswer(ctx context.Context, in *GradeAnswerRequest, opts ...grpc.CallOption) (*GradeAnswerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GradeAnswerResponse)
+	err := c.cc.Invoke(ctx, AiService_GradeAnswer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AiServiceServer is the server API for AiService service.
 // All implementations must embed UnimplementedAiServiceServer
 // for forward compatibility.
@@ -73,6 +90,12 @@ type AiServiceServer interface {
 	// Server-streaming: each ChatResponse carries one text delta, not the
 	// full reply — the stream ending signals completion.
 	Chat(*ChatRequest, grpc.ServerStreamingServer[ChatResponse]) error
+	// Grades a free-text knowledge-check answer (code_completion/debug types)
+	// by judging whether it captures the correct fix/concept — not an exact
+	// string match, so equivalent-but-differently-phrased answers (different
+	// variable names, or an answer that states only the crucial change rather
+	// than the whole surrounding snippet) are graded correct.
+	GradeAnswer(context.Context, *GradeAnswerRequest) (*GradeAnswerResponse, error)
 	mustEmbedUnimplementedAiServiceServer()
 }
 
@@ -85,6 +108,9 @@ type UnimplementedAiServiceServer struct{}
 
 func (UnimplementedAiServiceServer) Chat(*ChatRequest, grpc.ServerStreamingServer[ChatResponse]) error {
 	return status.Error(codes.Unimplemented, "method Chat not implemented")
+}
+func (UnimplementedAiServiceServer) GradeAnswer(context.Context, *GradeAnswerRequest) (*GradeAnswerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GradeAnswer not implemented")
 }
 func (UnimplementedAiServiceServer) mustEmbedUnimplementedAiServiceServer() {}
 func (UnimplementedAiServiceServer) testEmbeddedByValue()                   {}
@@ -118,13 +144,36 @@ func _AiService_Chat_Handler(srv interface{}, stream grpc.ServerStream) error {
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AiService_ChatServer = grpc.ServerStreamingServer[ChatResponse]
 
+func _AiService_GradeAnswer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GradeAnswerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiServiceServer).GradeAnswer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiService_GradeAnswer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiServiceServer).GradeAnswer(ctx, req.(*GradeAnswerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AiService_ServiceDesc is the grpc.ServiceDesc for AiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AiService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "ai.AiService",
 	HandlerType: (*AiServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GradeAnswer",
+			Handler:    _AiService_GradeAnswer_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Chat",
