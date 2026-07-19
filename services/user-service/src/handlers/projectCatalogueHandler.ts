@@ -32,6 +32,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           demoUrl: p.demo_url ?? "",
           deliverables: p.deliverables.map((d: any) => d.text),
           initialFiles: p.initial_files ? JSON.stringify(p.initial_files) : "",
+          prerequisiteIds: p.prerequisite_ids ?? [],
         })),
       });
     } catch (error: any) {
@@ -76,6 +77,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
               initialFiles: p.initial_files
                 ? JSON.stringify(p.initial_files)
                 : "",
+              prerequisiteIds: p.prerequisite_ids ?? [],
             }
           : undefined,
       });
@@ -129,6 +131,7 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           demoUrl: p.demo_url ?? "",
           deliverables: p.deliverables?.map((d: any) => d.text) ?? [],
           initialFiles: p.initial_files ? JSON.stringify(p.initial_files) : "",
+          prerequisiteIds: p.prerequisite_ids ?? [],
         },
         phases: p.learningPhases.map((ph: any) => ({
           id: ph.id,
