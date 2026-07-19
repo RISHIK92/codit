@@ -7,15 +7,18 @@ import Link from "next/link";
 import { useAuthStore, useDashboardStore } from "@/lib/stores";
 import {
   getProjectWithPhases,
+  advanceUserProjectPhase,
+  getAllUserProjects,
   type LearningPhaseDTO,
 } from "@/lib/api/projectsApi";
+import { getPhaseKnowledgeChecks } from "@/lib/api/knowledgeCheckApi";
 import {
   batchUpsertFiles,
   listFiles as listProjectFiles,
   deleteFile as deleteProjectFile,
   type ProjectFileDTO,
 } from "@/lib/api/filesApi";
-import { sendChatMessage } from "@/lib/api/aiApi";
+import { sendChatMessage, type ChatMode } from "@/lib/api/aiApi";
 import type * as Monaco from "monaco-editor";
 import type { editor as EditorNS } from "monaco-editor";
 import {
@@ -37,11 +40,16 @@ import {
   RefreshCw,
   Plus,
   Columns2,
+  SendHorizonal,
 } from "lucide-react";
 
 // Types, constants, utils
 import type { Language, FileNode, OpenTab } from "./types";
-import { FILE_TREES } from "./constants";
+import {
+  FILE_TREES,
+  STATIC_SERVER_FILENAME,
+  STATIC_SERVER_SCRIPT,
+} from "./constants";
 import {
   getDefaultFileContent as getFileContent,
   getFileLanguage,
@@ -133,6 +141,7 @@ export default function BuildPage() {
 
   const [phases, setPhases] = useState<LearningPhaseDTO[]>([]);
   const [projectName, setProjectName] = useState<string>("");
+  const [projectTechStack, setProjectTechStack] = useState<string[]>([]);
   const [activePhaseIdx, setActivePhaseIdx] = useState(0);
   const [currentPhaseNum, setCurrentPhaseNum] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -164,6 +173,18 @@ export default function BuildPage() {
     "idle",
   );
   const [aiOpen, setAiOpen] = useState(false);
+  // Submit-for-review flow: gate on knowledge checks, then hand a "review"
+  // mode message to AiAssistant via its initialMessage auto-send mechanism.
+  const [aiInitialMessage, setAiInitialMessage] = useState<string | undefined>();
+  // Bumped on every Submit click so re-submitting resends the same text
+  // (AiAssistant dedupes on this, not on the message content).
+  const [aiInitialMessageNonce, setAiInitialMessageNonce] = useState(0);
+  const [aiInitialMessageMode, setAiInitialMessageMode] = useState<ChatMode>("chat");
+  const [submitChecking, setSubmitChecking] = useState(false);
+  const [submitPrompt, setSubmitPrompt] = useState<string | null>(null);
+  // Mirrors AiAssistant's internal loading state — Submit is only disabled
+  // while the AI is actually responding, not while checking answered status.
+  const [aiThinking, setAiThinking] = useState(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminals, setTerminals] = useState([{ id: "term-1", name: "bash" }]);
@@ -171,6 +192,14 @@ export default function BuildPage() {
 
   // Preview panel state
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // Static-server run state — for HTML/CSS/JS projects with no build tool,
+  // spawns a built-in static server (auto-reloads on file change) instead of
+  // requiring the user to type a command in the terminal.
+  const [previewServerRunning, setPreviewServerRunning] = useState(false);
+  const [previewServerStarting, setPreviewServerStarting] = useState(false);
+  const previewProcessRef = useRef<import("@webcontainer/api").WebContainerProcess | null>(
+    null,
+  );
   const [activePanel, setActivePanel] = useState<
     "editor" | "preview" | "split"
   >("editor");
@@ -457,14 +486,30 @@ export default function BuildPage() {
     if (!projectId || !user) return;
     setLoading(true);
     user.getIdToken().then((token) =>
-      getProjectWithPhases(token, projectId)
-        .then(async (data) => {
+      Promise.all([
+        getProjectWithPhases(token, projectId),
+        // Fetched independently rather than relying on useDashboardStore's
+        // currentProject — that store only gets populated by a visit to
+        // /dashboard and resets to its default (phase 0) on a hard reload of
+        // this page, which was re-locking every phase past 1 on reload.
+        getAllUserProjects(token).catch(() => null),
+      ])
+        .then(async ([data, userProjectsRes]) => {
           const phaseList = data.phases ?? [];
           setPhases(phaseList);
           setProjectName(data.project?.name ?? currentProject.title ?? "");
+          setProjectTechStack(data.project?.tech_stack ?? []);
 
-          // Start on the user's current phase
-          const currentPhaseNum = currentProject.phase || 1;
+          // Start on the user's current phase — current_phase is 0-indexed
+          // (0 = working on phase 1), so +1 for the 1-indexed phase_number.
+          const userProjects =
+            userProjectsRes?.user_projects ?? userProjectsRes?.userProjects ?? [];
+          const thisProject = userProjects.find(
+            (up) => up.project_id === projectId,
+          );
+          const currentPhaseNum = thisProject
+            ? thisProject.current_phase + 1
+            : currentProject.phase || 1;
           setCurrentPhaseNum(currentPhaseNum);
           const idx = phaseList.findIndex(
             (p) => p.phase_number === currentPhaseNum,
@@ -573,8 +618,14 @@ export default function BuildPage() {
               wcRef.current.mount(fs).catch(console.error);
             }
           } else if (!restoredFromDB) {
-            // Fallback: no DB files and no initial_files — use default JS tree
-            const defaultTree = FILE_TREES["javascript"];
+            // Fallback: no DB files and no initial_files — pick a scaffold
+            // matching the project's tech stack (plain HTML/CSS/JS projects
+            // get an index.html tree instead of the generic Node.js one).
+            const isHtmlProject = (data.project?.tech_stack ?? []).some(
+              (t) => t.toLowerCase() === "html",
+            );
+            if (isHtmlProject) setLanguage("html");
+            const defaultTree = FILE_TREES[isHtmlProject ? "html" : "javascript"];
             const allIds = defaultTree.flatMap(function flat(
               n: FileNode,
             ): string[] {
@@ -1053,6 +1104,64 @@ export default function BuildPage() {
     }
   }, [user, projectId, saveStatus, fileTree]);
 
+  // Any .html file anywhere in the tree means there's something to serve —
+  // used to decide whether the Run button shows at all.
+  const hasHtmlFile = fileTree.some(function has(n: FileNode): boolean {
+    if (n.type === "file") return n.name.toLowerCase().endsWith(".html");
+    return (n.children ?? []).some(has);
+  });
+
+  // ── Run: static server with hot reload for HTML/CSS/JS projects ───────────
+  // Writes a small dependency-free Node http server (STATIC_SERVER_SCRIPT)
+  // into the container and runs it — deliberately not an npm package like
+  // live-server/serve, since fs-watching packages can silently fail inside
+  // WebContainer's virtual filesystem with zero visible error. The existing
+  // `wc.on("server-ready", ...)` listener (registered once at boot) picks up
+  // whatever URL/port the server binds to, so no extra plumbing is needed here.
+  const handleToggleRun = useCallback(async () => {
+    if (!wcRef.current) return;
+
+    if (previewServerRunning || previewProcessRef.current) {
+      previewProcessRef.current?.kill();
+      previewProcessRef.current = null;
+      setPreviewServerRunning(false);
+      setPreviewUrl(null);
+      return;
+    }
+
+    setPreviewServerStarting(true);
+    try {
+      await wcRef.current.fs.writeFile(
+        STATIC_SERVER_FILENAME,
+        STATIC_SERVER_SCRIPT,
+      );
+      const proc = await wcRef.current.spawn("node", [STATIC_SERVER_FILENAME]);
+      proc.output.pipeTo(
+        new WritableStream({
+          write: (chunk) => console.log("[preview server]", chunk),
+        }),
+      );
+      previewProcessRef.current = proc;
+      setPreviewServerRunning(true);
+      setActivePanel((p) => (p === "editor" ? "preview" : p));
+      proc.exit.then(() => {
+        previewProcessRef.current = null;
+        setPreviewServerRunning(false);
+      });
+    } catch (err) {
+      console.error("[Run] failed to start live-server:", err);
+    } finally {
+      setPreviewServerStarting(false);
+    }
+  }, [previewServerRunning]);
+
+  // Stop the preview server if the user navigates away mid-session.
+  useEffect(() => {
+    return () => {
+      previewProcessRef.current?.kill();
+    };
+  }, []);
+
   // ── Auto-save every 10 seconds ─────────────────────────────────────────────
   useEffect(() => {
     const interval = setInterval(() => {
@@ -1080,6 +1189,63 @@ export default function BuildPage() {
   }, [handleSave]);
 
   const activePhase = phases[activePhaseIdx] ?? null;
+
+  // ── Submit for review ────────────────────────────────────────────────────
+  // Gate: every knowledge check for the current phase must be attempted
+  // before an AI review is requested — prevents skipping straight to review
+  // without engaging with the phase's learning checks.
+  const handleSubmitForReview = useCallback(async () => {
+    if (!user || !activePhase) return;
+    setSubmitChecking(true);
+    setSubmitPrompt(null);
+    try {
+      const token = await user.getIdToken();
+      const { checks } = await getPhaseKnowledgeChecks(token, activePhase.id);
+      const answered = checks.filter((c) => c.attempted).length;
+      if (checks.length > 0 && answered < checks.length) {
+        setSubmitPrompt(
+          `Answer all knowledge checks for this phase before submitting — ${answered}/${checks.length} answered.`,
+        );
+        setLeftTab("knowledge-checks");
+        return;
+      }
+      const goalText = parseGoal(activePhase.goal);
+      setAiInitialMessageMode("review");
+      setAiInitialMessage(
+        `Review my submission for Phase ${activePhase.phase_number}: ${activePhase.title}.${
+          goalText ? ` Goal: ${goalText}` : ""
+        }`,
+      );
+      setAiInitialMessageNonce((n) => n + 1);
+      setAiOpen(true);
+    } catch (err: any) {
+      setSubmitPrompt(
+        err.message ?? "Couldn't check knowledge check status — try again.",
+      );
+    } finally {
+      setSubmitChecking(false);
+    }
+  }, [user, activePhase]);
+
+  // Called once the "review" reply finishes streaming — if the AI judged the
+  // goal met, advance to the next phase (locally; matches PhaseSelector,
+  // which derives locked/unlocked purely from currentPhaseNum).
+  const handleAiReplyComplete = useCallback(
+    async (fullText: string) => {
+      if (aiInitialMessageMode !== "review") return;
+      if (!/VERDICT:\s*MET\b/i.test(fullText)) return;
+      if (!user) return;
+      try {
+        const token = await user.getIdToken();
+        await advanceUserProjectPhase(token, projectId);
+        setCurrentPhaseNum((n) => n + 1);
+        setActivePhaseIdx((i) => Math.min(i + 1, phases.length - 1));
+      } catch (err) {
+        console.error("[Submit] failed to advance phase:", err);
+      }
+    },
+    [aiInitialMessageMode, user, projectId, phases.length],
+  );
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (authLoading || loading) {
@@ -1147,6 +1313,36 @@ export default function BuildPage() {
 
         {/* Right: AI + save + run buttons */}
         <div className="flex items-center gap-3">
+          {/* Run — HTML/CSS/JS projects only, starts a static server with hot reload */}
+          {hasHtmlFile && (
+            <button
+              onClick={handleToggleRun}
+              disabled={previewServerStarting}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+                ${
+                  previewServerRunning
+                    ? "border-accent/40 text-accent bg-accent/5"
+                    : "border-border-s text-txt-ghost hover:text-accent hover:border-accent/30 hover:bg-surface"
+                }
+              `}
+              title={
+                previewServerRunning
+                  ? "Stop the live server"
+                  : "Run with live-reload"
+              }
+            >
+              {previewServerStarting ? (
+                <span className="w-2.5 h-2.5 rounded-full border border-accent/40 border-t-accent animate-spin" />
+              ) : (
+                <Play size={11} />
+              )}
+              {previewServerRunning
+                ? "Stop"
+                : previewServerStarting
+                  ? "Starting…"
+                  : "Run"}
+            </button>
+          )}
           {/* AI Assistant toggle */}
           <button
             onClick={() => setAiOpen((v) => !v)}
@@ -1188,8 +1384,37 @@ export default function BuildPage() {
                 ? "Saved"
                 : "Save"}
           </button>
+          {/* Submit for review — gates on knowledge checks, then requests an AI verdict.
+              Only disabled while the AI is actually responding, not while checking answered status. */}
+          <button
+            onClick={handleSubmitForReview}
+            disabled={aiThinking}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+            title="Submit this phase for AI review"
+          >
+            {submitChecking ? (
+              <span className="w-2.5 h-2.5 rounded-full border border-accent/40 border-t-accent animate-spin" />
+            ) : (
+              <SendHorizonal size={11} />
+            )}
+            {submitChecking ? "Checking…" : aiThinking ? "Reviewing…" : "Submit"}
+          </button>
         </div>
       </div>
+
+      {submitPrompt && (
+        <div className="px-4 py-2 bg-warning/10 border-b border-warning/30 flex items-center justify-between gap-3">
+          <span className="font-(family-name:--font-dm) text-[11px] text-warning">
+            {submitPrompt}
+          </span>
+          <button
+            onClick={() => setSubmitPrompt(null)}
+            className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors cursor-pointer shrink-0"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* ── SPLIT WORKSPACE ─────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
@@ -2044,8 +2269,34 @@ export default function BuildPage() {
                 onClose={() => setAiOpen(false)}
                 projectId={projectId}
                 phaseId={phases[activePhaseIdx]?.id}
+                currentTask={
+                  [
+                    projectName
+                      ? `Project: ${projectName}${
+                          projectTechStack.length
+                            ? ` (${projectTechStack.join(", ")})`
+                            : ""
+                        }`
+                      : "",
+                    activePhase
+                      ? `Phase ${activePhase.phase_number}: ${activePhase.title}${
+                          activePhase.goal
+                            ? ` — Goal: ${parseGoal(activePhase.goal)}`
+                            : ""
+                        }`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" — ") || undefined
+                }
                 activeFileId={activeTabId || undefined}
                 getToken={() => user!.getIdToken()}
+                initialMessage={aiInitialMessage}
+                initialMessageNonce={aiInitialMessageNonce}
+                initialMessageMode={aiInitialMessageMode}
+                onInitialMessageConsumed={() => setAiInitialMessage(undefined)}
+                onReplyComplete={handleAiReplyComplete}
+                onLoadingChange={setAiThinking}
               />
             </div>
           </>
