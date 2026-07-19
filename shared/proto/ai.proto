@@ -15,6 +15,13 @@ service AiService {
   // Server-streaming: each ChatResponse carries one text delta, not the
   // full reply — the stream ending signals completion.
   rpc Chat (ChatRequest) returns (stream ChatResponse);
+
+  // Grades a free-text knowledge-check answer (code_completion/debug types)
+  // by judging whether it captures the correct fix/concept — not an exact
+  // string match, so equivalent-but-differently-phrased answers (different
+  // variable names, or an answer that states only the crucial change rather
+  // than the whole surrounding snippet) are graded correct.
+  rpc GradeAnswer (GradeAnswerRequest) returns (GradeAnswerResponse);
 }
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
@@ -35,10 +42,30 @@ message ChatRequest {
   // "explain" = direct single-shot call, no tools, no file-fetching loop —
   // used for the cheap Option+Click "explain this" flow.
   string mode               = 7;
+  // Client-supplied summary of the user's current project and task, e.g.
+  // "Project: Recipe Tracker (React, Node) — Phase 2: State Management".
+  // The client already holds this in memory (active project/phase
+  // selection); pushing it here is cheaper than the service re-deriving it
+  // via extra user-service calls.
+  string current_task       = 8;
 }
 
 message ChatResponse {
   // One text delta of the reply. Concatenate all deltas received on the
   // stream, in order, to reconstruct the full message.
   string reply = 1;
+}
+
+// ── GradeAnswer ─────────────────────────────────────────────────────────────
+
+message GradeAnswerRequest {
+  string question       = 1;
+  string correct_answer = 2;
+  string explanation    = 3;
+  string question_type  = 4; // "code_completion" | "debug"
+  string user_answer    = 5;
+}
+
+message GradeAnswerResponse {
+  bool is_correct = 1;
 }
