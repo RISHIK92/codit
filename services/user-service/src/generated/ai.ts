@@ -12,9 +12,12 @@ import {
   Client,
   type ClientOptions,
   type ClientReadableStream,
+  type ClientUnaryCall,
   type handleServerStreamingCall,
+  type handleUnaryCall,
   makeGenericClientConstructor,
   type Metadata,
+  type ServiceError,
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
 
@@ -42,6 +45,14 @@ export interface ChatRequest {
    * used for the cheap Option+Click "explain this" flow.
    */
   mode: string;
+  /**
+   * Client-supplied summary of the user's current project and task, e.g.
+   * "Project: Recipe Tracker (React, Node) — Phase 2: State Management".
+   * The client already holds this in memory (active project/phase
+   * selection); pushing it here is cheaper than the service re-deriving it
+   * via extra user-service calls.
+   */
+  currentTask: string;
 }
 
 export interface ChatResponse {
@@ -50,6 +61,19 @@ export interface ChatResponse {
    * stream, in order, to reconstruct the full message.
    */
   reply: string;
+}
+
+export interface GradeAnswerRequest {
+  question: string;
+  correctAnswer: string;
+  explanation: string;
+  /** "code_completion" | "debug" */
+  questionType: string;
+  userAnswer: string;
+}
+
+export interface GradeAnswerResponse {
+  isCorrect: boolean;
 }
 
 function createBaseChatMessage(): ChatMessage {
@@ -129,7 +153,16 @@ export const ChatMessage: MessageFns<ChatMessage> = {
 };
 
 function createBaseChatRequest(): ChatRequest {
-  return { userEmail: "", projectId: "", phaseId: "", activeFilePath: "", message: "", history: [], mode: "" };
+  return {
+    userEmail: "",
+    projectId: "",
+    phaseId: "",
+    activeFilePath: "",
+    message: "",
+    history: [],
+    mode: "",
+    currentTask: "",
+  };
 }
 
 export const ChatRequest: MessageFns<ChatRequest> = {
@@ -154,6 +187,9 @@ export const ChatRequest: MessageFns<ChatRequest> = {
     }
     if (message.mode !== "") {
       writer.uint32(58).string(message.mode);
+    }
+    if (message.currentTask !== "") {
+      writer.uint32(66).string(message.currentTask);
     }
     return writer;
   },
@@ -221,6 +257,14 @@ export const ChatRequest: MessageFns<ChatRequest> = {
           message.mode = reader.string();
           continue;
         }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.currentTask = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -257,6 +301,11 @@ export const ChatRequest: MessageFns<ChatRequest> = {
         ? object.history.map((e: any) => ChatMessage.fromJSON(e))
         : [],
       mode: isSet(object.mode) ? globalThis.String(object.mode) : "",
+      currentTask: isSet(object.currentTask)
+        ? globalThis.String(object.currentTask)
+        : isSet(object.current_task)
+        ? globalThis.String(object.current_task)
+        : "",
     };
   },
 
@@ -283,6 +332,9 @@ export const ChatRequest: MessageFns<ChatRequest> = {
     if (message.mode !== "") {
       obj.mode = message.mode;
     }
+    if (message.currentTask !== "") {
+      obj.currentTask = message.currentTask;
+    }
     return obj;
   },
 
@@ -298,6 +350,7 @@ export const ChatRequest: MessageFns<ChatRequest> = {
     message.message = object.message ?? "";
     message.history = object.history?.map((e) => ChatMessage.fromPartial(e)) || [];
     message.mode = object.mode ?? "";
+    message.currentTask = object.currentTask ?? "";
     return message;
   },
 };
@@ -360,6 +413,206 @@ export const ChatResponse: MessageFns<ChatResponse> = {
   },
 };
 
+function createBaseGradeAnswerRequest(): GradeAnswerRequest {
+  return { question: "", correctAnswer: "", explanation: "", questionType: "", userAnswer: "" };
+}
+
+export const GradeAnswerRequest: MessageFns<GradeAnswerRequest> = {
+  encode(message: GradeAnswerRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.question !== "") {
+      writer.uint32(10).string(message.question);
+    }
+    if (message.correctAnswer !== "") {
+      writer.uint32(18).string(message.correctAnswer);
+    }
+    if (message.explanation !== "") {
+      writer.uint32(26).string(message.explanation);
+    }
+    if (message.questionType !== "") {
+      writer.uint32(34).string(message.questionType);
+    }
+    if (message.userAnswer !== "") {
+      writer.uint32(42).string(message.userAnswer);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeAnswerRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGradeAnswerRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.question = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.correctAnswer = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.explanation = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.questionType = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.userAnswer = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GradeAnswerRequest {
+    return {
+      question: isSet(object.question) ? globalThis.String(object.question) : "",
+      correctAnswer: isSet(object.correctAnswer)
+        ? globalThis.String(object.correctAnswer)
+        : isSet(object.correct_answer)
+        ? globalThis.String(object.correct_answer)
+        : "",
+      explanation: isSet(object.explanation) ? globalThis.String(object.explanation) : "",
+      questionType: isSet(object.questionType)
+        ? globalThis.String(object.questionType)
+        : isSet(object.question_type)
+        ? globalThis.String(object.question_type)
+        : "",
+      userAnswer: isSet(object.userAnswer)
+        ? globalThis.String(object.userAnswer)
+        : isSet(object.user_answer)
+        ? globalThis.String(object.user_answer)
+        : "",
+    };
+  },
+
+  toJSON(message: GradeAnswerRequest): unknown {
+    const obj: any = {};
+    if (message.question !== "") {
+      obj.question = message.question;
+    }
+    if (message.correctAnswer !== "") {
+      obj.correctAnswer = message.correctAnswer;
+    }
+    if (message.explanation !== "") {
+      obj.explanation = message.explanation;
+    }
+    if (message.questionType !== "") {
+      obj.questionType = message.questionType;
+    }
+    if (message.userAnswer !== "") {
+      obj.userAnswer = message.userAnswer;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GradeAnswerRequest>, I>>(base?: I): GradeAnswerRequest {
+    return GradeAnswerRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GradeAnswerRequest>, I>>(object: I): GradeAnswerRequest {
+    const message = createBaseGradeAnswerRequest();
+    message.question = object.question ?? "";
+    message.correctAnswer = object.correctAnswer ?? "";
+    message.explanation = object.explanation ?? "";
+    message.questionType = object.questionType ?? "";
+    message.userAnswer = object.userAnswer ?? "";
+    return message;
+  },
+};
+
+function createBaseGradeAnswerResponse(): GradeAnswerResponse {
+  return { isCorrect: false };
+}
+
+export const GradeAnswerResponse: MessageFns<GradeAnswerResponse> = {
+  encode(message: GradeAnswerResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.isCorrect !== false) {
+      writer.uint32(8).bool(message.isCorrect);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeAnswerResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGradeAnswerResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.isCorrect = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GradeAnswerResponse {
+    return {
+      isCorrect: isSet(object.isCorrect)
+        ? globalThis.Boolean(object.isCorrect)
+        : isSet(object.is_correct)
+        ? globalThis.Boolean(object.is_correct)
+        : false,
+    };
+  },
+
+  toJSON(message: GradeAnswerResponse): unknown {
+    const obj: any = {};
+    if (message.isCorrect !== false) {
+      obj.isCorrect = message.isCorrect;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GradeAnswerResponse>, I>>(base?: I): GradeAnswerResponse {
+    return GradeAnswerResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GradeAnswerResponse>, I>>(object: I): GradeAnswerResponse {
+    const message = createBaseGradeAnswerResponse();
+    message.isCorrect = object.isCorrect ?? false;
+    return message;
+  },
+};
+
 export type AiServiceService = typeof AiServiceService;
 export const AiServiceService = {
   /**
@@ -378,6 +631,22 @@ export const AiServiceService = {
     responseSerialize: (value: ChatResponse): Buffer => Buffer.from(ChatResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): ChatResponse => ChatResponse.decode(value),
   },
+  /**
+   * Grades a free-text knowledge-check answer (code_completion/debug types)
+   * by judging whether it captures the correct fix/concept — not an exact
+   * string match, so equivalent-but-differently-phrased answers (different
+   * variable names, or an answer that states only the crucial change rather
+   * than the whole surrounding snippet) are graded correct.
+   */
+  gradeAnswer: {
+    path: "/ai.AiService/GradeAnswer" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GradeAnswerRequest): Buffer => Buffer.from(GradeAnswerRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GradeAnswerRequest => GradeAnswerRequest.decode(value),
+    responseSerialize: (value: GradeAnswerResponse): Buffer => Buffer.from(GradeAnswerResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GradeAnswerResponse => GradeAnswerResponse.decode(value),
+  },
 } as const;
 
 export interface AiServiceServer extends UntypedServiceImplementation {
@@ -389,6 +658,14 @@ export interface AiServiceServer extends UntypedServiceImplementation {
    * full reply — the stream ending signals completion.
    */
   chat: handleServerStreamingCall<ChatRequest, ChatResponse>;
+  /**
+   * Grades a free-text knowledge-check answer (code_completion/debug types)
+   * by judging whether it captures the correct fix/concept — not an exact
+   * string match, so equivalent-but-differently-phrased answers (different
+   * variable names, or an answer that states only the crucial change rather
+   * than the whole surrounding snippet) are graded correct.
+   */
+  gradeAnswer: handleUnaryCall<GradeAnswerRequest, GradeAnswerResponse>;
 }
 
 export interface AiServiceClient extends Client {
@@ -401,6 +678,28 @@ export interface AiServiceClient extends Client {
    */
   chat(request: ChatRequest, options?: Partial<CallOptions>): ClientReadableStream<ChatResponse>;
   chat(request: ChatRequest, metadata?: Metadata, options?: Partial<CallOptions>): ClientReadableStream<ChatResponse>;
+  /**
+   * Grades a free-text knowledge-check answer (code_completion/debug types)
+   * by judging whether it captures the correct fix/concept — not an exact
+   * string match, so equivalent-but-differently-phrased answers (different
+   * variable names, or an answer that states only the crucial change rather
+   * than the whole surrounding snippet) are graded correct.
+   */
+  gradeAnswer(
+    request: GradeAnswerRequest,
+    callback: (error: ServiceError | null, response: GradeAnswerResponse) => void,
+  ): ClientUnaryCall;
+  gradeAnswer(
+    request: GradeAnswerRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GradeAnswerResponse) => void,
+  ): ClientUnaryCall;
+  gradeAnswer(
+    request: GradeAnswerRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GradeAnswerResponse) => void,
+  ): ClientUnaryCall;
 }
 
 export const AiServiceClient = makeGenericClientConstructor(AiServiceService, "ai.AiService") as unknown as {
