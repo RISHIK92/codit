@@ -204,9 +204,11 @@ type Project struct {
 	Deliverables     []string               `protobuf:"bytes,9,rep,name=deliverables,proto3" json:"deliverables,omitempty"`
 	// JSON-encoded array of { filePath, content, isDirectory } entries
 	// representing the project's initial file structure. Empty string means use defaults.
-	InitialFiles  string `protobuf:"bytes,10,opt,name=initial_files,json=initialFiles,proto3" json:"initial_files,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	InitialFiles string `protobuf:"bytes,10,opt,name=initial_files,json=initialFiles,proto3" json:"initial_files,omitempty"`
+	// Ids of other projects that must be completed before this one unlocks.
+	PrerequisiteIds []string `protobuf:"bytes,11,rep,name=prerequisite_ids,json=prerequisiteIds,proto3" json:"prerequisite_ids,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Project) Reset() {
@@ -307,6 +309,13 @@ func (x *Project) GetInitialFiles() string {
 		return x.InitialFiles
 	}
 	return ""
+}
+
+func (x *Project) GetPrerequisiteIds() []string {
+	if x != nil {
+		return x.PrerequisiteIds
+	}
+	return nil
 }
 
 type LearningPhaseProto struct {
@@ -533,7 +542,7 @@ const file_project_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"D\n" +
 	"\x16GetProjectByIdResponse\x12*\n" +
-	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\"\xb3\x02\n" +
+	"\aproject\x18\x01 \x01(\v2\x10.project.ProjectR\aproject\"\xde\x02\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -548,7 +557,8 @@ const file_project_proto_rawDesc = "" +
 	"\bdemo_url\x18\b \x01(\tR\ademoUrl\x12\"\n" +
 	"\fdeliverables\x18\t \x03(\tR\fdeliverables\x12#\n" +
 	"\rinitial_files\x18\n" +
-	" \x01(\tR\finitialFiles\"\xeb\x01\n" +
+	" \x01(\tR\finitialFiles\x12)\n" +
+	"\x10prerequisite_ids\x18\v \x03(\tR\x0fprerequisiteIds\"\xeb\x01\n" +
 	"\x12LearningPhaseProto\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
