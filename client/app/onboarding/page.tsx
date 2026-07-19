@@ -84,12 +84,16 @@ export default function OnboardingPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  // Which question of the current round is on screen — questions are shown
+  // one at a time (round 1 → q1 → q2 → round 2 → q1 → …) rather than all at once.
+  const [qIndex, setQIndex] = useState(0);
 
-  // Clear answers on each new round
+  // Clear answers and reset to the first question on each new round
   const prevRound = useRef(round);
   useEffect(() => {
     if (round !== prevRound.current) {
       setAnswers({});
+      setQIndex(0);
       prevRound.current = round;
     }
   }, [round]);
@@ -146,6 +150,21 @@ export default function OnboardingPage() {
 
   const allAnswered =
     questions.length > 0 && questions.every((q) => answers[q.id] !== undefined);
+
+  const currentQuestion = questions[qIndex];
+  const isLastQuestion = qIndex === questions.length - 1;
+  const currentAnswered =
+    !!currentQuestion && answers[currentQuestion.id] !== undefined;
+
+  const handleNextQuestion = () => {
+    if (!currentAnswered || isLastQuestion) return;
+    setQIndex((i) => i + 1);
+  };
+
+  const handlePrevQuestion = () => {
+    if (qIndex === 0) return;
+    setQIndex((i) => i - 1);
+  };
 
   const handleSubmitRound = async () => {
     if (!allAnswered) return;
@@ -324,34 +343,51 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {/* Active questions */}
-              {!testLoading && !testError && !done && questions.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <h1 className="font-(family-name:--font-cormorant) text-[28px] font-semibold text-txt">
-                      Quick assessment
-                    </h1>
-                    <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost bg-border-s/40 px-2 py-1 rounded-sm">
-                      Round {round}
-                    </span>
+              {/* Active question (one at a time) */}
+              {!testLoading &&
+                !testError &&
+                !done &&
+                questions.length > 0 &&
+                currentQuestion && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <h1 className="font-(family-name:--font-cormorant) text-[28px] font-semibold text-txt">
+                        Quick assessment
+                      </h1>
+                      <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost bg-border-s/40 px-2 py-1 rounded-sm">
+                        Round {round} · Q{qIndex + 1} of {questions.length}
+                      </span>
+                    </div>
+                    <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-8">
+                      Answer honestly — this sets your starting level, not your
+                      ceiling.
+                    </p>
+                    {/* Per-round question dots */}
+                    <div className="flex items-center gap-1.5 mb-6">
+                      {questions.map((q, i) => (
+                        <span
+                          key={q.id}
+                          className={`h-1 rounded-full transition-all duration-300 ${
+                            i === qIndex
+                              ? "w-6 bg-accent"
+                              : answers[q.id] !== undefined
+                                ? "w-1.5 bg-accent/40"
+                                : "w-1.5 bg-border-s"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <QuestionBlock
+                      key={currentQuestion.id}
+                      question={currentQuestion}
+                      index={qIndex}
+                      selected={answers[currentQuestion.id] ?? null}
+                      onSelect={(idx) =>
+                        handleSelectOption(currentQuestion.id, idx)
+                      }
+                    />
                   </div>
-                  <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-8">
-                    Answer honestly — this sets your starting level, not your
-                    ceiling.
-                  </p>
-                  <div className="flex flex-col gap-8">
-                    {questions.map((q, qi) => (
-                      <QuestionBlock
-                        key={q.id}
-                        question={q}
-                        index={qi}
-                        selected={answers[q.id] ?? null}
-                        onSelect={(idx) => handleSelectOption(q.id, idx)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
 
               {/* Result screen */}
               {done && levelMeta && (
@@ -386,10 +422,21 @@ export default function OnboardingPage() {
 
           {/* ── Actions ── */}
           <div className="mt-8 flex items-center justify-between">
-            {/* Back — only on hours step */}
+            {/* Back — hours step, or a previous question within the current round */}
             {step === "hours" ? (
               <button
                 onClick={() => setStep("modes")}
+                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors"
+              >
+                ← Back
+              </button>
+            ) : step === "test" &&
+              !done &&
+              !testLoading &&
+              !testError &&
+              qIndex > 0 ? (
+              <button
+                onClick={handlePrevQuestion}
                 className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors"
               >
                 ← Back
@@ -409,12 +456,13 @@ export default function OnboardingPage() {
               </button>
             )}
 
-            {/* Test: Submit round */}
+            {/* Test: Next question, or Submit round on the last question */}
             {step === "test" &&
               !done &&
               !testLoading &&
               !testError &&
-              questions.length > 0 && (
+              questions.length > 0 &&
+              (isLastQuestion ? (
                 <button
                   disabled={!allAnswered || submitting}
                   onClick={handleSubmitRound}
@@ -429,7 +477,15 @@ export default function OnboardingPage() {
                     "Submit →"
                   )}
                 </button>
-              )}
+              ) : (
+                <button
+                  disabled={!currentAnswered}
+                  onClick={handleNextQuestion}
+                  className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                >
+                  Next →
+                </button>
+              ))}
 
             {/* Test done: Enter dashboard */}
             {step === "test" && done && (
