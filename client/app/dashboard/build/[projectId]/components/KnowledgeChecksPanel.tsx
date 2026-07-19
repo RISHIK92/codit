@@ -124,7 +124,7 @@ function QuestionModal({
       onClick={onClose}
     >
       <div
-        className="relative bg-surface border border-border-s rounded-sm p-6 max-w-md w-full shadow-[0_24px_64px_rgba(0,0,0,0.7)] max-h-[80vh] overflow-y-auto"
+        className="relative bg-surface border border-border-s rounded-sm p-6 max-w-2xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.7)] max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
