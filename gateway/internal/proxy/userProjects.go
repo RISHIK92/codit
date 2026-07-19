@@ -94,6 +94,82 @@ func GetAllUserProjectsProxy(grpcClient pb.UserProjectServiceClient) http.Handle
 	}
 }
 
+// SetUserProjectArchivedProxy forwards POST /api/user-projects/archive to
+// UserProjectService.SetUserProjectArchived. Body: { "projectId": "...", "archived": true|false }
+func SetUserProjectArchivedProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+
+		var requestBody struct {
+			ProjectID string `json:"projectId"`
+			Archived  bool   `json:"archived"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+		if requestBody.ProjectID == "" {
+			http.Error(w, "projectId is required", http.StatusBadRequest)
+			return
+		}
+
+		grpcReq := &pb.SetUserProjectArchivedRequest{
+			ProjectId: requestBody.ProjectID,
+			Email:     email,
+			Archived:  requestBody.Archived,
+		}
+
+		grpcRes, err := grpcClient.SetUserProjectArchived(r.Context(), grpcReq)
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+// AdvancePhaseProxy forwards POST /api/user-projects/advance-phase to
+// UserProjectService.AdvancePhase. Body: { "projectId": "..." }
+func AdvancePhaseProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+
+		var requestBody struct {
+			ProjectID string `json:"projectId"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+		if requestBody.ProjectID == "" {
+			http.Error(w, "projectId is required", http.StatusBadRequest)
+			return
+		}
+
+		grpcReq := &pb.AdvancePhaseRequest{
+			ProjectId: requestBody.ProjectID,
+			Email:     email,
+		}
+
+		grpcRes, err := grpcClient.AdvancePhase(r.Context(), grpcReq)
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
 func GetUserProjectsByStatusProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.Header.Get("X-User-Email")
