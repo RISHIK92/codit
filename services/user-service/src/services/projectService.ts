@@ -7,6 +7,14 @@ export const createProject = async (
   status: Status,
   currentPhase: number,
 ) => {
+  if (status === "in_progress") {
+    const live = await projectRepo.getLiveProject(email);
+    if (live) {
+      throw new Error(
+        "You already have a live project in progress — archive it before starting a new one.",
+      );
+    }
+  }
   return await projectRepo.createProject(
     projectId,
     email,
@@ -33,6 +41,38 @@ export const updateProject = async (
   currentPhase: number,
 ) => {
   return await projectRepo.updateProject(id, status, currentPhase);
+};
+
+/**
+ * Archives or resumes a user's project. At most one live project
+ * (in_progress && !archived) and at most one archived project are allowed
+ * per user at a time — archiving frees the live slot; resuming requires it.
+ */
+export const setUserProjectArchived = async (
+  projectId: string,
+  email: string,
+  archived: boolean,
+) => {
+  if (archived) {
+    const existingArchived = await projectRepo.getArchivedProject(email);
+    if (existingArchived && existingArchived.project_id !== projectId) {
+      throw new Error(
+        "You already have an archived project — resume or complete it before archiving another.",
+      );
+    }
+  } else {
+    const live = await projectRepo.getLiveProject(email);
+    if (live && live.project_id !== projectId) {
+      throw new Error(
+        "You already have a live project — archive it before resuming this one.",
+      );
+    }
+  }
+  return await projectRepo.setArchived(projectId, email, archived);
+};
+
+export const advancePhase = async (projectId: string, email: string) => {
+  return await projectRepo.advancePhase(projectId, email);
 };
 
 // ── Project catalogue ─────────────────────────────────────────────────────────
