@@ -9,6 +9,10 @@ import {
   GetAllUserProjectsResponse,
   GetUserProjectsByStatusRequest,
   GetUserProjectsByStatusResponse,
+  SetUserProjectArchivedRequest,
+  SetUserProjectArchivedResponse,
+  AdvancePhaseRequest,
+  AdvancePhaseResponse,
 } from "../generated/userProject";
 import * as projectService from "../services/projectService";
 import { Status } from "../db/prismaClient";
@@ -44,6 +48,8 @@ export const projectHandler: UserProjectServiceServer = {
         statusCode = grpc.status.INVALID_ARGUMENT;
       } else if (error.message.includes("exists")) {
         statusCode = grpc.status.ALREADY_EXISTS;
+      } else if (error.message.includes("already have a live project")) {
+        statusCode = grpc.status.FAILED_PRECONDITION;
       }
 
       callback(
@@ -76,6 +82,7 @@ export const projectHandler: UserProjectServiceServer = {
               email: dbProject.user_email,
               status: dbProject.status,
               currentPhase: dbProject.current_phase,
+              archived: dbProject.archived ?? false,
             }
           : undefined,
       });
@@ -120,6 +127,7 @@ export const projectHandler: UserProjectServiceServer = {
           email: p.user_email,
           status: p.status,
           currentPhase: p.current_phase,
+          archived: p.archived ?? false,
         })),
       });
     } catch (error: any) {
@@ -166,6 +174,7 @@ export const projectHandler: UserProjectServiceServer = {
           email: p.user_email,
           status: p.status,
           currentPhase: p.current_phase,
+          archived: p.archived ?? false,
         })),
       });
     } catch (error: any) {
@@ -174,6 +183,97 @@ export const projectHandler: UserProjectServiceServer = {
       callback(
         {
           code: grpc.status.INTERNAL,
+          message: error.message,
+        },
+        null,
+      );
+    }
+  },
+  setUserProjectArchived: async (
+    call: grpc.ServerUnaryCall<
+      SetUserProjectArchivedRequest,
+      SetUserProjectArchivedResponse
+    >,
+    callback: grpc.sendUnaryData<SetUserProjectArchivedResponse>,
+  ) => {
+    try {
+      const { projectId, email, archived } = call.request;
+
+      console.log(
+        `Received gRPC request to set archived=${archived} for project: ${projectId}`,
+      );
+
+      const updated = await projectService.setUserProjectArchived(
+        projectId,
+        email,
+        archived,
+      );
+
+      callback(null, {
+        userProject: {
+          projectId: updated.project_id,
+          email: updated.user_email,
+          status: updated.status,
+          currentPhase: updated.current_phase,
+          archived: updated.archived ?? false,
+        },
+      });
+    } catch (error: any) {
+      console.error("Failed to set project archived state:", error.message);
+
+      let statusCode = grpc.status.INTERNAL;
+      if (error.message.includes("required")) {
+        statusCode = grpc.status.INVALID_ARGUMENT;
+      } else if (
+        error.message.includes("already have an archived project") ||
+        error.message.includes("already have a live project")
+      ) {
+        statusCode = grpc.status.FAILED_PRECONDITION;
+      } else if (error.code === "P2025") {
+        // Prisma "record not found" on the update.
+        statusCode = grpc.status.NOT_FOUND;
+      }
+
+      callback(
+        {
+          code: statusCode,
+          message: error.message,
+        },
+        null,
+      );
+    }
+  },
+  advancePhase: async (
+    call: grpc.ServerUnaryCall<AdvancePhaseRequest, AdvancePhaseResponse>,
+    callback: grpc.sendUnaryData<AdvancePhaseResponse>,
+  ) => {
+    try {
+      const { projectId, email } = call.request;
+
+      console.log(`Received gRPC request to advance phase for project: ${projectId}`);
+
+      const updated = await projectService.advancePhase(projectId, email);
+
+      callback(null, {
+        userProject: {
+          projectId: updated.project_id,
+          email: updated.user_email,
+          status: updated.status,
+          currentPhase: updated.current_phase,
+          archived: updated.archived ?? false,
+        },
+      });
+    } catch (error: any) {
+      console.error("Failed to advance phase:", error.message);
+
+      let statusCode = grpc.status.INTERNAL;
+      if (error.code === "P2025") {
+        statusCode = grpc.status.NOT_FOUND;
+      }
+
+      callback(
+        {
+          code: statusCode,
           message: error.message,
         },
         null,
