@@ -19,8 +19,10 @@ export interface ChatHistoryEntry {
  * "chat" (default) routes through the full agentic assistant (can fetch other
  * project files via tools). "explain" is a direct, single-shot call scoped to
  * just the active file — used for the cheap Option+Click "explain this" popup.
+ * "review" evaluates a phase submission against its goal, using a parsed
+ * code summary rather than raw file contents — used by the Submit button.
  */
-export type ChatMode = "chat" | "explain";
+export type ChatMode = "chat" | "explain" | "review";
 
 /**
  * Send a message to the AI assistant; context is assembled server-side.
@@ -37,6 +39,8 @@ export async function sendChatMessage(
     message: string;
     history: ChatHistoryEntry[];
     mode?: ChatMode;
+    /** Short human-readable summary of the current project + phase, e.g. "Project: Recipe Tracker (React, Node) — Phase 2: State Management". */
+    currentTask?: string;
   },
   onChunk: (text: string) => void,
   signal?: AbortSignal,
@@ -55,6 +59,7 @@ export async function sendChatMessage(
       message: params.message,
       history: params.history,
       mode: params.mode ?? "chat",
+      currentTask: params.currentTask ?? "",
     }),
   });
 
