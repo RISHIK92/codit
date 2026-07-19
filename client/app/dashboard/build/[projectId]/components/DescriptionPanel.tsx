@@ -10,6 +10,71 @@ interface DescriptionPanelProps {
   projectName: string;
 }
 
+// ── Minimal markdown renderer for long_description ──────────────────────────
+// Authored phase content uses a small, fixed markdown subset — "## " headings,
+// **bold**, `inline code`, and blank-line paragraph breaks — so a full
+// markdown library would be overkill. This covers exactly that subset.
+
+function renderInlineMd(text: string, keyPrefix: string) {
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    const key = `${keyPrefix}-${i}`;
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code
+          key={key}
+          className="px-1 py-0.5 bg-void rounded text-[12px] font-mono text-accent/80 border border-border-s"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return (
+        <strong key={key} className="font-semibold text-txt">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+      return (
+        <em key={key} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    return <span key={key}>{part}</span>;
+  });
+}
+
+function renderLongDescription(text: string) {
+  const blocks = text.split(/\n\n+/);
+  return blocks.map((block, i) => {
+    const key = `b${i}`;
+    if (block.startsWith("## ")) {
+      return (
+        <h3
+          key={key}
+          className="font-(family-name:--font-dm) text-[13px] font-semibold uppercase tracking-wider text-txt mt-2"
+        >
+          {renderInlineMd(block.slice(3), key)}
+        </h3>
+      );
+    }
+    const lines = block.split("\n");
+    return (
+      <p key={key}>
+        {lines.map((line, li) => (
+          <span key={`${key}-l${li}`}>
+            {renderInlineMd(line, `${key}-l${li}`)}
+            {li < lines.length - 1 && <br />}
+          </span>
+        ))}
+      </p>
+    );
+  });
+}
+
 export function DescriptionPanel({
   phase,
   projectName: _projectName,
@@ -73,8 +138,8 @@ export function DescriptionPanel({
         {activeTab === "description" && (
           <div className="space-y-4">
             {phase.long_description ? (
-              <div className="font-(family-name:--font-dm) text-[13px] text-txt-muted leading-[1.8] whitespace-pre-wrap">
-                {phase.long_description}
+              <div className="font-(family-name:--font-dm) text-[13px] text-txt-muted leading-[1.8] space-y-3">
+                {renderLongDescription(phase.long_description)}
               </div>
             ) : (
               <div className="font-(family-name:--font-dm) text-[13px] text-txt-muted leading-[1.8]">
