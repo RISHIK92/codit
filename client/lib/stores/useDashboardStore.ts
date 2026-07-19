@@ -38,6 +38,7 @@ import {
   getAllUserProjects,
   getUserProjectById,
   getProjectWithPhases,
+  setUserProjectArchived,
   type UserProjectDTO,
 } from "@/lib/api/projectsApi";
 
@@ -125,6 +126,12 @@ interface DashboardState {
    * @param projectId The project_id to look up
    */
   fetchUserProjectById: (idToken: string, projectId: string) => Promise<void>;
+
+  /**
+   * Archives the user's current live project, freeing the live slot so a
+   * different project can be started. Refetches `userProjects` on success.
+   */
+  archiveCurrentProject: (idToken: string) => Promise<void>;
 }
 
 // ─── Initial / mock data ──────────────────────────────────────────────────────
@@ -205,7 +212,7 @@ const INITIAL_RESOURCES: Resource[] = [
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
-export const useDashboardStore = create<DashboardState>((set) => ({
+export const useDashboardStore = create<DashboardState>((set, get) => ({
   currentProject: {
     id: "",
     title: "",
@@ -237,8 +244,12 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       const projects = data.user_projects ?? data.userProjects ?? [];
       set({ userProjects: projects, projectsLoading: false });
 
-      // Find the active project and hydrate currentProject + phases from the catalogue
-      const active = projects.find((p) => p.status === "in_progress");
+      // Find the live project (in progress, not archived) and hydrate
+      // currentProject + phases from the catalogue. An archived project is
+      // still "in_progress" in status but isn't the live one to show here.
+      const active = projects.find(
+        (p) => p.status === "in_progress" && !p.archived,
+      );
       if (active) {
         try {
           const detail = await getProjectWithPhases(idToken, active.project_id);
@@ -306,6 +317,21 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         } catch {
           // Catalogue fetch failed — leave currentProject/phases as empty defaults
         }
+      } else {
+        // No live project (e.g. just archived) — clear stale hero-card data
+        // rather than continuing to show the previous project.
+        set({
+          currentProject: {
+            id: "",
+            title: "",
+            phase: 0,
+            description: "",
+            progress: 0,
+            nextObjective: "",
+            deliverables: [],
+          },
+          phases: [],
+        });
       }
     } catch (err: any) {
       set({
@@ -339,5 +365,12 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         projectsLoading: false,
       });
     }
+  },
+
+  archiveCurrentProject: async (idToken: string) => {
+    const { currentProject } = get();
+    if (!currentProject.id) return;
+    await setUserProjectArchived(idToken, currentProject.id, true);
+    await get().fetchUserProjects(idToken);
   },
 }));
