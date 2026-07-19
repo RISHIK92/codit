@@ -14,7 +14,7 @@ import (
 // ── Chat ──────────────────────────────────────────────────────────────────────
 
 // ChatProxy handles POST /api/ai/chat
-// Body: { "projectId": "...", "phaseId": "...", "activeFilePath": "...", "message": "...", "history": [{ "role": "...", "content": "..." }], "mode": "chat" | "explain" }
+// Body: { "projectId": "...", "phaseId": "...", "activeFilePath": "...", "message": "...", "history": [{ "role": "...", "content": "..." }], "mode": "chat" | "explain", "currentTask": "..." }
 // Streams the reply back as it's generated — the response body is plain text,
 // one chunk per flush, not a single JSON object.
 func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
@@ -27,6 +27,7 @@ func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 			ActiveFilePath string `json:"activeFilePath"`
 			Message        string `json:"message"`
 			Mode           string `json:"mode"`
+			CurrentTask    string `json:"currentTask"`
 			History        []struct {
 				Role    string `json:"role"`
 				Content string `json:"content"`
@@ -54,6 +55,7 @@ func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 			Message:        body.Message,
 			History:        history,
 			Mode:           body.Mode,
+			CurrentTask:    body.CurrentTask,
 		})
 		if err != nil {
 			st, _ := status.FromError(err)
