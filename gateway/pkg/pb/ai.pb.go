@@ -86,7 +86,13 @@ type ChatRequest struct {
 	// "" or "chat" = full agentic assistant (tool-calling, multi-file context).
 	// "explain" = direct single-shot call, no tools, no file-fetching loop —
 	// used for the cheap Option+Click "explain this" flow.
-	Mode          string `protobuf:"bytes,7,opt,name=mode,proto3" json:"mode,omitempty"`
+	Mode string `protobuf:"bytes,7,opt,name=mode,proto3" json:"mode,omitempty"`
+	// Client-supplied summary of the user's current project and task, e.g.
+	// "Project: Recipe Tracker (React, Node) — Phase 2: State Management".
+	// The client already holds this in memory (active project/phase
+	// selection); pushing it here is cheaper than the service re-deriving it
+	// via extra user-service calls.
+	CurrentTask   string `protobuf:"bytes,8,opt,name=current_task,json=currentTask,proto3" json:"current_task,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,6 +176,13 @@ func (x *ChatRequest) GetMode() string {
 	return ""
 }
 
+func (x *ChatRequest) GetCurrentTask() string {
+	if x != nil {
+		return x.CurrentTask
+	}
+	return ""
+}
+
 type ChatResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// One text delta of the reply. Concatenate all deltas received on the
@@ -216,6 +229,126 @@ func (x *ChatResponse) GetReply() string {
 	return ""
 }
 
+type GradeAnswerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Question      string                 `protobuf:"bytes,1,opt,name=question,proto3" json:"question,omitempty"`
+	CorrectAnswer string                 `protobuf:"bytes,2,opt,name=correct_answer,json=correctAnswer,proto3" json:"correct_answer,omitempty"`
+	Explanation   string                 `protobuf:"bytes,3,opt,name=explanation,proto3" json:"explanation,omitempty"`
+	QuestionType  string                 `protobuf:"bytes,4,opt,name=question_type,json=questionType,proto3" json:"question_type,omitempty"` // "code_completion" | "debug"
+	UserAnswer    string                 `protobuf:"bytes,5,opt,name=user_answer,json=userAnswer,proto3" json:"user_answer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GradeAnswerRequest) Reset() {
+	*x = GradeAnswerRequest{}
+	mi := &file_ai_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GradeAnswerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GradeAnswerRequest) ProtoMessage() {}
+
+func (x *GradeAnswerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ai_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GradeAnswerRequest.ProtoReflect.Descriptor instead.
+func (*GradeAnswerRequest) Descriptor() ([]byte, []int) {
+	return file_ai_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GradeAnswerRequest) GetQuestion() string {
+	if x != nil {
+		return x.Question
+	}
+	return ""
+}
+
+func (x *GradeAnswerRequest) GetCorrectAnswer() string {
+	if x != nil {
+		return x.CorrectAnswer
+	}
+	return ""
+}
+
+func (x *GradeAnswerRequest) GetExplanation() string {
+	if x != nil {
+		return x.Explanation
+	}
+	return ""
+}
+
+func (x *GradeAnswerRequest) GetQuestionType() string {
+	if x != nil {
+		return x.QuestionType
+	}
+	return ""
+}
+
+func (x *GradeAnswerRequest) GetUserAnswer() string {
+	if x != nil {
+		return x.UserAnswer
+	}
+	return ""
+}
+
+type GradeAnswerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsCorrect     bool                   `protobuf:"varint,1,opt,name=is_correct,json=isCorrect,proto3" json:"is_correct,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GradeAnswerResponse) Reset() {
+	*x = GradeAnswerResponse{}
+	mi := &file_ai_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GradeAnswerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GradeAnswerResponse) ProtoMessage() {}
+
+func (x *GradeAnswerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ai_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GradeAnswerResponse.ProtoReflect.Descriptor instead.
+func (*GradeAnswerResponse) Descriptor() ([]byte, []int) {
+	return file_ai_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GradeAnswerResponse) GetIsCorrect() bool {
+	if x != nil {
+		return x.IsCorrect
+	}
+	return false
+}
+
 var File_ai_proto protoreflect.FileDescriptor
 
 const file_ai_proto_rawDesc = "" +
@@ -223,7 +356,7 @@ const file_ai_proto_rawDesc = "" +
 	"\bai.proto\x12\x02ai\";\n" +
 	"\vChatMessage\x12\x12\n" +
 	"\x04role\x18\x01 \x01(\tR\x04role\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\"\xe9\x01\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\"\x8c\x02\n" +
 	"\vChatRequest\x12\x1d\n" +
 	"\n" +
 	"user_email\x18\x01 \x01(\tR\tuserEmail\x12\x1d\n" +
@@ -233,11 +366,23 @@ const file_ai_proto_rawDesc = "" +
 	"\x10active_file_path\x18\x04 \x01(\tR\x0eactiveFilePath\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12)\n" +
 	"\ahistory\x18\x06 \x03(\v2\x0f.ai.ChatMessageR\ahistory\x12\x12\n" +
-	"\x04mode\x18\a \x01(\tR\x04mode\"$\n" +
+	"\x04mode\x18\a \x01(\tR\x04mode\x12!\n" +
+	"\fcurrent_task\x18\b \x01(\tR\vcurrentTask\"$\n" +
 	"\fChatResponse\x12\x14\n" +
-	"\x05reply\x18\x01 \x01(\tR\x05reply28\n" +
+	"\x05reply\x18\x01 \x01(\tR\x05reply\"\xbf\x01\n" +
+	"\x12GradeAnswerRequest\x12\x1a\n" +
+	"\bquestion\x18\x01 \x01(\tR\bquestion\x12%\n" +
+	"\x0ecorrect_answer\x18\x02 \x01(\tR\rcorrectAnswer\x12 \n" +
+	"\vexplanation\x18\x03 \x01(\tR\vexplanation\x12#\n" +
+	"\rquestion_type\x18\x04 \x01(\tR\fquestionType\x12\x1f\n" +
+	"\vuser_answer\x18\x05 \x01(\tR\n" +
+	"userAnswer\"4\n" +
+	"\x13GradeAnswerResponse\x12\x1d\n" +
+	"\n" +
+	"is_correct\x18\x01 \x01(\bR\tisCorrect2x\n" +
 	"\tAiService\x12+\n" +
-	"\x04Chat\x12\x0f.ai.ChatRequest\x1a\x10.ai.ChatResponse0\x01B\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x04Chat\x12\x0f.ai.ChatRequest\x1a\x10.ai.ChatResponse0\x01\x12>\n" +
+	"\vGradeAnswer\x12\x16.ai.GradeAnswerRequest\x1a\x17.ai.GradeAnswerResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_ai_proto_rawDescOnce sync.Once
@@ -251,18 +396,22 @@ func file_ai_proto_rawDescGZIP() []byte {
 	return file_ai_proto_rawDescData
 }
 
-var file_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_ai_proto_goTypes = []any{
-	(*ChatMessage)(nil),  // 0: ai.ChatMessage
-	(*ChatRequest)(nil),  // 1: ai.ChatRequest
-	(*ChatResponse)(nil), // 2: ai.ChatResponse
+	(*ChatMessage)(nil),         // 0: ai.ChatMessage
+	(*ChatRequest)(nil),         // 1: ai.ChatRequest
+	(*ChatResponse)(nil),        // 2: ai.ChatResponse
+	(*GradeAnswerRequest)(nil),  // 3: ai.GradeAnswerRequest
+	(*GradeAnswerResponse)(nil), // 4: ai.GradeAnswerResponse
 }
 var file_ai_proto_depIdxs = []int32{
 	0, // 0: ai.ChatRequest.history:type_name -> ai.ChatMessage
 	1, // 1: ai.AiService.Chat:input_type -> ai.ChatRequest
-	2, // 2: ai.AiService.Chat:output_type -> ai.ChatResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
+	3, // 2: ai.AiService.GradeAnswer:input_type -> ai.GradeAnswerRequest
+	2, // 3: ai.AiService.Chat:output_type -> ai.ChatResponse
+	4, // 4: ai.AiService.GradeAnswer:output_type -> ai.GradeAnswerResponse
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -279,7 +428,7 @@ func file_ai_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ai_proto_rawDesc), len(file_ai_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
