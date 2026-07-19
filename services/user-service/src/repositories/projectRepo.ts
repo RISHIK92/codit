@@ -23,6 +23,39 @@ export const findProjectById = async (projectId: string) => {
   });
 };
 
+/** The user's single "live" project, if any — in progress and not archived. */
+export const getLiveProject = async (email: string) => {
+  return await prisma.userProjects.findFirst({
+    where: { user_email: email, status: "in_progress", archived: false },
+  });
+};
+
+/** The user's single archived project, if any. */
+export const getArchivedProject = async (email: string) => {
+  return await prisma.userProjects.findFirst({
+    where: { user_email: email, archived: true },
+  });
+};
+
+export const setArchived = async (
+  projectId: string,
+  email: string,
+  archived: boolean,
+) => {
+  return await prisma.userProjects.update({
+    where: { project_id_user_email: { project_id: projectId, user_email: email } },
+    data: { archived },
+  });
+};
+
+/** Atomically bumps current_phase by 1 — called after an AI review judges the phase goal met. */
+export const advancePhase = async (projectId: string, email: string) => {
+  return await prisma.userProjects.update({
+    where: { project_id_user_email: { project_id: projectId, user_email: email } },
+    data: { current_phase: { increment: 1 } },
+  });
+};
+
 export const getAllProjects = async (email: string) => {
   return await prisma.userProjects.findMany({
     where: { user_email: email },
