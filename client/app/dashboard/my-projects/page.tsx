@@ -9,6 +9,7 @@ import {
   getAllUserProjects,
   getUserProjectsByStatus,
   getAllCatalogueProjects,
+  setUserProjectArchived,
   type UserProjectDTO,
   type CatalogueProjectDTO,
 } from "@/lib/api/projectsApi";
@@ -133,19 +134,29 @@ function ConstellationNode({
   ep,
   index,
   side,
+  onResume,
+  resuming,
 }: {
   ep: EnrichedProject;
   index: number;
   side: "left" | "right";
+  onResume: (projectId: string) => void;
+  resuming: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const status = (ep.user.status as Status) ?? "in_progress";
-  const cfg = STATUS_CONFIG[status];
+  // "archived" (paused) is a separate concept from the "abandoned" status
+  // (labeled "Archived" below) — a paused project keeps status in_progress
+  // but isn't the user's live one, and can be resumed.
+  const isPaused = status === "in_progress" && !!ep.user.archived;
+  const cfg = isPaused
+    ? { label: "Paused", color: "text-txt-ghost", ring: "border-border-s" }
+    : STATUS_CONFIG[status];
   const accent = SKILL_COLOR[ep.catalogue.skill_level] ?? "#7fffd4";
   // current_phase comes as omitempty from Go — coerce to 0 if undefined
   const currentPhase = ep.user.current_phase ?? 0;
   const pct = progress(currentPhase, ep.catalogue.phase_count);
-  const isActive = status === "in_progress";
+  const isActive = status === "in_progress" && !isPaused;
 
   return (
     <div
@@ -292,13 +303,27 @@ function ConstellationNode({
                   )}
                 </div>
 
-                {/* Arrow */}
-                <span
-                  className="ml-auto font-(family-name:--font-dm) text-[10px] uppercase tracking-widest opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
-                  style={{ color: accent }}
-                >
-                  {isActive ? "Continue →" : "View →"}
-                </span>
+                {isPaused ? (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onResume(ep.catalogue.id);
+                    }}
+                    disabled={resuming}
+                    className="ml-auto font-(family-name:--font-dm) text-[10px] uppercase tracking-widest border border-accent/40 text-accent px-3 py-1.5 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {resuming ? "Resuming…" : "Resume"}
+                  </button>
+                ) : (
+                  /* Arrow */
+                  <span
+                    className="ml-auto font-(family-name:--font-dm) text-[10px] uppercase tracking-widest opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
+                    style={{ color: accent }}
+                  >
+                    {isActive ? "Continue →" : "View →"}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -456,6 +481,42 @@ export default function MyProjectsPage() {
   const [filterFetching, setFilterFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [resumingId, setResumingId] = useState<string | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+
+  const refetchAll = useCallback(async () => {
+    if (!user) return;
+    const token = await user.getIdToken();
+    const [upRes, catRes] = await Promise.all([
+      getAllUserProjects(token),
+      getAllCatalogueProjects(),
+    ]);
+    const ups: UserProjectDTO[] = upRes.user_projects ?? upRes.userProjects ?? [];
+    const cats: CatalogueProjectDTO[] = catRes.projects ?? [];
+    const map = new Map(cats.map((c) => [c.id, c]));
+    setCatMap(map);
+    const all = enrich(ups, map);
+    setAllEnriched(all);
+    setVisible(filter === "all" ? all : all.filter((ep) => ep.user.status === filter));
+  }, [user, filter]);
+
+  async function handleResume(projectId: string) {
+    if (!user) return;
+    setResumeError(null);
+    setResumingId(projectId);
+    try {
+      const token = await user.getIdToken();
+      await setUserProjectArchived(token, projectId, false);
+      await refetchAll();
+    } catch (err: any) {
+      setResumeError(
+        err.message ??
+          "Couldn't resume this project — archive your current live project first.",
+      );
+    } finally {
+      setResumingId(null);
+    }
+  }
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -611,6 +672,12 @@ export default function MyProjectsPage() {
       {/* Mobile stats */}
       <MobileStats projects={allEnriched} />
 
+      {resumeError && (
+        <p className="font-(family-name:--font-dm) text-[11px] text-error mb-4">
+          {resumeError}
+        </p>
+      )}
+
       {/* Filter tabs */}
       <div className="flex gap-1 mb-8 border-b border-border-s">
         {FILTERS.map((f) => {
@@ -686,6 +753,8 @@ export default function MyProjectsPage() {
                   ep={ep}
                   index={i}
                   side={i % 2 === 0 ? "right" : "right"}
+                  onResume={handleResume}
+                  resuming={resumingId === ep.catalogue.id}
                 />
               ))}
             </div>
