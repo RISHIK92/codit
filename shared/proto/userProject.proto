@@ -11,6 +11,15 @@ service UserProjectService {
   rpc GetUserProjectById (GetUserProjectByIdRequest) returns (GetUserProjectByIdResponse);
   rpc GetAllUserProjects (GetAllUserProjectsRequest) returns (GetAllUserProjectsResponse);
   rpc GetUserProjectsByStatus (GetUserProjectsByStatusRequest) returns (GetUserProjectsByStatusResponse);
+  // Archives (or un-archives / "resumes") a user's project. A user may have
+  // at most 1 live project (archived = false, status = in_progress) and at
+  // most 1 archived project at a time — archiving the live project frees the
+  // live slot to start a different one; resuming an archived project
+  // requires the live slot to be free first.
+  rpc SetUserProjectArchived (SetUserProjectArchivedRequest) returns (SetUserProjectArchivedResponse);
+  // Advances current_phase by 1 — called after an AI review of a phase's
+  // submitted work judges the phase goal met.
+  rpc AdvancePhase (AdvancePhaseRequest) returns (AdvancePhaseResponse);
 }
 
 message CreateUserProjectRequest {
@@ -45,6 +54,7 @@ message UserProject {
   string email = 2;
   string status = 3;
   int32 current_phase = 4;
+  bool archived = 5;
 }
 
 message GetUserProjectsByStatusRequest {
@@ -54,4 +64,23 @@ message GetUserProjectsByStatusRequest {
 
 message GetUserProjectsByStatusResponse {
   repeated UserProject user_projects = 1;
+}
+
+message SetUserProjectArchivedRequest {
+  string project_id = 1;
+  string email = 2;
+  bool archived = 3;
+}
+
+message SetUserProjectArchivedResponse {
+  UserProject user_project = 1;
+}
+
+message AdvancePhaseRequest {
+  string project_id = 1;
+  string email = 2;
+}
+
+message AdvancePhaseResponse {
+  UserProject user_project = 1;
 }
