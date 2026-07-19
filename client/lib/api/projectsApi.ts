@@ -7,6 +7,8 @@
  *   GET  /api/user-projects/get-all        → GetAllUserProjectsResponse
  *   GET  /api/user-projects/get?projectId= → GetUserProjectByIdResponse
  *   POST /api/user-projects/create         → { success: boolean }
+ *   POST /api/user-projects/archive        → SetUserProjectArchivedResponse
+ *   POST /api/user-projects/advance-phase  → AdvancePhaseResponse
  *
  * ─── Public endpoints (no auth) ───────────────────────────────────────────────
  *   GET  /public/api/projects/get-all           → GetAllCatalogueProjectsResponse
@@ -30,6 +32,8 @@ export interface UserProjectDTO {
   /** "in_progress" | "completed" | "abandoned" */
   status: string;
   current_phase: number;
+  /** True when this project is archived — not the user's live project, but not abandoned either. */
+  archived: boolean;
 }
 
 // Go's encoding/json serialises proto snake_case fields as snake_case,
@@ -143,6 +147,8 @@ export interface CatalogueProjectDTO {
   demo_url: string;
   /** Ordered list of project deliverables, e.g. "You'll understand React hooks" */
   deliverables?: string[];
+  /** Ids of other projects that must be completed before this one unlocks. */
+  prerequisite_ids?: string[];
   /**
    * Optional per-project seed file-system. If present, the build workspace
    * loads this structure instead of the generic language default tree.
@@ -297,4 +303,61 @@ export async function createUserProject(
   }
 
   return res.json() as Promise<{ success: boolean }>;
+}
+
+/**
+ * Archive or resume (un-archive) a project for the authenticated user.
+ * At most one live (in_progress, unarchived) project and at most one
+ * archived project are allowed at a time — archiving the live project frees
+ * the live slot to start a different one.
+ *
+ * Hits POST /api/user-projects/archive on the gateway.
+ */
+export async function setUserProjectArchived(
+  idToken: string,
+  projectId: string,
+  archived: boolean,
+): Promise<{ user_project?: UserProjectDTO; userProject?: UserProjectDTO }> {
+  const res = await fetch(`${GATEWAY_URL}/api/user-projects/archive`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ projectId, archived }),
+  });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json();
+}
+
+/**
+ * Advances the authenticated user's current_phase by 1 for a project —
+ * called after an AI review of the submitted phase judges the goal met.
+ *
+ * Hits POST /api/user-projects/advance-phase on the gateway.
+ */
+export async function advanceUserProjectPhase(
+  idToken: string,
+  projectId: string,
+): Promise<{ user_project?: UserProjectDTO; userProject?: UserProjectDTO }> {
+  const res = await fetch(`${GATEWAY_URL}/api/user-projects/advance-phase`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ projectId }),
+  });
+
+  if (!res.ok) {
+    const msg = (await res.text()).trim();
+    throw new Error(msg || `Gateway error ${res.status}`);
+  }
+
+  return res.json();
 }
