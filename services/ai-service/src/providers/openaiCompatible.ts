@@ -5,9 +5,48 @@
 import type {
   ChatCompletionResult,
   ChatTurn,
+  ToolCall,
   ToolDefinition,
   TokenUsage,
 } from "./types";
+
+// ─── Leaked tool-call text recovery ───────────────────────────────────────
+// Llama models served by Groq occasionally skip the structured `tool_calls`
+// field entirely and instead emit their native pythonic tool-call syntax
+// (`<function=name>{...}</function>`) as plain text inside `content`. Left
+// alone, that raw tag leaks straight into the user-facing chat. Since it's a
+// well-formed, parseable signal, we recover it into a real ToolCall instead
+// of silently displaying it or dropping it.
+const LEAKED_TAG_OPEN = "<function=";
+// The separator between the function name and its JSON args varies by model
+// — `<function=name>{...}`, `<function=name {...}` (no `>`), and for
+// no-argument tools like list_files, no args block at all:
+// `<function=name></function>`. The lazy `[^<]*?` plus optional args group
+// tolerates all three instead of requiring one specific shape.
+const LEAKED_TAG_RE =
+  /<function=([a-zA-Z_][\w]*)[^<]*?(\{[\s\S]*?\})?\s*<\/function>/g;
+
+function extractLeakedToolCalls(text: string): {
+  cleanedContent: string;
+  toolCalls: ToolCall[];
+} {
+  const toolCalls: ToolCall[] = [];
+  let n = 0;
+  const cleanedContent = text.replace(LEAKED_TAG_RE, (_match, name, args) => {
+    toolCalls.push({ id: `leaked-${n++}`, name, arguments: args ?? "{}" });
+    return "";
+  });
+  return { cleanedContent, toolCalls };
+}
+
+/** Longest suffix of `s` that is itself a prefix of `LEAKED_TAG_OPEN` — i.e. text that might still grow into the opening tag as more chunks arrive. */
+function partialTagPrefixLength(s: string): number {
+  const max = Math.min(s.length, LEAKED_TAG_OPEN.length - 1);
+  for (let len = max; len > 0; len--) {
+    if (s.slice(-len) === LEAKED_TAG_OPEN.slice(0, len)) return len;
+  }
+  return 0;
+}
 
 function toWireMessage(turn: ChatTurn) {
   if (turn.role === "tool") {
@@ -176,13 +215,18 @@ export async function chatCompletion(opts: {
   };
 
   const message = data.choices[0]?.message;
+  const structuredToolCalls = message?.tool_calls?.map((tc) => ({
+    id: tc.id,
+    name: tc.function.name,
+    arguments: tc.function.arguments,
+  })) ?? [];
+  const { cleanedContent, toolCalls: leakedToolCalls } =
+    extractLeakedToolCalls(message?.content ?? "");
+  const toolCalls = [...structuredToolCalls, ...leakedToolCalls];
+
   return {
-    content: message?.content ?? null,
-    toolCalls: message?.tool_calls?.map((tc) => ({
-      id: tc.id,
-      name: tc.function.name,
-      arguments: tc.function.arguments,
-    })),
+    content: cleanedContent.trim() || null,
+    toolCalls: toolCalls.length ? toolCalls : undefined,
     usage: data.usage
       ? {
           promptTokens: data.usage.prompt_tokens,
@@ -249,11 +293,53 @@ export async function chatCompletionStream(
     number,
     { id: string; name: string; arguments: string }
   >();
+  const leakedToolCalls: ToolCall[] = [];
   let usage: TokenUsage | undefined;
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+
+  // Holds content that might be (the start of) a leaked `<function=...>`
+  // tag until it's either confirmed a tool call (extracted, never shown to
+  // the user) or ruled out (flushed as normal text).
+  let pendingContent = "";
+  let leakedToolCallCount = 0;
+
+  const flushContent = (text: string) => {
+    if (!text) return;
+    content += text;
+    onDelta(text);
+  };
+
+  const handleContentDelta = (text: string) => {
+    pendingContent += text;
+
+    for (;;) {
+      LEAKED_TAG_RE.lastIndex = 0;
+      const match = LEAKED_TAG_RE.exec(pendingContent);
+      if (!match) break;
+      flushContent(pendingContent.slice(0, match.index));
+      leakedToolCalls.push({
+        id: `leaked-${leakedToolCallCount++}`,
+        name: match[1],
+        arguments: match[2] ?? "{}",
+      });
+      pendingContent = pendingContent.slice(match.index + match[0].length);
+    }
+
+    const openIdx = pendingContent.indexOf(LEAKED_TAG_OPEN);
+    if (openIdx !== -1) {
+      // Mid-tag, closing "</function>" not seen yet — hold from here on.
+      flushContent(pendingContent.slice(0, openIdx));
+      pendingContent = pendingContent.slice(openIdx);
+      return;
+    }
+
+    const holdLen = partialTagPrefixLength(pendingContent);
+    flushContent(pendingContent.slice(0, pendingContent.length - holdLen));
+    pendingContent = pendingContent.slice(pendingContent.length - holdLen);
+  };
 
   const processLine = (line: string) => {
     if (!line.startsWith("data:")) return;
@@ -279,8 +365,7 @@ export async function chatCompletionStream(
     if (!delta) return;
 
     if (delta.content) {
-      content += delta.content;
-      onDelta(delta.content);
+      handleContentDelta(delta.content);
     }
 
     if (delta.tool_calls) {
@@ -310,8 +395,11 @@ export async function chatCompletionStream(
     }
   }
   if (buffer.trim()) processLine(buffer.trim());
+  // Whatever's still held back never closed into a full tag — best effort,
+  // surface it as normal text rather than silently dropping it.
+  flushContent(pendingContent);
 
-  const toolCalls = [...toolCallsByIndex.values()];
+  const toolCalls = [...toolCallsByIndex.values(), ...leakedToolCalls];
   return {
     content: content || null,
     toolCalls: toolCalls.length ? toolCalls : undefined,
