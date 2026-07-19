@@ -317,6 +317,7 @@ type UserProject struct {
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	CurrentPhase  int32                  `protobuf:"varint,4,opt,name=current_phase,json=currentPhase,proto3" json:"current_phase,omitempty"`
+	Archived      bool                   `protobuf:"varint,5,opt,name=archived,proto3" json:"archived,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -377,6 +378,13 @@ func (x *UserProject) GetCurrentPhase() int32 {
 		return x.CurrentPhase
 	}
 	return 0
+}
+
+func (x *UserProject) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
 }
 
 type GetUserProjectsByStatusRequest struct {
@@ -475,6 +483,206 @@ func (x *GetUserProjectsByStatusResponse) GetUserProjects() []*UserProject {
 	return nil
 }
 
+type SetUserProjectArchivedRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Archived      bool                   `protobuf:"varint,3,opt,name=archived,proto3" json:"archived,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserProjectArchivedRequest) Reset() {
+	*x = SetUserProjectArchivedRequest{}
+	mi := &file_userProject_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserProjectArchivedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserProjectArchivedRequest) ProtoMessage() {}
+
+func (x *SetUserProjectArchivedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserProjectArchivedRequest.ProtoReflect.Descriptor instead.
+func (*SetUserProjectArchivedRequest) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SetUserProjectArchivedRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *SetUserProjectArchivedRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *SetUserProjectArchivedRequest) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+type SetUserProjectArchivedResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserProject   *UserProject           `protobuf:"bytes,1,opt,name=user_project,json=userProject,proto3" json:"user_project,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserProjectArchivedResponse) Reset() {
+	*x = SetUserProjectArchivedResponse{}
+	mi := &file_userProject_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserProjectArchivedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserProjectArchivedResponse) ProtoMessage() {}
+
+func (x *SetUserProjectArchivedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserProjectArchivedResponse.ProtoReflect.Descriptor instead.
+func (*SetUserProjectArchivedResponse) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *SetUserProjectArchivedResponse) GetUserProject() *UserProject {
+	if x != nil {
+		return x.UserProject
+	}
+	return nil
+}
+
+type AdvancePhaseRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvancePhaseRequest) Reset() {
+	*x = AdvancePhaseRequest{}
+	mi := &file_userProject_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvancePhaseRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvancePhaseRequest) ProtoMessage() {}
+
+func (x *AdvancePhaseRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvancePhaseRequest.ProtoReflect.Descriptor instead.
+func (*AdvancePhaseRequest) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AdvancePhaseRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *AdvancePhaseRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type AdvancePhaseResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserProject   *UserProject           `protobuf:"bytes,1,opt,name=user_project,json=userProject,proto3" json:"user_project,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvancePhaseResponse) Reset() {
+	*x = AdvancePhaseResponse{}
+	mi := &file_userProject_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvancePhaseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvancePhaseResponse) ProtoMessage() {}
+
+func (x *AdvancePhaseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvancePhaseResponse.ProtoReflect.Descriptor instead.
+func (*AdvancePhaseResponse) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *AdvancePhaseResponse) GetUserProject() *UserProject {
+	if x != nil {
+		return x.UserProject
+	}
+	return nil
+}
+
 var File_userProject_proto protoreflect.FileDescriptor
 
 const file_userProject_proto_rawDesc = "" +
@@ -496,23 +704,39 @@ const file_userProject_proto_rawDesc = "" +
 	"\x19GetAllUserProjectsRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"[\n" +
 	"\x1aGetAllUserProjectsResponse\x12=\n" +
-	"\ruser_projects\x18\x01 \x03(\v2\x18.userProject.UserProjectR\fuserProjects\"\x7f\n" +
+	"\ruser_projects\x18\x01 \x03(\v2\x18.userProject.UserProjectR\fuserProjects\"\x9b\x01\n" +
 	"\vUserProject\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12#\n" +
-	"\rcurrent_phase\x18\x04 \x01(\x05R\fcurrentPhase\"N\n" +
+	"\rcurrent_phase\x18\x04 \x01(\x05R\fcurrentPhase\x12\x1a\n" +
+	"\barchived\x18\x05 \x01(\bR\barchived\"N\n" +
 	"\x1eGetUserProjectsByStatusRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"`\n" +
 	"\x1fGetUserProjectsByStatusResponse\x12=\n" +
-	"\ruser_projects\x18\x01 \x03(\v2\x18.userProject.UserProjectR\fuserProjects2\xb8\x03\n" +
+	"\ruser_projects\x18\x01 \x03(\v2\x18.userProject.UserProjectR\fuserProjects\"p\n" +
+	"\x1dSetUserProjectArchivedRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\barchived\x18\x03 \x01(\bR\barchived\"]\n" +
+	"\x1eSetUserProjectArchivedResponse\x12;\n" +
+	"\fuser_project\x18\x01 \x01(\v2\x18.userProject.UserProjectR\vuserProject\"J\n" +
+	"\x13AdvancePhaseRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\"S\n" +
+	"\x14AdvancePhaseResponse\x12;\n" +
+	"\fuser_project\x18\x01 \x01(\v2\x18.userProject.UserProjectR\vuserProject2\x80\x05\n" +
 	"\x12UserProjectService\x12^\n" +
 	"\rCreateProject\x12%.userProject.CreateUserProjectRequest\x1a&.userProject.CreateUserProjectResponse\x12e\n" +
 	"\x12GetUserProjectById\x12&.userProject.GetUserProjectByIdRequest\x1a'.userProject.GetUserProjectByIdResponse\x12e\n" +
 	"\x12GetAllUserProjects\x12&.userProject.GetAllUserProjectsRequest\x1a'.userProject.GetAllUserProjectsResponse\x12t\n" +
-	"\x17GetUserProjectsByStatus\x12+.userProject.GetUserProjectsByStatusRequest\x1a,.userProject.GetUserProjectsByStatusResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x17GetUserProjectsByStatus\x12+.userProject.GetUserProjectsByStatusRequest\x1a,.userProject.GetUserProjectsByStatusResponse\x12q\n" +
+	"\x16SetUserProjectArchived\x12*.userProject.SetUserProjectArchivedRequest\x1a+.userProject.SetUserProjectArchivedResponse\x12S\n" +
+	"\fAdvancePhase\x12 .userProject.AdvancePhaseRequest\x1a!.userProject.AdvancePhaseResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_userProject_proto_rawDescOnce sync.Once
@@ -526,7 +750,7 @@ func file_userProject_proto_rawDescGZIP() []byte {
 	return file_userProject_proto_rawDescData
 }
 
-var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_userProject_proto_goTypes = []any{
 	(*CreateUserProjectRequest)(nil),        // 0: userProject.CreateUserProjectRequest
 	(*CreateUserProjectResponse)(nil),       // 1: userProject.CreateUserProjectResponse
@@ -537,24 +761,34 @@ var file_userProject_proto_goTypes = []any{
 	(*UserProject)(nil),                     // 6: userProject.UserProject
 	(*GetUserProjectsByStatusRequest)(nil),  // 7: userProject.GetUserProjectsByStatusRequest
 	(*GetUserProjectsByStatusResponse)(nil), // 8: userProject.GetUserProjectsByStatusResponse
+	(*SetUserProjectArchivedRequest)(nil),   // 9: userProject.SetUserProjectArchivedRequest
+	(*SetUserProjectArchivedResponse)(nil),  // 10: userProject.SetUserProjectArchivedResponse
+	(*AdvancePhaseRequest)(nil),             // 11: userProject.AdvancePhaseRequest
+	(*AdvancePhaseResponse)(nil),            // 12: userProject.AdvancePhaseResponse
 }
 var file_userProject_proto_depIdxs = []int32{
-	6, // 0: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
-	6, // 1: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
-	6, // 2: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
-	0, // 3: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
-	2, // 4: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
-	4, // 5: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
-	7, // 6: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
-	1, // 7: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
-	3, // 8: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
-	5, // 9: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
-	8, // 10: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6,  // 0: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
+	6,  // 1: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
+	6,  // 2: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
+	6,  // 3: userProject.SetUserProjectArchivedResponse.user_project:type_name -> userProject.UserProject
+	6,  // 4: userProject.AdvancePhaseResponse.user_project:type_name -> userProject.UserProject
+	0,  // 5: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
+	2,  // 6: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
+	4,  // 7: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
+	7,  // 8: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
+	9,  // 9: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
+	11, // 10: userProject.UserProjectService.AdvancePhase:input_type -> userProject.AdvancePhaseRequest
+	1,  // 11: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
+	3,  // 12: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
+	5,  // 13: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
+	8,  // 14: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
+	10, // 15: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
+	12, // 16: userProject.UserProjectService.AdvancePhase:output_type -> userProject.AdvancePhaseResponse
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_userProject_proto_init() }
@@ -568,7 +802,7 @@ func file_userProject_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_userProject_proto_rawDesc), len(file_userProject_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
