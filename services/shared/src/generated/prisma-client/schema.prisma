@@ -32,6 +32,10 @@ model Projects {
   demo_url          String?
   estimated_minutes Int
   initial_files     Json?
+  /**
+   * Ids of Projects that must be completed before this one is unlockable.
+   */
+  prerequisite_ids  String[]    @default([])
   createdAt         DateTime    @default(now())
 
   learningPhases LearningPhase[]
