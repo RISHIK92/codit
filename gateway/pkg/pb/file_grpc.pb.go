@@ -21,11 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FileService_UpsertFile_FullMethodName  = "/file.FileService/UpsertFile"
-	FileService_GetFile_FullMethodName     = "/file.FileService/GetFile"
-	FileService_ListFiles_FullMethodName   = "/file.FileService/ListFiles"
-	FileService_DeleteFile_FullMethodName  = "/file.FileService/DeleteFile"
-	FileService_BatchUpsert_FullMethodName = "/file.FileService/BatchUpsert"
+	FileService_UpsertFile_FullMethodName       = "/file.FileService/UpsertFile"
+	FileService_GetFile_FullMethodName          = "/file.FileService/GetFile"
+	FileService_ListFiles_FullMethodName        = "/file.FileService/ListFiles"
+	FileService_DeleteFile_FullMethodName       = "/file.FileService/DeleteFile"
+	FileService_BatchUpsert_FullMethodName      = "/file.FileService/BatchUpsert"
+	FileService_GetPhaseSnapshot_FullMethodName = "/file.FileService/GetPhaseSnapshot"
 )
 
 // FileServiceClient is the client API for FileService service.
@@ -37,6 +38,9 @@ type FileServiceClient interface {
 	ListFiles(ctx context.Context, in *ListFilesRequest, opts ...grpc.CallOption) (*ListFilesResponse, error)
 	DeleteFile(ctx context.Context, in *DeleteFileRequest, opts ...grpc.CallOption) (*DeleteFileResponse, error)
 	BatchUpsert(ctx context.Context, in *BatchUpsertRequest, opts ...grpc.CallOption) (*BatchUpsertResponse, error)
+	// Read-only frozen file tree from when the user advanced past a given
+	// phase — for viewing old phases' code, never editable/re-submittable.
+	GetPhaseSnapshot(ctx context.Context, in *GetPhaseSnapshotRequest, opts ...grpc.CallOption) (*GetPhaseSnapshotResponse, error)
 }
 
 type fileServiceClient struct {
@@ -97,6 +101,16 @@ func (c *fileServiceClient) BatchUpsert(ctx context.Context, in *BatchUpsertRequ
 	return out, nil
 }
 
+func (c *fileServiceClient) GetPhaseSnapshot(ctx context.Context, in *GetPhaseSnapshotRequest, opts ...grpc.CallOption) (*GetPhaseSnapshotResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPhaseSnapshotResponse)
+	err := c.cc.Invoke(ctx, FileService_GetPhaseSnapshot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FileServiceServer is the server API for FileService service.
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility.
@@ -106,6 +120,9 @@ type FileServiceServer interface {
 	ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error)
 	DeleteFile(context.Context, *DeleteFileRequest) (*DeleteFileResponse, error)
 	BatchUpsert(context.Context, *BatchUpsertRequest) (*BatchUpsertResponse, error)
+	// Read-only frozen file tree from when the user advanced past a given
+	// phase — for viewing old phases' code, never editable/re-submittable.
+	GetPhaseSnapshot(context.Context, *GetPhaseSnapshotRequest) (*GetPhaseSnapshotResponse, error)
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -130,6 +147,9 @@ func (UnimplementedFileServiceServer) DeleteFile(context.Context, *DeleteFileReq
 }
 func (UnimplementedFileServiceServer) BatchUpsert(context.Context, *BatchUpsertRequest) (*BatchUpsertResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BatchUpsert not implemented")
+}
+func (UnimplementedFileServiceServer) GetPhaseSnapshot(context.Context, *GetPhaseSnapshotRequest) (*GetPhaseSnapshotResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPhaseSnapshot not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
 func (UnimplementedFileServiceServer) testEmbeddedByValue()                     {}
@@ -242,6 +262,24 @@ func _FileService_BatchUpsert_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FileService_GetPhaseSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPhaseSnapshotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServiceServer).GetPhaseSnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FileService_GetPhaseSnapshot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServiceServer).GetPhaseSnapshot(ctx, req.(*GetPhaseSnapshotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FileService_ServiceDesc is the grpc.ServiceDesc for FileService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -268,6 +306,10 @@ var FileService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BatchUpsert",
 			Handler:    _FileService_BatchUpsert_Handler,
+		},
+		{
+			MethodName: "GetPhaseSnapshot",
+			Handler:    _FileService_GetPhaseSnapshot_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

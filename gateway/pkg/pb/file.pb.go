@@ -616,6 +616,111 @@ func (x *BatchUpsertResponse) GetUpsertedCount() int32 {
 	return 0
 }
 
+// ── Get a phase's frozen snapshot ──────────────────────────────────────────────
+type GetPhaseSnapshotRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	UserEmail     string                 `protobuf:"bytes,2,opt,name=user_email,json=userEmail,proto3" json:"user_email,omitempty"`
+	PhaseNumber   int32                  `protobuf:"varint,3,opt,name=phase_number,json=phaseNumber,proto3" json:"phase_number,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPhaseSnapshotRequest) Reset() {
+	*x = GetPhaseSnapshotRequest{}
+	mi := &file_file_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPhaseSnapshotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPhaseSnapshotRequest) ProtoMessage() {}
+
+func (x *GetPhaseSnapshotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_file_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPhaseSnapshotRequest.ProtoReflect.Descriptor instead.
+func (*GetPhaseSnapshotRequest) Descriptor() ([]byte, []int) {
+	return file_file_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetPhaseSnapshotRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *GetPhaseSnapshotRequest) GetUserEmail() string {
+	if x != nil {
+		return x.UserEmail
+	}
+	return ""
+}
+
+func (x *GetPhaseSnapshotRequest) GetPhaseNumber() int32 {
+	if x != nil {
+		return x.PhaseNumber
+	}
+	return 0
+}
+
+type GetPhaseSnapshotResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Files         []*ProjectFile         `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPhaseSnapshotResponse) Reset() {
+	*x = GetPhaseSnapshotResponse{}
+	mi := &file_file_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPhaseSnapshotResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPhaseSnapshotResponse) ProtoMessage() {}
+
+func (x *GetPhaseSnapshotResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_file_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPhaseSnapshotResponse.ProtoReflect.Descriptor instead.
+func (*GetPhaseSnapshotResponse) Descriptor() ([]byte, []int) {
+	return file_file_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetPhaseSnapshotResponse) GetFiles() []*ProjectFile {
+	if x != nil {
+		return x.Files
+	}
+	return nil
+}
+
 // ── Shared message ────────────────────────────────────────────────────────────
 type ProjectFile struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -633,7 +738,7 @@ type ProjectFile struct {
 
 func (x *ProjectFile) Reset() {
 	*x = ProjectFile{}
-	mi := &file_file_proto_msgTypes[11]
+	mi := &file_file_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -645,7 +750,7 @@ func (x *ProjectFile) String() string {
 func (*ProjectFile) ProtoMessage() {}
 
 func (x *ProjectFile) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[11]
+	mi := &file_file_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -658,7 +763,7 @@ func (x *ProjectFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectFile.ProtoReflect.Descriptor instead.
 func (*ProjectFile) Descriptor() ([]byte, []int) {
-	return file_file_proto_rawDescGZIP(), []int{11}
+	return file_file_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ProjectFile) GetId() string {
@@ -767,7 +872,15 @@ const file_file_proto_rawDesc = "" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12!\n" +
 	"\fis_directory\x18\x03 \x01(\bR\visDirectory\"<\n" +
 	"\x13BatchUpsertResponse\x12%\n" +
-	"\x0eupserted_count\x18\x01 \x01(\x05R\rupsertedCount\"\xf3\x01\n" +
+	"\x0eupserted_count\x18\x01 \x01(\x05R\rupsertedCount\"z\n" +
+	"\x17GetPhaseSnapshotRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
+	"\n" +
+	"user_email\x18\x02 \x01(\tR\tuserEmail\x12!\n" +
+	"\fphase_number\x18\x03 \x01(\x05R\vphaseNumber\"C\n" +
+	"\x18GetPhaseSnapshotResponse\x12'\n" +
+	"\x05files\x18\x01 \x03(\v2\x11.file.ProjectFileR\x05files\"\xf3\x01\n" +
 	"\vProjectFile\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -780,7 +893,7 @@ const file_file_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\tR\tupdatedAt2\xc9\x02\n" +
+	"updated_at\x18\b \x01(\tR\tupdatedAt2\x9c\x03\n" +
 	"\vFileService\x12?\n" +
 	"\n" +
 	"UpsertFile\x12\x17.file.UpsertFileRequest\x1a\x18.file.UpsertFileResponse\x126\n" +
@@ -788,7 +901,8 @@ const file_file_proto_rawDesc = "" +
 	"\tListFiles\x12\x16.file.ListFilesRequest\x1a\x17.file.ListFilesResponse\x12?\n" +
 	"\n" +
 	"DeleteFile\x12\x17.file.DeleteFileRequest\x1a\x18.file.DeleteFileResponse\x12B\n" +
-	"\vBatchUpsert\x12\x18.file.BatchUpsertRequest\x1a\x19.file.BatchUpsertResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\vBatchUpsert\x12\x18.file.BatchUpsertRequest\x1a\x19.file.BatchUpsertResponse\x12Q\n" +
+	"\x10GetPhaseSnapshot\x12\x1d.file.GetPhaseSnapshotRequest\x1a\x1e.file.GetPhaseSnapshotResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_file_proto_rawDescOnce sync.Once
@@ -802,41 +916,46 @@ func file_file_proto_rawDescGZIP() []byte {
 	return file_file_proto_rawDescData
 }
 
-var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_file_proto_goTypes = []any{
-	(*UpsertFileRequest)(nil),   // 0: file.UpsertFileRequest
-	(*UpsertFileResponse)(nil),  // 1: file.UpsertFileResponse
-	(*GetFileRequest)(nil),      // 2: file.GetFileRequest
-	(*GetFileResponse)(nil),     // 3: file.GetFileResponse
-	(*ListFilesRequest)(nil),    // 4: file.ListFilesRequest
-	(*ListFilesResponse)(nil),   // 5: file.ListFilesResponse
-	(*DeleteFileRequest)(nil),   // 6: file.DeleteFileRequest
-	(*DeleteFileResponse)(nil),  // 7: file.DeleteFileResponse
-	(*BatchUpsertRequest)(nil),  // 8: file.BatchUpsertRequest
-	(*UpsertEntry)(nil),         // 9: file.UpsertEntry
-	(*BatchUpsertResponse)(nil), // 10: file.BatchUpsertResponse
-	(*ProjectFile)(nil),         // 11: file.ProjectFile
+	(*UpsertFileRequest)(nil),        // 0: file.UpsertFileRequest
+	(*UpsertFileResponse)(nil),       // 1: file.UpsertFileResponse
+	(*GetFileRequest)(nil),           // 2: file.GetFileRequest
+	(*GetFileResponse)(nil),          // 3: file.GetFileResponse
+	(*ListFilesRequest)(nil),         // 4: file.ListFilesRequest
+	(*ListFilesResponse)(nil),        // 5: file.ListFilesResponse
+	(*DeleteFileRequest)(nil),        // 6: file.DeleteFileRequest
+	(*DeleteFileResponse)(nil),       // 7: file.DeleteFileResponse
+	(*BatchUpsertRequest)(nil),       // 8: file.BatchUpsertRequest
+	(*UpsertEntry)(nil),              // 9: file.UpsertEntry
+	(*BatchUpsertResponse)(nil),      // 10: file.BatchUpsertResponse
+	(*GetPhaseSnapshotRequest)(nil),  // 11: file.GetPhaseSnapshotRequest
+	(*GetPhaseSnapshotResponse)(nil), // 12: file.GetPhaseSnapshotResponse
+	(*ProjectFile)(nil),              // 13: file.ProjectFile
 }
 var file_file_proto_depIdxs = []int32{
-	11, // 0: file.UpsertFileResponse.file:type_name -> file.ProjectFile
-	11, // 1: file.GetFileResponse.file:type_name -> file.ProjectFile
-	11, // 2: file.ListFilesResponse.files:type_name -> file.ProjectFile
+	13, // 0: file.UpsertFileResponse.file:type_name -> file.ProjectFile
+	13, // 1: file.GetFileResponse.file:type_name -> file.ProjectFile
+	13, // 2: file.ListFilesResponse.files:type_name -> file.ProjectFile
 	9,  // 3: file.BatchUpsertRequest.entries:type_name -> file.UpsertEntry
-	0,  // 4: file.FileService.UpsertFile:input_type -> file.UpsertFileRequest
-	2,  // 5: file.FileService.GetFile:input_type -> file.GetFileRequest
-	4,  // 6: file.FileService.ListFiles:input_type -> file.ListFilesRequest
-	6,  // 7: file.FileService.DeleteFile:input_type -> file.DeleteFileRequest
-	8,  // 8: file.FileService.BatchUpsert:input_type -> file.BatchUpsertRequest
-	1,  // 9: file.FileService.UpsertFile:output_type -> file.UpsertFileResponse
-	3,  // 10: file.FileService.GetFile:output_type -> file.GetFileResponse
-	5,  // 11: file.FileService.ListFiles:output_type -> file.ListFilesResponse
-	7,  // 12: file.FileService.DeleteFile:output_type -> file.DeleteFileResponse
-	10, // 13: file.FileService.BatchUpsert:output_type -> file.BatchUpsertResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	13, // 4: file.GetPhaseSnapshotResponse.files:type_name -> file.ProjectFile
+	0,  // 5: file.FileService.UpsertFile:input_type -> file.UpsertFileRequest
+	2,  // 6: file.FileService.GetFile:input_type -> file.GetFileRequest
+	4,  // 7: file.FileService.ListFiles:input_type -> file.ListFilesRequest
+	6,  // 8: file.FileService.DeleteFile:input_type -> file.DeleteFileRequest
+	8,  // 9: file.FileService.BatchUpsert:input_type -> file.BatchUpsertRequest
+	11, // 10: file.FileService.GetPhaseSnapshot:input_type -> file.GetPhaseSnapshotRequest
+	1,  // 11: file.FileService.UpsertFile:output_type -> file.UpsertFileResponse
+	3,  // 12: file.FileService.GetFile:output_type -> file.GetFileResponse
+	5,  // 13: file.FileService.ListFiles:output_type -> file.ListFilesResponse
+	7,  // 14: file.FileService.DeleteFile:output_type -> file.DeleteFileResponse
+	10, // 15: file.FileService.BatchUpsert:output_type -> file.BatchUpsertResponse
+	12, // 16: file.FileService.GetPhaseSnapshot:output_type -> file.GetPhaseSnapshotResponse
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_file_proto_init() }
@@ -850,7 +969,7 @@ func file_file_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_file_proto_rawDesc), len(file_file_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
