@@ -16,6 +16,7 @@ import {
   batchUpsertFiles,
   listFiles as listProjectFiles,
   deleteFile as deleteProjectFile,
+  getPhaseSnapshot,
   type ProjectFileDTO,
 } from "@/lib/api/filesApi";
 import { sendChatMessage, type ChatMode } from "@/lib/api/aiApi";
@@ -80,6 +81,7 @@ import {
 import { FileExplorer, getFileIcon, TreeNode } from "./components/FileExplorer";
 import { PhaseSelector } from "./components/PhaseSelector";
 import { DescriptionPanel } from "./components/DescriptionPanel";
+import { PastPhaseSnapshotOverlay } from "./components/PastPhaseSnapshotOverlay";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
 import { ResourcesPanel } from "./components/ResourcesPanel";
@@ -146,6 +148,16 @@ export default function BuildPage() {
   const [currentPhaseNum, setCurrentPhaseNum] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Read-only snapshot of a completed phase's code, shown as an overlay —
+  // never editable/re-submittable, just a frozen record of what was
+  // submitted. null when viewing the live (current) phase.
+  const [viewingPastPhase, setViewingPastPhase] = useState<number | null>(null);
+  const [snapshotTree, setSnapshotTree] = useState<FileNode[]>([]);
+  const [snapshotContents, setSnapshotContents] = useState<Record<string, string>>({});
+  const [snapshotActiveTabId, setSnapshotActiveTabId] = useState("");
+  const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [snapshotError, setSnapshotError] = useState<string | null>(null);
 
   // Left panel tab: "description" | "resources" | "knowledge-checks"
   const [leftTab, setLeftTab] = useState<
@@ -1190,6 +1202,51 @@ export default function BuildPage() {
 
   const activePhase = phases[activePhaseIdx] ?? null;
 
+  // Selecting an already-completed phase shows its frozen snapshot
+  // (read-only overlay) instead of switching the live editable tree — the
+  // live tree only ever reflects the current phase's in-progress work.
+  const handleSelectPhase = useCallback(
+    async (idx: number) => {
+      setActivePhaseIdx(idx);
+      const phase = phases[idx];
+      if (!phase || !user || phase.phase_number >= currentPhaseNum) {
+        setViewingPastPhase(null);
+        return;
+      }
+
+      setViewingPastPhase(phase.phase_number);
+      setSnapshotLoading(true);
+      setSnapshotError(null);
+      try {
+        const token = await user.getIdToken();
+        const { files } = await getPhaseSnapshot(
+          token,
+          projectId,
+          phase.phase_number,
+        );
+        const entries = (files ?? []).map((f) => ({
+          filePath: f.file_path,
+          content: f.content,
+          isDirectory: f.is_directory,
+        }));
+        setSnapshotTree(buildFileTreeFromEntries(entries));
+        const contents: Record<string, string> = {};
+        entries
+          .filter((e) => !e.isDirectory)
+          .forEach((e) => {
+            contents[e.filePath] = e.content;
+          });
+        setSnapshotContents(contents);
+        setSnapshotActiveTabId(entries.find((e) => !e.isDirectory)?.filePath ?? "");
+      } catch (err: any) {
+        setSnapshotError(err.message ?? "Failed to load this phase's snapshot.");
+      } finally {
+        setSnapshotLoading(false);
+      }
+    },
+    [phases, currentPhaseNum, user, projectId],
+  );
+
   // ── Submit for review ────────────────────────────────────────────────────
   // Gate: every knowledge check for the current phase must be attempted
   // before an AI review is requested — prevents skipping straight to review
@@ -1240,8 +1297,12 @@ export default function BuildPage() {
         await advanceUserProjectPhase(token, projectId);
         setCurrentPhaseNum((n) => n + 1);
         setActivePhaseIdx((i) => Math.min(i + 1, phases.length - 1));
-      } catch (err) {
+      } catch (err: any) {
         console.error("[Submit] failed to advance phase:", err);
+        setSubmitPrompt(
+          err.message ??
+            "The goal was met, but we couldn't unlock the next phase — try submitting again.",
+        );
       }
     },
     [aiInitialMessageMode, user, projectId, phases.length],
@@ -1306,7 +1367,7 @@ export default function BuildPage() {
               phases={phases}
               activeIdx={activePhaseIdx}
               currentPhaseNum={currentPhaseNum}
-              onSelect={setActivePhaseIdx}
+              onSelect={handleSelectPhase}
             />
           )}
         </div>
@@ -1361,7 +1422,7 @@ export default function BuildPage() {
           {/* Save button */}
           <button
             onClick={handleSave}
-            disabled={saveStatus === "saving"}
+            disabled={saveStatus === "saving" || viewingPastPhase !== null}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer
               ${
                 saveStatus === "saved"
@@ -1385,12 +1446,17 @@ export default function BuildPage() {
                 : "Save"}
           </button>
           {/* Submit for review — gates on knowledge checks, then requests an AI verdict.
-              Only disabled while the AI is actually responding, not while checking answered status. */}
+              Only disabled while the AI is actually responding, not while checking answered status.
+              Also disabled while viewing a past phase's read-only snapshot — no re-submitting old phases. */}
           <button
             onClick={handleSubmitForReview}
-            disabled={aiThinking}
+            disabled={aiThinking || viewingPastPhase !== null}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
-            title="Submit this phase for AI review"
+            title={
+              viewingPastPhase !== null
+                ? "Return to the current phase to submit"
+                : "Submit this phase for AI review"
+            }
           >
             {submitChecking ? (
               <span className="w-2.5 h-2.5 rounded-full border border-accent/40 border-t-accent animate-spin" />
@@ -1417,7 +1483,25 @@ export default function BuildPage() {
       )}
 
       {/* ── SPLIT WORKSPACE ─────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {viewingPastPhase !== null && (
+          <PastPhaseSnapshotOverlay
+            phaseNumber={viewingPastPhase}
+            loading={snapshotLoading}
+            error={snapshotError}
+            tree={snapshotTree}
+            contents={snapshotContents}
+            activeFileId={snapshotActiveTabId}
+            onSelectFile={setSnapshotActiveTabId}
+            onClose={() => {
+              setViewingPastPhase(null);
+              const liveIdx = phases.findIndex(
+                (p) => p.phase_number === currentPhaseNum,
+              );
+              setActivePhaseIdx(liveIdx >= 0 ? liveIdx : 0);
+            }}
+          />
+        )}
         {/* LEFT PANEL — Phase description */}
         <div
           className="shrink-0 bg-void flex flex-col overflow-hidden"
