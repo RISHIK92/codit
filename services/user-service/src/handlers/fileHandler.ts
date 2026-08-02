@@ -11,6 +11,8 @@ import {
   DeleteFileResponse,
   BatchUpsertRequest,
   BatchUpsertResponse,
+  GetPhaseSnapshotRequest,
+  GetPhaseSnapshotResponse,
 } from "../generated/file";
 import * as fileService from "../services/fileService";
 
@@ -121,6 +123,37 @@ export const fileHandler: FileServiceServer = {
       }));
       const count = await fileService.batchUpsert(projectId, userEmail, mapped);
       callback(null, { upsertedCount: count });
+    } catch (err: any) {
+      callback({ code: grpc.status.INTERNAL, message: err.message }, null);
+    }
+  },
+
+  // ── GetPhaseSnapshot ────────────────────────────────────────────────────────
+  getPhaseSnapshot: async (
+    call: grpc.ServerUnaryCall<GetPhaseSnapshotRequest, GetPhaseSnapshotResponse>,
+    callback: grpc.sendUnaryData<GetPhaseSnapshotResponse>,
+  ) => {
+    try {
+      const { projectId, userEmail, phaseNumber } = call.request;
+      const rows = await fileService.getPhaseSnapshot(
+        projectId,
+        userEmail,
+        phaseNumber,
+      );
+      callback(null, {
+        files: rows.map((row) => ({
+          id: row.id,
+          projectId: row.project_id,
+          userEmail: row.user_email,
+          filePath: row.file_path,
+          content: row.content,
+          isDirectory: row.is_directory,
+          createdAt: row.created_at.toISOString(),
+          // PhaseSnapshotFile is immutable and has no updated_at column —
+          // created_at is the only timestamp a snapshot row ever has.
+          updatedAt: row.created_at.toISOString(),
+        })),
+      });
     } catch (err: any) {
       callback({ code: grpc.status.INTERNAL, message: err.message }, null);
     }

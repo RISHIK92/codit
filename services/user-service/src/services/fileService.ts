@@ -28,3 +28,9 @@ export const batchUpsert = (
   userEmail: string,
   entries: Array<{ filePath: string; content: string; isDirectory: boolean }>,
 ) => fileRepo.batchUpsert(projectId, userEmail, entries);
+
+export const getPhaseSnapshot = (
+  projectId: string,
+  userEmail: string,
+  phaseNumber: number,
+) => fileRepo.getPhaseSnapshot(projectId, userEmail, phaseNumber);

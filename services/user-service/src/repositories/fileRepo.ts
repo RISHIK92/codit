@@ -115,3 +115,26 @@ export const batchUpsert = async (
   const results = await prisma.$transaction(ops);
   return results.length;
 };
+
+/** Read-only frozen file tree from when the user advanced past this phase.
+ * Content lives in a content-addressed Blob keyed by hash, so it's joined
+ * back in here and returned in the same shape callers already expect. */
+export const getPhaseSnapshot = async (
+  projectId: string,
+  userEmail: string,
+  phaseNumber: number,
+) => {
+  const rows = await prisma.phaseSnapshotFile.findMany({
+    where: {
+      project_id: projectId,
+      user_email: userEmail,
+      phase_number: phaseNumber,
+    },
+    orderBy: { file_path: "asc" },
+    include: { blob: { select: { content: true } } },
+  });
+  return rows.map(({ blob, ...row }) => ({
+    ...row,
+    content: blob?.content ?? "",
+  }));
+};
