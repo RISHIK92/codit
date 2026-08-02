@@ -9,6 +9,7 @@
  *   GET    /api/files/list?projectId=          → { files: ProjectFileDTO[] }
  *   DELETE /api/files/delete?projectId=&filePath= → { success: boolean }
  *   POST   /api/files/batch-upsert?projectId=  → { upserted_count: number }
+ *   GET    /api/files/phase-snapshot?projectId=&phaseNumber= → { files: ProjectFileDTO[] }
  */
 
 const GATEWAY_URL =
@@ -140,4 +141,17 @@ export async function batchUpsertFiles(
     },
   );
   return handleResponse<BatchUpsertResponse>(res);
+}
+
+/** Read-only frozen file tree from when the user advanced past this phase. */
+export async function getPhaseSnapshot(
+  token: string,
+  projectId: string,
+  phaseNumber: number,
+): Promise<ListFilesResponse> {
+  const res = await fetch(
+    `${GATEWAY_URL}/api/files/phase-snapshot?projectId=${encodeURIComponent(projectId)}&phaseNumber=${phaseNumber}`,
+    { headers: authHeaders(token) },
+  );
+  return handleResponse<ListFilesResponse>(res);
 }
