@@ -44,10 +44,29 @@ export type EntranceTestAttempt = $Result.DefaultSelection<Prisma.$EntranceTestA
  */
 export type ProjectFile = $Result.DefaultSelection<Prisma.$ProjectFilePayload>
 /**
+ * Model PhaseSnapshotFile
+ * * Frozen copy of a user's ProjectFile tree, taken when they advance past a phase — read-only history, not a second editable workspace.
+ *  * File content is stored once as a content-addressed Blob and referenced by hash, so unchanged files across phases (or across users on the
+ *  * same starter files) share one row instead of being duplicated on every phase advance.
+ */
+export type PhaseSnapshotFile = $Result.DefaultSelection<Prisma.$PhaseSnapshotFilePayload>
+/**
+ * Model Blob
+ * * Content-addressed storage for snapshot file bodies — keyed by the SHA-256 hash of the content, so identical content is stored exactly once.
+ */
+export type Blob = $Result.DefaultSelection<Prisma.$BlobPayload>
+/**
  * Model UserProjects
  * 
  */
 export type UserProjects = $Result.DefaultSelection<Prisma.$UserProjectsPayload>
+/**
+ * Model UserPhaseProgress
+ * * Per-user, per-phase status for one enrollment — LearningPhase.phase_status
+ *  * is a shared catalogue field and can't represent per-user progress, since
+ *  * one LearningPhase row is reused by every user enrolled in that project.
+ */
+export type UserPhaseProgress = $Result.DefaultSelection<Prisma.$UserPhaseProgressPayload>
 /**
  * Model LearningPhase
  * 
@@ -335,6 +354,26 @@ export class PrismaClient<
   get projectFile(): Prisma.ProjectFileDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.phaseSnapshotFile`: Exposes CRUD operations for the **PhaseSnapshotFile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PhaseSnapshotFiles
+    * const phaseSnapshotFiles = await prisma.phaseSnapshotFile.findMany()
+    * ```
+    */
+  get phaseSnapshotFile(): Prisma.PhaseSnapshotFileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.blob`: Exposes CRUD operations for the **Blob** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Blobs
+    * const blobs = await prisma.blob.findMany()
+    * ```
+    */
+  get blob(): Prisma.BlobDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.userProjects`: Exposes CRUD operations for the **UserProjects** model.
     * Example usage:
     * ```ts
@@ -343,6 +382,16 @@ export class PrismaClient<
     * ```
     */
   get userProjects(): Prisma.UserProjectsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userPhaseProgress`: Exposes CRUD operations for the **UserPhaseProgress** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserPhaseProgresses
+    * const userPhaseProgresses = await prisma.userPhaseProgress.findMany()
+    * ```
+    */
+  get userPhaseProgress(): Prisma.UserPhaseProgressDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.learningPhase`: Exposes CRUD operations for the **LearningPhase** model.
@@ -840,7 +889,10 @@ export namespace Prisma {
     EntranceQuestion: 'EntranceQuestion',
     EntranceTestAttempt: 'EntranceTestAttempt',
     ProjectFile: 'ProjectFile',
+    PhaseSnapshotFile: 'PhaseSnapshotFile',
+    Blob: 'Blob',
     UserProjects: 'UserProjects',
+    UserPhaseProgress: 'UserPhaseProgress',
     LearningPhase: 'LearningPhase',
     KnowledgeChecks: 'KnowledgeChecks',
     KnowledgeCheckAttempt: 'KnowledgeCheckAttempt',
@@ -864,7 +916,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "userProjects" | "learningPhase" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "userPhaseProgress" | "learningPhase" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1312,6 +1364,154 @@ export namespace Prisma {
           }
         }
       }
+      PhaseSnapshotFile: {
+        payload: Prisma.$PhaseSnapshotFilePayload<ExtArgs>
+        fields: Prisma.PhaseSnapshotFileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PhaseSnapshotFileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PhaseSnapshotFileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>
+          }
+          findFirst: {
+            args: Prisma.PhaseSnapshotFileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PhaseSnapshotFileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>
+          }
+          findMany: {
+            args: Prisma.PhaseSnapshotFileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>[]
+          }
+          create: {
+            args: Prisma.PhaseSnapshotFileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>
+          }
+          createMany: {
+            args: Prisma.PhaseSnapshotFileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PhaseSnapshotFileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>[]
+          }
+          delete: {
+            args: Prisma.PhaseSnapshotFileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>
+          }
+          update: {
+            args: Prisma.PhaseSnapshotFileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>
+          }
+          deleteMany: {
+            args: Prisma.PhaseSnapshotFileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PhaseSnapshotFileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PhaseSnapshotFileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>[]
+          }
+          upsert: {
+            args: Prisma.PhaseSnapshotFileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseSnapshotFilePayload>
+          }
+          aggregate: {
+            args: Prisma.PhaseSnapshotFileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePhaseSnapshotFile>
+          }
+          groupBy: {
+            args: Prisma.PhaseSnapshotFileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PhaseSnapshotFileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PhaseSnapshotFileCountArgs<ExtArgs>
+            result: $Utils.Optional<PhaseSnapshotFileCountAggregateOutputType> | number
+          }
+        }
+      }
+      Blob: {
+        payload: Prisma.$BlobPayload<ExtArgs>
+        fields: Prisma.BlobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BlobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BlobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>
+          }
+          findFirst: {
+            args: Prisma.BlobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BlobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>
+          }
+          findMany: {
+            args: Prisma.BlobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>[]
+          }
+          create: {
+            args: Prisma.BlobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>
+          }
+          createMany: {
+            args: Prisma.BlobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BlobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>[]
+          }
+          delete: {
+            args: Prisma.BlobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>
+          }
+          update: {
+            args: Prisma.BlobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>
+          }
+          deleteMany: {
+            args: Prisma.BlobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BlobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BlobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>[]
+          }
+          upsert: {
+            args: Prisma.BlobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlobPayload>
+          }
+          aggregate: {
+            args: Prisma.BlobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBlob>
+          }
+          groupBy: {
+            args: Prisma.BlobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BlobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BlobCountArgs<ExtArgs>
+            result: $Utils.Optional<BlobCountAggregateOutputType> | number
+          }
+        }
+      }
       UserProjects: {
         payload: Prisma.$UserProjectsPayload<ExtArgs>
         fields: Prisma.UserProjectsFieldRefs
@@ -1383,6 +1583,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserProjectsCountArgs<ExtArgs>
             result: $Utils.Optional<UserProjectsCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserPhaseProgress: {
+        payload: Prisma.$UserPhaseProgressPayload<ExtArgs>
+        fields: Prisma.UserPhaseProgressFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserPhaseProgressFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserPhaseProgressFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>
+          }
+          findFirst: {
+            args: Prisma.UserPhaseProgressFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserPhaseProgressFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>
+          }
+          findMany: {
+            args: Prisma.UserPhaseProgressFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>[]
+          }
+          create: {
+            args: Prisma.UserPhaseProgressCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>
+          }
+          createMany: {
+            args: Prisma.UserPhaseProgressCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserPhaseProgressCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>[]
+          }
+          delete: {
+            args: Prisma.UserPhaseProgressDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>
+          }
+          update: {
+            args: Prisma.UserPhaseProgressUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserPhaseProgressDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserPhaseProgressUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserPhaseProgressUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserPhaseProgressUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPhaseProgressPayload>
+          }
+          aggregate: {
+            args: Prisma.UserPhaseProgressAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserPhaseProgress>
+          }
+          groupBy: {
+            args: Prisma.UserPhaseProgressGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserPhaseProgressGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserPhaseProgressCountArgs<ExtArgs>
+            result: $Utils.Optional<UserPhaseProgressCountAggregateOutputType> | number
           }
         }
       }
@@ -1858,7 +2132,10 @@ export namespace Prisma {
     entranceQuestion?: EntranceQuestionOmit
     entranceTestAttempt?: EntranceTestAttemptOmit
     projectFile?: ProjectFileOmit
+    phaseSnapshotFile?: PhaseSnapshotFileOmit
+    blob?: BlobOmit
     userProjects?: UserProjectsOmit
+    userPhaseProgress?: UserPhaseProgressOmit
     learningPhase?: LearningPhaseOmit
     knowledgeChecks?: KnowledgeChecksOmit
     knowledgeCheckAttempt?: KnowledgeCheckAttemptOmit
@@ -2020,15 +2297,48 @@ export namespace Prisma {
 
 
   /**
+   * Count Type BlobCountOutputType
+   */
+
+  export type BlobCountOutputType = {
+    phaseSnapshotFiles: number
+  }
+
+  export type BlobCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    phaseSnapshotFiles?: boolean | BlobCountOutputTypeCountPhaseSnapshotFilesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BlobCountOutputType without action
+   */
+  export type BlobCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlobCountOutputType
+     */
+    select?: BlobCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BlobCountOutputType without action
+   */
+  export type BlobCountOutputTypeCountPhaseSnapshotFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhaseSnapshotFileWhereInput
+  }
+
+
+  /**
    * Count Type UserProjectsCountOutputType
    */
 
   export type UserProjectsCountOutputType = {
     projectFiles: number
+    phaseProgress: number
   }
 
   export type UserProjectsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     projectFiles?: boolean | UserProjectsCountOutputTypeCountProjectFilesArgs
+    phaseProgress?: boolean | UserProjectsCountOutputTypeCountPhaseProgressArgs
   }
 
   // Custom InputTypes
@@ -2047,6 +2357,13 @@ export namespace Prisma {
    */
   export type UserProjectsCountOutputTypeCountProjectFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProjectFileWhereInput
+  }
+
+  /**
+   * UserProjectsCountOutputType without action
+   */
+  export type UserProjectsCountOutputTypeCountPhaseProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPhaseProgressWhereInput
   }
 
 
@@ -8902,6 +9219,2247 @@ export namespace Prisma {
 
 
   /**
+   * Model PhaseSnapshotFile
+   */
+
+  export type AggregatePhaseSnapshotFile = {
+    _count: PhaseSnapshotFileCountAggregateOutputType | null
+    _avg: PhaseSnapshotFileAvgAggregateOutputType | null
+    _sum: PhaseSnapshotFileSumAggregateOutputType | null
+    _min: PhaseSnapshotFileMinAggregateOutputType | null
+    _max: PhaseSnapshotFileMaxAggregateOutputType | null
+  }
+
+  export type PhaseSnapshotFileAvgAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type PhaseSnapshotFileSumAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type PhaseSnapshotFileMinAggregateOutputType = {
+    id: string | null
+    project_id: string | null
+    user_email: string | null
+    phase_number: number | null
+    file_path: string | null
+    blob_hash: string | null
+    is_directory: boolean | null
+    created_at: Date | null
+  }
+
+  export type PhaseSnapshotFileMaxAggregateOutputType = {
+    id: string | null
+    project_id: string | null
+    user_email: string | null
+    phase_number: number | null
+    file_path: string | null
+    blob_hash: string | null
+    is_directory: boolean | null
+    created_at: Date | null
+  }
+
+  export type PhaseSnapshotFileCountAggregateOutputType = {
+    id: number
+    project_id: number
+    user_email: number
+    phase_number: number
+    file_path: number
+    blob_hash: number
+    is_directory: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type PhaseSnapshotFileAvgAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type PhaseSnapshotFileSumAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type PhaseSnapshotFileMinAggregateInputType = {
+    id?: true
+    project_id?: true
+    user_email?: true
+    phase_number?: true
+    file_path?: true
+    blob_hash?: true
+    is_directory?: true
+    created_at?: true
+  }
+
+  export type PhaseSnapshotFileMaxAggregateInputType = {
+    id?: true
+    project_id?: true
+    user_email?: true
+    phase_number?: true
+    file_path?: true
+    blob_hash?: true
+    is_directory?: true
+    created_at?: true
+  }
+
+  export type PhaseSnapshotFileCountAggregateInputType = {
+    id?: true
+    project_id?: true
+    user_email?: true
+    phase_number?: true
+    file_path?: true
+    blob_hash?: true
+    is_directory?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type PhaseSnapshotFileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhaseSnapshotFile to aggregate.
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseSnapshotFiles to fetch.
+     */
+    orderBy?: PhaseSnapshotFileOrderByWithRelationInput | PhaseSnapshotFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PhaseSnapshotFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseSnapshotFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseSnapshotFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PhaseSnapshotFiles
+    **/
+    _count?: true | PhaseSnapshotFileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PhaseSnapshotFileAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PhaseSnapshotFileSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PhaseSnapshotFileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PhaseSnapshotFileMaxAggregateInputType
+  }
+
+  export type GetPhaseSnapshotFileAggregateType<T extends PhaseSnapshotFileAggregateArgs> = {
+        [P in keyof T & keyof AggregatePhaseSnapshotFile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePhaseSnapshotFile[P]>
+      : GetScalarType<T[P], AggregatePhaseSnapshotFile[P]>
+  }
+
+
+
+
+  export type PhaseSnapshotFileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhaseSnapshotFileWhereInput
+    orderBy?: PhaseSnapshotFileOrderByWithAggregationInput | PhaseSnapshotFileOrderByWithAggregationInput[]
+    by: PhaseSnapshotFileScalarFieldEnum[] | PhaseSnapshotFileScalarFieldEnum
+    having?: PhaseSnapshotFileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PhaseSnapshotFileCountAggregateInputType | true
+    _avg?: PhaseSnapshotFileAvgAggregateInputType
+    _sum?: PhaseSnapshotFileSumAggregateInputType
+    _min?: PhaseSnapshotFileMinAggregateInputType
+    _max?: PhaseSnapshotFileMaxAggregateInputType
+  }
+
+  export type PhaseSnapshotFileGroupByOutputType = {
+    id: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    blob_hash: string | null
+    is_directory: boolean
+    created_at: Date
+    _count: PhaseSnapshotFileCountAggregateOutputType | null
+    _avg: PhaseSnapshotFileAvgAggregateOutputType | null
+    _sum: PhaseSnapshotFileSumAggregateOutputType | null
+    _min: PhaseSnapshotFileMinAggregateOutputType | null
+    _max: PhaseSnapshotFileMaxAggregateOutputType | null
+  }
+
+  type GetPhaseSnapshotFileGroupByPayload<T extends PhaseSnapshotFileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PhaseSnapshotFileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PhaseSnapshotFileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PhaseSnapshotFileGroupByOutputType[P]>
+            : GetScalarType<T[P], PhaseSnapshotFileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PhaseSnapshotFileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    project_id?: boolean
+    user_email?: boolean
+    phase_number?: boolean
+    file_path?: boolean
+    blob_hash?: boolean
+    is_directory?: boolean
+    created_at?: boolean
+    blob?: boolean | PhaseSnapshotFile$blobArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseSnapshotFile"]>
+
+  export type PhaseSnapshotFileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    project_id?: boolean
+    user_email?: boolean
+    phase_number?: boolean
+    file_path?: boolean
+    blob_hash?: boolean
+    is_directory?: boolean
+    created_at?: boolean
+    blob?: boolean | PhaseSnapshotFile$blobArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseSnapshotFile"]>
+
+  export type PhaseSnapshotFileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    project_id?: boolean
+    user_email?: boolean
+    phase_number?: boolean
+    file_path?: boolean
+    blob_hash?: boolean
+    is_directory?: boolean
+    created_at?: boolean
+    blob?: boolean | PhaseSnapshotFile$blobArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseSnapshotFile"]>
+
+  export type PhaseSnapshotFileSelectScalar = {
+    id?: boolean
+    project_id?: boolean
+    user_email?: boolean
+    phase_number?: boolean
+    file_path?: boolean
+    blob_hash?: boolean
+    is_directory?: boolean
+    created_at?: boolean
+  }
+
+  export type PhaseSnapshotFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "project_id" | "user_email" | "phase_number" | "file_path" | "blob_hash" | "is_directory" | "created_at", ExtArgs["result"]["phaseSnapshotFile"]>
+  export type PhaseSnapshotFileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    blob?: boolean | PhaseSnapshotFile$blobArgs<ExtArgs>
+  }
+  export type PhaseSnapshotFileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    blob?: boolean | PhaseSnapshotFile$blobArgs<ExtArgs>
+  }
+  export type PhaseSnapshotFileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    blob?: boolean | PhaseSnapshotFile$blobArgs<ExtArgs>
+  }
+
+  export type $PhaseSnapshotFilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PhaseSnapshotFile"
+    objects: {
+      blob: Prisma.$BlobPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      project_id: string
+      user_email: string
+      phase_number: number
+      file_path: string
+      blob_hash: string | null
+      is_directory: boolean
+      created_at: Date
+    }, ExtArgs["result"]["phaseSnapshotFile"]>
+    composites: {}
+  }
+
+  type PhaseSnapshotFileGetPayload<S extends boolean | null | undefined | PhaseSnapshotFileDefaultArgs> = $Result.GetResult<Prisma.$PhaseSnapshotFilePayload, S>
+
+  type PhaseSnapshotFileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PhaseSnapshotFileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PhaseSnapshotFileCountAggregateInputType | true
+    }
+
+  export interface PhaseSnapshotFileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PhaseSnapshotFile'], meta: { name: 'PhaseSnapshotFile' } }
+    /**
+     * Find zero or one PhaseSnapshotFile that matches the filter.
+     * @param {PhaseSnapshotFileFindUniqueArgs} args - Arguments to find a PhaseSnapshotFile
+     * @example
+     * // Get one PhaseSnapshotFile
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PhaseSnapshotFileFindUniqueArgs>(args: SelectSubset<T, PhaseSnapshotFileFindUniqueArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PhaseSnapshotFile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PhaseSnapshotFileFindUniqueOrThrowArgs} args - Arguments to find a PhaseSnapshotFile
+     * @example
+     * // Get one PhaseSnapshotFile
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PhaseSnapshotFileFindUniqueOrThrowArgs>(args: SelectSubset<T, PhaseSnapshotFileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhaseSnapshotFile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileFindFirstArgs} args - Arguments to find a PhaseSnapshotFile
+     * @example
+     * // Get one PhaseSnapshotFile
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PhaseSnapshotFileFindFirstArgs>(args?: SelectSubset<T, PhaseSnapshotFileFindFirstArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhaseSnapshotFile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileFindFirstOrThrowArgs} args - Arguments to find a PhaseSnapshotFile
+     * @example
+     * // Get one PhaseSnapshotFile
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PhaseSnapshotFileFindFirstOrThrowArgs>(args?: SelectSubset<T, PhaseSnapshotFileFindFirstOrThrowArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PhaseSnapshotFiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PhaseSnapshotFiles
+     * const phaseSnapshotFiles = await prisma.phaseSnapshotFile.findMany()
+     * 
+     * // Get first 10 PhaseSnapshotFiles
+     * const phaseSnapshotFiles = await prisma.phaseSnapshotFile.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const phaseSnapshotFileWithIdOnly = await prisma.phaseSnapshotFile.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PhaseSnapshotFileFindManyArgs>(args?: SelectSubset<T, PhaseSnapshotFileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PhaseSnapshotFile.
+     * @param {PhaseSnapshotFileCreateArgs} args - Arguments to create a PhaseSnapshotFile.
+     * @example
+     * // Create one PhaseSnapshotFile
+     * const PhaseSnapshotFile = await prisma.phaseSnapshotFile.create({
+     *   data: {
+     *     // ... data to create a PhaseSnapshotFile
+     *   }
+     * })
+     * 
+     */
+    create<T extends PhaseSnapshotFileCreateArgs>(args: SelectSubset<T, PhaseSnapshotFileCreateArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PhaseSnapshotFiles.
+     * @param {PhaseSnapshotFileCreateManyArgs} args - Arguments to create many PhaseSnapshotFiles.
+     * @example
+     * // Create many PhaseSnapshotFiles
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PhaseSnapshotFileCreateManyArgs>(args?: SelectSubset<T, PhaseSnapshotFileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PhaseSnapshotFiles and returns the data saved in the database.
+     * @param {PhaseSnapshotFileCreateManyAndReturnArgs} args - Arguments to create many PhaseSnapshotFiles.
+     * @example
+     * // Create many PhaseSnapshotFiles
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PhaseSnapshotFiles and only return the `id`
+     * const phaseSnapshotFileWithIdOnly = await prisma.phaseSnapshotFile.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PhaseSnapshotFileCreateManyAndReturnArgs>(args?: SelectSubset<T, PhaseSnapshotFileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PhaseSnapshotFile.
+     * @param {PhaseSnapshotFileDeleteArgs} args - Arguments to delete one PhaseSnapshotFile.
+     * @example
+     * // Delete one PhaseSnapshotFile
+     * const PhaseSnapshotFile = await prisma.phaseSnapshotFile.delete({
+     *   where: {
+     *     // ... filter to delete one PhaseSnapshotFile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PhaseSnapshotFileDeleteArgs>(args: SelectSubset<T, PhaseSnapshotFileDeleteArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PhaseSnapshotFile.
+     * @param {PhaseSnapshotFileUpdateArgs} args - Arguments to update one PhaseSnapshotFile.
+     * @example
+     * // Update one PhaseSnapshotFile
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PhaseSnapshotFileUpdateArgs>(args: SelectSubset<T, PhaseSnapshotFileUpdateArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PhaseSnapshotFiles.
+     * @param {PhaseSnapshotFileDeleteManyArgs} args - Arguments to filter PhaseSnapshotFiles to delete.
+     * @example
+     * // Delete a few PhaseSnapshotFiles
+     * const { count } = await prisma.phaseSnapshotFile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PhaseSnapshotFileDeleteManyArgs>(args?: SelectSubset<T, PhaseSnapshotFileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhaseSnapshotFiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PhaseSnapshotFiles
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PhaseSnapshotFileUpdateManyArgs>(args: SelectSubset<T, PhaseSnapshotFileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhaseSnapshotFiles and returns the data updated in the database.
+     * @param {PhaseSnapshotFileUpdateManyAndReturnArgs} args - Arguments to update many PhaseSnapshotFiles.
+     * @example
+     * // Update many PhaseSnapshotFiles
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PhaseSnapshotFiles and only return the `id`
+     * const phaseSnapshotFileWithIdOnly = await prisma.phaseSnapshotFile.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PhaseSnapshotFileUpdateManyAndReturnArgs>(args: SelectSubset<T, PhaseSnapshotFileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PhaseSnapshotFile.
+     * @param {PhaseSnapshotFileUpsertArgs} args - Arguments to update or create a PhaseSnapshotFile.
+     * @example
+     * // Update or create a PhaseSnapshotFile
+     * const phaseSnapshotFile = await prisma.phaseSnapshotFile.upsert({
+     *   create: {
+     *     // ... data to create a PhaseSnapshotFile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PhaseSnapshotFile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PhaseSnapshotFileUpsertArgs>(args: SelectSubset<T, PhaseSnapshotFileUpsertArgs<ExtArgs>>): Prisma__PhaseSnapshotFileClient<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PhaseSnapshotFiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileCountArgs} args - Arguments to filter PhaseSnapshotFiles to count.
+     * @example
+     * // Count the number of PhaseSnapshotFiles
+     * const count = await prisma.phaseSnapshotFile.count({
+     *   where: {
+     *     // ... the filter for the PhaseSnapshotFiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends PhaseSnapshotFileCountArgs>(
+      args?: Subset<T, PhaseSnapshotFileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PhaseSnapshotFileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PhaseSnapshotFile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PhaseSnapshotFileAggregateArgs>(args: Subset<T, PhaseSnapshotFileAggregateArgs>): Prisma.PrismaPromise<GetPhaseSnapshotFileAggregateType<T>>
+
+    /**
+     * Group by PhaseSnapshotFile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseSnapshotFileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PhaseSnapshotFileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PhaseSnapshotFileGroupByArgs['orderBy'] }
+        : { orderBy?: PhaseSnapshotFileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PhaseSnapshotFileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPhaseSnapshotFileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PhaseSnapshotFile model
+   */
+  readonly fields: PhaseSnapshotFileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PhaseSnapshotFile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PhaseSnapshotFileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    blob<T extends PhaseSnapshotFile$blobArgs<ExtArgs> = {}>(args?: Subset<T, PhaseSnapshotFile$blobArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PhaseSnapshotFile model
+   */
+  interface PhaseSnapshotFileFieldRefs {
+    readonly id: FieldRef<"PhaseSnapshotFile", 'String'>
+    readonly project_id: FieldRef<"PhaseSnapshotFile", 'String'>
+    readonly user_email: FieldRef<"PhaseSnapshotFile", 'String'>
+    readonly phase_number: FieldRef<"PhaseSnapshotFile", 'Int'>
+    readonly file_path: FieldRef<"PhaseSnapshotFile", 'String'>
+    readonly blob_hash: FieldRef<"PhaseSnapshotFile", 'String'>
+    readonly is_directory: FieldRef<"PhaseSnapshotFile", 'Boolean'>
+    readonly created_at: FieldRef<"PhaseSnapshotFile", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PhaseSnapshotFile findUnique
+   */
+  export type PhaseSnapshotFileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseSnapshotFile to fetch.
+     */
+    where: PhaseSnapshotFileWhereUniqueInput
+  }
+
+  /**
+   * PhaseSnapshotFile findUniqueOrThrow
+   */
+  export type PhaseSnapshotFileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseSnapshotFile to fetch.
+     */
+    where: PhaseSnapshotFileWhereUniqueInput
+  }
+
+  /**
+   * PhaseSnapshotFile findFirst
+   */
+  export type PhaseSnapshotFileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseSnapshotFile to fetch.
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseSnapshotFiles to fetch.
+     */
+    orderBy?: PhaseSnapshotFileOrderByWithRelationInput | PhaseSnapshotFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhaseSnapshotFiles.
+     */
+    cursor?: PhaseSnapshotFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseSnapshotFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseSnapshotFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhaseSnapshotFiles.
+     */
+    distinct?: PhaseSnapshotFileScalarFieldEnum | PhaseSnapshotFileScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseSnapshotFile findFirstOrThrow
+   */
+  export type PhaseSnapshotFileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseSnapshotFile to fetch.
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseSnapshotFiles to fetch.
+     */
+    orderBy?: PhaseSnapshotFileOrderByWithRelationInput | PhaseSnapshotFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhaseSnapshotFiles.
+     */
+    cursor?: PhaseSnapshotFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseSnapshotFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseSnapshotFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhaseSnapshotFiles.
+     */
+    distinct?: PhaseSnapshotFileScalarFieldEnum | PhaseSnapshotFileScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseSnapshotFile findMany
+   */
+  export type PhaseSnapshotFileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseSnapshotFiles to fetch.
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseSnapshotFiles to fetch.
+     */
+    orderBy?: PhaseSnapshotFileOrderByWithRelationInput | PhaseSnapshotFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PhaseSnapshotFiles.
+     */
+    cursor?: PhaseSnapshotFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseSnapshotFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseSnapshotFiles.
+     */
+    skip?: number
+    distinct?: PhaseSnapshotFileScalarFieldEnum | PhaseSnapshotFileScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseSnapshotFile create
+   */
+  export type PhaseSnapshotFileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PhaseSnapshotFile.
+     */
+    data: XOR<PhaseSnapshotFileCreateInput, PhaseSnapshotFileUncheckedCreateInput>
+  }
+
+  /**
+   * PhaseSnapshotFile createMany
+   */
+  export type PhaseSnapshotFileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PhaseSnapshotFiles.
+     */
+    data: PhaseSnapshotFileCreateManyInput | PhaseSnapshotFileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PhaseSnapshotFile createManyAndReturn
+   */
+  export type PhaseSnapshotFileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * The data used to create many PhaseSnapshotFiles.
+     */
+    data: PhaseSnapshotFileCreateManyInput | PhaseSnapshotFileCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PhaseSnapshotFile update
+   */
+  export type PhaseSnapshotFileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PhaseSnapshotFile.
+     */
+    data: XOR<PhaseSnapshotFileUpdateInput, PhaseSnapshotFileUncheckedUpdateInput>
+    /**
+     * Choose, which PhaseSnapshotFile to update.
+     */
+    where: PhaseSnapshotFileWhereUniqueInput
+  }
+
+  /**
+   * PhaseSnapshotFile updateMany
+   */
+  export type PhaseSnapshotFileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PhaseSnapshotFiles.
+     */
+    data: XOR<PhaseSnapshotFileUpdateManyMutationInput, PhaseSnapshotFileUncheckedUpdateManyInput>
+    /**
+     * Filter which PhaseSnapshotFiles to update
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * Limit how many PhaseSnapshotFiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhaseSnapshotFile updateManyAndReturn
+   */
+  export type PhaseSnapshotFileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * The data used to update PhaseSnapshotFiles.
+     */
+    data: XOR<PhaseSnapshotFileUpdateManyMutationInput, PhaseSnapshotFileUncheckedUpdateManyInput>
+    /**
+     * Filter which PhaseSnapshotFiles to update
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * Limit how many PhaseSnapshotFiles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PhaseSnapshotFile upsert
+   */
+  export type PhaseSnapshotFileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PhaseSnapshotFile to update in case it exists.
+     */
+    where: PhaseSnapshotFileWhereUniqueInput
+    /**
+     * In case the PhaseSnapshotFile found by the `where` argument doesn't exist, create a new PhaseSnapshotFile with this data.
+     */
+    create: XOR<PhaseSnapshotFileCreateInput, PhaseSnapshotFileUncheckedCreateInput>
+    /**
+     * In case the PhaseSnapshotFile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PhaseSnapshotFileUpdateInput, PhaseSnapshotFileUncheckedUpdateInput>
+  }
+
+  /**
+   * PhaseSnapshotFile delete
+   */
+  export type PhaseSnapshotFileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    /**
+     * Filter which PhaseSnapshotFile to delete.
+     */
+    where: PhaseSnapshotFileWhereUniqueInput
+  }
+
+  /**
+   * PhaseSnapshotFile deleteMany
+   */
+  export type PhaseSnapshotFileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhaseSnapshotFiles to delete
+     */
+    where?: PhaseSnapshotFileWhereInput
+    /**
+     * Limit how many PhaseSnapshotFiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhaseSnapshotFile.blob
+   */
+  export type PhaseSnapshotFile$blobArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    where?: BlobWhereInput
+  }
+
+  /**
+   * PhaseSnapshotFile without action
+   */
+  export type PhaseSnapshotFileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Blob
+   */
+
+  export type AggregateBlob = {
+    _count: BlobCountAggregateOutputType | null
+    _avg: BlobAvgAggregateOutputType | null
+    _sum: BlobSumAggregateOutputType | null
+    _min: BlobMinAggregateOutputType | null
+    _max: BlobMaxAggregateOutputType | null
+  }
+
+  export type BlobAvgAggregateOutputType = {
+    size: number | null
+  }
+
+  export type BlobSumAggregateOutputType = {
+    size: number | null
+  }
+
+  export type BlobMinAggregateOutputType = {
+    hash: string | null
+    content: string | null
+    size: number | null
+    created_at: Date | null
+  }
+
+  export type BlobMaxAggregateOutputType = {
+    hash: string | null
+    content: string | null
+    size: number | null
+    created_at: Date | null
+  }
+
+  export type BlobCountAggregateOutputType = {
+    hash: number
+    content: number
+    size: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type BlobAvgAggregateInputType = {
+    size?: true
+  }
+
+  export type BlobSumAggregateInputType = {
+    size?: true
+  }
+
+  export type BlobMinAggregateInputType = {
+    hash?: true
+    content?: true
+    size?: true
+    created_at?: true
+  }
+
+  export type BlobMaxAggregateInputType = {
+    hash?: true
+    content?: true
+    size?: true
+    created_at?: true
+  }
+
+  export type BlobCountAggregateInputType = {
+    hash?: true
+    content?: true
+    size?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type BlobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Blob to aggregate.
+     */
+    where?: BlobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Blobs to fetch.
+     */
+    orderBy?: BlobOrderByWithRelationInput | BlobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BlobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Blobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Blobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Blobs
+    **/
+    _count?: true | BlobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BlobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BlobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BlobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BlobMaxAggregateInputType
+  }
+
+  export type GetBlobAggregateType<T extends BlobAggregateArgs> = {
+        [P in keyof T & keyof AggregateBlob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBlob[P]>
+      : GetScalarType<T[P], AggregateBlob[P]>
+  }
+
+
+
+
+  export type BlobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlobWhereInput
+    orderBy?: BlobOrderByWithAggregationInput | BlobOrderByWithAggregationInput[]
+    by: BlobScalarFieldEnum[] | BlobScalarFieldEnum
+    having?: BlobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BlobCountAggregateInputType | true
+    _avg?: BlobAvgAggregateInputType
+    _sum?: BlobSumAggregateInputType
+    _min?: BlobMinAggregateInputType
+    _max?: BlobMaxAggregateInputType
+  }
+
+  export type BlobGroupByOutputType = {
+    hash: string
+    content: string
+    size: number
+    created_at: Date
+    _count: BlobCountAggregateOutputType | null
+    _avg: BlobAvgAggregateOutputType | null
+    _sum: BlobSumAggregateOutputType | null
+    _min: BlobMinAggregateOutputType | null
+    _max: BlobMaxAggregateOutputType | null
+  }
+
+  type GetBlobGroupByPayload<T extends BlobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BlobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BlobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BlobGroupByOutputType[P]>
+            : GetScalarType<T[P], BlobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BlobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    hash?: boolean
+    content?: boolean
+    size?: boolean
+    created_at?: boolean
+    phaseSnapshotFiles?: boolean | Blob$phaseSnapshotFilesArgs<ExtArgs>
+    _count?: boolean | BlobCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["blob"]>
+
+  export type BlobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    hash?: boolean
+    content?: boolean
+    size?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["blob"]>
+
+  export type BlobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    hash?: boolean
+    content?: boolean
+    size?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["blob"]>
+
+  export type BlobSelectScalar = {
+    hash?: boolean
+    content?: boolean
+    size?: boolean
+    created_at?: boolean
+  }
+
+  export type BlobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"hash" | "content" | "size" | "created_at", ExtArgs["result"]["blob"]>
+  export type BlobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    phaseSnapshotFiles?: boolean | Blob$phaseSnapshotFilesArgs<ExtArgs>
+    _count?: boolean | BlobCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BlobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type BlobIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $BlobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Blob"
+    objects: {
+      phaseSnapshotFiles: Prisma.$PhaseSnapshotFilePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      hash: string
+      content: string
+      size: number
+      created_at: Date
+    }, ExtArgs["result"]["blob"]>
+    composites: {}
+  }
+
+  type BlobGetPayload<S extends boolean | null | undefined | BlobDefaultArgs> = $Result.GetResult<Prisma.$BlobPayload, S>
+
+  type BlobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BlobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BlobCountAggregateInputType | true
+    }
+
+  export interface BlobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Blob'], meta: { name: 'Blob' } }
+    /**
+     * Find zero or one Blob that matches the filter.
+     * @param {BlobFindUniqueArgs} args - Arguments to find a Blob
+     * @example
+     * // Get one Blob
+     * const blob = await prisma.blob.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BlobFindUniqueArgs>(args: SelectSubset<T, BlobFindUniqueArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Blob that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BlobFindUniqueOrThrowArgs} args - Arguments to find a Blob
+     * @example
+     * // Get one Blob
+     * const blob = await prisma.blob.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BlobFindUniqueOrThrowArgs>(args: SelectSubset<T, BlobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Blob that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobFindFirstArgs} args - Arguments to find a Blob
+     * @example
+     * // Get one Blob
+     * const blob = await prisma.blob.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BlobFindFirstArgs>(args?: SelectSubset<T, BlobFindFirstArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Blob that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobFindFirstOrThrowArgs} args - Arguments to find a Blob
+     * @example
+     * // Get one Blob
+     * const blob = await prisma.blob.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BlobFindFirstOrThrowArgs>(args?: SelectSubset<T, BlobFindFirstOrThrowArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Blobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Blobs
+     * const blobs = await prisma.blob.findMany()
+     * 
+     * // Get first 10 Blobs
+     * const blobs = await prisma.blob.findMany({ take: 10 })
+     * 
+     * // Only select the `hash`
+     * const blobWithHashOnly = await prisma.blob.findMany({ select: { hash: true } })
+     * 
+     */
+    findMany<T extends BlobFindManyArgs>(args?: SelectSubset<T, BlobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Blob.
+     * @param {BlobCreateArgs} args - Arguments to create a Blob.
+     * @example
+     * // Create one Blob
+     * const Blob = await prisma.blob.create({
+     *   data: {
+     *     // ... data to create a Blob
+     *   }
+     * })
+     * 
+     */
+    create<T extends BlobCreateArgs>(args: SelectSubset<T, BlobCreateArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Blobs.
+     * @param {BlobCreateManyArgs} args - Arguments to create many Blobs.
+     * @example
+     * // Create many Blobs
+     * const blob = await prisma.blob.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BlobCreateManyArgs>(args?: SelectSubset<T, BlobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Blobs and returns the data saved in the database.
+     * @param {BlobCreateManyAndReturnArgs} args - Arguments to create many Blobs.
+     * @example
+     * // Create many Blobs
+     * const blob = await prisma.blob.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Blobs and only return the `hash`
+     * const blobWithHashOnly = await prisma.blob.createManyAndReturn({
+     *   select: { hash: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BlobCreateManyAndReturnArgs>(args?: SelectSubset<T, BlobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Blob.
+     * @param {BlobDeleteArgs} args - Arguments to delete one Blob.
+     * @example
+     * // Delete one Blob
+     * const Blob = await prisma.blob.delete({
+     *   where: {
+     *     // ... filter to delete one Blob
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BlobDeleteArgs>(args: SelectSubset<T, BlobDeleteArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Blob.
+     * @param {BlobUpdateArgs} args - Arguments to update one Blob.
+     * @example
+     * // Update one Blob
+     * const blob = await prisma.blob.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BlobUpdateArgs>(args: SelectSubset<T, BlobUpdateArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Blobs.
+     * @param {BlobDeleteManyArgs} args - Arguments to filter Blobs to delete.
+     * @example
+     * // Delete a few Blobs
+     * const { count } = await prisma.blob.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BlobDeleteManyArgs>(args?: SelectSubset<T, BlobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Blobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Blobs
+     * const blob = await prisma.blob.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BlobUpdateManyArgs>(args: SelectSubset<T, BlobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Blobs and returns the data updated in the database.
+     * @param {BlobUpdateManyAndReturnArgs} args - Arguments to update many Blobs.
+     * @example
+     * // Update many Blobs
+     * const blob = await prisma.blob.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Blobs and only return the `hash`
+     * const blobWithHashOnly = await prisma.blob.updateManyAndReturn({
+     *   select: { hash: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BlobUpdateManyAndReturnArgs>(args: SelectSubset<T, BlobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Blob.
+     * @param {BlobUpsertArgs} args - Arguments to update or create a Blob.
+     * @example
+     * // Update or create a Blob
+     * const blob = await prisma.blob.upsert({
+     *   create: {
+     *     // ... data to create a Blob
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Blob we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BlobUpsertArgs>(args: SelectSubset<T, BlobUpsertArgs<ExtArgs>>): Prisma__BlobClient<$Result.GetResult<Prisma.$BlobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Blobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobCountArgs} args - Arguments to filter Blobs to count.
+     * @example
+     * // Count the number of Blobs
+     * const count = await prisma.blob.count({
+     *   where: {
+     *     // ... the filter for the Blobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends BlobCountArgs>(
+      args?: Subset<T, BlobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BlobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Blob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BlobAggregateArgs>(args: Subset<T, BlobAggregateArgs>): Prisma.PrismaPromise<GetBlobAggregateType<T>>
+
+    /**
+     * Group by Blob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BlobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BlobGroupByArgs['orderBy'] }
+        : { orderBy?: BlobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BlobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBlobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Blob model
+   */
+  readonly fields: BlobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Blob.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BlobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    phaseSnapshotFiles<T extends Blob$phaseSnapshotFilesArgs<ExtArgs> = {}>(args?: Subset<T, Blob$phaseSnapshotFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseSnapshotFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Blob model
+   */
+  interface BlobFieldRefs {
+    readonly hash: FieldRef<"Blob", 'String'>
+    readonly content: FieldRef<"Blob", 'String'>
+    readonly size: FieldRef<"Blob", 'Int'>
+    readonly created_at: FieldRef<"Blob", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Blob findUnique
+   */
+  export type BlobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * Filter, which Blob to fetch.
+     */
+    where: BlobWhereUniqueInput
+  }
+
+  /**
+   * Blob findUniqueOrThrow
+   */
+  export type BlobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * Filter, which Blob to fetch.
+     */
+    where: BlobWhereUniqueInput
+  }
+
+  /**
+   * Blob findFirst
+   */
+  export type BlobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * Filter, which Blob to fetch.
+     */
+    where?: BlobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Blobs to fetch.
+     */
+    orderBy?: BlobOrderByWithRelationInput | BlobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Blobs.
+     */
+    cursor?: BlobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Blobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Blobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Blobs.
+     */
+    distinct?: BlobScalarFieldEnum | BlobScalarFieldEnum[]
+  }
+
+  /**
+   * Blob findFirstOrThrow
+   */
+  export type BlobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * Filter, which Blob to fetch.
+     */
+    where?: BlobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Blobs to fetch.
+     */
+    orderBy?: BlobOrderByWithRelationInput | BlobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Blobs.
+     */
+    cursor?: BlobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Blobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Blobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Blobs.
+     */
+    distinct?: BlobScalarFieldEnum | BlobScalarFieldEnum[]
+  }
+
+  /**
+   * Blob findMany
+   */
+  export type BlobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * Filter, which Blobs to fetch.
+     */
+    where?: BlobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Blobs to fetch.
+     */
+    orderBy?: BlobOrderByWithRelationInput | BlobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Blobs.
+     */
+    cursor?: BlobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Blobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Blobs.
+     */
+    skip?: number
+    distinct?: BlobScalarFieldEnum | BlobScalarFieldEnum[]
+  }
+
+  /**
+   * Blob create
+   */
+  export type BlobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Blob.
+     */
+    data: XOR<BlobCreateInput, BlobUncheckedCreateInput>
+  }
+
+  /**
+   * Blob createMany
+   */
+  export type BlobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Blobs.
+     */
+    data: BlobCreateManyInput | BlobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Blob createManyAndReturn
+   */
+  export type BlobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * The data used to create many Blobs.
+     */
+    data: BlobCreateManyInput | BlobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Blob update
+   */
+  export type BlobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Blob.
+     */
+    data: XOR<BlobUpdateInput, BlobUncheckedUpdateInput>
+    /**
+     * Choose, which Blob to update.
+     */
+    where: BlobWhereUniqueInput
+  }
+
+  /**
+   * Blob updateMany
+   */
+  export type BlobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Blobs.
+     */
+    data: XOR<BlobUpdateManyMutationInput, BlobUncheckedUpdateManyInput>
+    /**
+     * Filter which Blobs to update
+     */
+    where?: BlobWhereInput
+    /**
+     * Limit how many Blobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Blob updateManyAndReturn
+   */
+  export type BlobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * The data used to update Blobs.
+     */
+    data: XOR<BlobUpdateManyMutationInput, BlobUncheckedUpdateManyInput>
+    /**
+     * Filter which Blobs to update
+     */
+    where?: BlobWhereInput
+    /**
+     * Limit how many Blobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Blob upsert
+   */
+  export type BlobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Blob to update in case it exists.
+     */
+    where: BlobWhereUniqueInput
+    /**
+     * In case the Blob found by the `where` argument doesn't exist, create a new Blob with this data.
+     */
+    create: XOR<BlobCreateInput, BlobUncheckedCreateInput>
+    /**
+     * In case the Blob was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BlobUpdateInput, BlobUncheckedUpdateInput>
+  }
+
+  /**
+   * Blob delete
+   */
+  export type BlobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+    /**
+     * Filter which Blob to delete.
+     */
+    where: BlobWhereUniqueInput
+  }
+
+  /**
+   * Blob deleteMany
+   */
+  export type BlobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Blobs to delete
+     */
+    where?: BlobWhereInput
+    /**
+     * Limit how many Blobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Blob.phaseSnapshotFiles
+   */
+  export type Blob$phaseSnapshotFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseSnapshotFile
+     */
+    select?: PhaseSnapshotFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseSnapshotFile
+     */
+    omit?: PhaseSnapshotFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseSnapshotFileInclude<ExtArgs> | null
+    where?: PhaseSnapshotFileWhereInput
+    orderBy?: PhaseSnapshotFileOrderByWithRelationInput | PhaseSnapshotFileOrderByWithRelationInput[]
+    cursor?: PhaseSnapshotFileWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PhaseSnapshotFileScalarFieldEnum | PhaseSnapshotFileScalarFieldEnum[]
+  }
+
+  /**
+   * Blob without action
+   */
+  export type BlobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blob
+     */
+    select?: BlobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blob
+     */
+    omit?: BlobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlobInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model UserProjects
    */
 
@@ -9126,6 +11684,7 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
     projects?: boolean | ProjectsDefaultArgs<ExtArgs>
     projectFiles?: boolean | UserProjects$projectFilesArgs<ExtArgs>
+    phaseProgress?: boolean | UserProjects$phaseProgressArgs<ExtArgs>
     _count?: boolean | UserProjectsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userProjects"]>
 
@@ -9171,6 +11730,7 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
     projects?: boolean | ProjectsDefaultArgs<ExtArgs>
     projectFiles?: boolean | UserProjects$projectFilesArgs<ExtArgs>
+    phaseProgress?: boolean | UserProjects$phaseProgressArgs<ExtArgs>
     _count?: boolean | UserProjectsCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserProjectsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9188,6 +11748,7 @@ export namespace Prisma {
       user: Prisma.$UserPayload<ExtArgs>
       projects: Prisma.$ProjectsPayload<ExtArgs>
       projectFiles: Prisma.$ProjectFilePayload<ExtArgs>[]
+      phaseProgress: Prisma.$UserPhaseProgressPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9595,6 +12156,7 @@ export namespace Prisma {
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     projects<T extends ProjectsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectsDefaultArgs<ExtArgs>>): Prisma__ProjectsClient<$Result.GetResult<Prisma.$ProjectsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     projectFiles<T extends UserProjects$projectFilesArgs<ExtArgs> = {}>(args?: Subset<T, UserProjects$projectFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    phaseProgress<T extends UserProjects$phaseProgressArgs<ExtArgs> = {}>(args?: Subset<T, UserProjects$phaseProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10052,6 +12614,30 @@ export namespace Prisma {
   }
 
   /**
+   * UserProjects.phaseProgress
+   */
+  export type UserProjects$phaseProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    where?: UserPhaseProgressWhereInput
+    orderBy?: UserPhaseProgressOrderByWithRelationInput | UserPhaseProgressOrderByWithRelationInput[]
+    cursor?: UserPhaseProgressWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserPhaseProgressScalarFieldEnum | UserPhaseProgressScalarFieldEnum[]
+  }
+
+  /**
    * UserProjects without action
    */
   export type UserProjectsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10067,6 +12653,1124 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserProjectsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserPhaseProgress
+   */
+
+  export type AggregateUserPhaseProgress = {
+    _count: UserPhaseProgressCountAggregateOutputType | null
+    _avg: UserPhaseProgressAvgAggregateOutputType | null
+    _sum: UserPhaseProgressSumAggregateOutputType | null
+    _min: UserPhaseProgressMinAggregateOutputType | null
+    _max: UserPhaseProgressMaxAggregateOutputType | null
+  }
+
+  export type UserPhaseProgressAvgAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type UserPhaseProgressSumAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type UserPhaseProgressMinAggregateOutputType = {
+    id: string | null
+    user_project_id: string | null
+    phase_number: number | null
+    status: $Enums.PhaseStatus | null
+    completed_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type UserPhaseProgressMaxAggregateOutputType = {
+    id: string | null
+    user_project_id: string | null
+    phase_number: number | null
+    status: $Enums.PhaseStatus | null
+    completed_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type UserPhaseProgressCountAggregateOutputType = {
+    id: number
+    user_project_id: number
+    phase_number: number
+    status: number
+    completed_at: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type UserPhaseProgressAvgAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type UserPhaseProgressSumAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type UserPhaseProgressMinAggregateInputType = {
+    id?: true
+    user_project_id?: true
+    phase_number?: true
+    status?: true
+    completed_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type UserPhaseProgressMaxAggregateInputType = {
+    id?: true
+    user_project_id?: true
+    phase_number?: true
+    status?: true
+    completed_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type UserPhaseProgressCountAggregateInputType = {
+    id?: true
+    user_project_id?: true
+    phase_number?: true
+    status?: true
+    completed_at?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type UserPhaseProgressAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPhaseProgress to aggregate.
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPhaseProgresses to fetch.
+     */
+    orderBy?: UserPhaseProgressOrderByWithRelationInput | UserPhaseProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserPhaseProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPhaseProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPhaseProgresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserPhaseProgresses
+    **/
+    _count?: true | UserPhaseProgressCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserPhaseProgressAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserPhaseProgressSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserPhaseProgressMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserPhaseProgressMaxAggregateInputType
+  }
+
+  export type GetUserPhaseProgressAggregateType<T extends UserPhaseProgressAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserPhaseProgress]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserPhaseProgress[P]>
+      : GetScalarType<T[P], AggregateUserPhaseProgress[P]>
+  }
+
+
+
+
+  export type UserPhaseProgressGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPhaseProgressWhereInput
+    orderBy?: UserPhaseProgressOrderByWithAggregationInput | UserPhaseProgressOrderByWithAggregationInput[]
+    by: UserPhaseProgressScalarFieldEnum[] | UserPhaseProgressScalarFieldEnum
+    having?: UserPhaseProgressScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserPhaseProgressCountAggregateInputType | true
+    _avg?: UserPhaseProgressAvgAggregateInputType
+    _sum?: UserPhaseProgressSumAggregateInputType
+    _min?: UserPhaseProgressMinAggregateInputType
+    _max?: UserPhaseProgressMaxAggregateInputType
+  }
+
+  export type UserPhaseProgressGroupByOutputType = {
+    id: string
+    user_project_id: string
+    phase_number: number
+    status: $Enums.PhaseStatus
+    completed_at: Date | null
+    created_at: Date
+    updated_at: Date
+    _count: UserPhaseProgressCountAggregateOutputType | null
+    _avg: UserPhaseProgressAvgAggregateOutputType | null
+    _sum: UserPhaseProgressSumAggregateOutputType | null
+    _min: UserPhaseProgressMinAggregateOutputType | null
+    _max: UserPhaseProgressMaxAggregateOutputType | null
+  }
+
+  type GetUserPhaseProgressGroupByPayload<T extends UserPhaseProgressGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserPhaseProgressGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserPhaseProgressGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserPhaseProgressGroupByOutputType[P]>
+            : GetScalarType<T[P], UserPhaseProgressGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserPhaseProgressSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    status?: boolean
+    completed_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userPhaseProgress"]>
+
+  export type UserPhaseProgressSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    status?: boolean
+    completed_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userPhaseProgress"]>
+
+  export type UserPhaseProgressSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    status?: boolean
+    completed_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userPhaseProgress"]>
+
+  export type UserPhaseProgressSelectScalar = {
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    status?: boolean
+    completed_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type UserPhaseProgressOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_project_id" | "phase_number" | "status" | "completed_at" | "created_at" | "updated_at", ExtArgs["result"]["userPhaseProgress"]>
+  export type UserPhaseProgressInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }
+  export type UserPhaseProgressIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }
+  export type UserPhaseProgressIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }
+
+  export type $UserPhaseProgressPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserPhaseProgress"
+    objects: {
+      userProject: Prisma.$UserProjectsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      user_project_id: string
+      phase_number: number
+      status: $Enums.PhaseStatus
+      completed_at: Date | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["userPhaseProgress"]>
+    composites: {}
+  }
+
+  type UserPhaseProgressGetPayload<S extends boolean | null | undefined | UserPhaseProgressDefaultArgs> = $Result.GetResult<Prisma.$UserPhaseProgressPayload, S>
+
+  type UserPhaseProgressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserPhaseProgressFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserPhaseProgressCountAggregateInputType | true
+    }
+
+  export interface UserPhaseProgressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPhaseProgress'], meta: { name: 'UserPhaseProgress' } }
+    /**
+     * Find zero or one UserPhaseProgress that matches the filter.
+     * @param {UserPhaseProgressFindUniqueArgs} args - Arguments to find a UserPhaseProgress
+     * @example
+     * // Get one UserPhaseProgress
+     * const userPhaseProgress = await prisma.userPhaseProgress.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserPhaseProgressFindUniqueArgs>(args: SelectSubset<T, UserPhaseProgressFindUniqueArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserPhaseProgress that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserPhaseProgressFindUniqueOrThrowArgs} args - Arguments to find a UserPhaseProgress
+     * @example
+     * // Get one UserPhaseProgress
+     * const userPhaseProgress = await prisma.userPhaseProgress.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserPhaseProgressFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPhaseProgressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPhaseProgress that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressFindFirstArgs} args - Arguments to find a UserPhaseProgress
+     * @example
+     * // Get one UserPhaseProgress
+     * const userPhaseProgress = await prisma.userPhaseProgress.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserPhaseProgressFindFirstArgs>(args?: SelectSubset<T, UserPhaseProgressFindFirstArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPhaseProgress that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressFindFirstOrThrowArgs} args - Arguments to find a UserPhaseProgress
+     * @example
+     * // Get one UserPhaseProgress
+     * const userPhaseProgress = await prisma.userPhaseProgress.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserPhaseProgressFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPhaseProgressFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserPhaseProgresses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserPhaseProgresses
+     * const userPhaseProgresses = await prisma.userPhaseProgress.findMany()
+     * 
+     * // Get first 10 UserPhaseProgresses
+     * const userPhaseProgresses = await prisma.userPhaseProgress.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userPhaseProgressWithIdOnly = await prisma.userPhaseProgress.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserPhaseProgressFindManyArgs>(args?: SelectSubset<T, UserPhaseProgressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserPhaseProgress.
+     * @param {UserPhaseProgressCreateArgs} args - Arguments to create a UserPhaseProgress.
+     * @example
+     * // Create one UserPhaseProgress
+     * const UserPhaseProgress = await prisma.userPhaseProgress.create({
+     *   data: {
+     *     // ... data to create a UserPhaseProgress
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserPhaseProgressCreateArgs>(args: SelectSubset<T, UserPhaseProgressCreateArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserPhaseProgresses.
+     * @param {UserPhaseProgressCreateManyArgs} args - Arguments to create many UserPhaseProgresses.
+     * @example
+     * // Create many UserPhaseProgresses
+     * const userPhaseProgress = await prisma.userPhaseProgress.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserPhaseProgressCreateManyArgs>(args?: SelectSubset<T, UserPhaseProgressCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserPhaseProgresses and returns the data saved in the database.
+     * @param {UserPhaseProgressCreateManyAndReturnArgs} args - Arguments to create many UserPhaseProgresses.
+     * @example
+     * // Create many UserPhaseProgresses
+     * const userPhaseProgress = await prisma.userPhaseProgress.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserPhaseProgresses and only return the `id`
+     * const userPhaseProgressWithIdOnly = await prisma.userPhaseProgress.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserPhaseProgressCreateManyAndReturnArgs>(args?: SelectSubset<T, UserPhaseProgressCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserPhaseProgress.
+     * @param {UserPhaseProgressDeleteArgs} args - Arguments to delete one UserPhaseProgress.
+     * @example
+     * // Delete one UserPhaseProgress
+     * const UserPhaseProgress = await prisma.userPhaseProgress.delete({
+     *   where: {
+     *     // ... filter to delete one UserPhaseProgress
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserPhaseProgressDeleteArgs>(args: SelectSubset<T, UserPhaseProgressDeleteArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserPhaseProgress.
+     * @param {UserPhaseProgressUpdateArgs} args - Arguments to update one UserPhaseProgress.
+     * @example
+     * // Update one UserPhaseProgress
+     * const userPhaseProgress = await prisma.userPhaseProgress.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserPhaseProgressUpdateArgs>(args: SelectSubset<T, UserPhaseProgressUpdateArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserPhaseProgresses.
+     * @param {UserPhaseProgressDeleteManyArgs} args - Arguments to filter UserPhaseProgresses to delete.
+     * @example
+     * // Delete a few UserPhaseProgresses
+     * const { count } = await prisma.userPhaseProgress.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserPhaseProgressDeleteManyArgs>(args?: SelectSubset<T, UserPhaseProgressDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserPhaseProgresses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserPhaseProgresses
+     * const userPhaseProgress = await prisma.userPhaseProgress.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserPhaseProgressUpdateManyArgs>(args: SelectSubset<T, UserPhaseProgressUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserPhaseProgresses and returns the data updated in the database.
+     * @param {UserPhaseProgressUpdateManyAndReturnArgs} args - Arguments to update many UserPhaseProgresses.
+     * @example
+     * // Update many UserPhaseProgresses
+     * const userPhaseProgress = await prisma.userPhaseProgress.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserPhaseProgresses and only return the `id`
+     * const userPhaseProgressWithIdOnly = await prisma.userPhaseProgress.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserPhaseProgressUpdateManyAndReturnArgs>(args: SelectSubset<T, UserPhaseProgressUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserPhaseProgress.
+     * @param {UserPhaseProgressUpsertArgs} args - Arguments to update or create a UserPhaseProgress.
+     * @example
+     * // Update or create a UserPhaseProgress
+     * const userPhaseProgress = await prisma.userPhaseProgress.upsert({
+     *   create: {
+     *     // ... data to create a UserPhaseProgress
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserPhaseProgress we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserPhaseProgressUpsertArgs>(args: SelectSubset<T, UserPhaseProgressUpsertArgs<ExtArgs>>): Prisma__UserPhaseProgressClient<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserPhaseProgresses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressCountArgs} args - Arguments to filter UserPhaseProgresses to count.
+     * @example
+     * // Count the number of UserPhaseProgresses
+     * const count = await prisma.userPhaseProgress.count({
+     *   where: {
+     *     // ... the filter for the UserPhaseProgresses we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserPhaseProgressCountArgs>(
+      args?: Subset<T, UserPhaseProgressCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserPhaseProgressCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserPhaseProgress.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserPhaseProgressAggregateArgs>(args: Subset<T, UserPhaseProgressAggregateArgs>): Prisma.PrismaPromise<GetUserPhaseProgressAggregateType<T>>
+
+    /**
+     * Group by UserPhaseProgress.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPhaseProgressGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserPhaseProgressGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserPhaseProgressGroupByArgs['orderBy'] }
+        : { orderBy?: UserPhaseProgressGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserPhaseProgressGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPhaseProgressGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserPhaseProgress model
+   */
+  readonly fields: UserPhaseProgressFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserPhaseProgress.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserPhaseProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    userProject<T extends UserProjectsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserProjectsDefaultArgs<ExtArgs>>): Prisma__UserProjectsClient<$Result.GetResult<Prisma.$UserProjectsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserPhaseProgress model
+   */
+  interface UserPhaseProgressFieldRefs {
+    readonly id: FieldRef<"UserPhaseProgress", 'String'>
+    readonly user_project_id: FieldRef<"UserPhaseProgress", 'String'>
+    readonly phase_number: FieldRef<"UserPhaseProgress", 'Int'>
+    readonly status: FieldRef<"UserPhaseProgress", 'PhaseStatus'>
+    readonly completed_at: FieldRef<"UserPhaseProgress", 'DateTime'>
+    readonly created_at: FieldRef<"UserPhaseProgress", 'DateTime'>
+    readonly updated_at: FieldRef<"UserPhaseProgress", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserPhaseProgress findUnique
+   */
+  export type UserPhaseProgressFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPhaseProgress to fetch.
+     */
+    where: UserPhaseProgressWhereUniqueInput
+  }
+
+  /**
+   * UserPhaseProgress findUniqueOrThrow
+   */
+  export type UserPhaseProgressFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPhaseProgress to fetch.
+     */
+    where: UserPhaseProgressWhereUniqueInput
+  }
+
+  /**
+   * UserPhaseProgress findFirst
+   */
+  export type UserPhaseProgressFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPhaseProgress to fetch.
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPhaseProgresses to fetch.
+     */
+    orderBy?: UserPhaseProgressOrderByWithRelationInput | UserPhaseProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPhaseProgresses.
+     */
+    cursor?: UserPhaseProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPhaseProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPhaseProgresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPhaseProgresses.
+     */
+    distinct?: UserPhaseProgressScalarFieldEnum | UserPhaseProgressScalarFieldEnum[]
+  }
+
+  /**
+   * UserPhaseProgress findFirstOrThrow
+   */
+  export type UserPhaseProgressFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPhaseProgress to fetch.
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPhaseProgresses to fetch.
+     */
+    orderBy?: UserPhaseProgressOrderByWithRelationInput | UserPhaseProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPhaseProgresses.
+     */
+    cursor?: UserPhaseProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPhaseProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPhaseProgresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPhaseProgresses.
+     */
+    distinct?: UserPhaseProgressScalarFieldEnum | UserPhaseProgressScalarFieldEnum[]
+  }
+
+  /**
+   * UserPhaseProgress findMany
+   */
+  export type UserPhaseProgressFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPhaseProgresses to fetch.
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPhaseProgresses to fetch.
+     */
+    orderBy?: UserPhaseProgressOrderByWithRelationInput | UserPhaseProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserPhaseProgresses.
+     */
+    cursor?: UserPhaseProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPhaseProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPhaseProgresses.
+     */
+    skip?: number
+    distinct?: UserPhaseProgressScalarFieldEnum | UserPhaseProgressScalarFieldEnum[]
+  }
+
+  /**
+   * UserPhaseProgress create
+   */
+  export type UserPhaseProgressCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserPhaseProgress.
+     */
+    data: XOR<UserPhaseProgressCreateInput, UserPhaseProgressUncheckedCreateInput>
+  }
+
+  /**
+   * UserPhaseProgress createMany
+   */
+  export type UserPhaseProgressCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserPhaseProgresses.
+     */
+    data: UserPhaseProgressCreateManyInput | UserPhaseProgressCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserPhaseProgress createManyAndReturn
+   */
+  export type UserPhaseProgressCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserPhaseProgresses.
+     */
+    data: UserPhaseProgressCreateManyInput | UserPhaseProgressCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserPhaseProgress update
+   */
+  export type UserPhaseProgressUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserPhaseProgress.
+     */
+    data: XOR<UserPhaseProgressUpdateInput, UserPhaseProgressUncheckedUpdateInput>
+    /**
+     * Choose, which UserPhaseProgress to update.
+     */
+    where: UserPhaseProgressWhereUniqueInput
+  }
+
+  /**
+   * UserPhaseProgress updateMany
+   */
+  export type UserPhaseProgressUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserPhaseProgresses.
+     */
+    data: XOR<UserPhaseProgressUpdateManyMutationInput, UserPhaseProgressUncheckedUpdateManyInput>
+    /**
+     * Filter which UserPhaseProgresses to update
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * Limit how many UserPhaseProgresses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserPhaseProgress updateManyAndReturn
+   */
+  export type UserPhaseProgressUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * The data used to update UserPhaseProgresses.
+     */
+    data: XOR<UserPhaseProgressUpdateManyMutationInput, UserPhaseProgressUncheckedUpdateManyInput>
+    /**
+     * Filter which UserPhaseProgresses to update
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * Limit how many UserPhaseProgresses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserPhaseProgress upsert
+   */
+  export type UserPhaseProgressUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserPhaseProgress to update in case it exists.
+     */
+    where: UserPhaseProgressWhereUniqueInput
+    /**
+     * In case the UserPhaseProgress found by the `where` argument doesn't exist, create a new UserPhaseProgress with this data.
+     */
+    create: XOR<UserPhaseProgressCreateInput, UserPhaseProgressUncheckedCreateInput>
+    /**
+     * In case the UserPhaseProgress was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserPhaseProgressUpdateInput, UserPhaseProgressUncheckedUpdateInput>
+  }
+
+  /**
+   * UserPhaseProgress delete
+   */
+  export type UserPhaseProgressDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
+    /**
+     * Filter which UserPhaseProgress to delete.
+     */
+    where: UserPhaseProgressWhereUniqueInput
+  }
+
+  /**
+   * UserPhaseProgress deleteMany
+   */
+  export type UserPhaseProgressDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPhaseProgresses to delete
+     */
+    where?: UserPhaseProgressWhereInput
+    /**
+     * Limit how many UserPhaseProgresses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserPhaseProgress without action
+   */
+  export type UserPhaseProgressDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPhaseProgress
+     */
+    select?: UserPhaseProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPhaseProgress
+     */
+    omit?: UserPhaseProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPhaseProgressInclude<ExtArgs> | null
   }
 
 
@@ -15868,6 +19572,30 @@ export namespace Prisma {
   export type ProjectFileScalarFieldEnum = (typeof ProjectFileScalarFieldEnum)[keyof typeof ProjectFileScalarFieldEnum]
 
 
+  export const PhaseSnapshotFileScalarFieldEnum: {
+    id: 'id',
+    project_id: 'project_id',
+    user_email: 'user_email',
+    phase_number: 'phase_number',
+    file_path: 'file_path',
+    blob_hash: 'blob_hash',
+    is_directory: 'is_directory',
+    created_at: 'created_at'
+  };
+
+  export type PhaseSnapshotFileScalarFieldEnum = (typeof PhaseSnapshotFileScalarFieldEnum)[keyof typeof PhaseSnapshotFileScalarFieldEnum]
+
+
+  export const BlobScalarFieldEnum: {
+    hash: 'hash',
+    content: 'content',
+    size: 'size',
+    created_at: 'created_at'
+  };
+
+  export type BlobScalarFieldEnum = (typeof BlobScalarFieldEnum)[keyof typeof BlobScalarFieldEnum]
+
+
   export const UserProjectsScalarFieldEnum: {
     id: 'id',
     project_id: 'project_id',
@@ -15880,6 +19608,19 @@ export namespace Prisma {
   };
 
   export type UserProjectsScalarFieldEnum = (typeof UserProjectsScalarFieldEnum)[keyof typeof UserProjectsScalarFieldEnum]
+
+
+  export const UserPhaseProgressScalarFieldEnum: {
+    id: 'id',
+    user_project_id: 'user_project_id',
+    phase_number: 'phase_number',
+    status: 'status',
+    completed_at: 'completed_at',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type UserPhaseProgressScalarFieldEnum = (typeof UserPhaseProgressScalarFieldEnum)[keyof typeof UserPhaseProgressScalarFieldEnum]
 
 
   export const LearningPhaseScalarFieldEnum: {
@@ -16599,6 +20340,131 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"ProjectFile"> | Date | string
   }
 
+  export type PhaseSnapshotFileWhereInput = {
+    AND?: PhaseSnapshotFileWhereInput | PhaseSnapshotFileWhereInput[]
+    OR?: PhaseSnapshotFileWhereInput[]
+    NOT?: PhaseSnapshotFileWhereInput | PhaseSnapshotFileWhereInput[]
+    id?: StringFilter<"PhaseSnapshotFile"> | string
+    project_id?: StringFilter<"PhaseSnapshotFile"> | string
+    user_email?: StringFilter<"PhaseSnapshotFile"> | string
+    phase_number?: IntFilter<"PhaseSnapshotFile"> | number
+    file_path?: StringFilter<"PhaseSnapshotFile"> | string
+    blob_hash?: StringNullableFilter<"PhaseSnapshotFile"> | string | null
+    is_directory?: BoolFilter<"PhaseSnapshotFile"> | boolean
+    created_at?: DateTimeFilter<"PhaseSnapshotFile"> | Date | string
+    blob?: XOR<BlobNullableScalarRelationFilter, BlobWhereInput> | null
+  }
+
+  export type PhaseSnapshotFileOrderByWithRelationInput = {
+    id?: SortOrder
+    project_id?: SortOrder
+    user_email?: SortOrder
+    phase_number?: SortOrder
+    file_path?: SortOrder
+    blob_hash?: SortOrderInput | SortOrder
+    is_directory?: SortOrder
+    created_at?: SortOrder
+    blob?: BlobOrderByWithRelationInput
+  }
+
+  export type PhaseSnapshotFileWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    project_id_user_email_phase_number_file_path?: PhaseSnapshotFileProject_idUser_emailPhase_numberFile_pathCompoundUniqueInput
+    AND?: PhaseSnapshotFileWhereInput | PhaseSnapshotFileWhereInput[]
+    OR?: PhaseSnapshotFileWhereInput[]
+    NOT?: PhaseSnapshotFileWhereInput | PhaseSnapshotFileWhereInput[]
+    project_id?: StringFilter<"PhaseSnapshotFile"> | string
+    user_email?: StringFilter<"PhaseSnapshotFile"> | string
+    phase_number?: IntFilter<"PhaseSnapshotFile"> | number
+    file_path?: StringFilter<"PhaseSnapshotFile"> | string
+    blob_hash?: StringNullableFilter<"PhaseSnapshotFile"> | string | null
+    is_directory?: BoolFilter<"PhaseSnapshotFile"> | boolean
+    created_at?: DateTimeFilter<"PhaseSnapshotFile"> | Date | string
+    blob?: XOR<BlobNullableScalarRelationFilter, BlobWhereInput> | null
+  }, "id" | "project_id_user_email_phase_number_file_path">
+
+  export type PhaseSnapshotFileOrderByWithAggregationInput = {
+    id?: SortOrder
+    project_id?: SortOrder
+    user_email?: SortOrder
+    phase_number?: SortOrder
+    file_path?: SortOrder
+    blob_hash?: SortOrderInput | SortOrder
+    is_directory?: SortOrder
+    created_at?: SortOrder
+    _count?: PhaseSnapshotFileCountOrderByAggregateInput
+    _avg?: PhaseSnapshotFileAvgOrderByAggregateInput
+    _max?: PhaseSnapshotFileMaxOrderByAggregateInput
+    _min?: PhaseSnapshotFileMinOrderByAggregateInput
+    _sum?: PhaseSnapshotFileSumOrderByAggregateInput
+  }
+
+  export type PhaseSnapshotFileScalarWhereWithAggregatesInput = {
+    AND?: PhaseSnapshotFileScalarWhereWithAggregatesInput | PhaseSnapshotFileScalarWhereWithAggregatesInput[]
+    OR?: PhaseSnapshotFileScalarWhereWithAggregatesInput[]
+    NOT?: PhaseSnapshotFileScalarWhereWithAggregatesInput | PhaseSnapshotFileScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PhaseSnapshotFile"> | string
+    project_id?: StringWithAggregatesFilter<"PhaseSnapshotFile"> | string
+    user_email?: StringWithAggregatesFilter<"PhaseSnapshotFile"> | string
+    phase_number?: IntWithAggregatesFilter<"PhaseSnapshotFile"> | number
+    file_path?: StringWithAggregatesFilter<"PhaseSnapshotFile"> | string
+    blob_hash?: StringNullableWithAggregatesFilter<"PhaseSnapshotFile"> | string | null
+    is_directory?: BoolWithAggregatesFilter<"PhaseSnapshotFile"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"PhaseSnapshotFile"> | Date | string
+  }
+
+  export type BlobWhereInput = {
+    AND?: BlobWhereInput | BlobWhereInput[]
+    OR?: BlobWhereInput[]
+    NOT?: BlobWhereInput | BlobWhereInput[]
+    hash?: StringFilter<"Blob"> | string
+    content?: StringFilter<"Blob"> | string
+    size?: IntFilter<"Blob"> | number
+    created_at?: DateTimeFilter<"Blob"> | Date | string
+    phaseSnapshotFiles?: PhaseSnapshotFileListRelationFilter
+  }
+
+  export type BlobOrderByWithRelationInput = {
+    hash?: SortOrder
+    content?: SortOrder
+    size?: SortOrder
+    created_at?: SortOrder
+    phaseSnapshotFiles?: PhaseSnapshotFileOrderByRelationAggregateInput
+  }
+
+  export type BlobWhereUniqueInput = Prisma.AtLeast<{
+    hash?: string
+    AND?: BlobWhereInput | BlobWhereInput[]
+    OR?: BlobWhereInput[]
+    NOT?: BlobWhereInput | BlobWhereInput[]
+    content?: StringFilter<"Blob"> | string
+    size?: IntFilter<"Blob"> | number
+    created_at?: DateTimeFilter<"Blob"> | Date | string
+    phaseSnapshotFiles?: PhaseSnapshotFileListRelationFilter
+  }, "hash">
+
+  export type BlobOrderByWithAggregationInput = {
+    hash?: SortOrder
+    content?: SortOrder
+    size?: SortOrder
+    created_at?: SortOrder
+    _count?: BlobCountOrderByAggregateInput
+    _avg?: BlobAvgOrderByAggregateInput
+    _max?: BlobMaxOrderByAggregateInput
+    _min?: BlobMinOrderByAggregateInput
+    _sum?: BlobSumOrderByAggregateInput
+  }
+
+  export type BlobScalarWhereWithAggregatesInput = {
+    AND?: BlobScalarWhereWithAggregatesInput | BlobScalarWhereWithAggregatesInput[]
+    OR?: BlobScalarWhereWithAggregatesInput[]
+    NOT?: BlobScalarWhereWithAggregatesInput | BlobScalarWhereWithAggregatesInput[]
+    hash?: StringWithAggregatesFilter<"Blob"> | string
+    content?: StringWithAggregatesFilter<"Blob"> | string
+    size?: IntWithAggregatesFilter<"Blob"> | number
+    created_at?: DateTimeWithAggregatesFilter<"Blob"> | Date | string
+  }
+
   export type UserProjectsWhereInput = {
     AND?: UserProjectsWhereInput | UserProjectsWhereInput[]
     OR?: UserProjectsWhereInput[]
@@ -16614,6 +20480,7 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     projects?: XOR<ProjectsScalarRelationFilter, ProjectsWhereInput>
     projectFiles?: ProjectFileListRelationFilter
+    phaseProgress?: UserPhaseProgressListRelationFilter
   }
 
   export type UserProjectsOrderByWithRelationInput = {
@@ -16628,6 +20495,7 @@ export namespace Prisma {
     user?: UserOrderByWithRelationInput
     projects?: ProjectsOrderByWithRelationInput
     projectFiles?: ProjectFileOrderByRelationAggregateInput
+    phaseProgress?: UserPhaseProgressOrderByRelationAggregateInput
   }
 
   export type UserProjectsWhereUniqueInput = Prisma.AtLeast<{
@@ -16646,6 +20514,7 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     projects?: XOR<ProjectsScalarRelationFilter, ProjectsWhereInput>
     projectFiles?: ProjectFileListRelationFilter
+    phaseProgress?: UserPhaseProgressListRelationFilter
   }, "id" | "project_id_user_email">
 
   export type UserProjectsOrderByWithAggregationInput = {
@@ -16676,6 +20545,74 @@ export namespace Prisma {
     started_at?: DateTimeWithAggregatesFilter<"UserProjects"> | Date | string
     completed_at?: DateTimeNullableWithAggregatesFilter<"UserProjects"> | Date | string | null
     archived?: BoolNullableWithAggregatesFilter<"UserProjects"> | boolean | null
+  }
+
+  export type UserPhaseProgressWhereInput = {
+    AND?: UserPhaseProgressWhereInput | UserPhaseProgressWhereInput[]
+    OR?: UserPhaseProgressWhereInput[]
+    NOT?: UserPhaseProgressWhereInput | UserPhaseProgressWhereInput[]
+    id?: StringFilter<"UserPhaseProgress"> | string
+    user_project_id?: StringFilter<"UserPhaseProgress"> | string
+    phase_number?: IntFilter<"UserPhaseProgress"> | number
+    status?: EnumPhaseStatusFilter<"UserPhaseProgress"> | $Enums.PhaseStatus
+    completed_at?: DateTimeNullableFilter<"UserPhaseProgress"> | Date | string | null
+    created_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
+    updated_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
+    userProject?: XOR<UserProjectsScalarRelationFilter, UserProjectsWhereInput>
+  }
+
+  export type UserPhaseProgressOrderByWithRelationInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    status?: SortOrder
+    completed_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    userProject?: UserProjectsOrderByWithRelationInput
+  }
+
+  export type UserPhaseProgressWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    user_project_id_phase_number?: UserPhaseProgressUser_project_idPhase_numberCompoundUniqueInput
+    AND?: UserPhaseProgressWhereInput | UserPhaseProgressWhereInput[]
+    OR?: UserPhaseProgressWhereInput[]
+    NOT?: UserPhaseProgressWhereInput | UserPhaseProgressWhereInput[]
+    user_project_id?: StringFilter<"UserPhaseProgress"> | string
+    phase_number?: IntFilter<"UserPhaseProgress"> | number
+    status?: EnumPhaseStatusFilter<"UserPhaseProgress"> | $Enums.PhaseStatus
+    completed_at?: DateTimeNullableFilter<"UserPhaseProgress"> | Date | string | null
+    created_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
+    updated_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
+    userProject?: XOR<UserProjectsScalarRelationFilter, UserProjectsWhereInput>
+  }, "id" | "user_project_id_phase_number">
+
+  export type UserPhaseProgressOrderByWithAggregationInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    status?: SortOrder
+    completed_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: UserPhaseProgressCountOrderByAggregateInput
+    _avg?: UserPhaseProgressAvgOrderByAggregateInput
+    _max?: UserPhaseProgressMaxOrderByAggregateInput
+    _min?: UserPhaseProgressMinOrderByAggregateInput
+    _sum?: UserPhaseProgressSumOrderByAggregateInput
+  }
+
+  export type UserPhaseProgressScalarWhereWithAggregatesInput = {
+    AND?: UserPhaseProgressScalarWhereWithAggregatesInput | UserPhaseProgressScalarWhereWithAggregatesInput[]
+    OR?: UserPhaseProgressScalarWhereWithAggregatesInput[]
+    NOT?: UserPhaseProgressScalarWhereWithAggregatesInput | UserPhaseProgressScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserPhaseProgress"> | string
+    user_project_id?: StringWithAggregatesFilter<"UserPhaseProgress"> | string
+    phase_number?: IntWithAggregatesFilter<"UserPhaseProgress"> | number
+    status?: EnumPhaseStatusWithAggregatesFilter<"UserPhaseProgress"> | $Enums.PhaseStatus
+    completed_at?: DateTimeNullableWithAggregatesFilter<"UserPhaseProgress"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"UserPhaseProgress"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"UserPhaseProgress"> | Date | string
   }
 
   export type LearningPhaseWhereInput = {
@@ -17523,6 +21460,135 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PhaseSnapshotFileCreateInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    is_directory?: boolean
+    created_at?: Date | string
+    blob?: BlobCreateNestedOneWithoutPhaseSnapshotFilesInput
+  }
+
+  export type PhaseSnapshotFileUncheckedCreateInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    blob_hash?: string | null
+    is_directory?: boolean
+    created_at?: Date | string
+  }
+
+  export type PhaseSnapshotFileUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    blob?: BlobUpdateOneWithoutPhaseSnapshotFilesNestedInput
+  }
+
+  export type PhaseSnapshotFileUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    blob_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseSnapshotFileCreateManyInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    blob_hash?: string | null
+    is_directory?: boolean
+    created_at?: Date | string
+  }
+
+  export type PhaseSnapshotFileUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseSnapshotFileUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    blob_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlobCreateInput = {
+    hash: string
+    content: string
+    size: number
+    created_at?: Date | string
+    phaseSnapshotFiles?: PhaseSnapshotFileCreateNestedManyWithoutBlobInput
+  }
+
+  export type BlobUncheckedCreateInput = {
+    hash: string
+    content: string
+    size: number
+    created_at?: Date | string
+    phaseSnapshotFiles?: PhaseSnapshotFileUncheckedCreateNestedManyWithoutBlobInput
+  }
+
+  export type BlobUpdateInput = {
+    hash?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    phaseSnapshotFiles?: PhaseSnapshotFileUpdateManyWithoutBlobNestedInput
+  }
+
+  export type BlobUncheckedUpdateInput = {
+    hash?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    phaseSnapshotFiles?: PhaseSnapshotFileUncheckedUpdateManyWithoutBlobNestedInput
+  }
+
+  export type BlobCreateManyInput = {
+    hash: string
+    content: string
+    size: number
+    created_at?: Date | string
+  }
+
+  export type BlobUpdateManyMutationInput = {
+    hash?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlobUncheckedUpdateManyInput = {
+    hash?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserProjectsCreateInput = {
     id?: string
     status?: $Enums.Status
@@ -17533,6 +21599,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutUserProjectsInput
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateInput = {
@@ -17545,6 +21612,7 @@ export namespace Prisma {
     completed_at?: Date | string | null
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUpdateInput = {
@@ -17557,6 +21625,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateInput = {
@@ -17569,6 +21638,7 @@ export namespace Prisma {
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsCreateManyInput = {
@@ -17600,6 +21670,75 @@ export namespace Prisma {
     started_at?: DateTimeFieldUpdateOperationsInput | Date | string
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+  }
+
+  export type UserPhaseProgressCreateInput = {
+    id?: string
+    phase_number: number
+    status?: $Enums.PhaseStatus
+    completed_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    userProject: UserProjectsCreateNestedOneWithoutPhaseProgressInput
+  }
+
+  export type UserPhaseProgressUncheckedCreateInput = {
+    id?: string
+    user_project_id: string
+    phase_number: number
+    status?: $Enums.PhaseStatus
+    completed_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type UserPhaseProgressUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    userProject?: UserProjectsUpdateOneRequiredWithoutPhaseProgressNestedInput
+  }
+
+  export type UserPhaseProgressUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPhaseProgressCreateManyInput = {
+    id?: string
+    user_project_id: string
+    phase_number: number
+    status?: $Enums.PhaseStatus
+    completed_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type UserPhaseProgressUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPhaseProgressUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LearningPhaseCreateInput = {
@@ -18657,6 +22796,98 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type BlobNullableScalarRelationFilter = {
+    is?: BlobWhereInput | null
+    isNot?: BlobWhereInput | null
+  }
+
+  export type PhaseSnapshotFileProject_idUser_emailPhase_numberFile_pathCompoundUniqueInput = {
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+  }
+
+  export type PhaseSnapshotFileCountOrderByAggregateInput = {
+    id?: SortOrder
+    project_id?: SortOrder
+    user_email?: SortOrder
+    phase_number?: SortOrder
+    file_path?: SortOrder
+    blob_hash?: SortOrder
+    is_directory?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PhaseSnapshotFileAvgOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type PhaseSnapshotFileMaxOrderByAggregateInput = {
+    id?: SortOrder
+    project_id?: SortOrder
+    user_email?: SortOrder
+    phase_number?: SortOrder
+    file_path?: SortOrder
+    blob_hash?: SortOrder
+    is_directory?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PhaseSnapshotFileMinOrderByAggregateInput = {
+    id?: SortOrder
+    project_id?: SortOrder
+    user_email?: SortOrder
+    phase_number?: SortOrder
+    file_path?: SortOrder
+    blob_hash?: SortOrder
+    is_directory?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PhaseSnapshotFileSumOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type PhaseSnapshotFileListRelationFilter = {
+    every?: PhaseSnapshotFileWhereInput
+    some?: PhaseSnapshotFileWhereInput
+    none?: PhaseSnapshotFileWhereInput
+  }
+
+  export type PhaseSnapshotFileOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BlobCountOrderByAggregateInput = {
+    hash?: SortOrder
+    content?: SortOrder
+    size?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BlobAvgOrderByAggregateInput = {
+    size?: SortOrder
+  }
+
+  export type BlobMaxOrderByAggregateInput = {
+    hash?: SortOrder
+    content?: SortOrder
+    size?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BlobMinOrderByAggregateInput = {
+    hash?: SortOrder
+    content?: SortOrder
+    size?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BlobSumOrderByAggregateInput = {
+    size?: SortOrder
+  }
+
   export type EnumStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.Status | EnumStatusFieldRefInput<$PrismaModel>
     in?: $Enums.Status[] | ListEnumStatusFieldRefInput<$PrismaModel>
@@ -18675,7 +22906,17 @@ export namespace Prisma {
     none?: ProjectFileWhereInput
   }
 
+  export type UserPhaseProgressListRelationFilter = {
+    every?: UserPhaseProgressWhereInput
+    some?: UserPhaseProgressWhereInput
+    none?: UserPhaseProgressWhereInput
+  }
+
   export type ProjectFileOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserPhaseProgressOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -18750,6 +22991,59 @@ export namespace Prisma {
     not?: NestedEnumPhaseStatusFilter<$PrismaModel> | $Enums.PhaseStatus
   }
 
+  export type UserPhaseProgressUser_project_idPhase_numberCompoundUniqueInput = {
+    user_project_id: string
+    phase_number: number
+  }
+
+  export type UserPhaseProgressCountOrderByAggregateInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    status?: SortOrder
+    completed_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type UserPhaseProgressAvgOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type UserPhaseProgressMaxOrderByAggregateInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    status?: SortOrder
+    completed_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type UserPhaseProgressMinOrderByAggregateInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    status?: SortOrder
+    completed_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type UserPhaseProgressSumOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type EnumPhaseStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PhaseStatus | EnumPhaseStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PhaseStatus[] | ListEnumPhaseStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PhaseStatus[] | ListEnumPhaseStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPhaseStatusWithAggregatesFilter<$PrismaModel> | $Enums.PhaseStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPhaseStatusFilter<$PrismaModel>
+    _max?: NestedEnumPhaseStatusFilter<$PrismaModel>
+  }
+
   export type ResourcesListRelationFilter = {
     every?: ResourcesWhereInput
     some?: ResourcesWhereInput
@@ -18816,16 +23110,6 @@ export namespace Prisma {
   export type LearningPhaseSumOrderByAggregateInput = {
     phase_number?: SortOrder
     estimated_minutes?: SortOrder
-  }
-
-  export type EnumPhaseStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PhaseStatus | EnumPhaseStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.PhaseStatus[] | ListEnumPhaseStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PhaseStatus[] | ListEnumPhaseStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumPhaseStatusWithAggregatesFilter<$PrismaModel> | $Enums.PhaseStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPhaseStatusFilter<$PrismaModel>
-    _max?: NestedEnumPhaseStatusFilter<$PrismaModel>
   }
 
   export type EnumQuestion_TypeFilter<$PrismaModel = never> = {
@@ -19386,6 +23670,64 @@ export namespace Prisma {
     update?: XOR<XOR<UserProjectsUpdateToOneWithWhereWithoutProjectFilesInput, UserProjectsUpdateWithoutProjectFilesInput>, UserProjectsUncheckedUpdateWithoutProjectFilesInput>
   }
 
+  export type BlobCreateNestedOneWithoutPhaseSnapshotFilesInput = {
+    create?: XOR<BlobCreateWithoutPhaseSnapshotFilesInput, BlobUncheckedCreateWithoutPhaseSnapshotFilesInput>
+    connectOrCreate?: BlobCreateOrConnectWithoutPhaseSnapshotFilesInput
+    connect?: BlobWhereUniqueInput
+  }
+
+  export type BlobUpdateOneWithoutPhaseSnapshotFilesNestedInput = {
+    create?: XOR<BlobCreateWithoutPhaseSnapshotFilesInput, BlobUncheckedCreateWithoutPhaseSnapshotFilesInput>
+    connectOrCreate?: BlobCreateOrConnectWithoutPhaseSnapshotFilesInput
+    upsert?: BlobUpsertWithoutPhaseSnapshotFilesInput
+    disconnect?: BlobWhereInput | boolean
+    delete?: BlobWhereInput | boolean
+    connect?: BlobWhereUniqueInput
+    update?: XOR<XOR<BlobUpdateToOneWithWhereWithoutPhaseSnapshotFilesInput, BlobUpdateWithoutPhaseSnapshotFilesInput>, BlobUncheckedUpdateWithoutPhaseSnapshotFilesInput>
+  }
+
+  export type PhaseSnapshotFileCreateNestedManyWithoutBlobInput = {
+    create?: XOR<PhaseSnapshotFileCreateWithoutBlobInput, PhaseSnapshotFileUncheckedCreateWithoutBlobInput> | PhaseSnapshotFileCreateWithoutBlobInput[] | PhaseSnapshotFileUncheckedCreateWithoutBlobInput[]
+    connectOrCreate?: PhaseSnapshotFileCreateOrConnectWithoutBlobInput | PhaseSnapshotFileCreateOrConnectWithoutBlobInput[]
+    createMany?: PhaseSnapshotFileCreateManyBlobInputEnvelope
+    connect?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+  }
+
+  export type PhaseSnapshotFileUncheckedCreateNestedManyWithoutBlobInput = {
+    create?: XOR<PhaseSnapshotFileCreateWithoutBlobInput, PhaseSnapshotFileUncheckedCreateWithoutBlobInput> | PhaseSnapshotFileCreateWithoutBlobInput[] | PhaseSnapshotFileUncheckedCreateWithoutBlobInput[]
+    connectOrCreate?: PhaseSnapshotFileCreateOrConnectWithoutBlobInput | PhaseSnapshotFileCreateOrConnectWithoutBlobInput[]
+    createMany?: PhaseSnapshotFileCreateManyBlobInputEnvelope
+    connect?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+  }
+
+  export type PhaseSnapshotFileUpdateManyWithoutBlobNestedInput = {
+    create?: XOR<PhaseSnapshotFileCreateWithoutBlobInput, PhaseSnapshotFileUncheckedCreateWithoutBlobInput> | PhaseSnapshotFileCreateWithoutBlobInput[] | PhaseSnapshotFileUncheckedCreateWithoutBlobInput[]
+    connectOrCreate?: PhaseSnapshotFileCreateOrConnectWithoutBlobInput | PhaseSnapshotFileCreateOrConnectWithoutBlobInput[]
+    upsert?: PhaseSnapshotFileUpsertWithWhereUniqueWithoutBlobInput | PhaseSnapshotFileUpsertWithWhereUniqueWithoutBlobInput[]
+    createMany?: PhaseSnapshotFileCreateManyBlobInputEnvelope
+    set?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    disconnect?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    delete?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    connect?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    update?: PhaseSnapshotFileUpdateWithWhereUniqueWithoutBlobInput | PhaseSnapshotFileUpdateWithWhereUniqueWithoutBlobInput[]
+    updateMany?: PhaseSnapshotFileUpdateManyWithWhereWithoutBlobInput | PhaseSnapshotFileUpdateManyWithWhereWithoutBlobInput[]
+    deleteMany?: PhaseSnapshotFileScalarWhereInput | PhaseSnapshotFileScalarWhereInput[]
+  }
+
+  export type PhaseSnapshotFileUncheckedUpdateManyWithoutBlobNestedInput = {
+    create?: XOR<PhaseSnapshotFileCreateWithoutBlobInput, PhaseSnapshotFileUncheckedCreateWithoutBlobInput> | PhaseSnapshotFileCreateWithoutBlobInput[] | PhaseSnapshotFileUncheckedCreateWithoutBlobInput[]
+    connectOrCreate?: PhaseSnapshotFileCreateOrConnectWithoutBlobInput | PhaseSnapshotFileCreateOrConnectWithoutBlobInput[]
+    upsert?: PhaseSnapshotFileUpsertWithWhereUniqueWithoutBlobInput | PhaseSnapshotFileUpsertWithWhereUniqueWithoutBlobInput[]
+    createMany?: PhaseSnapshotFileCreateManyBlobInputEnvelope
+    set?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    disconnect?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    delete?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    connect?: PhaseSnapshotFileWhereUniqueInput | PhaseSnapshotFileWhereUniqueInput[]
+    update?: PhaseSnapshotFileUpdateWithWhereUniqueWithoutBlobInput | PhaseSnapshotFileUpdateWithWhereUniqueWithoutBlobInput[]
+    updateMany?: PhaseSnapshotFileUpdateManyWithWhereWithoutBlobInput | PhaseSnapshotFileUpdateManyWithWhereWithoutBlobInput[]
+    deleteMany?: PhaseSnapshotFileScalarWhereInput | PhaseSnapshotFileScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutUserProjectsInput = {
     create?: XOR<UserCreateWithoutUserProjectsInput, UserUncheckedCreateWithoutUserProjectsInput>
     connectOrCreate?: UserCreateOrConnectWithoutUserProjectsInput
@@ -19405,11 +23747,25 @@ export namespace Prisma {
     connect?: ProjectFileWhereUniqueInput | ProjectFileWhereUniqueInput[]
   }
 
+  export type UserPhaseProgressCreateNestedManyWithoutUserProjectInput = {
+    create?: XOR<UserPhaseProgressCreateWithoutUserProjectInput, UserPhaseProgressUncheckedCreateWithoutUserProjectInput> | UserPhaseProgressCreateWithoutUserProjectInput[] | UserPhaseProgressUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: UserPhaseProgressCreateOrConnectWithoutUserProjectInput | UserPhaseProgressCreateOrConnectWithoutUserProjectInput[]
+    createMany?: UserPhaseProgressCreateManyUserProjectInputEnvelope
+    connect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+  }
+
   export type ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput = {
     create?: XOR<ProjectFileCreateWithoutUserProjectInput, ProjectFileUncheckedCreateWithoutUserProjectInput> | ProjectFileCreateWithoutUserProjectInput[] | ProjectFileUncheckedCreateWithoutUserProjectInput[]
     connectOrCreate?: ProjectFileCreateOrConnectWithoutUserProjectInput | ProjectFileCreateOrConnectWithoutUserProjectInput[]
     createMany?: ProjectFileCreateManyUserProjectInputEnvelope
     connect?: ProjectFileWhereUniqueInput | ProjectFileWhereUniqueInput[]
+  }
+
+  export type UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput = {
+    create?: XOR<UserPhaseProgressCreateWithoutUserProjectInput, UserPhaseProgressUncheckedCreateWithoutUserProjectInput> | UserPhaseProgressCreateWithoutUserProjectInput[] | UserPhaseProgressUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: UserPhaseProgressCreateOrConnectWithoutUserProjectInput | UserPhaseProgressCreateOrConnectWithoutUserProjectInput[]
+    createMany?: UserPhaseProgressCreateManyUserProjectInputEnvelope
+    connect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
   }
 
   export type EnumStatusFieldUpdateOperationsInput = {
@@ -19450,6 +23806,20 @@ export namespace Prisma {
     deleteMany?: ProjectFileScalarWhereInput | ProjectFileScalarWhereInput[]
   }
 
+  export type UserPhaseProgressUpdateManyWithoutUserProjectNestedInput = {
+    create?: XOR<UserPhaseProgressCreateWithoutUserProjectInput, UserPhaseProgressUncheckedCreateWithoutUserProjectInput> | UserPhaseProgressCreateWithoutUserProjectInput[] | UserPhaseProgressUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: UserPhaseProgressCreateOrConnectWithoutUserProjectInput | UserPhaseProgressCreateOrConnectWithoutUserProjectInput[]
+    upsert?: UserPhaseProgressUpsertWithWhereUniqueWithoutUserProjectInput | UserPhaseProgressUpsertWithWhereUniqueWithoutUserProjectInput[]
+    createMany?: UserPhaseProgressCreateManyUserProjectInputEnvelope
+    set?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    disconnect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    delete?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    connect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    update?: UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput | UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput[]
+    updateMany?: UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput | UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput[]
+    deleteMany?: UserPhaseProgressScalarWhereInput | UserPhaseProgressScalarWhereInput[]
+  }
+
   export type ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput = {
     create?: XOR<ProjectFileCreateWithoutUserProjectInput, ProjectFileUncheckedCreateWithoutUserProjectInput> | ProjectFileCreateWithoutUserProjectInput[] | ProjectFileUncheckedCreateWithoutUserProjectInput[]
     connectOrCreate?: ProjectFileCreateOrConnectWithoutUserProjectInput | ProjectFileCreateOrConnectWithoutUserProjectInput[]
@@ -19462,6 +23832,38 @@ export namespace Prisma {
     update?: ProjectFileUpdateWithWhereUniqueWithoutUserProjectInput | ProjectFileUpdateWithWhereUniqueWithoutUserProjectInput[]
     updateMany?: ProjectFileUpdateManyWithWhereWithoutUserProjectInput | ProjectFileUpdateManyWithWhereWithoutUserProjectInput[]
     deleteMany?: ProjectFileScalarWhereInput | ProjectFileScalarWhereInput[]
+  }
+
+  export type UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput = {
+    create?: XOR<UserPhaseProgressCreateWithoutUserProjectInput, UserPhaseProgressUncheckedCreateWithoutUserProjectInput> | UserPhaseProgressCreateWithoutUserProjectInput[] | UserPhaseProgressUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: UserPhaseProgressCreateOrConnectWithoutUserProjectInput | UserPhaseProgressCreateOrConnectWithoutUserProjectInput[]
+    upsert?: UserPhaseProgressUpsertWithWhereUniqueWithoutUserProjectInput | UserPhaseProgressUpsertWithWhereUniqueWithoutUserProjectInput[]
+    createMany?: UserPhaseProgressCreateManyUserProjectInputEnvelope
+    set?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    disconnect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    delete?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    connect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+    update?: UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput | UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput[]
+    updateMany?: UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput | UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput[]
+    deleteMany?: UserPhaseProgressScalarWhereInput | UserPhaseProgressScalarWhereInput[]
+  }
+
+  export type UserProjectsCreateNestedOneWithoutPhaseProgressInput = {
+    create?: XOR<UserProjectsCreateWithoutPhaseProgressInput, UserProjectsUncheckedCreateWithoutPhaseProgressInput>
+    connectOrCreate?: UserProjectsCreateOrConnectWithoutPhaseProgressInput
+    connect?: UserProjectsWhereUniqueInput
+  }
+
+  export type EnumPhaseStatusFieldUpdateOperationsInput = {
+    set?: $Enums.PhaseStatus
+  }
+
+  export type UserProjectsUpdateOneRequiredWithoutPhaseProgressNestedInput = {
+    create?: XOR<UserProjectsCreateWithoutPhaseProgressInput, UserProjectsUncheckedCreateWithoutPhaseProgressInput>
+    connectOrCreate?: UserProjectsCreateOrConnectWithoutPhaseProgressInput
+    upsert?: UserProjectsUpsertWithoutPhaseProgressInput
+    connect?: UserProjectsWhereUniqueInput
+    update?: XOR<XOR<UserProjectsUpdateToOneWithWhereWithoutPhaseProgressInput, UserProjectsUpdateWithoutPhaseProgressInput>, UserProjectsUncheckedUpdateWithoutPhaseProgressInput>
   }
 
   export type LearningPhaseCreateconceptsInput = {
@@ -19505,10 +23907,6 @@ export namespace Prisma {
   export type LearningPhaseUpdateconceptsInput = {
     set?: string[]
     push?: string | string[]
-  }
-
-  export type EnumPhaseStatusFieldUpdateOperationsInput = {
-    set?: $Enums.PhaseStatus
   }
 
   export type ProjectsUpdateOneRequiredWithoutLearningPhasesNestedInput = {
@@ -20140,6 +24538,7 @@ export namespace Prisma {
     archived?: boolean | null
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutUserInput = {
@@ -20151,6 +24550,7 @@ export namespace Prisma {
     completed_at?: Date | string | null
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutUserInput = {
@@ -20298,6 +24698,7 @@ export namespace Prisma {
     archived?: boolean | null
     user: UserCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutProjectsInput = {
@@ -20309,6 +24710,7 @@ export namespace Prisma {
     completed_at?: Date | string | null
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutProjectsInput = {
@@ -20563,6 +24965,7 @@ export namespace Prisma {
     archived?: boolean | null
     user: UserCreateNestedOneWithoutUserProjectsInput
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
+    phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutProjectFilesInput = {
@@ -20574,6 +24977,7 @@ export namespace Prisma {
     started_at?: Date | string
     completed_at?: Date | string | null
     archived?: boolean | null
+    phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutProjectFilesInput = {
@@ -20601,6 +25005,7 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
+    phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutProjectFilesInput = {
@@ -20612,6 +25017,111 @@ export namespace Prisma {
     started_at?: DateTimeFieldUpdateOperationsInput | Date | string
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+  }
+
+  export type BlobCreateWithoutPhaseSnapshotFilesInput = {
+    hash: string
+    content: string
+    size: number
+    created_at?: Date | string
+  }
+
+  export type BlobUncheckedCreateWithoutPhaseSnapshotFilesInput = {
+    hash: string
+    content: string
+    size: number
+    created_at?: Date | string
+  }
+
+  export type BlobCreateOrConnectWithoutPhaseSnapshotFilesInput = {
+    where: BlobWhereUniqueInput
+    create: XOR<BlobCreateWithoutPhaseSnapshotFilesInput, BlobUncheckedCreateWithoutPhaseSnapshotFilesInput>
+  }
+
+  export type BlobUpsertWithoutPhaseSnapshotFilesInput = {
+    update: XOR<BlobUpdateWithoutPhaseSnapshotFilesInput, BlobUncheckedUpdateWithoutPhaseSnapshotFilesInput>
+    create: XOR<BlobCreateWithoutPhaseSnapshotFilesInput, BlobUncheckedCreateWithoutPhaseSnapshotFilesInput>
+    where?: BlobWhereInput
+  }
+
+  export type BlobUpdateToOneWithWhereWithoutPhaseSnapshotFilesInput = {
+    where?: BlobWhereInput
+    data: XOR<BlobUpdateWithoutPhaseSnapshotFilesInput, BlobUncheckedUpdateWithoutPhaseSnapshotFilesInput>
+  }
+
+  export type BlobUpdateWithoutPhaseSnapshotFilesInput = {
+    hash?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlobUncheckedUpdateWithoutPhaseSnapshotFilesInput = {
+    hash?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseSnapshotFileCreateWithoutBlobInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    is_directory?: boolean
+    created_at?: Date | string
+  }
+
+  export type PhaseSnapshotFileUncheckedCreateWithoutBlobInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    is_directory?: boolean
+    created_at?: Date | string
+  }
+
+  export type PhaseSnapshotFileCreateOrConnectWithoutBlobInput = {
+    where: PhaseSnapshotFileWhereUniqueInput
+    create: XOR<PhaseSnapshotFileCreateWithoutBlobInput, PhaseSnapshotFileUncheckedCreateWithoutBlobInput>
+  }
+
+  export type PhaseSnapshotFileCreateManyBlobInputEnvelope = {
+    data: PhaseSnapshotFileCreateManyBlobInput | PhaseSnapshotFileCreateManyBlobInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PhaseSnapshotFileUpsertWithWhereUniqueWithoutBlobInput = {
+    where: PhaseSnapshotFileWhereUniqueInput
+    update: XOR<PhaseSnapshotFileUpdateWithoutBlobInput, PhaseSnapshotFileUncheckedUpdateWithoutBlobInput>
+    create: XOR<PhaseSnapshotFileCreateWithoutBlobInput, PhaseSnapshotFileUncheckedCreateWithoutBlobInput>
+  }
+
+  export type PhaseSnapshotFileUpdateWithWhereUniqueWithoutBlobInput = {
+    where: PhaseSnapshotFileWhereUniqueInput
+    data: XOR<PhaseSnapshotFileUpdateWithoutBlobInput, PhaseSnapshotFileUncheckedUpdateWithoutBlobInput>
+  }
+
+  export type PhaseSnapshotFileUpdateManyWithWhereWithoutBlobInput = {
+    where: PhaseSnapshotFileScalarWhereInput
+    data: XOR<PhaseSnapshotFileUpdateManyMutationInput, PhaseSnapshotFileUncheckedUpdateManyWithoutBlobInput>
+  }
+
+  export type PhaseSnapshotFileScalarWhereInput = {
+    AND?: PhaseSnapshotFileScalarWhereInput | PhaseSnapshotFileScalarWhereInput[]
+    OR?: PhaseSnapshotFileScalarWhereInput[]
+    NOT?: PhaseSnapshotFileScalarWhereInput | PhaseSnapshotFileScalarWhereInput[]
+    id?: StringFilter<"PhaseSnapshotFile"> | string
+    project_id?: StringFilter<"PhaseSnapshotFile"> | string
+    user_email?: StringFilter<"PhaseSnapshotFile"> | string
+    phase_number?: IntFilter<"PhaseSnapshotFile"> | number
+    file_path?: StringFilter<"PhaseSnapshotFile"> | string
+    blob_hash?: StringNullableFilter<"PhaseSnapshotFile"> | string | null
+    is_directory?: BoolFilter<"PhaseSnapshotFile"> | boolean
+    created_at?: DateTimeFilter<"PhaseSnapshotFile"> | Date | string
   }
 
   export type UserCreateWithoutUserProjectsInput = {
@@ -20701,6 +25211,34 @@ export namespace Prisma {
 
   export type ProjectFileCreateManyUserProjectInputEnvelope = {
     data: ProjectFileCreateManyUserProjectInput | ProjectFileCreateManyUserProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserPhaseProgressCreateWithoutUserProjectInput = {
+    id?: string
+    phase_number: number
+    status?: $Enums.PhaseStatus
+    completed_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type UserPhaseProgressUncheckedCreateWithoutUserProjectInput = {
+    id?: string
+    phase_number: number
+    status?: $Enums.PhaseStatus
+    completed_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type UserPhaseProgressCreateOrConnectWithoutUserProjectInput = {
+    where: UserPhaseProgressWhereUniqueInput
+    create: XOR<UserPhaseProgressCreateWithoutUserProjectInput, UserPhaseProgressUncheckedCreateWithoutUserProjectInput>
+  }
+
+  export type UserPhaseProgressCreateManyUserProjectInputEnvelope = {
+    data: UserPhaseProgressCreateManyUserProjectInput | UserPhaseProgressCreateManyUserProjectInput[]
     skipDuplicates?: boolean
   }
 
@@ -20806,6 +25344,99 @@ export namespace Prisma {
     is_directory?: BoolFilter<"ProjectFile"> | boolean
     created_at?: DateTimeFilter<"ProjectFile"> | Date | string
     updated_at?: DateTimeFilter<"ProjectFile"> | Date | string
+  }
+
+  export type UserPhaseProgressUpsertWithWhereUniqueWithoutUserProjectInput = {
+    where: UserPhaseProgressWhereUniqueInput
+    update: XOR<UserPhaseProgressUpdateWithoutUserProjectInput, UserPhaseProgressUncheckedUpdateWithoutUserProjectInput>
+    create: XOR<UserPhaseProgressCreateWithoutUserProjectInput, UserPhaseProgressUncheckedCreateWithoutUserProjectInput>
+  }
+
+  export type UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput = {
+    where: UserPhaseProgressWhereUniqueInput
+    data: XOR<UserPhaseProgressUpdateWithoutUserProjectInput, UserPhaseProgressUncheckedUpdateWithoutUserProjectInput>
+  }
+
+  export type UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput = {
+    where: UserPhaseProgressScalarWhereInput
+    data: XOR<UserPhaseProgressUpdateManyMutationInput, UserPhaseProgressUncheckedUpdateManyWithoutUserProjectInput>
+  }
+
+  export type UserPhaseProgressScalarWhereInput = {
+    AND?: UserPhaseProgressScalarWhereInput | UserPhaseProgressScalarWhereInput[]
+    OR?: UserPhaseProgressScalarWhereInput[]
+    NOT?: UserPhaseProgressScalarWhereInput | UserPhaseProgressScalarWhereInput[]
+    id?: StringFilter<"UserPhaseProgress"> | string
+    user_project_id?: StringFilter<"UserPhaseProgress"> | string
+    phase_number?: IntFilter<"UserPhaseProgress"> | number
+    status?: EnumPhaseStatusFilter<"UserPhaseProgress"> | $Enums.PhaseStatus
+    completed_at?: DateTimeNullableFilter<"UserPhaseProgress"> | Date | string | null
+    created_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
+    updated_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
+  }
+
+  export type UserProjectsCreateWithoutPhaseProgressInput = {
+    id?: string
+    status?: $Enums.Status
+    current_phase?: number
+    started_at?: Date | string
+    completed_at?: Date | string | null
+    archived?: boolean | null
+    user: UserCreateNestedOneWithoutUserProjectsInput
+    projects: ProjectsCreateNestedOneWithoutUserProjectsInput
+    projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
+  }
+
+  export type UserProjectsUncheckedCreateWithoutPhaseProgressInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    status?: $Enums.Status
+    current_phase?: number
+    started_at?: Date | string
+    completed_at?: Date | string | null
+    archived?: boolean | null
+    projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
+  }
+
+  export type UserProjectsCreateOrConnectWithoutPhaseProgressInput = {
+    where: UserProjectsWhereUniqueInput
+    create: XOR<UserProjectsCreateWithoutPhaseProgressInput, UserProjectsUncheckedCreateWithoutPhaseProgressInput>
+  }
+
+  export type UserProjectsUpsertWithoutPhaseProgressInput = {
+    update: XOR<UserProjectsUpdateWithoutPhaseProgressInput, UserProjectsUncheckedUpdateWithoutPhaseProgressInput>
+    create: XOR<UserProjectsCreateWithoutPhaseProgressInput, UserProjectsUncheckedCreateWithoutPhaseProgressInput>
+    where?: UserProjectsWhereInput
+  }
+
+  export type UserProjectsUpdateToOneWithWhereWithoutPhaseProgressInput = {
+    where?: UserProjectsWhereInput
+    data: XOR<UserProjectsUpdateWithoutPhaseProgressInput, UserProjectsUncheckedUpdateWithoutPhaseProgressInput>
+  }
+
+  export type UserProjectsUpdateWithoutPhaseProgressInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    current_phase?: IntFieldUpdateOperationsInput | number
+    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
+    projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
+    projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
+  }
+
+  export type UserProjectsUncheckedUpdateWithoutPhaseProgressInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    current_phase?: IntFieldUpdateOperationsInput | number
+    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type ProjectsCreateWithoutLearningPhasesInput = {
@@ -21419,6 +26050,7 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutUserInput = {
@@ -21430,6 +26062,7 @@ export namespace Prisma {
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateManyWithoutUserInput = {
@@ -21523,6 +26156,7 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutProjectsInput = {
@@ -21534,6 +26168,7 @@ export namespace Prisma {
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateManyWithoutProjectsInput = {
@@ -21564,11 +26199,60 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
   }
 
+  export type PhaseSnapshotFileCreateManyBlobInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    phase_number: number
+    file_path: string
+    is_directory?: boolean
+    created_at?: Date | string
+  }
+
+  export type PhaseSnapshotFileUpdateWithoutBlobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseSnapshotFileUncheckedUpdateWithoutBlobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseSnapshotFileUncheckedUpdateManyWithoutBlobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    file_path?: StringFieldUpdateOperationsInput | string
+    is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProjectFileCreateManyUserProjectInput = {
     id?: string
     file_path: string
     content?: string
     is_directory?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type UserPhaseProgressCreateManyUserProjectInput = {
+    id?: string
+    phase_number: number
+    status?: $Enums.PhaseStatus
+    completed_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -21596,6 +26280,33 @@ export namespace Prisma {
     file_path?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     is_directory?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPhaseProgressUpdateWithoutUserProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPhaseProgressUncheckedUpdateWithoutUserProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPhaseProgressUncheckedUpdateManyWithoutUserProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }

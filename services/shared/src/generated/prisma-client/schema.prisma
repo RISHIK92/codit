@@ -93,6 +93,40 @@ model ProjectFile {
   @@index([project_id, user_email])
 }
 
+/**
+ * Frozen copy of a user's ProjectFile tree, taken when they advance past a phase — read-only history, not a second editable workspace.
+ * File content is stored once as a content-addressed Blob and referenced by hash, so unchanged files across phases (or across users on the
+ * same starter files) share one row instead of being duplicated on every phase advance.
+ */
+model PhaseSnapshotFile {
+  id           String   @id @default(uuid())
+  project_id   String
+  user_email   String
+  phase_number Int
+  file_path    String
+  blob_hash    String?
+  is_directory Boolean  @default(false)
+  created_at   DateTime @default(now())
+
+  blob Blob? @relation(fields: [blob_hash], references: [hash])
+
+  @@unique([project_id, user_email, phase_number, file_path])
+  @@index([project_id, user_email, phase_number])
+  @@index([blob_hash])
+}
+
+/**
+ * Content-addressed storage for snapshot file bodies — keyed by the SHA-256 hash of the content, so identical content is stored exactly once.
+ */
+model Blob {
+  hash       String   @id
+  content    String
+  size       Int
+  created_at DateTime @default(now())
+
+  phaseSnapshotFiles PhaseSnapshotFile[]
+}
+
 model UserProjects {
   id            String    @unique @default(uuid())
   project_id    String
@@ -103,11 +137,32 @@ model UserProjects {
   completed_at  DateTime?
   archived      Boolean?  @default(false)
 
-  user         User          @relation(fields: [user_email], references: [email])
-  projects     Projects      @relation(fields: [project_id], references: [id])
-  projectFiles ProjectFile[]
+  user          User                @relation(fields: [user_email], references: [email])
+  projects      Projects            @relation(fields: [project_id], references: [id])
+  projectFiles  ProjectFile[]
+  phaseProgress UserPhaseProgress[]
 
   @@unique([project_id, user_email])
+}
+
+/**
+ * Per-user, per-phase status for one enrollment — LearningPhase.phase_status
+ * is a shared catalogue field and can't represent per-user progress, since
+ * one LearningPhase row is reused by every user enrolled in that project.
+ */
+model UserPhaseProgress {
+  id              String      @id @default(uuid())
+  user_project_id String
+  phase_number    Int
+  status          PhaseStatus @default(locked)
+  completed_at    DateTime?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  userProject UserProjects @relation(fields: [user_project_id], references: [id])
+
+  @@unique([user_project_id, phase_number])
+  @@index([user_project_id])
 }
 
 model LearningPhase {

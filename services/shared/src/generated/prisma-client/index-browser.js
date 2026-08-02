@@ -185,6 +185,24 @@ exports.Prisma.ProjectFileScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.PhaseSnapshotFileScalarFieldEnum = {
+  id: 'id',
+  project_id: 'project_id',
+  user_email: 'user_email',
+  phase_number: 'phase_number',
+  file_path: 'file_path',
+  blob_hash: 'blob_hash',
+  is_directory: 'is_directory',
+  created_at: 'created_at'
+};
+
+exports.Prisma.BlobScalarFieldEnum = {
+  hash: 'hash',
+  content: 'content',
+  size: 'size',
+  created_at: 'created_at'
+};
+
 exports.Prisma.UserProjectsScalarFieldEnum = {
   id: 'id',
   project_id: 'project_id',
@@ -194,6 +212,16 @@ exports.Prisma.UserProjectsScalarFieldEnum = {
   started_at: 'started_at',
   completed_at: 'completed_at',
   archived: 'archived'
+};
+
+exports.Prisma.UserPhaseProgressScalarFieldEnum = {
+  id: 'id',
+  user_project_id: 'user_project_id',
+  phase_number: 'phase_number',
+  status: 'status',
+  completed_at: 'completed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.LearningPhaseScalarFieldEnum = {
@@ -325,7 +353,10 @@ exports.Prisma.ModelName = {
   EntranceQuestion: 'EntranceQuestion',
   EntranceTestAttempt: 'EntranceTestAttempt',
   ProjectFile: 'ProjectFile',
+  PhaseSnapshotFile: 'PhaseSnapshotFile',
+  Blob: 'Blob',
   UserProjects: 'UserProjects',
+  UserPhaseProgress: 'UserPhaseProgress',
   LearningPhase: 'LearningPhase',
   KnowledgeChecks: 'KnowledgeChecks',
   KnowledgeCheckAttempt: 'KnowledgeCheckAttempt',
