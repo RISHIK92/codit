@@ -84,6 +84,17 @@ export interface BatchUpsertResponse {
   upsertedCount: number;
 }
 
+/** ── Get a phase's frozen snapshot ────────────────────────────────────────────── */
+export interface GetPhaseSnapshotRequest {
+  projectId: string;
+  userEmail: string;
+  phaseNumber: number;
+}
+
+export interface GetPhaseSnapshotResponse {
+  files: ProjectFile[];
+}
+
 /** ── Shared message ──────────────────────────────────────────────────────────── */
 export interface ProjectFile {
   id: string;
@@ -1030,6 +1041,170 @@ export const BatchUpsertResponse: MessageFns<BatchUpsertResponse> = {
   },
 };
 
+function createBaseGetPhaseSnapshotRequest(): GetPhaseSnapshotRequest {
+  return { projectId: "", userEmail: "", phaseNumber: 0 };
+}
+
+export const GetPhaseSnapshotRequest: MessageFns<GetPhaseSnapshotRequest> = {
+  encode(message: GetPhaseSnapshotRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.projectId !== "") {
+      writer.uint32(10).string(message.projectId);
+    }
+    if (message.userEmail !== "") {
+      writer.uint32(18).string(message.userEmail);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(24).int32(message.phaseNumber);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPhaseSnapshotRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetPhaseSnapshotRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.userEmail = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetPhaseSnapshotRequest {
+    return {
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      userEmail: isSet(object.userEmail)
+        ? globalThis.String(object.userEmail)
+        : isSet(object.user_email)
+        ? globalThis.String(object.user_email)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+    };
+  },
+
+  toJSON(message: GetPhaseSnapshotRequest): unknown {
+    const obj: any = {};
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.userEmail !== "") {
+      obj.userEmail = message.userEmail;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetPhaseSnapshotRequest>, I>>(base?: I): GetPhaseSnapshotRequest {
+    return GetPhaseSnapshotRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetPhaseSnapshotRequest>, I>>(object: I): GetPhaseSnapshotRequest {
+    const message = createBaseGetPhaseSnapshotRequest();
+    message.projectId = object.projectId ?? "";
+    message.userEmail = object.userEmail ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    return message;
+  },
+};
+
+function createBaseGetPhaseSnapshotResponse(): GetPhaseSnapshotResponse {
+  return { files: [] };
+}
+
+export const GetPhaseSnapshotResponse: MessageFns<GetPhaseSnapshotResponse> = {
+  encode(message: GetPhaseSnapshotResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.files) {
+      ProjectFile.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPhaseSnapshotResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetPhaseSnapshotResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.files.push(ProjectFile.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetPhaseSnapshotResponse {
+    return {
+      files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => ProjectFile.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: GetPhaseSnapshotResponse): unknown {
+    const obj: any = {};
+    if (message.files?.length) {
+      obj.files = message.files.map((e) => ProjectFile.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetPhaseSnapshotResponse>, I>>(base?: I): GetPhaseSnapshotResponse {
+    return GetPhaseSnapshotResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetPhaseSnapshotResponse>, I>>(object: I): GetPhaseSnapshotResponse {
+    const message = createBaseGetPhaseSnapshotResponse();
+    message.files = object.files?.map((e) => ProjectFile.fromPartial(e)) || [];
+    return message;
+  },
+};
+
 function createBaseProjectFile(): ProjectFile {
   return {
     id: "",
@@ -1282,6 +1457,21 @@ export const FileServiceService = {
     responseSerialize: (value: BatchUpsertResponse): Buffer => Buffer.from(BatchUpsertResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): BatchUpsertResponse => BatchUpsertResponse.decode(value),
   },
+  /**
+   * Read-only frozen file tree from when the user advanced past a given
+   * phase — for viewing old phases' code, never editable/re-submittable.
+   */
+  getPhaseSnapshot: {
+    path: "/file.FileService/GetPhaseSnapshot" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetPhaseSnapshotRequest): Buffer =>
+      Buffer.from(GetPhaseSnapshotRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetPhaseSnapshotRequest => GetPhaseSnapshotRequest.decode(value),
+    responseSerialize: (value: GetPhaseSnapshotResponse): Buffer =>
+      Buffer.from(GetPhaseSnapshotResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetPhaseSnapshotResponse => GetPhaseSnapshotResponse.decode(value),
+  },
 } as const;
 
 export interface FileServiceServer extends UntypedServiceImplementation {
@@ -1290,6 +1480,11 @@ export interface FileServiceServer extends UntypedServiceImplementation {
   listFiles: handleUnaryCall<ListFilesRequest, ListFilesResponse>;
   deleteFile: handleUnaryCall<DeleteFileRequest, DeleteFileResponse>;
   batchUpsert: handleUnaryCall<BatchUpsertRequest, BatchUpsertResponse>;
+  /**
+   * Read-only frozen file tree from when the user advanced past a given
+   * phase — for viewing old phases' code, never editable/re-submittable.
+   */
+  getPhaseSnapshot: handleUnaryCall<GetPhaseSnapshotRequest, GetPhaseSnapshotResponse>;
 }
 
 export interface FileServiceClient extends Client {
@@ -1367,6 +1562,25 @@ export interface FileServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: BatchUpsertResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Read-only frozen file tree from when the user advanced past a given
+   * phase — for viewing old phases' code, never editable/re-submittable.
+   */
+  getPhaseSnapshot(
+    request: GetPhaseSnapshotRequest,
+    callback: (error: ServiceError | null, response: GetPhaseSnapshotResponse) => void,
+  ): ClientUnaryCall;
+  getPhaseSnapshot(
+    request: GetPhaseSnapshotRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetPhaseSnapshotResponse) => void,
+  ): ClientUnaryCall;
+  getPhaseSnapshot(
+    request: GetPhaseSnapshotRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetPhaseSnapshotResponse) => void,
   ): ClientUnaryCall;
 }
 
