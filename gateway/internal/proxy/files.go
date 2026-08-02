@@ -3,6 +3,7 @@ package proxy
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"gateway/pkg/pb"
 
@@ -127,6 +128,41 @@ func DeleteFileProxy(client pb.FileServiceClient) http.HandlerFunc {
 			ProjectId: projectId,
 			UserEmail: email,
 			FilePath:  filePath,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
+	}
+}
+
+// ── GetPhaseSnapshot ─────────────────────────────────────────────────────────
+
+// GetPhaseSnapshotProxy handles GET /api/files/phase-snapshot
+// Query params: projectId, phaseNumber
+func GetPhaseSnapshotProxy(client pb.FileServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		projectId := r.URL.Query().Get("projectId")
+		phaseNumberStr := r.URL.Query().Get("phaseNumber")
+		if projectId == "" || phaseNumberStr == "" {
+			http.Error(w, "projectId and phaseNumber query params are required", http.StatusBadRequest)
+			return
+		}
+		phaseNumber, err := strconv.Atoi(phaseNumberStr)
+		if err != nil {
+			http.Error(w, "phaseNumber must be an integer", http.StatusBadRequest)
+			return
+		}
+
+		res, err := client.GetPhaseSnapshot(r.Context(), &pb.GetPhaseSnapshotRequest{
+			ProjectId:   projectId,
+			UserEmail:   email,
+			PhaseNumber: int32(phaseNumber),
 		})
 		if err != nil {
 			st, _ := status.FromError(err)
