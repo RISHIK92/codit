@@ -12,6 +12,9 @@ service FileService {
   rpc ListFiles     (ListFilesRequest)     returns (ListFilesResponse);
   rpc DeleteFile    (DeleteFileRequest)    returns (DeleteFileResponse);
   rpc BatchUpsert   (BatchUpsertRequest)   returns (BatchUpsertResponse);
+  // Read-only frozen file tree from when the user advanced past a given
+  // phase — for viewing old phases' code, never editable/re-submittable.
+  rpc GetPhaseSnapshot (GetPhaseSnapshotRequest) returns (GetPhaseSnapshotResponse);
 }
 
 // ── Upsert (create-or-update) a single file / directory ───────────────────────
@@ -74,6 +77,17 @@ message UpsertEntry {
 
 message BatchUpsertResponse {
   int32 upserted_count = 1;
+}
+
+// ── Get a phase's frozen snapshot ──────────────────────────────────────────────
+message GetPhaseSnapshotRequest {
+  string project_id   = 1;
+  string user_email   = 2;
+  int32  phase_number = 3;
+}
+
+message GetPhaseSnapshotResponse {
+  repeated ProjectFile files = 1;
 }
 
 // ── Shared message ────────────────────────────────────────────────────────────
