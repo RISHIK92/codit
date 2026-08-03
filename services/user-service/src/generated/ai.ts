@@ -53,6 +53,13 @@ export interface ChatRequest {
    * via extra user-service calls.
    */
   currentTask: string;
+  /**
+   * 0 = normal, operate on the live editable project. > 0 = the user is
+   * viewing a past phase's frozen snapshot (read-only) — list_files/
+   * read_file and the active-file context should read from that phase's
+   * PhaseSnapshotFile tree instead of the live ProjectFile tree.
+   */
+  snapshotPhaseNumber: number;
 }
 
 export interface ChatResponse {
@@ -162,6 +169,7 @@ function createBaseChatRequest(): ChatRequest {
     history: [],
     mode: "",
     currentTask: "",
+    snapshotPhaseNumber: 0,
   };
 }
 
@@ -190,6 +198,9 @@ export const ChatRequest: MessageFns<ChatRequest> = {
     }
     if (message.currentTask !== "") {
       writer.uint32(66).string(message.currentTask);
+    }
+    if (message.snapshotPhaseNumber !== 0) {
+      writer.uint32(72).int32(message.snapshotPhaseNumber);
     }
     return writer;
   },
@@ -265,6 +276,14 @@ export const ChatRequest: MessageFns<ChatRequest> = {
           message.currentTask = reader.string();
           continue;
         }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.snapshotPhaseNumber = reader.int32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -306,6 +325,11 @@ export const ChatRequest: MessageFns<ChatRequest> = {
         : isSet(object.current_task)
         ? globalThis.String(object.current_task)
         : "",
+      snapshotPhaseNumber: isSet(object.snapshotPhaseNumber)
+        ? globalThis.Number(object.snapshotPhaseNumber)
+        : isSet(object.snapshot_phase_number)
+        ? globalThis.Number(object.snapshot_phase_number)
+        : 0,
     };
   },
 
@@ -335,6 +359,9 @@ export const ChatRequest: MessageFns<ChatRequest> = {
     if (message.currentTask !== "") {
       obj.currentTask = message.currentTask;
     }
+    if (message.snapshotPhaseNumber !== 0) {
+      obj.snapshotPhaseNumber = Math.round(message.snapshotPhaseNumber);
+    }
     return obj;
   },
 
@@ -351,6 +378,7 @@ export const ChatRequest: MessageFns<ChatRequest> = {
     message.history = object.history?.map((e) => ChatMessage.fromPartial(e)) || [];
     message.mode = object.mode ?? "";
     message.currentTask = object.currentTask ?? "";
+    message.snapshotPhaseNumber = object.snapshotPhaseNumber ?? 0;
     return message;
   },
 };
