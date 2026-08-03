@@ -94,6 +94,58 @@ export function makeNodeId(parentId: string | null, name: string): string {
   return parentId ? `${parentId}/${name}` : name;
 }
 
+/**
+ * Whether a sibling with this name already exists at the given level
+ * (root if parentId is null). A node's id doubles as its DB file_path and
+ * its Monaco model URI, both keyed only by path — two siblings with the
+ * same name would collide into the same id, silently overwriting one
+ * file's content with the other's on save instead of staying distinct.
+ * excludeId skips the node being renamed, so renaming to its own current
+ * name isn't flagged as a collision with itself.
+ */
+export function hasSiblingWithName(
+  tree: FileNode[],
+  parentId: string | null,
+  name: string,
+  excludeId?: string,
+): boolean {
+  const siblings = parentId
+    ? findNodeById(tree, parentId)?.children ?? []
+    : tree;
+  return siblings.some((n) => n.id !== excludeId && n.name === name);
+}
+
+/** The id of the folder that directly contains this node (null at root) —
+ * unlike getParentFolderId, this is always the true parent regardless of
+ * whether the node itself is a file or a folder. Used for collision checks
+ * on rename, where we need this node's actual siblings, not "where should
+ * a new item go relative to it". */
+export function getNodeParentId(
+  tree: FileNode[],
+  id: string,
+  parentId: string | null = null,
+): string | null | undefined {
+  for (const n of tree) {
+    if (n.id === id) return parentId;
+    if (n.children) {
+      const found = getNodeParentId(n.children, id, n.id);
+      if (found !== undefined) return found;
+    }
+  }
+  return undefined;
+}
+
+function findNodeById(tree: FileNode[], id: string): FileNode | undefined {
+  for (const n of tree) {
+    if (n.id === id) return n;
+    if (n.children) {
+      const found = findNodeById(n.children, id);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
 export function getParentFolderId(
   fileId: string,
   tree: FileNode[],
