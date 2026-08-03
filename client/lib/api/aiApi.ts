@@ -41,6 +41,8 @@ export async function sendChatMessage(
     mode?: ChatMode;
     /** Short human-readable summary of the current project + phase, e.g. "Project: Recipe Tracker (React, Node) — Phase 2: State Management". */
     currentTask?: string;
+    /** Set when viewing a past phase's read-only snapshot — scopes list_files/read_file to that phase's frozen files instead of the live project. */
+    snapshotPhaseNumber?: number;
   },
   onChunk: (text: string) => void,
   signal?: AbortSignal,
@@ -60,6 +62,7 @@ export async function sendChatMessage(
       history: params.history,
       mode: params.mode ?? "chat",
       currentTask: params.currentTask ?? "",
+      snapshotPhaseNumber: params.snapshotPhaseNumber ?? 0,
     }),
   });
 
