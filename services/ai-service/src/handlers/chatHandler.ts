@@ -10,6 +10,8 @@ import {
   getUserProfile,
   getFileContent,
   listProjectFilePaths,
+  getSnapshotFilePaths,
+  getSnapshotFileContent,
 } from "../clients/contextClients";
 import { getChatProvider, ChatTurn, ToolDefinition } from "../providers";
 
@@ -47,9 +49,14 @@ async function runTool(
   projectId: string,
   userEmail: string,
   fetchCount: { n: number },
+  snapshotPhaseNumber: number,
 ): Promise<string> {
+  const isSnapshot = snapshotPhaseNumber > 0;
+
   if (name === "list_files") {
-    const paths = await listProjectFilePaths(projectId, userEmail);
+    const paths = isSnapshot
+      ? await getSnapshotFilePaths(projectId, userEmail, snapshotPhaseNumber)
+      : await listProjectFilePaths(projectId, userEmail);
     return paths.length ? paths.join("\n") : "(no files found)";
   }
 
@@ -64,7 +71,14 @@ async function runTool(
       return "Invalid arguments for read_file.";
     }
     if (!filePath) return "filePath is required.";
-    const content = await getFileContent(projectId, userEmail, filePath);
+    const content = isSnapshot
+      ? await getSnapshotFileContent(
+          projectId,
+          userEmail,
+          snapshotPhaseNumber,
+          filePath,
+        )
+      : await getFileContent(projectId, userEmail, filePath);
     if (content === null) return `File not found: ${filePath}`;
     fetchCount.n += 1;
     return content.slice(0, FILE_CONTENT_CHAR_LIMIT);
@@ -99,11 +113,20 @@ export const aiServiceHandler: AiServiceServer = {
         history,
         mode,
         currentTask,
+        snapshotPhaseNumber,
       } = call.request;
+      const isSnapshot = snapshotPhaseNumber > 0;
 
       const [profile, fileContent] = await Promise.all([
         getUserProfile(userEmail),
-        getFileContent(projectId, userEmail, activeFilePath),
+        isSnapshot
+          ? getSnapshotFileContent(
+              projectId,
+              userEmail,
+              snapshotPhaseNumber,
+              activeFilePath,
+            )
+          : getFileContent(projectId, userEmail, activeFilePath),
       ]);
 
       const contextLines = buildContextLines(
@@ -149,17 +172,18 @@ export const aiServiceHandler: AiServiceServer = {
           ].join("\n")
         : [
             "You are a concise coding assistant inside a learn-by-doing IDE called Codit. Help the user with their code and learning.",
+            isSnapshot
+              ? `The user is viewing a read-only, frozen snapshot of phase ${snapshotPhaseNumber} as it was submitted — not the live project. list_files and read_file return that phase's files, not what exists now. Don't suggest edits as if they can make them here; this view can't be changed.`
+              : "",
             contextLines.length ? `\nContext:\n${contextLines.join("\n")}` : "",
             "The active file above may not be enough to answer the question. If you need to see other files in the project, use the list_files and read_file tools rather than guessing. Only fetch files that are actually relevant.",
             "Keep answers short, practical, and use markdown code blocks where relevant.",
-          ].join("\n");
+          ]
+            .filter(Boolean)
+            .join("\n");
 
       const messages: ChatTurn[] = [
         { role: "system", content: systemPrompt },
-        // A review is a fresh evaluation of the current submission — prior
-        // unrelated chat turns are noise here, not useful context (the
-        // client already sends an empty history for this mode; skipping
-        // it here too in case a caller doesn't).
         ...(isReview
           ? []
           : history.map((h) => ({
@@ -193,6 +217,7 @@ export const aiServiceHandler: AiServiceServer = {
             projectId,
             userEmail,
             fetchCount,
+            snapshotPhaseNumber,
           );
           messages.push({
             role: "tool",
