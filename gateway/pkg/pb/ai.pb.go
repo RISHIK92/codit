@@ -92,9 +92,14 @@ type ChatRequest struct {
 	// The client already holds this in memory (active project/phase
 	// selection); pushing it here is cheaper than the service re-deriving it
 	// via extra user-service calls.
-	CurrentTask   string `protobuf:"bytes,8,opt,name=current_task,json=currentTask,proto3" json:"current_task,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CurrentTask string `protobuf:"bytes,8,opt,name=current_task,json=currentTask,proto3" json:"current_task,omitempty"`
+	// 0 = normal, operate on the live editable project. > 0 = the user is
+	// viewing a past phase's frozen snapshot (read-only) — list_files/
+	// read_file and the active-file context should read from that phase's
+	// PhaseSnapshotFile tree instead of the live ProjectFile tree.
+	SnapshotPhaseNumber int32 `protobuf:"varint,9,opt,name=snapshot_phase_number,json=snapshotPhaseNumber,proto3" json:"snapshot_phase_number,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChatRequest) Reset() {
@@ -181,6 +186,13 @@ func (x *ChatRequest) GetCurrentTask() string {
 		return x.CurrentTask
 	}
 	return ""
+}
+
+func (x *ChatRequest) GetSnapshotPhaseNumber() int32 {
+	if x != nil {
+		return x.SnapshotPhaseNumber
+	}
+	return 0
 }
 
 type ChatResponse struct {
@@ -356,7 +368,7 @@ const file_ai_proto_rawDesc = "" +
 	"\bai.proto\x12\x02ai\";\n" +
 	"\vChatMessage\x12\x12\n" +
 	"\x04role\x18\x01 \x01(\tR\x04role\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\"\x8c\x02\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\"\xc0\x02\n" +
 	"\vChatRequest\x12\x1d\n" +
 	"\n" +
 	"user_email\x18\x01 \x01(\tR\tuserEmail\x12\x1d\n" +
@@ -367,7 +379,8 @@ const file_ai_proto_rawDesc = "" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12)\n" +
 	"\ahistory\x18\x06 \x03(\v2\x0f.ai.ChatMessageR\ahistory\x12\x12\n" +
 	"\x04mode\x18\a \x01(\tR\x04mode\x12!\n" +
-	"\fcurrent_task\x18\b \x01(\tR\vcurrentTask\"$\n" +
+	"\fcurrent_task\x18\b \x01(\tR\vcurrentTask\x122\n" +
+	"\x15snapshot_phase_number\x18\t \x01(\x05R\x13snapshotPhaseNumber\"$\n" +
 	"\fChatResponse\x12\x14\n" +
 	"\x05reply\x18\x01 \x01(\tR\x05reply\"\xbf\x01\n" +
 	"\x12GradeAnswerRequest\x12\x1a\n" +
