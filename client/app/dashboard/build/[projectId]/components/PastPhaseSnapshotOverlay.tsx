@@ -2,26 +2,19 @@
 
 import { useState, useRef } from "react";
 import dynamic from "next/dynamic";
-import {
-  X,
-  History,
-  FileCode,
-  Columns2,
-  Globe,
-  Play,
-  RefreshCw,
-} from "lucide-react";
+import { X, History, Terminal, Minimize2, Maximize2 } from "lucide-react";
 import type { FileNode } from "../types";
 import { getFileLanguage } from "../utils/fileUtils";
 import { FileExplorer } from "./FileExplorer";
 import { AiAssistant } from "./AiAssistant";
+import { XTermPanel } from "./XTermPanel";
+import { PanelModeSwitcher, type PanelMode } from "./PanelModeSwitcher";
+import { PreviewPane } from "./PreviewPane";
 
 const MonacoEditor = dynamic(
   () => import("@monaco-editor/react").then((m) => m.Editor),
   { ssr: false },
 );
-
-type PanelMode = "editor" | "split" | "preview";
 
 interface PastPhaseSnapshotOverlayProps {
   phaseNumber: number;
@@ -33,13 +26,10 @@ interface PastPhaseSnapshotOverlayProps {
   onSelectFile: (id: string) => void;
   onClose: () => void;
   // Preview — the snapshot's files are mounted into the same WebContainer
-  // the live workspace uses, so Run/Preview here are the same underlying
-  // mechanism as live, just currently pointed at this phase's frozen files.
+  // the live workspace uses. Run lives in the top bar (page.tsx), same as
+  // live — hasHtmlFile here is only used for the empty-preview-state copy.
   hasHtmlFile: boolean;
   previewUrl: string | null;
-  previewServerRunning: boolean;
-  previewServerStarting: boolean;
-  onToggleRun: () => void;
   // AI — a fresh, snapshot-scoped assistant instance (its own thread, not
   // the live conversation), restricted server-side to this phase's files.
   aiOpen: boolean;
@@ -50,6 +40,17 @@ interface PastPhaseSnapshotOverlayProps {
   phaseId?: string;
   currentTask?: string;
   getToken: () => Promise<string>;
+  /** Same WebContainer instance the live workspace uses — its fs has
+   * already been swapped to this phase's snapshot by the caller, so a
+   * terminal here can install deps / start a dev server against exactly
+   * what was submitted. Whatever runs is discarded on close, when the
+   * caller wipes and restores the live tree. */
+  wcRef: React.RefObject<import("@webcontainer/api").WebContainer | null>;
+  /** Px width of the Phase Guide panel to its left — the overlay covers
+   * only the region to the right of it, so Phase Guide (which already
+   * shows the correct phase's description/resources/checks, unrelated to
+   * this overlay) stays visible and interactive underneath. */
+  leftOffset: number;
 }
 
 export function PastPhaseSnapshotOverlay({
@@ -63,9 +64,6 @@ export function PastPhaseSnapshotOverlay({
   onClose,
   hasHtmlFile,
   previewUrl,
-  previewServerRunning,
-  previewServerStarting,
-  onToggleRun,
   aiOpen,
   aiPanelWidth,
   onAiPanelDragStart,
@@ -74,11 +72,13 @@ export function PastPhaseSnapshotOverlay({
   phaseId,
   currentTask,
   getToken,
+  wcRef,
+  leftOffset,
 }: PastPhaseSnapshotOverlayProps) {
   const [activePanel, setActivePanel] = useState<PanelMode>("editor");
   const [splitPos, setSplitPos] = useState(50);
   const isSplitDragging = useRef(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [terminalOpen, setTerminalOpen] = useState(true);
 
   const activeContent = contents[activeFileId] ?? "";
   const activeLanguage = activeFileId
@@ -86,7 +86,10 @@ export function PastPhaseSnapshotOverlay({
     : "plaintext";
 
   return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-void">
+    <div
+      className="absolute inset-y-0 right-0 z-30 flex flex-col bg-void"
+      style={{ left: leftOffset }}
+    >
       {/* Banner */}
       <div className="h-10 shrink-0 flex items-center gap-2 px-4 border-b border-warning/30 bg-warning/10">
         <History size={13} className="text-warning shrink-0" />
@@ -138,62 +141,12 @@ export function PastPhaseSnapshotOverlay({
             {/* EDITOR + PREVIEW AREA — same split/preview pattern as live */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
               <div className="h-9 shrink-0 flex items-center gap-0 border-b border-border-s bg-surface/50">
-                {hasHtmlFile && (
-                  <button
-                    onClick={onToggleRun}
-                    disabled={previewServerStarting}
-                    className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
-                      ${previewServerRunning ? "text-accent" : "text-txt-ghost hover:text-txt"}`}
-                    title={
-                      previewServerRunning
-                        ? "Stop the live server"
-                        : "Run this phase's snapshot"
-                    }
-                  >
-                    {previewServerStarting ? (
-                      <span className="w-2.5 h-2.5 rounded-full border border-accent/40 border-t-accent animate-spin" />
-                    ) : (
-                      <Play size={11} />
-                    )}
-                    {previewServerRunning
-                      ? "Stop"
-                      : previewServerStarting
-                        ? "Starting…"
-                        : "Run"}
-                  </button>
-                )}
                 <div className="flex-1" />
-                <div className="flex items-center h-full border-l border-border-s shrink-0">
-                  <button
-                    onClick={() => setActivePanel("editor")}
-                    className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
-                      ${activePanel === "editor" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}`}
-                  >
-                    <FileCode size={11} />
-                    Editor
-                  </button>
-                  <button
-                    onClick={() => setActivePanel("split")}
-                    title="Split view"
-                    className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
-                      ${activePanel === "split" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}`}
-                  >
-                    <Columns2 size={11} />
-                    Split
-                  </button>
-                  <button
-                    onClick={() => setActivePanel("preview")}
-                    className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
-                      ${activePanel === "preview" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}
-                      ${previewUrl && activePanel !== "preview" ? "text-accent/60" : ""}`}
-                  >
-                    <Globe size={11} />
-                    Preview
-                    {previewUrl && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                    )}
-                  </button>
-                </div>
+                <PanelModeSwitcher
+                  activePanel={activePanel}
+                  onChange={setActivePanel}
+                  previewUrl={previewUrl}
+                />
               </div>
 
               <div className="flex-1 flex overflow-hidden min-h-0">
@@ -270,51 +223,49 @@ export function PastPhaseSnapshotOverlay({
                 )}
 
                 {(activePanel === "preview" || activePanel === "split") && (
-                  <div className="flex flex-col bg-void overflow-hidden min-w-0 min-h-0 flex-1">
-                    {previewUrl ? (
-                      <>
-                        <div className="h-8 shrink-0 flex items-center gap-2 px-3 border-b border-border-s bg-surface/40">
-                          <Globe
-                            size={11}
-                            className="text-accent/60 shrink-0"
-                          />
-                          <span className="font-(family-name:--font-dm) text-[11px] text-txt-muted truncate flex-1">
-                            {previewUrl}
-                          </span>
-                          <button
-                            onClick={() => {
-                              if (iframeRef.current) {
-                                iframeRef.current.src = previewUrl;
-                              }
-                            }}
-                            title="Reload preview"
-                            className="p-0.5 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
-                          >
-                            <RefreshCw size={11} />
-                          </button>
-                        </div>
-                        <iframe
-                          ref={iframeRef}
-                          src={previewUrl}
-                          className="flex-1 w-full border-none bg-white"
-                          allow="cross-origin-isolated"
-                          title="Preview"
-                        />
-                      </>
-                    ) : (
-                      <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-8">
-                        <div className="w-12 h-12 rounded-full border border-accent/20 flex items-center justify-center bg-accent/5">
-                          <Globe size={20} className="text-accent/40" />
-                        </div>
-                        <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted max-w-60">
-                          {hasHtmlFile
-                            ? 'Click "Run" to serve this phase\'s snapshot exactly as it was submitted.'
-                            : "Nothing to preview for this phase."}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <PreviewPane
+                    previewUrl={previewUrl}
+                    emptyState={
+                      <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted max-w-60">
+                        {hasHtmlFile
+                          ? 'Click "Run" to serve this phase\'s snapshot exactly as it was submitted.'
+                          : "Use the terminal below to install and start this phase's snapshot, e.g. npm install && npm run dev."}
+                      </p>
+                    }
+                  />
                 )}
+              </div>
+
+              {/* Terminal — same XTermPanel/wcRef as live, against this
+                  phase's snapshot files. Needed for anything that isn't a
+                  static HTML project, which has no other way to start a
+                  dev server here. */}
+              <div
+                className="flex flex-col border-t border-border-s bg-[#0d0d0d] shrink-0"
+                style={{ height: terminalOpen ? 220 : 36 }}
+              >
+                <div className="h-9 shrink-0 flex items-center justify-between px-3 border-b border-border-s bg-surface/50">
+                  <div className="flex items-center gap-2">
+                    <Terminal size={12} className="text-accent/70" />
+                    <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+                      Terminal
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setTerminalOpen((v) => !v)}
+                    className="p-1 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
+                    title={terminalOpen ? "Collapse terminal" : "Expand terminal"}
+                  >
+                    {terminalOpen ? (
+                      <Minimize2 size={12} />
+                    ) : (
+                      <Maximize2 size={12} />
+                    )}
+                  </button>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <XTermPanel visible={terminalOpen} wcRef={wcRef} />
+                </div>
               </div>
             </div>
 
