@@ -48,6 +48,11 @@ message ChatRequest {
   // selection); pushing it here is cheaper than the service re-deriving it
   // via extra user-service calls.
   string current_task       = 8;
+  // 0 = normal, operate on the live editable project. > 0 = the user is
+  // viewing a past phase's frozen snapshot (read-only) — list_files/
+  // read_file and the active-file context should read from that phase's
+  // PhaseSnapshotFile tree instead of the live ProjectFile tree.
+  int32  snapshot_phase_number = 9;
 }
 
 message ChatResponse {
