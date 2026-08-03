@@ -57,6 +57,8 @@ interface TreeNodeProps {
   onCancelCreate: () => void;
   onDelete: (node: FileNode) => void;
   onRename: (node: FileNode, newName: string) => void;
+  /** Viewing a past phase's frozen snapshot — navigation only, no create/rename/delete. */
+  readOnly?: boolean;
 }
 
 export function TreeNode({
@@ -72,6 +74,7 @@ export function TreeNode({
   onCancelCreate,
   onDelete,
   onRename,
+  readOnly,
 }: TreeNodeProps) {
   const [expanded, setExpanded] = useState(node.name === "src");
   const [inputVal, setInputVal] = useState("");
@@ -167,7 +170,7 @@ export function TreeNode({
             <span className="text-[12px] font-(family-name:--font-dm) text-txt-muted group-hover/row:text-txt truncate flex-1 text-left">
               {node.name}
             </span>
-            {actions}
+            {!readOnly && actions}
           </div>
         )}
 
@@ -193,9 +196,10 @@ export function TreeNode({
                   onCancelCreate={onCancelCreate}
                   onDelete={onDelete}
                   onRename={onRename}
+                  readOnly={readOnly}
                 />
               ))}
-            {isCreatingHere && (
+            {!readOnly && isCreatingHere && (
               <div
                 className="flex items-center gap-1.5 px-2 py-0.75"
                 style={{ paddingLeft: `${8 + (depth + 1) * 12}px` }}
@@ -265,7 +269,7 @@ export function TreeNode({
       <span className="font-(family-name:--font-dm) text-[12px] truncate flex-1 text-left">
         {node.name}
       </span>
-      {actions}
+      {!readOnly && actions}
     </div>
   );
 }
@@ -277,25 +281,29 @@ interface FileExplorerProps {
   activeTabId: string;
   selectedExplorerItemId: string;
   explorerWidth: number;
-  pendingParentId: string | null | undefined;
-  pendingType: "file" | "folder" | null;
-  rootInputVal: string;
+  pendingParentId?: string | null;
+  pendingType?: "file" | "folder" | null;
+  rootInputVal?: string;
   onFileClick: (node: FileNode) => void;
   onFolderClick: (node: FileNode) => void;
-  onCommitCreate: (
+  onCommitCreate?: (
     parentId: string | null,
     name: string,
     type: "file" | "folder",
   ) => void;
-  onCancelCreate: () => void;
-  onDelete: (node: FileNode) => void;
-  onRename: (node: FileNode, newName: string) => void;
-  onSetPendingParentId: (id: string | null) => void;
-  onSetPendingType: (t: "file" | "folder") => void;
-  onSetRootInputVal: (v: string) => void;
+  onCancelCreate?: () => void;
+  onDelete?: (node: FileNode) => void;
+  onRename?: (node: FileNode, newName: string) => void;
+  onSetPendingParentId?: (id: string | null) => void;
+  onSetPendingType?: (t: "file" | "folder") => void;
+  onSetRootInputVal?: (v: string) => void;
   onSetSelectedExplorerItemId: (id: string) => void;
   onExplorerDragStart: (e: React.MouseEvent) => void;
+  /** Viewing a past phase's frozen snapshot — navigation only, no create/rename/delete/New buttons. */
+  readOnly?: boolean;
 }
+
+const noop = () => {};
 
 export function FileExplorer({
   fileTree,
@@ -307,15 +315,16 @@ export function FileExplorer({
   rootInputVal,
   onFileClick,
   onFolderClick,
-  onCommitCreate,
-  onCancelCreate,
-  onDelete,
-  onRename,
-  onSetPendingParentId,
-  onSetPendingType,
-  onSetRootInputVal,
+  onCommitCreate = noop,
+  onCancelCreate = noop,
+  onDelete = noop,
+  onRename = noop,
+  onSetPendingParentId = noop,
+  onSetPendingType = noop,
+  onSetRootInputVal = noop,
   onSetSelectedExplorerItemId,
   onExplorerDragStart,
+  readOnly,
 }: FileExplorerProps) {
   return (
     <div
@@ -328,30 +337,34 @@ export function FileExplorer({
         <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost flex-1">
           Explorer
         </span>
-        <button
-          title="New file"
-          onClick={() => {
-            onSetPendingParentId(
-              getParentFolderId(selectedExplorerItemId, fileTree),
-            );
-            onSetPendingType("file");
-          }}
-          className="p-0.5 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
-        >
-          <FilePlus size={13} />
-        </button>
-        <button
-          title="New folder"
-          onClick={() => {
-            onSetPendingParentId(
-              getParentFolderId(selectedExplorerItemId, fileTree),
-            );
-            onSetPendingType("folder");
-          }}
-          className="p-0.5 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
-        >
-          <FolderPlus size={13} />
-        </button>
+        {!readOnly && (
+          <>
+            <button
+              title="New file"
+              onClick={() => {
+                onSetPendingParentId(
+                  getParentFolderId(selectedExplorerItemId, fileTree),
+                );
+                onSetPendingType("file");
+              }}
+              className="p-0.5 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
+            >
+              <FilePlus size={13} />
+            </button>
+            <button
+              title="New folder"
+              onClick={() => {
+                onSetPendingParentId(
+                  getParentFolderId(selectedExplorerItemId, fileTree),
+                );
+                onSetPendingType("folder");
+              }}
+              className="p-0.5 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
+            >
+              <FolderPlus size={13} />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Tree */}
@@ -376,16 +389,17 @@ export function FileExplorer({
               onFileClick={onFileClick}
               onFolderClick={onFolderClick}
               pendingParentId={pendingParentId ?? null}
-              pendingType={pendingType}
+              pendingType={pendingType ?? null}
               onCommitCreate={onCommitCreate}
               onCancelCreate={onCancelCreate}
               onDelete={onDelete}
               onRename={onRename}
+              readOnly={readOnly}
             />
           ))}
 
         {/* Root-level inline input */}
-        {pendingParentId === null && (
+        {!readOnly && pendingParentId === null && (
           <div className="flex items-center gap-1.5 px-2 py-0.75 pl-2">
             {pendingType === "folder" ? (
               <Folder size={13} className="text-accent/50 shrink-0" />
@@ -398,10 +412,12 @@ export function FileExplorer({
               onChange={(e) => onSetRootInputVal(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter")
-                  onCommitCreate(null, rootInputVal, pendingType!);
+                  onCommitCreate(null, rootInputVal ?? "", pendingType!);
                 if (e.key === "Escape") onCancelCreate();
               }}
-              onBlur={() => onCommitCreate(null, rootInputVal, pendingType!)}
+              onBlur={() =>
+                onCommitCreate(null, rootInputVal ?? "", pendingType!)
+              }
               placeholder={
                 pendingType === "folder" ? "folder name" : "file name"
               }
