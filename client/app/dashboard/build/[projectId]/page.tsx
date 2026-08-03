@@ -1196,7 +1196,7 @@ export default function BuildPage() {
       );
       previewProcessRef.current = proc;
       setPreviewServerRunning(true);
-      setActivePanel((p) => (p === "editor" ? "preview" : p));
+      setActivePanel("split");
       proc.exit.then(() => {
         previewProcessRef.current = null;
         setPreviewServerRunning(false);
@@ -1576,6 +1576,8 @@ export default function BuildPage() {
             onClose={handleClosePastPhase}
             hasHtmlFile={snapshotHasHtmlFile}
             previewUrl={previewUrl}
+            activePanel={activePanel}
+            onSetActivePanel={setActivePanel}
             aiOpen={aiOpen}
             aiPanelWidth={aiPanelWidth}
             onAiPanelDragStart={handleAiPanelDragStart}
