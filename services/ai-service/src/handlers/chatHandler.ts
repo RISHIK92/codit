@@ -242,12 +242,6 @@ export const aiServiceHandler: AiServiceServer = {
     }
   },
 
-  // Used by user-service for code_completion/debug knowledge checks, where
-  // exact string matching is too brittle (different variable names, or an
-  // answer that states only the crucial change rather than reproducing the
-  // whole snippet, should still count as correct). user-service already
-  // falls back to exact-match if this call fails, so errors here degrade
-  // grading rather than breaking the submission.
   gradeAnswer: async (
     call: grpc.ServerUnaryCall<GradeAnswerRequest, GradeAnswerResponse>,
     callback: grpc.sendUnaryData<GradeAnswerResponse>,
