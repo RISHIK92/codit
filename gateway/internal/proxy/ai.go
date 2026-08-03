@@ -14,7 +14,7 @@ import (
 // ── Chat ──────────────────────────────────────────────────────────────────────
 
 // ChatProxy handles POST /api/ai/chat
-// Body: { "projectId": "...", "phaseId": "...", "activeFilePath": "...", "message": "...", "history": [{ "role": "...", "content": "..." }], "mode": "chat" | "explain", "currentTask": "..." }
+// Body: { "projectId": "...", "phaseId": "...", "activeFilePath": "...", "message": "...", "history": [{ "role": "...", "content": "..." }], "mode": "chat" | "explain" | "review", "currentTask": "...", "snapshotPhaseNumber": 0 }
 // Streams the reply back as it's generated — the response body is plain text,
 // one chunk per flush, not a single JSON object.
 func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
@@ -22,13 +22,14 @@ func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 		email := r.Header.Get("X-User-Email")
 
 		var body struct {
-			ProjectId      string `json:"projectId"`
-			PhaseId        string `json:"phaseId"`
-			ActiveFilePath string `json:"activeFilePath"`
-			Message        string `json:"message"`
-			Mode           string `json:"mode"`
-			CurrentTask    string `json:"currentTask"`
-			History        []struct {
+			ProjectId           string `json:"projectId"`
+			PhaseId             string `json:"phaseId"`
+			ActiveFilePath      string `json:"activeFilePath"`
+			Message             string `json:"message"`
+			Mode                string `json:"mode"`
+			CurrentTask         string `json:"currentTask"`
+			SnapshotPhaseNumber int32  `json:"snapshotPhaseNumber"`
+			History             []struct {
 				Role    string `json:"role"`
 				Content string `json:"content"`
 			} `json:"history"`
@@ -48,14 +49,15 @@ func ChatProxy(client pb.AiServiceClient) http.HandlerFunc {
 		}
 
 		stream, err := client.Chat(withRequestID(r.Context()), &pb.ChatRequest{
-			UserEmail:      email,
-			ProjectId:      body.ProjectId,
-			PhaseId:        body.PhaseId,
-			ActiveFilePath: body.ActiveFilePath,
-			Message:        body.Message,
-			History:        history,
-			Mode:           body.Mode,
-			CurrentTask:    body.CurrentTask,
+			UserEmail:           email,
+			ProjectId:           body.ProjectId,
+			PhaseId:             body.PhaseId,
+			ActiveFilePath:      body.ActiveFilePath,
+			Message:             body.Message,
+			History:             history,
+			Mode:                body.Mode,
+			CurrentTask:         body.CurrentTask,
+			SnapshotPhaseNumber: body.SnapshotPhaseNumber,
 		})
 		if err != nil {
 			st, _ := status.FromError(err)
