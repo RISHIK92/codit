@@ -84,6 +84,8 @@ import { FileExplorer, getFileIcon, TreeNode } from "./components/FileExplorer";
 import { PhaseSelector } from "./components/PhaseSelector";
 import { DescriptionPanel } from "./components/DescriptionPanel";
 import { PastPhaseSnapshotOverlay } from "./components/PastPhaseSnapshotOverlay";
+import { PanelModeSwitcher } from "./components/PanelModeSwitcher";
+import { PreviewPane } from "./components/PreviewPane";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
 import { ResourcesPanel } from "./components/ResourcesPanel";
@@ -225,7 +227,6 @@ export default function BuildPage() {
   const [activePanel, setActivePanel] = useState<
     "editor" | "preview" | "split"
   >("editor");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [splitPos, setSplitPos] = useState(50); // percent
   const isSplitDragging = useRef(false);
   const [terminalHeight, setTerminalHeight] = useState(220);
@@ -1451,9 +1452,10 @@ export default function BuildPage() {
         {/* Right: AI + save + run buttons */}
         <div className="flex items-center gap-3">
           {/* Run — HTML/CSS/JS projects only, starts a static server with hot reload.
-              Hidden while viewing a past phase — the overlay has its own Run button
-              scoped to that phase's snapshot instead. */}
-          {hasHtmlFile && viewingPastPhase === null && (
+              Stays in the top bar while viewing a past phase too — WC's fs is
+              already swapped to that phase's snapshot, so this runs it exactly
+              as submitted, same mechanism as live. */}
+          {(viewingPastPhase === null ? hasHtmlFile : snapshotHasHtmlFile) && (
             <button
               onClick={handleToggleRun}
               disabled={previewServerStarting}
@@ -1574,9 +1576,6 @@ export default function BuildPage() {
             onClose={handleClosePastPhase}
             hasHtmlFile={snapshotHasHtmlFile}
             previewUrl={previewUrl}
-            previewServerRunning={previewServerRunning}
-            previewServerStarting={previewServerStarting}
-            onToggleRun={handleToggleRun}
             aiOpen={aiOpen}
             aiPanelWidth={aiPanelWidth}
             onAiPanelDragStart={handleAiPanelDragStart}
@@ -1598,6 +1597,8 @@ export default function BuildPage() {
                 .join(" — ")
             }
             getToken={() => user!.getIdToken()}
+            wcRef={wcRef}
+            leftOffset={phaseGuideWidth + 6}
           />
         )}
         {/* LEFT PANEL — Phase description */}
@@ -1801,38 +1802,11 @@ export default function BuildPage() {
               <div className="flex-1" />
 
               {/* Editor / Preview switcher */}
-              <div className="flex items-center h-full border-l border-border-s shrink-0">
-                <button
-                  onClick={() => setActivePanel("editor")}
-                  className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
-                    ${activePanel === "editor" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}`}
-                >
-                  <FileCode size={11} />
-                  Editor
-                </button>
-                <button
-                  onClick={() => setActivePanel("split")}
-                  title="Split view"
-                  className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
-                    ${activePanel === "split" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}`}
-                >
-                  <Columns2 size={11} />
-                  Split
-                </button>
-                <button
-                  onClick={() => setActivePanel("preview")}
-                  className={`flex items-center gap-1.5 px-3 h-full font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
-                    ${activePanel === "preview" ? "text-accent border-accent bg-void" : "text-txt-ghost border-transparent hover:text-txt"}
-                    ${previewUrl && activePanel !== "preview" ? "text-accent/60" : ""}
-                  `}
-                >
-                  <Globe size={11} />
-                  Preview
-                  {previewUrl && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  )}
-                </button>
-              </div>
+              <PanelModeSwitcher
+                activePanel={activePanel}
+                onChange={setActivePanel}
+                previewUrl={previewUrl}
+              />
             </div>
 
             {/* Panel content */}
@@ -2239,55 +2213,23 @@ export default function BuildPage() {
 
               {/* ── PREVIEW pane — visible in "preview" and "split" ── */}
               {(activePanel === "preview" || activePanel === "split") && (
-                <div className="flex flex-col bg-void overflow-hidden min-w-0 min-h-0 flex-1">
-                  {previewUrl ? (
-                    <>
-                      {/* Preview address bar */}
-                      <div className="h-8 shrink-0 flex items-center gap-2 px-3 border-b border-border-s bg-surface/40">
-                        <Globe size={11} className="text-accent/60 shrink-0" />
-                        <span className="font-(family-name:--font-dm) text-[11px] text-txt-muted truncate flex-1">
-                          {previewUrl}
-                        </span>
-                        <button
-                          onClick={() => {
-                            if (iframeRef.current) {
-                              iframeRef.current.src = previewUrl;
-                            }
-                          }}
-                          title="Reload preview"
-                          className="p-0.5 text-txt-ghost hover:text-accent transition-colors cursor-pointer"
-                        >
-                          <RefreshCw size={11} />
-                        </button>
-                      </div>
-                      <iframe
-                        ref={iframeRef}
-                        src={previewUrl}
-                        className="flex-1 w-full border-none bg-white"
-                        allow="cross-origin-isolated"
-                        title="Preview"
-                      />
-                    </>
-                  ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-8">
-                      <div className="w-12 h-12 rounded-full border border-accent/20 flex items-center justify-center bg-accent/5">
-                        <Globe size={20} className="text-accent/40" />
-                      </div>
-                      <div>
-                        <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-1">
-                          No server running
-                        </p>
-                        <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-relaxed max-w-60">
-                          Start a dev server in the terminal (e.g.{" "}
-                          <code className="px-1 py-0.5 bg-surface rounded text-accent/70 text-[10px] font-mono">
-                            npm run dev
-                          </code>
-                          ) and the preview will appear here automatically.
-                        </p>
-                      </div>
+                <PreviewPane
+                  previewUrl={previewUrl}
+                  emptyState={
+                    <div>
+                      <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-1">
+                        No server running
+                      </p>
+                      <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-relaxed max-w-60">
+                        Start a dev server in the terminal (e.g.{" "}
+                        <code className="px-1 py-0.5 bg-surface rounded text-accent/70 text-[10px] font-mono">
+                          npm run dev
+                        </code>
+                        ) and the preview will appear here automatically.
+                      </p>
                     </div>
-                  )}
-                </div>
+                  }
+                />
               )}
             </div>
 
