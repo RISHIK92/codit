@@ -30,6 +30,11 @@ interface PastPhaseSnapshotOverlayProps {
   // live — hasHtmlFile here is only used for the empty-preview-state copy.
   hasHtmlFile: boolean;
   previewUrl: string | null;
+  // Shared with the live workspace (not local state) so that clicking Run
+  // in the top bar — which always switches to split view — reaches this
+  // view too, whichever one happens to be showing.
+  activePanel: PanelMode;
+  onSetActivePanel: (mode: PanelMode) => void;
   // AI — a fresh, snapshot-scoped assistant instance (its own thread, not
   // the live conversation), restricted server-side to this phase's files.
   aiOpen: boolean;
@@ -64,6 +69,8 @@ export function PastPhaseSnapshotOverlay({
   onClose,
   hasHtmlFile,
   previewUrl,
+  activePanel,
+  onSetActivePanel,
   aiOpen,
   aiPanelWidth,
   onAiPanelDragStart,
@@ -75,7 +82,6 @@ export function PastPhaseSnapshotOverlay({
   wcRef,
   leftOffset,
 }: PastPhaseSnapshotOverlayProps) {
-  const [activePanel, setActivePanel] = useState<PanelMode>("editor");
   const [splitPos, setSplitPos] = useState(50);
   const isSplitDragging = useRef(false);
   const [terminalOpen, setTerminalOpen] = useState(true);
@@ -144,7 +150,7 @@ export function PastPhaseSnapshotOverlay({
                 <div className="flex-1" />
                 <PanelModeSwitcher
                   activePanel={activePanel}
-                  onChange={setActivePanel}
+                  onChange={onSetActivePanel}
                   previewUrl={previewUrl}
                 />
               </div>
