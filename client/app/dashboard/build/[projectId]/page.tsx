@@ -58,6 +58,8 @@ import {
   buildWcFileTree,
   insertNode,
   makeNodeId,
+  hasSiblingWithName,
+  getNodeParentId,
   getParentFolderId,
   deleteNode,
   collectFileIds,
@@ -68,7 +70,7 @@ import {
   parseGoal,
   isSaveExcluded,
 } from "./utils/fileUtils";
-import { scanWcFs, spawnShell } from "./utils/wcUtils";
+import { scanWcFs, spawnShell, replaceWcFiles } from "./utils/wcUtils";
 import {
   parseImportLine,
   getQuotedStringAt,
@@ -153,6 +155,14 @@ export default function BuildPage() {
   // never editable/re-submittable, just a frozen record of what was
   // submitted. null when viewing the live (current) phase.
   const [viewingPastPhase, setViewingPastPhase] = useState<number | null>(null);
+  // Mirrors viewingPastPhase for effects with empty dependency arrays
+  // (the WC-fs poll/merge loop) that would otherwise close over a stale
+  // null forever and keep merging whatever's in WC — including a snapshot
+  // that's been temporarily mounted there — into the live fileTree.
+  const viewingPastPhaseRef = useRef<number | null>(null);
+  useEffect(() => {
+    viewingPastPhaseRef.current = viewingPastPhase;
+  }, [viewingPastPhase]);
   const [snapshotTree, setSnapshotTree] = useState<FileNode[]>([]);
   const [snapshotContents, setSnapshotContents] = useState<Record<string, string>>({});
   const [snapshotActiveTabId, setSnapshotActiveTabId] = useState("");
@@ -414,6 +424,10 @@ export default function BuildPage() {
   useEffect(() => {
     const interval = setInterval(async () => {
       if (!wcRef.current) return;
+      // While viewing a past phase, WC's fs has been temporarily swapped to
+      // that phase's frozen snapshot — don't let this merge it into the
+      // live fileTree.
+      if (viewingPastPhaseRef.current !== null) return;
       try {
         const wcTree = await scanWcFs(wcRef.current);
         setFileTree((prev) => {
@@ -729,16 +743,23 @@ export default function BuildPage() {
 
   const handleCommitCreate = useCallback(
     (parentId: string | null, name: string, type: "file" | "folder") => {
-      if (!name.trim()) {
+      const trimmed = name.trim();
+      if (!trimmed) {
         setPendingParentId(undefined);
         setPendingType(null);
         return;
       }
-      const id = makeNodeId(parentId, name);
+      if (hasSiblingWithName(fileTree, parentId, trimmed)) {
+        setSubmitPrompt(
+          `"${trimmed}" already exists in this folder — choose a different name.`,
+        );
+        return;
+      }
+      const id = makeNodeId(parentId, trimmed);
       const newNode: FileNode =
         type === "folder"
-          ? { id, name, type: "folder", children: [] }
-          : { id, name, type: "file", language };
+          ? { id, name: trimmed, type: "folder", children: [] }
+          : { id, name: trimmed, type: "file", language };
       setFileTree((prev) => insertNode(prev, parentId, newNode));
       setPendingParentId(undefined);
       setPendingType(null);
@@ -749,7 +770,10 @@ export default function BuildPage() {
         fileContentsRef.current[id] = initialContent;
         setOpenTabs((prev) => {
           if (prev.find((t) => t.id === id)) return prev;
-          return [...prev, { id, name, language: getFileLanguage(newNode) }];
+          return [
+            ...prev,
+            { id, name: trimmed, language: getFileLanguage(newNode) },
+          ];
         });
         setActiveTabId(id);
         // Write the new file into WebContainer
@@ -763,7 +787,7 @@ export default function BuildPage() {
         }
       }
     },
-    [language],
+    [language, fileTree],
   );
 
   const handleCancelCreate = useCallback(() => {
@@ -813,6 +837,13 @@ export default function BuildPage() {
   const handleRename = useCallback(
     (node: FileNode, newName: string) => {
       const oldId = node.id;
+      const parentId = getNodeParentId(fileTree, oldId) ?? null;
+      if (hasSiblingWithName(fileTree, parentId, newName, oldId)) {
+        setSubmitPrompt(
+          `"${newName}" already exists in this folder — choose a different name.`,
+        );
+        return;
+      }
       const parts = oldId.split("/");
       parts[parts.length - 1] = newName;
       const newId = parts.join("/");
@@ -926,7 +957,7 @@ export default function BuildPage() {
         }
       }
     },
-    [activeTabId],
+    [activeTabId, fileTree],
   );
 
   const handleFileOpen = useCallback((node: FileNode) => {
@@ -1031,6 +1062,9 @@ export default function BuildPage() {
   const handleSave = useCallback(async () => {
     if (!user || !projectId) return;
     if (saveStatus === "saving") return; // don't double-save
+    // WC's fs may currently hold a past phase's frozen snapshot, not the
+    // live tree — never persist that as if it were current work.
+    if (viewingPastPhase !== null) return;
     setSaveStatus("saving");
     try {
       const token = await user.getIdToken();
@@ -1114,11 +1148,17 @@ export default function BuildPage() {
       console.error("[Save] failed:", err);
       setSaveStatus("idle");
     }
-  }, [user, projectId, saveStatus, fileTree]);
+  }, [user, projectId, saveStatus, fileTree, viewingPastPhase]);
 
   // Any .html file anywhere in the tree means there's something to serve —
   // used to decide whether the Run button shows at all.
   const hasHtmlFile = fileTree.some(function has(n: FileNode): boolean {
+    if (n.type === "file") return n.name.toLowerCase().endsWith(".html");
+    return (n.children ?? []).some(has);
+  });
+  const snapshotHasHtmlFile = snapshotTree.some(function has(
+    n: FileNode,
+  ): boolean {
     if (n.type === "file") return n.name.toLowerCase().endsWith(".html");
     return (n.children ?? []).some(has);
   });
@@ -1238,6 +1278,21 @@ export default function BuildPage() {
           });
         setSnapshotContents(contents);
         setSnapshotActiveTabId(entries.find((e) => !e.isDirectory)?.filePath ?? "");
+
+        // Stop any live preview, then swap WC's mounted files to this
+        // phase's frozen snapshot so Run/Preview show it exactly as
+        // submitted — same mechanism as live, just pointed at old files.
+        previewProcessRef.current?.kill();
+        previewProcessRef.current = null;
+        setPreviewServerRunning(false);
+        setPreviewUrl(null);
+        if (wcRef.current) {
+          await replaceWcFiles(
+            wcRef.current,
+            buildFileTreeFromEntries(entries),
+            (id) => contents[id] ?? "",
+          );
+        }
       } catch (err: any) {
         setSnapshotError(err.message ?? "Failed to load this phase's snapshot.");
       } finally {
@@ -1246,6 +1301,27 @@ export default function BuildPage() {
     },
     [phases, currentPhaseNum, user, projectId],
   );
+
+  // Leaving the read-only snapshot view — stop any preview server running
+  // against it and restore WC's fs to the live tree before handing control
+  // back (the poll/merge loop stays paused until viewingPastPhase actually
+  // clears, via viewingPastPhaseRef, so it can't race this restore).
+  const handleClosePastPhase = useCallback(async () => {
+    previewProcessRef.current?.kill();
+    previewProcessRef.current = null;
+    setPreviewServerRunning(false);
+    setPreviewUrl(null);
+    if (wcRef.current) {
+      await replaceWcFiles(
+        wcRef.current,
+        fileTree,
+        (id) => fileContentsRef.current[id] ?? "",
+      );
+    }
+    setViewingPastPhase(null);
+    const liveIdx = phases.findIndex((p) => p.phase_number === currentPhaseNum);
+    setActivePhaseIdx(liveIdx >= 0 ? liveIdx : 0);
+  }, [fileTree, phases, currentPhaseNum]);
 
   // ── Submit for review ────────────────────────────────────────────────────
   // Gate: every knowledge check for the current phase must be attempted
@@ -1374,8 +1450,10 @@ export default function BuildPage() {
 
         {/* Right: AI + save + run buttons */}
         <div className="flex items-center gap-3">
-          {/* Run — HTML/CSS/JS projects only, starts a static server with hot reload */}
-          {hasHtmlFile && (
+          {/* Run — HTML/CSS/JS projects only, starts a static server with hot reload.
+              Hidden while viewing a past phase — the overlay has its own Run button
+              scoped to that phase's snapshot instead. */}
+          {hasHtmlFile && viewingPastPhase === null && (
             <button
               onClick={handleToggleRun}
               disabled={previewServerStarting}
@@ -1419,52 +1497,52 @@ export default function BuildPage() {
             <Sparkles size={11} />
             AI
           </button>
-          {/* Save button */}
-          <button
-            onClick={handleSave}
-            disabled={saveStatus === "saving" || viewingPastPhase !== null}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer
-              ${
-                saveStatus === "saved"
-                  ? "border-accent/40 text-accent bg-accent/5"
-                  : saveStatus === "saving"
-                    ? "border-border-s text-txt-ghost cursor-not-allowed"
-                    : "border-border-s text-txt-ghost hover:text-txt hover:border-accent/40 hover:bg-surface"
-              }
-            `}
-            title="Save files (Ctrl+S)"
-          >
-            {saveStatus === "saved" ? (
-              <CheckCircle2 size={11} className="text-accent" />
-            ) : (
-              <Save size={11} />
-            )}
-            {saveStatus === "saving"
-              ? "Saving…"
-              : saveStatus === "saved"
-                ? "Saved"
-                : "Save"}
-          </button>
-          {/* Submit for review — gates on knowledge checks, then requests an AI verdict.
-              Only disabled while the AI is actually responding, not while checking answered status.
-              Also disabled while viewing a past phase's read-only snapshot — no re-submitting old phases. */}
-          <button
-            onClick={handleSubmitForReview}
-            disabled={aiThinking || viewingPastPhase !== null}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
-            title={
-              viewingPastPhase !== null
-                ? "Return to the current phase to submit"
-                : "Submit this phase for AI review"
-            }
-          >
-            {submitChecking ? (
-              <span className="w-2.5 h-2.5 rounded-full border border-accent/40 border-t-accent animate-spin" />
-            ) : (
-              <SendHorizonal size={11} />
-            )}
-            {submitChecking ? "Checking…" : aiThinking ? "Reviewing…" : "Submit"}
-          </button>
+          {/* Save + Submit — not shown at all while viewing a past phase's
+              read-only snapshot; there's nothing here to save or resubmit. */}
+          {viewingPastPhase === null && (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={saveStatus === "saving"}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer
+                  ${
+                    saveStatus === "saved"
+                      ? "border-accent/40 text-accent bg-accent/5"
+                      : saveStatus === "saving"
+                        ? "border-border-s text-txt-ghost cursor-not-allowed"
+                        : "border-border-s text-txt-ghost hover:text-txt hover:border-accent/40 hover:bg-surface"
+                  }
+                `}
+                title="Save files (Ctrl+S)"
+              >
+                {saveStatus === "saved" ? (
+                  <CheckCircle2 size={11} className="text-accent" />
+                ) : (
+                  <Save size={11} />
+                )}
+                {saveStatus === "saving"
+                  ? "Saving…"
+                  : saveStatus === "saved"
+                    ? "Saved"
+                    : "Save"}
+              </button>
+              {/* Submit for review — gates on knowledge checks, then requests an AI verdict.
+                  Only disabled while the AI is actually responding, not while checking answered status. */}
+              <button
+                onClick={handleSubmitForReview}
+                disabled={aiThinking}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                title="Submit this phase for AI review"
+              >
+                {submitChecking ? (
+                  <span className="w-2.5 h-2.5 rounded-full border border-accent/40 border-t-accent animate-spin" />
+                ) : (
+                  <SendHorizonal size={11} />
+                )}
+                {submitChecking ? "Checking…" : aiThinking ? "Reviewing…" : "Submit"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -1493,13 +1571,33 @@ export default function BuildPage() {
             contents={snapshotContents}
             activeFileId={snapshotActiveTabId}
             onSelectFile={setSnapshotActiveTabId}
-            onClose={() => {
-              setViewingPastPhase(null);
-              const liveIdx = phases.findIndex(
-                (p) => p.phase_number === currentPhaseNum,
-              );
-              setActivePhaseIdx(liveIdx >= 0 ? liveIdx : 0);
-            }}
+            onClose={handleClosePastPhase}
+            hasHtmlFile={snapshotHasHtmlFile}
+            previewUrl={previewUrl}
+            previewServerRunning={previewServerRunning}
+            previewServerStarting={previewServerStarting}
+            onToggleRun={handleToggleRun}
+            aiOpen={aiOpen}
+            aiPanelWidth={aiPanelWidth}
+            onAiPanelDragStart={handleAiPanelDragStart}
+            onAiClose={() => setAiOpen(false)}
+            projectId={projectId}
+            phaseId={phases.find((p) => p.phase_number === viewingPastPhase)?.id}
+            currentTask={
+              [
+                projectName
+                  ? `Project: ${projectName}${
+                      projectTechStack.length
+                        ? ` (${projectTechStack.join(", ")})`
+                        : ""
+                    }`
+                  : "",
+                `Viewing Phase ${viewingPastPhase} as submitted (read-only history)`,
+              ]
+                .filter(Boolean)
+                .join(" — ")
+            }
+            getToken={() => user!.getIdToken()}
           />
         )}
         {/* LEFT PANEL — Phase description */}
@@ -2338,7 +2436,7 @@ export default function BuildPage() {
         </div>
 
         {/* ── AI ASSISTANT — resizable sidebar alongside the editor, not a modal ── */}
-        {aiOpen && (
+        {aiOpen && viewingPastPhase === null && (
           <>
             <div
               onMouseDown={handleAiPanelDragStart}
