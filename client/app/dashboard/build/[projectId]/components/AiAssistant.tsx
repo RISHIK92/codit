@@ -31,6 +31,8 @@ interface AiAssistantProps {
   /** Short human-readable summary of the current project + phase, e.g. "Project: Recipe Tracker (React, Node) — Phase 2: State Management". */
   currentTask?: string;
   activeFileId?: string;
+  /** Set while viewing a past phase's read-only snapshot — the assistant reads that phase's frozen files instead of the live project. */
+  snapshotPhaseNumber?: number;
   getToken: () => Promise<string>;
   /** When set, the panel auto-sends this message as soon as it opens */
   initialMessage?: string;
@@ -155,6 +157,7 @@ export function AiAssistant({
   phaseId,
   currentTask,
   activeFileId,
+  snapshotPhaseNumber,
   getToken,
   initialMessage,
   initialMessageNonce,
@@ -247,6 +250,7 @@ export function AiAssistant({
           phaseId,
           currentTask,
           activeFilePath: activeFileId,
+          snapshotPhaseNumber,
           message: text,
           // "review" is a fresh evaluation of the current submission — prior
           // unrelated chat turns are noise here, not useful context.
