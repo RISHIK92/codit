@@ -3,9 +3,28 @@
 import type { FileNode } from "../types";
 import {
   getFileLanguage,
+  buildWcFileTree,
   IGNORED_DIRECTORIES,
   IGNORED_FILES,
 } from "./fileUtils";
+
+/** Wipes everything currently in WC's fs root and mounts `tree` in its
+ * place — used to swap the whole project between the live tree and a past
+ * phase's frozen snapshot (and back), rather than merging the two. */
+export async function replaceWcFiles(
+  wc: import("@webcontainer/api").WebContainer,
+  tree: FileNode[],
+  getContent: (id: string) => string,
+): Promise<void> {
+  const rootEntries = await wc.fs.readdir(".");
+  await Promise.all(
+    rootEntries.map((name) => wc.fs.rm(name, { recursive: true }).catch(() => {})),
+  );
+  const fs = buildWcFileTree(tree, getContent) as Parameters<
+    typeof wc.mount
+  >[0];
+  await wc.mount(fs);
+}
 
 /** Recursively read the WC filesystem and return a FileNode[] tree */
 export async function scanWcFs(
