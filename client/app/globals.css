@@ -23,10 +23,18 @@
     #7fffd4 100%
   );
 
-  /* Text */
+  /* Text — three tiers by actual reading weight, not decoration:
+     primary for content you're meant to read, secondary for real but
+     lesser text (subtitles, explanations), ghost for pure chrome (tiny
+     uppercase labels, placeholders, disabled state). Previously ghost
+     (#a3a5ad) was measurably lighter than secondary (#8892a4) despite
+     being the more de-emphasized tier, and secondary itself sat around a
+     ~6.4:1 contrast on --bg-void — legal but dim for anything read at
+     length. Reordered and lightened so secondary is clearly readable
+     (~10.5:1) and ghost sits where secondary used to be (~6.3:1). */
   --text-primary: #eef0f5;
-  --text-secondary: #8892a4;
-  --text-ghost: #a3a5ad;
+  --text-secondary: #b6bccb;
+  --text-ghost: #8891a0;
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.06);
