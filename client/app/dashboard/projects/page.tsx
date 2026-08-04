@@ -633,13 +633,13 @@ export default function ProjectsBrowsePage() {
                     {/* Lock overlay — centred */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-void/40 transition-colors group-hover:bg-void/50">
                       <div className="w-10 h-10 rounded-sm border border-border-s bg-surface/80 flex items-center justify-center group-hover:border-accent/40 transition-colors">
-                        <LockIcon className="w-4 h-4 text-gray-300 group-hover:text-accent transition-colors" />
+                        <LockIcon className="w-4 h-4 text-txt-muted group-hover:text-accent transition-colors" />
                       </div>
                       <div className="text-center px-4">
-                        <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-gray-300 group-hover:text-txt transition-colors">
+                        <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-muted group-hover:text-txt transition-colors">
                           Locked
                         </p>
-                        <p className="font-(family-name:--font-dm) text-[10px] text-gray-300/50 mt-1 group-hover:text-txt-ghost transition-colors">
+                        <p className="font-(family-name:--font-dm) text-[10px] text-txt-muted/50 mt-1 group-hover:text-txt-ghost transition-colors">
                           Tap to view requirements
                         </p>
                       </div>
@@ -687,7 +687,7 @@ export default function ProjectsBrowsePage() {
                     {project.tech_stack.map((tech: string) => (
                       <span
                         key={tech}
-                        className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[10px] text-gray-400 tracking-wide"
+                        className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[10px] text-txt-ghost tracking-wide"
                       >
                         {tech}
                       </span>
