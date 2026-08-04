@@ -92,7 +92,7 @@ function PhaseItem({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center gap-4 p-5 text-left"
       >
-        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-(family-name:--font-dm) text-[11px] text-gray-300">
+        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-(family-name:--font-dm) text-[11px] text-txt-muted">
           {String(index + 1).padStart(2, "0")}
         </span>
         <span className="flex-1 font-(family-name:--font-cormorant) text-[18px] font-medium text-white leading-tight">
@@ -263,7 +263,7 @@ export default function ProjectDetailPage() {
                 href={project.demo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-gray-400 hover:text-accent transition-colors border border-border-s px-2.5 py-0.5 rounded-sm"
+                className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost hover:text-accent transition-colors border border-border-s px-2.5 py-0.5 rounded-sm"
               >
                 View Demo ↗
               </a>
