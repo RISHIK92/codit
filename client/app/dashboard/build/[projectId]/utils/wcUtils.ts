@@ -17,9 +17,22 @@ export async function replaceWcFiles(
   getContent: (id: string) => string,
 ): Promise<void> {
   const rootEntries = await wc.fs.readdir(".");
-  await Promise.all(
-    rootEntries.map((name) => wc.fs.rm(name, { recursive: true }).catch(() => {})),
+  const results = await Promise.allSettled(
+    rootEntries.map((name) => wc.fs.rm(name, { recursive: true })),
   );
+  // A failed delete here means stale content can survive the swap — e.g.
+  // an entry that reappeared, or (previously) a still-running shell's cwd.
+  // That's exactly the kind of thing that silently produced "old phase
+  // code visible after returning to current phase" before — surface it
+  // instead of swallowing it, even though it doesn't block the mount below.
+  results.forEach((r, i) => {
+    if (r.status === "rejected") {
+      console.error(
+        `[replaceWcFiles] failed to remove "${rootEntries[i]}" before remount:`,
+        r.reason,
+      );
+    }
+  });
   const fs = buildWcFileTree(tree, getContent) as Parameters<
     typeof wc.mount
   >[0];
