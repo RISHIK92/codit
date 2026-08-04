@@ -291,7 +291,7 @@ function ConstellationNode({
                   {ep.catalogue.tech_stack.slice(0, 2).map((t) => (
                     <span
                       key={t}
-                      className="font-(family-name:--font-dm) text-[8px] text-gray-400 border border-border-s rounded-sm px-1 py-px bg-surface"
+                      className="font-(family-name:--font-dm) text-[8px] text-txt-ghost border border-border-s rounded-sm px-1 py-px bg-surface"
                     >
                       {t}
                     </span>
