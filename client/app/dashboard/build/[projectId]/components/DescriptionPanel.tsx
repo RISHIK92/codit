@@ -138,11 +138,11 @@ export function DescriptionPanel({
         {activeTab === "description" && (
           <div className="space-y-4">
             {phase.long_description ? (
-              <div className="font-(family-name:--font-dm) text-[13px] text-txt-muted leading-[1.8] space-y-3">
+              <div className="font-(family-name:--font-dm) text-[13px] text-txt/85 leading-[1.8] space-y-3">
                 {renderLongDescription(phase.long_description)}
               </div>
             ) : (
-              <div className="font-(family-name:--font-dm) text-[13px] text-txt-muted leading-[1.8]">
+              <div className="font-(family-name:--font-dm) text-[13px] text-txt/85 leading-[1.8]">
                 {phase.description}
               </div>
             )}
