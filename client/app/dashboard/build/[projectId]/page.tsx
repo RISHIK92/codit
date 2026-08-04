@@ -2300,19 +2300,29 @@ export default function BuildPage() {
                         zIndex: activeTerminalId === t.id ? 10 : 0,
                       }}
                     >
-                      <XTermPanel
-                        visible={terminalOpen && activeTerminalId === t.id}
-                        wcRef={wcRef}
-                        onNameChange={(newName) => {
-                          setTerminals((prev) =>
-                            prev.map((term) =>
-                              term.id === t.id && term.name !== newName
-                                ? { ...term, name: newName }
-                                : term,
-                            ),
-                          );
-                        }}
-                      />
+                      {/* Unmounted (not just hidden) while viewing a past
+                          phase — WC's fs has been swapped to that phase's
+                          snapshot, and a live shell left running would stay
+                          connected to it invisibly, plus its open cwd risks
+                          the restore-on-exit silently failing to fully wipe
+                          and remount. Unmounting kills the shell via
+                          XTermPanel's own cleanup; a fresh one spawns
+                          against the restored live tree on return. */}
+                      {viewingPastPhase === null && (
+                        <XTermPanel
+                          visible={terminalOpen && activeTerminalId === t.id}
+                          wcRef={wcRef}
+                          onNameChange={(newName) => {
+                            setTerminals((prev) =>
+                              prev.map((term) =>
+                                term.id === t.id && term.name !== newName
+                                  ? { ...term, name: newName }
+                                  : term,
+                              ),
+                            );
+                          }}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
