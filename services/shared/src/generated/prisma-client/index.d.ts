@@ -61,6 +61,21 @@ export type Blob = $Result.DefaultSelection<Prisma.$BlobPayload>
  */
 export type UserProjects = $Result.DefaultSelection<Prisma.$UserProjectsPayload>
 /**
+ * Model PhaseReview
+ * * One graded submission of a phase for review — the authoritative record of
+ *  * whether a phase goal was judged met. Advancement is driven by rows in this
+ *  * table, never by anything the client asserts: the verdict is parsed from the
+ *  * grader's output server-side, here, and the phase advances in the same
+ *  * transaction that writes the `met` row.
+ *  *
+ *  * Failed submissions are recorded too, deliberately. They are the raw material
+ *  * for measuring how often grading is wrong (the false-MET audit), and later for
+ *  * distinguishing "shipped it" from "understood it" — a user who fails a review,
+ *  * learns why, and passes has demonstrably learned something a single pass/fail
+ *  * flag can't show.
+ */
+export type PhaseReview = $Result.DefaultSelection<Prisma.$PhaseReviewPayload>
+/**
  * Model UserPhaseProgress
  * * Per-user, per-phase status for one enrollment — LearningPhase.phase_status
  *  * is a shared catalogue field and can't represent per-user progress, since
@@ -149,6 +164,15 @@ export const PhaseStatus: {
 
 export type PhaseStatus = (typeof PhaseStatus)[keyof typeof PhaseStatus]
 
+
+export const ReviewVerdict: {
+  met: 'met',
+  not_met: 'not_met',
+  blocked: 'blocked'
+};
+
+export type ReviewVerdict = (typeof ReviewVerdict)[keyof typeof ReviewVerdict]
+
 }
 
 export type Skill_Level = $Enums.Skill_Level
@@ -174,6 +198,10 @@ export const TestStatus: typeof $Enums.TestStatus
 export type PhaseStatus = $Enums.PhaseStatus
 
 export const PhaseStatus: typeof $Enums.PhaseStatus
+
+export type ReviewVerdict = $Enums.ReviewVerdict
+
+export const ReviewVerdict: typeof $Enums.ReviewVerdict
 
 /**
  * ##  Prisma Client ʲˢ
@@ -382,6 +410,16 @@ export class PrismaClient<
     * ```
     */
   get userProjects(): Prisma.UserProjectsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.phaseReview`: Exposes CRUD operations for the **PhaseReview** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PhaseReviews
+    * const phaseReviews = await prisma.phaseReview.findMany()
+    * ```
+    */
+  get phaseReview(): Prisma.PhaseReviewDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userPhaseProgress`: Exposes CRUD operations for the **UserPhaseProgress** model.
@@ -892,6 +930,7 @@ export namespace Prisma {
     PhaseSnapshotFile: 'PhaseSnapshotFile',
     Blob: 'Blob',
     UserProjects: 'UserProjects',
+    PhaseReview: 'PhaseReview',
     UserPhaseProgress: 'UserPhaseProgress',
     LearningPhase: 'LearningPhase',
     KnowledgeChecks: 'KnowledgeChecks',
@@ -916,7 +955,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "userPhaseProgress" | "learningPhase" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "userPhaseProgress" | "learningPhase" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1586,6 +1625,80 @@ export namespace Prisma {
           }
         }
       }
+      PhaseReview: {
+        payload: Prisma.$PhaseReviewPayload<ExtArgs>
+        fields: Prisma.PhaseReviewFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PhaseReviewFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PhaseReviewFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>
+          }
+          findFirst: {
+            args: Prisma.PhaseReviewFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PhaseReviewFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>
+          }
+          findMany: {
+            args: Prisma.PhaseReviewFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>[]
+          }
+          create: {
+            args: Prisma.PhaseReviewCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>
+          }
+          createMany: {
+            args: Prisma.PhaseReviewCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PhaseReviewCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>[]
+          }
+          delete: {
+            args: Prisma.PhaseReviewDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>
+          }
+          update: {
+            args: Prisma.PhaseReviewUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>
+          }
+          deleteMany: {
+            args: Prisma.PhaseReviewDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PhaseReviewUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PhaseReviewUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>[]
+          }
+          upsert: {
+            args: Prisma.PhaseReviewUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseReviewPayload>
+          }
+          aggregate: {
+            args: Prisma.PhaseReviewAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePhaseReview>
+          }
+          groupBy: {
+            args: Prisma.PhaseReviewGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PhaseReviewGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PhaseReviewCountArgs<ExtArgs>
+            result: $Utils.Optional<PhaseReviewCountAggregateOutputType> | number
+          }
+        }
+      }
       UserPhaseProgress: {
         payload: Prisma.$UserPhaseProgressPayload<ExtArgs>
         fields: Prisma.UserPhaseProgressFieldRefs
@@ -2135,6 +2248,7 @@ export namespace Prisma {
     phaseSnapshotFile?: PhaseSnapshotFileOmit
     blob?: BlobOmit
     userProjects?: UserProjectsOmit
+    phaseReview?: PhaseReviewOmit
     userPhaseProgress?: UserPhaseProgressOmit
     learningPhase?: LearningPhaseOmit
     knowledgeChecks?: KnowledgeChecksOmit
@@ -2334,11 +2448,13 @@ export namespace Prisma {
   export type UserProjectsCountOutputType = {
     projectFiles: number
     phaseProgress: number
+    phaseReviews: number
   }
 
   export type UserProjectsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     projectFiles?: boolean | UserProjectsCountOutputTypeCountProjectFilesArgs
     phaseProgress?: boolean | UserProjectsCountOutputTypeCountPhaseProgressArgs
+    phaseReviews?: boolean | UserProjectsCountOutputTypeCountPhaseReviewsArgs
   }
 
   // Custom InputTypes
@@ -2364,6 +2480,13 @@ export namespace Prisma {
    */
   export type UserProjectsCountOutputTypeCountPhaseProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserPhaseProgressWhereInput
+  }
+
+  /**
+   * UserProjectsCountOutputType without action
+   */
+  export type UserProjectsCountOutputTypeCountPhaseReviewsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhaseReviewWhereInput
   }
 
 
@@ -11685,6 +11808,7 @@ export namespace Prisma {
     projects?: boolean | ProjectsDefaultArgs<ExtArgs>
     projectFiles?: boolean | UserProjects$projectFilesArgs<ExtArgs>
     phaseProgress?: boolean | UserProjects$phaseProgressArgs<ExtArgs>
+    phaseReviews?: boolean | UserProjects$phaseReviewsArgs<ExtArgs>
     _count?: boolean | UserProjectsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userProjects"]>
 
@@ -11731,6 +11855,7 @@ export namespace Prisma {
     projects?: boolean | ProjectsDefaultArgs<ExtArgs>
     projectFiles?: boolean | UserProjects$projectFilesArgs<ExtArgs>
     phaseProgress?: boolean | UserProjects$phaseProgressArgs<ExtArgs>
+    phaseReviews?: boolean | UserProjects$phaseReviewsArgs<ExtArgs>
     _count?: boolean | UserProjectsCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserProjectsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11749,6 +11874,7 @@ export namespace Prisma {
       projects: Prisma.$ProjectsPayload<ExtArgs>
       projectFiles: Prisma.$ProjectFilePayload<ExtArgs>[]
       phaseProgress: Prisma.$UserPhaseProgressPayload<ExtArgs>[]
+      phaseReviews: Prisma.$PhaseReviewPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12157,6 +12283,7 @@ export namespace Prisma {
     projects<T extends ProjectsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectsDefaultArgs<ExtArgs>>): Prisma__ProjectsClient<$Result.GetResult<Prisma.$ProjectsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     projectFiles<T extends UserProjects$projectFilesArgs<ExtArgs> = {}>(args?: Subset<T, UserProjects$projectFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     phaseProgress<T extends UserProjects$phaseProgressArgs<ExtArgs> = {}>(args?: Subset<T, UserProjects$phaseProgressArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPhaseProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    phaseReviews<T extends UserProjects$phaseReviewsArgs<ExtArgs> = {}>(args?: Subset<T, UserProjects$phaseReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12638,6 +12765,30 @@ export namespace Prisma {
   }
 
   /**
+   * UserProjects.phaseReviews
+   */
+  export type UserProjects$phaseReviewsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    where?: PhaseReviewWhereInput
+    orderBy?: PhaseReviewOrderByWithRelationInput | PhaseReviewOrderByWithRelationInput[]
+    cursor?: PhaseReviewWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PhaseReviewScalarFieldEnum | PhaseReviewScalarFieldEnum[]
+  }
+
+  /**
    * UserProjects without action
    */
   export type UserProjectsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12653,6 +12804,1130 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserProjectsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PhaseReview
+   */
+
+  export type AggregatePhaseReview = {
+    _count: PhaseReviewCountAggregateOutputType | null
+    _avg: PhaseReviewAvgAggregateOutputType | null
+    _sum: PhaseReviewSumAggregateOutputType | null
+    _min: PhaseReviewMinAggregateOutputType | null
+    _max: PhaseReviewMaxAggregateOutputType | null
+  }
+
+  export type PhaseReviewAvgAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type PhaseReviewSumAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type PhaseReviewMinAggregateOutputType = {
+    id: string | null
+    user_project_id: string | null
+    phase_number: number | null
+    verdict: $Enums.ReviewVerdict | null
+    feedback: string | null
+    model: string | null
+    created_at: Date | null
+  }
+
+  export type PhaseReviewMaxAggregateOutputType = {
+    id: string | null
+    user_project_id: string | null
+    phase_number: number | null
+    verdict: $Enums.ReviewVerdict | null
+    feedback: string | null
+    model: string | null
+    created_at: Date | null
+  }
+
+  export type PhaseReviewCountAggregateOutputType = {
+    id: number
+    user_project_id: number
+    phase_number: number
+    verdict: number
+    feedback: number
+    model: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type PhaseReviewAvgAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type PhaseReviewSumAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type PhaseReviewMinAggregateInputType = {
+    id?: true
+    user_project_id?: true
+    phase_number?: true
+    verdict?: true
+    feedback?: true
+    model?: true
+    created_at?: true
+  }
+
+  export type PhaseReviewMaxAggregateInputType = {
+    id?: true
+    user_project_id?: true
+    phase_number?: true
+    verdict?: true
+    feedback?: true
+    model?: true
+    created_at?: true
+  }
+
+  export type PhaseReviewCountAggregateInputType = {
+    id?: true
+    user_project_id?: true
+    phase_number?: true
+    verdict?: true
+    feedback?: true
+    model?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type PhaseReviewAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhaseReview to aggregate.
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseReviews to fetch.
+     */
+    orderBy?: PhaseReviewOrderByWithRelationInput | PhaseReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PhaseReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PhaseReviews
+    **/
+    _count?: true | PhaseReviewCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PhaseReviewAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PhaseReviewSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PhaseReviewMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PhaseReviewMaxAggregateInputType
+  }
+
+  export type GetPhaseReviewAggregateType<T extends PhaseReviewAggregateArgs> = {
+        [P in keyof T & keyof AggregatePhaseReview]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePhaseReview[P]>
+      : GetScalarType<T[P], AggregatePhaseReview[P]>
+  }
+
+
+
+
+  export type PhaseReviewGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhaseReviewWhereInput
+    orderBy?: PhaseReviewOrderByWithAggregationInput | PhaseReviewOrderByWithAggregationInput[]
+    by: PhaseReviewScalarFieldEnum[] | PhaseReviewScalarFieldEnum
+    having?: PhaseReviewScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PhaseReviewCountAggregateInputType | true
+    _avg?: PhaseReviewAvgAggregateInputType
+    _sum?: PhaseReviewSumAggregateInputType
+    _min?: PhaseReviewMinAggregateInputType
+    _max?: PhaseReviewMaxAggregateInputType
+  }
+
+  export type PhaseReviewGroupByOutputType = {
+    id: string
+    user_project_id: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback: string
+    model: string
+    created_at: Date
+    _count: PhaseReviewCountAggregateOutputType | null
+    _avg: PhaseReviewAvgAggregateOutputType | null
+    _sum: PhaseReviewSumAggregateOutputType | null
+    _min: PhaseReviewMinAggregateOutputType | null
+    _max: PhaseReviewMaxAggregateOutputType | null
+  }
+
+  type GetPhaseReviewGroupByPayload<T extends PhaseReviewGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PhaseReviewGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PhaseReviewGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PhaseReviewGroupByOutputType[P]>
+            : GetScalarType<T[P], PhaseReviewGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PhaseReviewSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    verdict?: boolean
+    feedback?: boolean
+    model?: boolean
+    created_at?: boolean
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseReview"]>
+
+  export type PhaseReviewSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    verdict?: boolean
+    feedback?: boolean
+    model?: boolean
+    created_at?: boolean
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseReview"]>
+
+  export type PhaseReviewSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    verdict?: boolean
+    feedback?: boolean
+    model?: boolean
+    created_at?: boolean
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseReview"]>
+
+  export type PhaseReviewSelectScalar = {
+    id?: boolean
+    user_project_id?: boolean
+    phase_number?: boolean
+    verdict?: boolean
+    feedback?: boolean
+    model?: boolean
+    created_at?: boolean
+  }
+
+  export type PhaseReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_project_id" | "phase_number" | "verdict" | "feedback" | "model" | "created_at", ExtArgs["result"]["phaseReview"]>
+  export type PhaseReviewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }
+  export type PhaseReviewIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }
+  export type PhaseReviewIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+  }
+
+  export type $PhaseReviewPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PhaseReview"
+    objects: {
+      userProject: Prisma.$UserProjectsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      user_project_id: string
+      phase_number: number
+      verdict: $Enums.ReviewVerdict
+      /**
+       * * The grader's prose feedback, shown back to the user.
+       */
+      feedback: string
+      /**
+       * * Model that produced the verdict, so a bad batch can be traced later.
+       */
+      model: string
+      created_at: Date
+    }, ExtArgs["result"]["phaseReview"]>
+    composites: {}
+  }
+
+  type PhaseReviewGetPayload<S extends boolean | null | undefined | PhaseReviewDefaultArgs> = $Result.GetResult<Prisma.$PhaseReviewPayload, S>
+
+  type PhaseReviewCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PhaseReviewFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PhaseReviewCountAggregateInputType | true
+    }
+
+  export interface PhaseReviewDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PhaseReview'], meta: { name: 'PhaseReview' } }
+    /**
+     * Find zero or one PhaseReview that matches the filter.
+     * @param {PhaseReviewFindUniqueArgs} args - Arguments to find a PhaseReview
+     * @example
+     * // Get one PhaseReview
+     * const phaseReview = await prisma.phaseReview.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PhaseReviewFindUniqueArgs>(args: SelectSubset<T, PhaseReviewFindUniqueArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PhaseReview that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PhaseReviewFindUniqueOrThrowArgs} args - Arguments to find a PhaseReview
+     * @example
+     * // Get one PhaseReview
+     * const phaseReview = await prisma.phaseReview.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PhaseReviewFindUniqueOrThrowArgs>(args: SelectSubset<T, PhaseReviewFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhaseReview that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewFindFirstArgs} args - Arguments to find a PhaseReview
+     * @example
+     * // Get one PhaseReview
+     * const phaseReview = await prisma.phaseReview.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PhaseReviewFindFirstArgs>(args?: SelectSubset<T, PhaseReviewFindFirstArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhaseReview that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewFindFirstOrThrowArgs} args - Arguments to find a PhaseReview
+     * @example
+     * // Get one PhaseReview
+     * const phaseReview = await prisma.phaseReview.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PhaseReviewFindFirstOrThrowArgs>(args?: SelectSubset<T, PhaseReviewFindFirstOrThrowArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PhaseReviews that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PhaseReviews
+     * const phaseReviews = await prisma.phaseReview.findMany()
+     * 
+     * // Get first 10 PhaseReviews
+     * const phaseReviews = await prisma.phaseReview.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const phaseReviewWithIdOnly = await prisma.phaseReview.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PhaseReviewFindManyArgs>(args?: SelectSubset<T, PhaseReviewFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PhaseReview.
+     * @param {PhaseReviewCreateArgs} args - Arguments to create a PhaseReview.
+     * @example
+     * // Create one PhaseReview
+     * const PhaseReview = await prisma.phaseReview.create({
+     *   data: {
+     *     // ... data to create a PhaseReview
+     *   }
+     * })
+     * 
+     */
+    create<T extends PhaseReviewCreateArgs>(args: SelectSubset<T, PhaseReviewCreateArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PhaseReviews.
+     * @param {PhaseReviewCreateManyArgs} args - Arguments to create many PhaseReviews.
+     * @example
+     * // Create many PhaseReviews
+     * const phaseReview = await prisma.phaseReview.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PhaseReviewCreateManyArgs>(args?: SelectSubset<T, PhaseReviewCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PhaseReviews and returns the data saved in the database.
+     * @param {PhaseReviewCreateManyAndReturnArgs} args - Arguments to create many PhaseReviews.
+     * @example
+     * // Create many PhaseReviews
+     * const phaseReview = await prisma.phaseReview.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PhaseReviews and only return the `id`
+     * const phaseReviewWithIdOnly = await prisma.phaseReview.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PhaseReviewCreateManyAndReturnArgs>(args?: SelectSubset<T, PhaseReviewCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PhaseReview.
+     * @param {PhaseReviewDeleteArgs} args - Arguments to delete one PhaseReview.
+     * @example
+     * // Delete one PhaseReview
+     * const PhaseReview = await prisma.phaseReview.delete({
+     *   where: {
+     *     // ... filter to delete one PhaseReview
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PhaseReviewDeleteArgs>(args: SelectSubset<T, PhaseReviewDeleteArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PhaseReview.
+     * @param {PhaseReviewUpdateArgs} args - Arguments to update one PhaseReview.
+     * @example
+     * // Update one PhaseReview
+     * const phaseReview = await prisma.phaseReview.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PhaseReviewUpdateArgs>(args: SelectSubset<T, PhaseReviewUpdateArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PhaseReviews.
+     * @param {PhaseReviewDeleteManyArgs} args - Arguments to filter PhaseReviews to delete.
+     * @example
+     * // Delete a few PhaseReviews
+     * const { count } = await prisma.phaseReview.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PhaseReviewDeleteManyArgs>(args?: SelectSubset<T, PhaseReviewDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhaseReviews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PhaseReviews
+     * const phaseReview = await prisma.phaseReview.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PhaseReviewUpdateManyArgs>(args: SelectSubset<T, PhaseReviewUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhaseReviews and returns the data updated in the database.
+     * @param {PhaseReviewUpdateManyAndReturnArgs} args - Arguments to update many PhaseReviews.
+     * @example
+     * // Update many PhaseReviews
+     * const phaseReview = await prisma.phaseReview.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PhaseReviews and only return the `id`
+     * const phaseReviewWithIdOnly = await prisma.phaseReview.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PhaseReviewUpdateManyAndReturnArgs>(args: SelectSubset<T, PhaseReviewUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PhaseReview.
+     * @param {PhaseReviewUpsertArgs} args - Arguments to update or create a PhaseReview.
+     * @example
+     * // Update or create a PhaseReview
+     * const phaseReview = await prisma.phaseReview.upsert({
+     *   create: {
+     *     // ... data to create a PhaseReview
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PhaseReview we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PhaseReviewUpsertArgs>(args: SelectSubset<T, PhaseReviewUpsertArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PhaseReviews.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewCountArgs} args - Arguments to filter PhaseReviews to count.
+     * @example
+     * // Count the number of PhaseReviews
+     * const count = await prisma.phaseReview.count({
+     *   where: {
+     *     // ... the filter for the PhaseReviews we want to count
+     *   }
+     * })
+    **/
+    count<T extends PhaseReviewCountArgs>(
+      args?: Subset<T, PhaseReviewCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PhaseReviewCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PhaseReview.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PhaseReviewAggregateArgs>(args: Subset<T, PhaseReviewAggregateArgs>): Prisma.PrismaPromise<GetPhaseReviewAggregateType<T>>
+
+    /**
+     * Group by PhaseReview.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseReviewGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PhaseReviewGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PhaseReviewGroupByArgs['orderBy'] }
+        : { orderBy?: PhaseReviewGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PhaseReviewGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPhaseReviewGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PhaseReview model
+   */
+  readonly fields: PhaseReviewFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PhaseReview.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PhaseReviewClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    userProject<T extends UserProjectsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserProjectsDefaultArgs<ExtArgs>>): Prisma__UserProjectsClient<$Result.GetResult<Prisma.$UserProjectsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PhaseReview model
+   */
+  interface PhaseReviewFieldRefs {
+    readonly id: FieldRef<"PhaseReview", 'String'>
+    readonly user_project_id: FieldRef<"PhaseReview", 'String'>
+    readonly phase_number: FieldRef<"PhaseReview", 'Int'>
+    readonly verdict: FieldRef<"PhaseReview", 'ReviewVerdict'>
+    readonly feedback: FieldRef<"PhaseReview", 'String'>
+    readonly model: FieldRef<"PhaseReview", 'String'>
+    readonly created_at: FieldRef<"PhaseReview", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PhaseReview findUnique
+   */
+  export type PhaseReviewFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseReview to fetch.
+     */
+    where: PhaseReviewWhereUniqueInput
+  }
+
+  /**
+   * PhaseReview findUniqueOrThrow
+   */
+  export type PhaseReviewFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseReview to fetch.
+     */
+    where: PhaseReviewWhereUniqueInput
+  }
+
+  /**
+   * PhaseReview findFirst
+   */
+  export type PhaseReviewFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseReview to fetch.
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseReviews to fetch.
+     */
+    orderBy?: PhaseReviewOrderByWithRelationInput | PhaseReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhaseReviews.
+     */
+    cursor?: PhaseReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhaseReviews.
+     */
+    distinct?: PhaseReviewScalarFieldEnum | PhaseReviewScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseReview findFirstOrThrow
+   */
+  export type PhaseReviewFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseReview to fetch.
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseReviews to fetch.
+     */
+    orderBy?: PhaseReviewOrderByWithRelationInput | PhaseReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhaseReviews.
+     */
+    cursor?: PhaseReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseReviews.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhaseReviews.
+     */
+    distinct?: PhaseReviewScalarFieldEnum | PhaseReviewScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseReview findMany
+   */
+  export type PhaseReviewFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseReviews to fetch.
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseReviews to fetch.
+     */
+    orderBy?: PhaseReviewOrderByWithRelationInput | PhaseReviewOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PhaseReviews.
+     */
+    cursor?: PhaseReviewWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseReviews from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseReviews.
+     */
+    skip?: number
+    distinct?: PhaseReviewScalarFieldEnum | PhaseReviewScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseReview create
+   */
+  export type PhaseReviewCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PhaseReview.
+     */
+    data: XOR<PhaseReviewCreateInput, PhaseReviewUncheckedCreateInput>
+  }
+
+  /**
+   * PhaseReview createMany
+   */
+  export type PhaseReviewCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PhaseReviews.
+     */
+    data: PhaseReviewCreateManyInput | PhaseReviewCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PhaseReview createManyAndReturn
+   */
+  export type PhaseReviewCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * The data used to create many PhaseReviews.
+     */
+    data: PhaseReviewCreateManyInput | PhaseReviewCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PhaseReview update
+   */
+  export type PhaseReviewUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PhaseReview.
+     */
+    data: XOR<PhaseReviewUpdateInput, PhaseReviewUncheckedUpdateInput>
+    /**
+     * Choose, which PhaseReview to update.
+     */
+    where: PhaseReviewWhereUniqueInput
+  }
+
+  /**
+   * PhaseReview updateMany
+   */
+  export type PhaseReviewUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PhaseReviews.
+     */
+    data: XOR<PhaseReviewUpdateManyMutationInput, PhaseReviewUncheckedUpdateManyInput>
+    /**
+     * Filter which PhaseReviews to update
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * Limit how many PhaseReviews to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhaseReview updateManyAndReturn
+   */
+  export type PhaseReviewUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * The data used to update PhaseReviews.
+     */
+    data: XOR<PhaseReviewUpdateManyMutationInput, PhaseReviewUncheckedUpdateManyInput>
+    /**
+     * Filter which PhaseReviews to update
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * Limit how many PhaseReviews to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PhaseReview upsert
+   */
+  export type PhaseReviewUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PhaseReview to update in case it exists.
+     */
+    where: PhaseReviewWhereUniqueInput
+    /**
+     * In case the PhaseReview found by the `where` argument doesn't exist, create a new PhaseReview with this data.
+     */
+    create: XOR<PhaseReviewCreateInput, PhaseReviewUncheckedCreateInput>
+    /**
+     * In case the PhaseReview was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PhaseReviewUpdateInput, PhaseReviewUncheckedUpdateInput>
+  }
+
+  /**
+   * PhaseReview delete
+   */
+  export type PhaseReviewDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
+    /**
+     * Filter which PhaseReview to delete.
+     */
+    where: PhaseReviewWhereUniqueInput
+  }
+
+  /**
+   * PhaseReview deleteMany
+   */
+  export type PhaseReviewDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhaseReviews to delete
+     */
+    where?: PhaseReviewWhereInput
+    /**
+     * Limit how many PhaseReviews to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhaseReview without action
+   */
+  export type PhaseReviewDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReview
+     */
+    select?: PhaseReviewSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseReview
+     */
+    omit?: PhaseReviewOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseReviewInclude<ExtArgs> | null
   }
 
 
@@ -19610,6 +20885,19 @@ export namespace Prisma {
   export type UserProjectsScalarFieldEnum = (typeof UserProjectsScalarFieldEnum)[keyof typeof UserProjectsScalarFieldEnum]
 
 
+  export const PhaseReviewScalarFieldEnum: {
+    id: 'id',
+    user_project_id: 'user_project_id',
+    phase_number: 'phase_number',
+    verdict: 'verdict',
+    feedback: 'feedback',
+    model: 'model',
+    created_at: 'created_at'
+  };
+
+  export type PhaseReviewScalarFieldEnum = (typeof PhaseReviewScalarFieldEnum)[keyof typeof PhaseReviewScalarFieldEnum]
+
+
   export const UserPhaseProgressScalarFieldEnum: {
     id: 'id',
     user_project_id: 'user_project_id',
@@ -19865,6 +21153,20 @@ export namespace Prisma {
    * Reference to a field of type 'Status[]'
    */
   export type ListEnumStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Status[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReviewVerdict'
+   */
+  export type EnumReviewVerdictFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewVerdict'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReviewVerdict[]'
+   */
+  export type ListEnumReviewVerdictFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewVerdict[]'>
     
 
 
@@ -20481,6 +21783,7 @@ export namespace Prisma {
     projects?: XOR<ProjectsScalarRelationFilter, ProjectsWhereInput>
     projectFiles?: ProjectFileListRelationFilter
     phaseProgress?: UserPhaseProgressListRelationFilter
+    phaseReviews?: PhaseReviewListRelationFilter
   }
 
   export type UserProjectsOrderByWithRelationInput = {
@@ -20496,6 +21799,7 @@ export namespace Prisma {
     projects?: ProjectsOrderByWithRelationInput
     projectFiles?: ProjectFileOrderByRelationAggregateInput
     phaseProgress?: UserPhaseProgressOrderByRelationAggregateInput
+    phaseReviews?: PhaseReviewOrderByRelationAggregateInput
   }
 
   export type UserProjectsWhereUniqueInput = Prisma.AtLeast<{
@@ -20515,6 +21819,7 @@ export namespace Prisma {
     projects?: XOR<ProjectsScalarRelationFilter, ProjectsWhereInput>
     projectFiles?: ProjectFileListRelationFilter
     phaseProgress?: UserPhaseProgressListRelationFilter
+    phaseReviews?: PhaseReviewListRelationFilter
   }, "id" | "project_id_user_email">
 
   export type UserProjectsOrderByWithAggregationInput = {
@@ -20545,6 +21850,73 @@ export namespace Prisma {
     started_at?: DateTimeWithAggregatesFilter<"UserProjects"> | Date | string
     completed_at?: DateTimeNullableWithAggregatesFilter<"UserProjects"> | Date | string | null
     archived?: BoolNullableWithAggregatesFilter<"UserProjects"> | boolean | null
+  }
+
+  export type PhaseReviewWhereInput = {
+    AND?: PhaseReviewWhereInput | PhaseReviewWhereInput[]
+    OR?: PhaseReviewWhereInput[]
+    NOT?: PhaseReviewWhereInput | PhaseReviewWhereInput[]
+    id?: StringFilter<"PhaseReview"> | string
+    user_project_id?: StringFilter<"PhaseReview"> | string
+    phase_number?: IntFilter<"PhaseReview"> | number
+    verdict?: EnumReviewVerdictFilter<"PhaseReview"> | $Enums.ReviewVerdict
+    feedback?: StringFilter<"PhaseReview"> | string
+    model?: StringFilter<"PhaseReview"> | string
+    created_at?: DateTimeFilter<"PhaseReview"> | Date | string
+    userProject?: XOR<UserProjectsScalarRelationFilter, UserProjectsWhereInput>
+  }
+
+  export type PhaseReviewOrderByWithRelationInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    verdict?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+    userProject?: UserProjectsOrderByWithRelationInput
+  }
+
+  export type PhaseReviewWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PhaseReviewWhereInput | PhaseReviewWhereInput[]
+    OR?: PhaseReviewWhereInput[]
+    NOT?: PhaseReviewWhereInput | PhaseReviewWhereInput[]
+    user_project_id?: StringFilter<"PhaseReview"> | string
+    phase_number?: IntFilter<"PhaseReview"> | number
+    verdict?: EnumReviewVerdictFilter<"PhaseReview"> | $Enums.ReviewVerdict
+    feedback?: StringFilter<"PhaseReview"> | string
+    model?: StringFilter<"PhaseReview"> | string
+    created_at?: DateTimeFilter<"PhaseReview"> | Date | string
+    userProject?: XOR<UserProjectsScalarRelationFilter, UserProjectsWhereInput>
+  }, "id">
+
+  export type PhaseReviewOrderByWithAggregationInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    verdict?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+    _count?: PhaseReviewCountOrderByAggregateInput
+    _avg?: PhaseReviewAvgOrderByAggregateInput
+    _max?: PhaseReviewMaxOrderByAggregateInput
+    _min?: PhaseReviewMinOrderByAggregateInput
+    _sum?: PhaseReviewSumOrderByAggregateInput
+  }
+
+  export type PhaseReviewScalarWhereWithAggregatesInput = {
+    AND?: PhaseReviewScalarWhereWithAggregatesInput | PhaseReviewScalarWhereWithAggregatesInput[]
+    OR?: PhaseReviewScalarWhereWithAggregatesInput[]
+    NOT?: PhaseReviewScalarWhereWithAggregatesInput | PhaseReviewScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PhaseReview"> | string
+    user_project_id?: StringWithAggregatesFilter<"PhaseReview"> | string
+    phase_number?: IntWithAggregatesFilter<"PhaseReview"> | number
+    verdict?: EnumReviewVerdictWithAggregatesFilter<"PhaseReview"> | $Enums.ReviewVerdict
+    feedback?: StringWithAggregatesFilter<"PhaseReview"> | string
+    model?: StringWithAggregatesFilter<"PhaseReview"> | string
+    created_at?: DateTimeWithAggregatesFilter<"PhaseReview"> | Date | string
   }
 
   export type UserPhaseProgressWhereInput = {
@@ -21600,6 +22972,7 @@ export namespace Prisma {
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
     phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateInput = {
@@ -21613,6 +22986,7 @@ export namespace Prisma {
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
     phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUpdateInput = {
@@ -21626,6 +23000,7 @@ export namespace Prisma {
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateInput = {
@@ -21639,6 +23014,7 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsCreateManyInput = {
@@ -21670,6 +23046,75 @@ export namespace Prisma {
     started_at?: DateTimeFieldUpdateOperationsInput | Date | string
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+  }
+
+  export type PhaseReviewCreateInput = {
+    id?: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+    userProject: UserProjectsCreateNestedOneWithoutPhaseReviewsInput
+  }
+
+  export type PhaseReviewUncheckedCreateInput = {
+    id?: string
+    user_project_id: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type PhaseReviewUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    userProject?: UserProjectsUpdateOneRequiredWithoutPhaseReviewsNestedInput
+  }
+
+  export type PhaseReviewUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseReviewCreateManyInput = {
+    id?: string
+    user_project_id: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type PhaseReviewUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseReviewUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserPhaseProgressCreateInput = {
@@ -22912,11 +24357,21 @@ export namespace Prisma {
     none?: UserPhaseProgressWhereInput
   }
 
+  export type PhaseReviewListRelationFilter = {
+    every?: PhaseReviewWhereInput
+    some?: PhaseReviewWhereInput
+    none?: PhaseReviewWhereInput
+  }
+
   export type ProjectFileOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type UserPhaseProgressOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PhaseReviewOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -22982,6 +24437,61 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type EnumReviewVerdictFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReviewVerdict | EnumReviewVerdictFieldRefInput<$PrismaModel>
+    in?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    not?: NestedEnumReviewVerdictFilter<$PrismaModel> | $Enums.ReviewVerdict
+  }
+
+  export type PhaseReviewCountOrderByAggregateInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    verdict?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PhaseReviewAvgOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type PhaseReviewMaxOrderByAggregateInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    verdict?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PhaseReviewMinOrderByAggregateInput = {
+    id?: SortOrder
+    user_project_id?: SortOrder
+    phase_number?: SortOrder
+    verdict?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PhaseReviewSumOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type EnumReviewVerdictWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReviewVerdict | EnumReviewVerdictFieldRefInput<$PrismaModel>
+    in?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    not?: NestedEnumReviewVerdictWithAggregatesFilter<$PrismaModel> | $Enums.ReviewVerdict
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReviewVerdictFilter<$PrismaModel>
+    _max?: NestedEnumReviewVerdictFilter<$PrismaModel>
   }
 
   export type EnumPhaseStatusFilter<$PrismaModel = never> = {
@@ -23754,6 +25264,13 @@ export namespace Prisma {
     connect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
   }
 
+  export type PhaseReviewCreateNestedManyWithoutUserProjectInput = {
+    create?: XOR<PhaseReviewCreateWithoutUserProjectInput, PhaseReviewUncheckedCreateWithoutUserProjectInput> | PhaseReviewCreateWithoutUserProjectInput[] | PhaseReviewUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: PhaseReviewCreateOrConnectWithoutUserProjectInput | PhaseReviewCreateOrConnectWithoutUserProjectInput[]
+    createMany?: PhaseReviewCreateManyUserProjectInputEnvelope
+    connect?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+  }
+
   export type ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput = {
     create?: XOR<ProjectFileCreateWithoutUserProjectInput, ProjectFileUncheckedCreateWithoutUserProjectInput> | ProjectFileCreateWithoutUserProjectInput[] | ProjectFileUncheckedCreateWithoutUserProjectInput[]
     connectOrCreate?: ProjectFileCreateOrConnectWithoutUserProjectInput | ProjectFileCreateOrConnectWithoutUserProjectInput[]
@@ -23766,6 +25283,13 @@ export namespace Prisma {
     connectOrCreate?: UserPhaseProgressCreateOrConnectWithoutUserProjectInput | UserPhaseProgressCreateOrConnectWithoutUserProjectInput[]
     createMany?: UserPhaseProgressCreateManyUserProjectInputEnvelope
     connect?: UserPhaseProgressWhereUniqueInput | UserPhaseProgressWhereUniqueInput[]
+  }
+
+  export type PhaseReviewUncheckedCreateNestedManyWithoutUserProjectInput = {
+    create?: XOR<PhaseReviewCreateWithoutUserProjectInput, PhaseReviewUncheckedCreateWithoutUserProjectInput> | PhaseReviewCreateWithoutUserProjectInput[] | PhaseReviewUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: PhaseReviewCreateOrConnectWithoutUserProjectInput | PhaseReviewCreateOrConnectWithoutUserProjectInput[]
+    createMany?: PhaseReviewCreateManyUserProjectInputEnvelope
+    connect?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
   }
 
   export type EnumStatusFieldUpdateOperationsInput = {
@@ -23820,6 +25344,20 @@ export namespace Prisma {
     deleteMany?: UserPhaseProgressScalarWhereInput | UserPhaseProgressScalarWhereInput[]
   }
 
+  export type PhaseReviewUpdateManyWithoutUserProjectNestedInput = {
+    create?: XOR<PhaseReviewCreateWithoutUserProjectInput, PhaseReviewUncheckedCreateWithoutUserProjectInput> | PhaseReviewCreateWithoutUserProjectInput[] | PhaseReviewUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: PhaseReviewCreateOrConnectWithoutUserProjectInput | PhaseReviewCreateOrConnectWithoutUserProjectInput[]
+    upsert?: PhaseReviewUpsertWithWhereUniqueWithoutUserProjectInput | PhaseReviewUpsertWithWhereUniqueWithoutUserProjectInput[]
+    createMany?: PhaseReviewCreateManyUserProjectInputEnvelope
+    set?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    disconnect?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    delete?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    connect?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    update?: PhaseReviewUpdateWithWhereUniqueWithoutUserProjectInput | PhaseReviewUpdateWithWhereUniqueWithoutUserProjectInput[]
+    updateMany?: PhaseReviewUpdateManyWithWhereWithoutUserProjectInput | PhaseReviewUpdateManyWithWhereWithoutUserProjectInput[]
+    deleteMany?: PhaseReviewScalarWhereInput | PhaseReviewScalarWhereInput[]
+  }
+
   export type ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput = {
     create?: XOR<ProjectFileCreateWithoutUserProjectInput, ProjectFileUncheckedCreateWithoutUserProjectInput> | ProjectFileCreateWithoutUserProjectInput[] | ProjectFileUncheckedCreateWithoutUserProjectInput[]
     connectOrCreate?: ProjectFileCreateOrConnectWithoutUserProjectInput | ProjectFileCreateOrConnectWithoutUserProjectInput[]
@@ -23846,6 +25384,38 @@ export namespace Prisma {
     update?: UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput | UserPhaseProgressUpdateWithWhereUniqueWithoutUserProjectInput[]
     updateMany?: UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput | UserPhaseProgressUpdateManyWithWhereWithoutUserProjectInput[]
     deleteMany?: UserPhaseProgressScalarWhereInput | UserPhaseProgressScalarWhereInput[]
+  }
+
+  export type PhaseReviewUncheckedUpdateManyWithoutUserProjectNestedInput = {
+    create?: XOR<PhaseReviewCreateWithoutUserProjectInput, PhaseReviewUncheckedCreateWithoutUserProjectInput> | PhaseReviewCreateWithoutUserProjectInput[] | PhaseReviewUncheckedCreateWithoutUserProjectInput[]
+    connectOrCreate?: PhaseReviewCreateOrConnectWithoutUserProjectInput | PhaseReviewCreateOrConnectWithoutUserProjectInput[]
+    upsert?: PhaseReviewUpsertWithWhereUniqueWithoutUserProjectInput | PhaseReviewUpsertWithWhereUniqueWithoutUserProjectInput[]
+    createMany?: PhaseReviewCreateManyUserProjectInputEnvelope
+    set?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    disconnect?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    delete?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    connect?: PhaseReviewWhereUniqueInput | PhaseReviewWhereUniqueInput[]
+    update?: PhaseReviewUpdateWithWhereUniqueWithoutUserProjectInput | PhaseReviewUpdateWithWhereUniqueWithoutUserProjectInput[]
+    updateMany?: PhaseReviewUpdateManyWithWhereWithoutUserProjectInput | PhaseReviewUpdateManyWithWhereWithoutUserProjectInput[]
+    deleteMany?: PhaseReviewScalarWhereInput | PhaseReviewScalarWhereInput[]
+  }
+
+  export type UserProjectsCreateNestedOneWithoutPhaseReviewsInput = {
+    create?: XOR<UserProjectsCreateWithoutPhaseReviewsInput, UserProjectsUncheckedCreateWithoutPhaseReviewsInput>
+    connectOrCreate?: UserProjectsCreateOrConnectWithoutPhaseReviewsInput
+    connect?: UserProjectsWhereUniqueInput
+  }
+
+  export type EnumReviewVerdictFieldUpdateOperationsInput = {
+    set?: $Enums.ReviewVerdict
+  }
+
+  export type UserProjectsUpdateOneRequiredWithoutPhaseReviewsNestedInput = {
+    create?: XOR<UserProjectsCreateWithoutPhaseReviewsInput, UserProjectsUncheckedCreateWithoutPhaseReviewsInput>
+    connectOrCreate?: UserProjectsCreateOrConnectWithoutPhaseReviewsInput
+    upsert?: UserProjectsUpsertWithoutPhaseReviewsInput
+    connect?: UserProjectsWhereUniqueInput
+    update?: XOR<XOR<UserProjectsUpdateToOneWithWhereWithoutPhaseReviewsInput, UserProjectsUpdateWithoutPhaseReviewsInput>, UserProjectsUncheckedUpdateWithoutPhaseReviewsInput>
   }
 
   export type UserProjectsCreateNestedOneWithoutPhaseProgressInput = {
@@ -24479,6 +26049,23 @@ export namespace Prisma {
     _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumReviewVerdictFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReviewVerdict | EnumReviewVerdictFieldRefInput<$PrismaModel>
+    in?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    not?: NestedEnumReviewVerdictFilter<$PrismaModel> | $Enums.ReviewVerdict
+  }
+
+  export type NestedEnumReviewVerdictWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReviewVerdict | EnumReviewVerdictFieldRefInput<$PrismaModel>
+    in?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReviewVerdict[] | ListEnumReviewVerdictFieldRefInput<$PrismaModel>
+    not?: NestedEnumReviewVerdictWithAggregatesFilter<$PrismaModel> | $Enums.ReviewVerdict
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReviewVerdictFilter<$PrismaModel>
+    _max?: NestedEnumReviewVerdictFilter<$PrismaModel>
+  }
+
   export type NestedEnumPhaseStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PhaseStatus | EnumPhaseStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PhaseStatus[] | ListEnumPhaseStatusFieldRefInput<$PrismaModel>
@@ -24539,6 +26126,7 @@ export namespace Prisma {
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
     phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutUserInput = {
@@ -24551,6 +26139,7 @@ export namespace Prisma {
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
     phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutUserInput = {
@@ -24699,6 +26288,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
     phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutProjectsInput = {
@@ -24711,6 +26301,7 @@ export namespace Prisma {
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
     phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutProjectsInput = {
@@ -24966,6 +26557,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutUserProjectsInput
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
     phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutProjectFilesInput = {
@@ -24978,6 +26570,7 @@ export namespace Prisma {
     completed_at?: Date | string | null
     archived?: boolean | null
     phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutProjectFilesInput = {
@@ -25006,6 +26599,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
     phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutProjectFilesInput = {
@@ -25018,6 +26612,7 @@ export namespace Prisma {
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type BlobCreateWithoutPhaseSnapshotFilesInput = {
@@ -25242,6 +26837,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PhaseReviewCreateWithoutUserProjectInput = {
+    id?: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type PhaseReviewUncheckedCreateWithoutUserProjectInput = {
+    id?: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type PhaseReviewCreateOrConnectWithoutUserProjectInput = {
+    where: PhaseReviewWhereUniqueInput
+    create: XOR<PhaseReviewCreateWithoutUserProjectInput, PhaseReviewUncheckedCreateWithoutUserProjectInput>
+  }
+
+  export type PhaseReviewCreateManyUserProjectInputEnvelope = {
+    data: PhaseReviewCreateManyUserProjectInput | PhaseReviewCreateManyUserProjectInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutUserProjectsInput = {
     update: XOR<UserUpdateWithoutUserProjectsInput, UserUncheckedUpdateWithoutUserProjectsInput>
     create: XOR<UserCreateWithoutUserProjectsInput, UserUncheckedCreateWithoutUserProjectsInput>
@@ -25375,6 +26998,103 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"UserPhaseProgress"> | Date | string
   }
 
+  export type PhaseReviewUpsertWithWhereUniqueWithoutUserProjectInput = {
+    where: PhaseReviewWhereUniqueInput
+    update: XOR<PhaseReviewUpdateWithoutUserProjectInput, PhaseReviewUncheckedUpdateWithoutUserProjectInput>
+    create: XOR<PhaseReviewCreateWithoutUserProjectInput, PhaseReviewUncheckedCreateWithoutUserProjectInput>
+  }
+
+  export type PhaseReviewUpdateWithWhereUniqueWithoutUserProjectInput = {
+    where: PhaseReviewWhereUniqueInput
+    data: XOR<PhaseReviewUpdateWithoutUserProjectInput, PhaseReviewUncheckedUpdateWithoutUserProjectInput>
+  }
+
+  export type PhaseReviewUpdateManyWithWhereWithoutUserProjectInput = {
+    where: PhaseReviewScalarWhereInput
+    data: XOR<PhaseReviewUpdateManyMutationInput, PhaseReviewUncheckedUpdateManyWithoutUserProjectInput>
+  }
+
+  export type PhaseReviewScalarWhereInput = {
+    AND?: PhaseReviewScalarWhereInput | PhaseReviewScalarWhereInput[]
+    OR?: PhaseReviewScalarWhereInput[]
+    NOT?: PhaseReviewScalarWhereInput | PhaseReviewScalarWhereInput[]
+    id?: StringFilter<"PhaseReview"> | string
+    user_project_id?: StringFilter<"PhaseReview"> | string
+    phase_number?: IntFilter<"PhaseReview"> | number
+    verdict?: EnumReviewVerdictFilter<"PhaseReview"> | $Enums.ReviewVerdict
+    feedback?: StringFilter<"PhaseReview"> | string
+    model?: StringFilter<"PhaseReview"> | string
+    created_at?: DateTimeFilter<"PhaseReview"> | Date | string
+  }
+
+  export type UserProjectsCreateWithoutPhaseReviewsInput = {
+    id?: string
+    status?: $Enums.Status
+    current_phase?: number
+    started_at?: Date | string
+    completed_at?: Date | string | null
+    archived?: boolean | null
+    user: UserCreateNestedOneWithoutUserProjectsInput
+    projects: ProjectsCreateNestedOneWithoutUserProjectsInput
+    projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressCreateNestedManyWithoutUserProjectInput
+  }
+
+  export type UserProjectsUncheckedCreateWithoutPhaseReviewsInput = {
+    id?: string
+    project_id: string
+    user_email: string
+    status?: $Enums.Status
+    current_phase?: number
+    started_at?: Date | string
+    completed_at?: Date | string | null
+    archived?: boolean | null
+    projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseProgress?: UserPhaseProgressUncheckedCreateNestedManyWithoutUserProjectInput
+  }
+
+  export type UserProjectsCreateOrConnectWithoutPhaseReviewsInput = {
+    where: UserProjectsWhereUniqueInput
+    create: XOR<UserProjectsCreateWithoutPhaseReviewsInput, UserProjectsUncheckedCreateWithoutPhaseReviewsInput>
+  }
+
+  export type UserProjectsUpsertWithoutPhaseReviewsInput = {
+    update: XOR<UserProjectsUpdateWithoutPhaseReviewsInput, UserProjectsUncheckedUpdateWithoutPhaseReviewsInput>
+    create: XOR<UserProjectsCreateWithoutPhaseReviewsInput, UserProjectsUncheckedCreateWithoutPhaseReviewsInput>
+    where?: UserProjectsWhereInput
+  }
+
+  export type UserProjectsUpdateToOneWithWhereWithoutPhaseReviewsInput = {
+    where?: UserProjectsWhereInput
+    data: XOR<UserProjectsUpdateWithoutPhaseReviewsInput, UserProjectsUncheckedUpdateWithoutPhaseReviewsInput>
+  }
+
+  export type UserProjectsUpdateWithoutPhaseReviewsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    current_phase?: IntFieldUpdateOperationsInput | number
+    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
+    projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
+    projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
+  }
+
+  export type UserProjectsUncheckedUpdateWithoutPhaseReviewsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
+    current_phase?: IntFieldUpdateOperationsInput | number
+    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+  }
+
   export type UserProjectsCreateWithoutPhaseProgressInput = {
     id?: string
     status?: $Enums.Status
@@ -25385,6 +27105,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutUserProjectsInput
     projects: ProjectsCreateNestedOneWithoutUserProjectsInput
     projectFiles?: ProjectFileCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsUncheckedCreateWithoutPhaseProgressInput = {
@@ -25397,6 +27118,7 @@ export namespace Prisma {
     completed_at?: Date | string | null
     archived?: boolean | null
     projectFiles?: ProjectFileUncheckedCreateNestedManyWithoutUserProjectInput
+    phaseReviews?: PhaseReviewUncheckedCreateNestedManyWithoutUserProjectInput
   }
 
   export type UserProjectsCreateOrConnectWithoutPhaseProgressInput = {
@@ -25425,6 +27147,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutPhaseProgressInput = {
@@ -25437,6 +27160,7 @@ export namespace Prisma {
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type ProjectsCreateWithoutLearningPhasesInput = {
@@ -26051,6 +27775,7 @@ export namespace Prisma {
     projects?: ProjectsUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutUserInput = {
@@ -26063,6 +27788,7 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateManyWithoutUserInput = {
@@ -26157,6 +27883,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutUserProjectsNestedInput
     projectFiles?: ProjectFileUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateWithoutProjectsInput = {
@@ -26169,6 +27896,7 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+    phaseReviews?: PhaseReviewUncheckedUpdateManyWithoutUserProjectNestedInput
   }
 
   export type UserProjectsUncheckedUpdateManyWithoutProjectsInput = {
@@ -26257,6 +27985,15 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
+  export type PhaseReviewCreateManyUserProjectInput = {
+    id?: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+  }
+
   export type ProjectFileUpdateWithoutUserProjectInput = {
     id?: StringFieldUpdateOperationsInput | string
     file_path?: StringFieldUpdateOperationsInput | string
@@ -26309,6 +28046,33 @@ export namespace Prisma {
     completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseReviewUpdateWithoutUserProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseReviewUncheckedUpdateWithoutUserProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseReviewUncheckedUpdateManyWithoutUserProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResourcesCreateManyLearningPhaseInput = {

@@ -43,6 +43,15 @@ export interface ChatRequest {
    * "" or "chat" = full agentic assistant (tool-calling, multi-file context).
    * "explain" = direct single-shot call, no tools, no file-fetching loop —
    * used for the cheap Option+Click "explain this" flow.
+   * "review" = grades a phase submission. Inspects the user's actual project
+   * files via tool calls and ends its reply with a line reading exactly
+   * "VERDICT: MET" or "VERDICT: NOT MET".
+   *
+   * That verdict line is a machine-read contract, not prose: UserProjectService
+   * .SubmitPhaseReview parses it server-side to decide whether to advance the
+   * phase. Never call this mode directly from an end-user client and act on the
+   * result — a caller that grades itself is not a gate. Route reviews through
+   * SubmitPhaseReview, which is the only component that should interpret this.
    */
   mode: string;
   /**

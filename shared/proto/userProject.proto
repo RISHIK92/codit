@@ -17,9 +17,19 @@ service UserProjectService {
   // live slot to start a different one; resuming an archived project
   // requires the live slot to be free first.
   rpc SetUserProjectArchived (SetUserProjectArchivedRequest) returns (SetUserProjectArchivedResponse);
-  // Advances current_phase by 1 — called after an AI review of a phase's
-  // submitted work judges the phase goal met.
-  rpc AdvancePhase (AdvancePhaseRequest) returns (AdvancePhaseResponse);
+  // Submits the user's current phase for grading, and advances it if the
+  // grader judges the goal met.
+  //
+  // This is deliberately the ONLY path that can advance a phase. There is no
+  // separate "advance" RPC: an endpoint that advances on request is an
+  // endpoint any authenticated user can call to skip the work, which makes
+  // every guarantee about demonstrated understanding worthless. Grading,
+  // the verdict, and the advance all happen server-side inside this one call.
+  //
+  // The request carries only the project — the phase under review, its goal,
+  // and its knowledge-check status are all derived server-side from the
+  // caller's own enrollment, so none of them can be spoofed by the client.
+  rpc SubmitPhaseReview (SubmitPhaseReviewRequest) returns (SubmitPhaseReviewResponse);
 }
 
 message CreateUserProjectRequest {
@@ -76,11 +86,30 @@ message SetUserProjectArchivedResponse {
   UserProject user_project = 1;
 }
 
-message AdvancePhaseRequest {
+message SubmitPhaseReviewRequest {
   string project_id = 1;
   string email = 2;
+  // Optional: the file the user has open, passed through to the grader as
+  // context. Never used to decide anything — purely a hint about where the
+  // user is working.
+  string active_file_path = 3;
 }
 
-message AdvancePhaseResponse {
-  UserProject user_project = 1;
+message SubmitPhaseReviewResponse {
+  // "met"     — goal judged met; the phase was advanced.
+  // "not_met" — goal judged not met; see feedback.
+  // "blocked" — never reached the grader: the phase's knowledge checks
+  //             aren't all answered correctly yet.
+  string verdict = 1;
+  // True only when the phase actually advanced. Clients must use this rather
+  // than inferring advancement from the feedback text.
+  bool   advanced = 2;
+  // The grader's prose explanation, or the reason the submission was blocked.
+  string feedback = 3;
+  // Authoritative post-review phase number — clients should adopt this rather
+  // than incrementing their own local counter.
+  int32  current_phase = 4;
+  // Populated when verdict = "blocked", so the UI can say "3 of 5 correct".
+  int32  checks_total = 5;
+  int32  checks_correct = 6;
 }

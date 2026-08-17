@@ -141,8 +141,41 @@ model UserProjects {
   projects      Projects            @relation(fields: [project_id], references: [id])
   projectFiles  ProjectFile[]
   phaseProgress UserPhaseProgress[]
+  phaseReviews  PhaseReview[]
 
   @@unique([project_id, user_email])
+}
+
+/**
+ * One graded submission of a phase for review — the authoritative record of
+ * whether a phase goal was judged met. Advancement is driven by rows in this
+ * table, never by anything the client asserts: the verdict is parsed from the
+ * grader's output server-side, here, and the phase advances in the same
+ * transaction that writes the `met` row.
+ * Failed submissions are recorded too, deliberately. They are the raw material
+ * for measuring how often grading is wrong (the false-MET audit), and later for
+ * distinguishing "shipped it" from "understood it" — a user who fails a review,
+ * learns why, and passes has demonstrably learned something a single pass/fail
+ * flag can't show.
+ */
+model PhaseReview {
+  id              String        @id @default(uuid())
+  user_project_id String
+  phase_number    Int
+  verdict         ReviewVerdict
+  /**
+   * The grader's prose feedback, shown back to the user.
+   */
+  feedback        String        @default("")
+  /**
+   * Model that produced the verdict, so a bad batch can be traced later.
+   */
+  model           String        @default("")
+  created_at      DateTime      @default(now())
+
+  userProject UserProjects @relation(fields: [user_project_id], references: [id])
+
+  @@index([user_project_id, phase_number])
 }
 
 /**
@@ -276,4 +309,15 @@ enum PhaseStatus {
   in_progress
   completed
   locked
+}
+
+enum ReviewVerdict {
+  met
+  not_met
+  /**
+   * Submission never reached the grader — the phase's knowledge checks
+   * weren't all answered correctly yet. Recorded rather than dropped so the
+   * gate's behaviour is auditable.
+   */
+  blocked
 }

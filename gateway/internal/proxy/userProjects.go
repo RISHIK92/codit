@@ -133,14 +133,28 @@ func SetUserProjectArchivedProxy(grpcClient pb.UserProjectServiceClient) http.Ha
 	}
 }
 
-// AdvancePhaseProxy forwards POST /api/user-projects/advance-phase to
-// UserProjectService.AdvancePhase. Body: { "projectId": "..." }
-func AdvancePhaseProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+// SubmitPhaseReviewProxy forwards POST /api/user-projects/submit-review to
+// UserProjectService.SubmitPhaseReview. Body: { "projectId": "...",
+// "activeFilePath": "..." }
+//
+// There is deliberately no "advance phase" route. Advancement happens only as
+// a result of grading, inside this call — an endpoint that advanced on request
+// would let any authenticated caller skip the work it exists to verify.
+//
+// Note that email comes from X-User-Email, which the auth middleware sets from
+// the verified Firebase token — never from the body — so a caller can only ever
+// submit their own enrollment.
+func SubmitPhaseReviewProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
 
 		var requestBody struct {
-			ProjectID string `json:"projectId"`
+			ProjectID      string `json:"projectId"`
+			ActiveFilePath string `json:"activeFilePath"`
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -152,12 +166,13 @@ func AdvancePhaseProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc 
 			return
 		}
 
-		grpcReq := &pb.AdvancePhaseRequest{
-			ProjectId: requestBody.ProjectID,
-			Email:     email,
+		grpcReq := &pb.SubmitPhaseReviewRequest{
+			ProjectId:      requestBody.ProjectID,
+			Email:          email,
+			ActiveFilePath: requestBody.ActiveFilePath,
 		}
 
-		grpcRes, err := grpcClient.AdvancePhase(r.Context(), grpcReq)
+		grpcRes, err := grpcClient.SubmitPhaseReview(r.Context(), grpcReq)
 		if err != nil {
 			st, _ := status.FromError(err)
 			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))

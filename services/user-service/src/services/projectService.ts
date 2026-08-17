@@ -71,9 +71,9 @@ export const setUserProjectArchived = async (
   return await projectRepo.setArchived(projectId, email, archived);
 };
 
-export const advancePhase = async (projectId: string, email: string) => {
-  return await projectRepo.advancePhase(projectId, email);
-};
+// Phase advancement deliberately has no entry point here. It is reachable only
+// through phaseReviewService.submitPhaseReview, which grades the submission
+// first — see the comment at the top of that file.
 
 // ── Project catalogue ─────────────────────────────────────────────────────────
 

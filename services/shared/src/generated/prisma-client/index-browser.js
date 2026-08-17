@@ -214,6 +214,16 @@ exports.Prisma.UserProjectsScalarFieldEnum = {
   archived: 'archived'
 };
 
+exports.Prisma.PhaseReviewScalarFieldEnum = {
+  id: 'id',
+  user_project_id: 'user_project_id',
+  phase_number: 'phase_number',
+  verdict: 'verdict',
+  feedback: 'feedback',
+  model: 'model',
+  created_at: 'created_at'
+};
+
 exports.Prisma.UserPhaseProgressScalarFieldEnum = {
   id: 'id',
   user_project_id: 'user_project_id',
@@ -334,6 +344,12 @@ exports.Status = exports.$Enums.Status = {
   abandoned: 'abandoned'
 };
 
+exports.ReviewVerdict = exports.$Enums.ReviewVerdict = {
+  met: 'met',
+  not_met: 'not_met',
+  blocked: 'blocked'
+};
+
 exports.PhaseStatus = exports.$Enums.PhaseStatus = {
   in_progress: 'in_progress',
   completed: 'completed',
@@ -356,6 +372,7 @@ exports.Prisma.ModelName = {
   PhaseSnapshotFile: 'PhaseSnapshotFile',
   Blob: 'Blob',
   UserProjects: 'UserProjects',
+  PhaseReview: 'PhaseReview',
   UserPhaseProgress: 'UserPhaseProgress',
   LearningPhase: 'LearningPhase',
   KnowledgeChecks: 'KnowledgeChecks',

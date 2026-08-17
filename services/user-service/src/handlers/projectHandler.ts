@@ -11,10 +11,11 @@ import {
   GetUserProjectsByStatusResponse,
   SetUserProjectArchivedRequest,
   SetUserProjectArchivedResponse,
-  AdvancePhaseRequest,
-  AdvancePhaseResponse,
+  SubmitPhaseReviewRequest,
+  SubmitPhaseReviewResponse,
 } from "../generated/userProject";
 import * as projectService from "../services/projectService";
+import * as phaseReviewService from "../services/phaseReviewService";
 import { Status } from "../db/prismaClient";
 
 export const projectHandler: UserProjectServiceServer = {
@@ -243,28 +244,41 @@ export const projectHandler: UserProjectServiceServer = {
       );
     }
   },
-  advancePhase: async (
-    call: grpc.ServerUnaryCall<AdvancePhaseRequest, AdvancePhaseResponse>,
-    callback: grpc.sendUnaryData<AdvancePhaseResponse>,
+  submitPhaseReview: async (
+    call: grpc.ServerUnaryCall<
+      SubmitPhaseReviewRequest,
+      SubmitPhaseReviewResponse
+    >,
+    callback: grpc.sendUnaryData<SubmitPhaseReviewResponse>,
   ) => {
     try {
-      const { projectId, email } = call.request;
+      const { projectId, email, activeFilePath } = call.request;
 
-      console.log(`Received gRPC request to advance phase for project: ${projectId}`);
+      console.log(
+        `Received gRPC request to review phase submission for project: ${projectId}`,
+      );
 
-      const updated = await projectService.advancePhase(projectId, email);
+      const result = await phaseReviewService.submitPhaseReview(
+        projectId,
+        email,
+        activeFilePath ?? "",
+      );
+
+      console.log(
+        `Phase review for ${projectId} (${email}): ${result.verdict}` +
+          `${result.advanced ? ` — advanced to phase ${result.currentPhase}` : ""}`,
+      );
 
       callback(null, {
-        userProject: {
-          projectId: updated.project_id,
-          email: updated.user_email,
-          status: updated.status,
-          currentPhase: updated.current_phase,
-          archived: updated.archived ?? false,
-        },
+        verdict: result.verdict,
+        advanced: result.advanced,
+        feedback: result.feedback,
+        currentPhase: result.currentPhase,
+        checksTotal: result.checksTotal,
+        checksCorrect: result.checksCorrect,
       });
     } catch (error: any) {
-      console.error("Failed to advance phase:", error.message);
+      console.error("Failed to review phase submission:", error.message);
 
       let statusCode = grpc.status.INTERNAL;
       if (error.code === "P2025") {

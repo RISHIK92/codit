@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useAuthStore, useDashboardStore } from "@/lib/stores";
 import {
   getProjectWithPhases,
-  advanceUserProjectPhase,
+  submitPhaseReview,
   getAllUserProjects,
   type LearningPhaseDTO,
 } from "@/lib/api/projectsApi";
@@ -19,7 +19,7 @@ import {
   getPhaseSnapshot,
   type ProjectFileDTO,
 } from "@/lib/api/filesApi";
-import { sendChatMessage, type ChatMode } from "@/lib/api/aiApi";
+import { sendChatMessage } from "@/lib/api/aiApi";
 import type * as Monaco from "monaco-editor";
 import type { editor as EditorNS } from "monaco-editor";
 import {
@@ -197,13 +197,14 @@ export default function BuildPage() {
     "idle",
   );
   const [aiOpen, setAiOpen] = useState(false);
-  // Submit-for-review flow: gate on knowledge checks, then hand a "review"
-  // mode message to AiAssistant via its initialMessage auto-send mechanism.
-  const [aiInitialMessage, setAiInitialMessage] = useState<string | undefined>();
-  // Bumped on every Submit click so re-submitting resends the same text
-  // (AiAssistant dedupes on this, not on the message content).
-  const [aiInitialMessageNonce, setAiInitialMessageNonce] = useState(0);
-  const [aiInitialMessageMode, setAiInitialMessageMode] = useState<ChatMode>("chat");
+  // Submit-for-review flow: POST to the server, which grades the submission,
+  // decides the verdict, and advances the phase if it passed. The result is
+  // then shown in the AI panel as an already-finished exchange — the client
+  // neither grades nor asks to advance.
+  // Server-graded review result, rendered into the AI panel without sending.
+  const [reviewTranscript, setReviewTranscript] = useState<
+    { nonce: number; userText: string; assistantText: string } | undefined
+  >();
   const [submitChecking, setSubmitChecking] = useState(false);
   const [submitPrompt, setSubmitPrompt] = useState<string | null>(null);
   // Mirrors AiAssistant's internal loading state — Submit is only disabled
@@ -1246,11 +1247,43 @@ export default function BuildPage() {
   // Selecting an already-completed phase shows its frozen snapshot
   // (read-only overlay) instead of switching the live editable tree — the
   // live tree only ever reflects the current phase's in-progress work.
+  // Stops any preview server and swaps WC's mounted files back to the live
+  // tree — the one true "return to live" step, shared by every path that
+  // can leave the snapshot view (there were two before this was unified:
+  // the overlay's own "Back to current" button, and clicking the current
+  // phase directly in PhaseSelector while a snapshot was showing — only
+  // the first one actually restored WC, leaving the second able to hand
+  // control back to the live view while WC silently kept the old phase's
+  // files mounted underneath it).
+  const restoreLiveToWc = useCallback(async () => {
+    previewProcessRef.current?.kill();
+    previewProcessRef.current = null;
+    setPreviewServerRunning(false);
+    setPreviewUrl(null);
+    if (wcRef.current) {
+      await replaceWcFiles(
+        wcRef.current,
+        fileTree,
+        (id) => fileContentsRef.current[id] ?? "",
+      );
+    }
+  }, [fileTree]);
+
+  // Guards against rapid phase switches racing each other — each call
+  // bumps this, and every step below checks it's still the latest call
+  // before touching WC or state, so a superseded in-flight switch can't
+  // clobber a newer one's result.
+  const wcSwapGenRef = useRef(0);
+
   const handleSelectPhase = useCallback(
     async (idx: number) => {
       setActivePhaseIdx(idx);
       const phase = phases[idx];
+      const gen = ++wcSwapGenRef.current;
+
       if (!phase || !user || phase.phase_number >= currentPhaseNum) {
+        await restoreLiveToWc();
+        if (wcSwapGenRef.current !== gen) return;
         setViewingPastPhase(null);
         return;
       }
@@ -1265,6 +1298,7 @@ export default function BuildPage() {
           projectId,
           phase.phase_number,
         );
+        if (wcSwapGenRef.current !== gen) return;
         const entries = (files ?? []).map((f) => ({
           filePath: f.file_path,
           content: f.content,
@@ -1294,96 +1328,96 @@ export default function BuildPage() {
             (id) => contents[id] ?? "",
           );
         }
+        if (wcSwapGenRef.current !== gen) return;
       } catch (err: any) {
-        setSnapshotError(err.message ?? "Failed to load this phase's snapshot.");
+        if (wcSwapGenRef.current === gen) {
+          setSnapshotError(err.message ?? "Failed to load this phase's snapshot.");
+        }
       } finally {
-        setSnapshotLoading(false);
+        if (wcSwapGenRef.current === gen) setSnapshotLoading(false);
       }
     },
-    [phases, currentPhaseNum, user, projectId],
+    [phases, currentPhaseNum, user, projectId, restoreLiveToWc],
   );
 
-  // Leaving the read-only snapshot view — stop any preview server running
-  // against it and restore WC's fs to the live tree before handing control
-  // back (the poll/merge loop stays paused until viewingPastPhase actually
+  // Leaving the read-only snapshot view via the overlay's own banner
+  // button — restore WC's fs to the live tree before handing control back
+  // (the poll/merge loop stays paused until viewingPastPhase actually
   // clears, via viewingPastPhaseRef, so it can't race this restore).
   const handleClosePastPhase = useCallback(async () => {
-    previewProcessRef.current?.kill();
-    previewProcessRef.current = null;
-    setPreviewServerRunning(false);
-    setPreviewUrl(null);
-    if (wcRef.current) {
-      await replaceWcFiles(
-        wcRef.current,
-        fileTree,
-        (id) => fileContentsRef.current[id] ?? "",
-      );
-    }
+    const gen = ++wcSwapGenRef.current;
+    await restoreLiveToWc();
+    if (wcSwapGenRef.current !== gen) return;
     setViewingPastPhase(null);
     const liveIdx = phases.findIndex((p) => p.phase_number === currentPhaseNum);
     setActivePhaseIdx(liveIdx >= 0 ? liveIdx : 0);
-  }, [fileTree, phases, currentPhaseNum]);
+  }, [phases, currentPhaseNum, restoreLiveToWc]);
 
   // ── Submit for review ────────────────────────────────────────────────────
-  // Gate: every knowledge check for the current phase must be attempted
-  // before an AI review is requested — prevents skipping straight to review
-  // without engaging with the phase's learning checks.
+  //
+  // One server call does everything: it checks the phase's knowledge checks are
+  // all *correct*, grades the submitted work against the phase goal it looks up
+  // itself, and advances the phase only if the grader passed it.
+  //
+  // Nothing here decides the outcome. The client used to regex "VERDICT: MET"
+  // out of the AI's reply and then call a separate advance endpoint on a match —
+  // which meant the browser decided advancement, the endpoint would advance
+  // anyone who called it, and a reply merely *describing* a passing verdict
+  // could trip the match. Now the client submits and renders the answer.
   const handleSubmitForReview = useCallback(async () => {
     if (!user || !activePhase) return;
     setSubmitChecking(true);
     setSubmitPrompt(null);
     try {
       const token = await user.getIdToken();
+
+      // Cheap client-side pre-check, purely to avoid burning a grading call on
+      // a submission the server will refuse anyway. Not a gate — the server
+      // enforces the same rule, on correctness, and doesn't trust this.
       const { checks } = await getPhaseKnowledgeChecks(token, activePhase.id);
-      const answered = checks.filter((c) => c.attempted).length;
-      if (checks.length > 0 && answered < checks.length) {
+      const correct = checks.filter((c) => c.attempted && c.is_correct).length;
+      if (checks.length > 0 && correct < checks.length) {
         setSubmitPrompt(
-          `Answer all knowledge checks for this phase before submitting — ${answered}/${checks.length} answered.`,
+          `Answer all knowledge checks for this phase correctly before submitting — ${correct}/${checks.length} so far. Retry as many times as you need.`,
         );
         setLeftTab("knowledge-checks");
         return;
       }
+
       const goalText = parseGoal(activePhase.goal);
-      setAiInitialMessageMode("review");
-      setAiInitialMessage(
-        `Review my submission for Phase ${activePhase.phase_number}: ${activePhase.title}.${
-          goalText ? ` Goal: ${goalText}` : ""
-        }`,
-      );
-      setAiInitialMessageNonce((n) => n + 1);
+      const submissionText = `Review my submission for Phase ${activePhase.phase_number}: ${activePhase.title}.${
+        goalText ? ` Goal: ${goalText}` : ""
+      }`;
+
       setAiOpen(true);
+      const result = await submitPhaseReview(token, projectId, activeTabId);
+
+      // Show the graded exchange in the AI panel without re-running it.
+      setReviewTranscript({
+        nonce: Date.now(),
+        userText: submissionText,
+        assistantText: result.feedback,
+      });
+
+      if (result.verdict === "blocked") {
+        setSubmitPrompt(result.feedback);
+        setLeftTab("knowledge-checks");
+        return;
+      }
+
+      // Adopt the server's phase number rather than incrementing locally —
+      // it's authoritative, and it's what actually reflects whether the
+      // advance happened.
+      if (result.advanced) {
+        setCurrentPhaseNum(result.current_phase);
+        setActivePhaseIdx((i) => Math.min(i + 1, phases.length - 1));
+      }
     } catch (err: any) {
-      setSubmitPrompt(
-        err.message ?? "Couldn't check knowledge check status — try again.",
-      );
+      setSubmitPrompt(err.message ?? "Couldn't submit for review — try again.");
     } finally {
       setSubmitChecking(false);
     }
-  }, [user, activePhase]);
-
-  // Called once the "review" reply finishes streaming — if the AI judged the
-  // goal met, advance to the next phase (locally; matches PhaseSelector,
-  // which derives locked/unlocked purely from currentPhaseNum).
-  const handleAiReplyComplete = useCallback(
-    async (fullText: string) => {
-      if (aiInitialMessageMode !== "review") return;
-      if (!/VERDICT:\s*MET\b/i.test(fullText)) return;
-      if (!user) return;
-      try {
-        const token = await user.getIdToken();
-        await advanceUserProjectPhase(token, projectId);
-        setCurrentPhaseNum((n) => n + 1);
-        setActivePhaseIdx((i) => Math.min(i + 1, phases.length - 1));
-      } catch (err: any) {
-        console.error("[Submit] failed to advance phase:", err);
-        setSubmitPrompt(
-          err.message ??
-            "The goal was met, but we couldn't unlock the next phase — try submitting again.",
-        );
-      }
-    },
-    [aiInitialMessageMode, user, projectId, phases.length],
-  );
+  }, [user, activePhase, projectId, activeTabId, phases.length]);
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (authLoading || loading) {
@@ -1528,11 +1562,11 @@ export default function BuildPage() {
                     ? "Saved"
                     : "Save"}
               </button>
-              {/* Submit for review — gates on knowledge checks, then requests an AI verdict.
-                  Only disabled while the AI is actually responding, not while checking answered status. */}
+              {/* Submit for review — one server call that checks this phase's
+                  knowledge checks, grades the work, and advances on a pass. */}
               <button
                 onClick={handleSubmitForReview}
-                disabled={aiThinking}
+                disabled={aiThinking || submitChecking}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
                 title="Submit this phase for AI review"
               >
@@ -1541,7 +1575,7 @@ export default function BuildPage() {
                 ) : (
                   <SendHorizonal size={11} />
                 )}
-                {submitChecking ? "Checking…" : aiThinking ? "Reviewing…" : "Submit"}
+                {submitChecking ? "Reviewing…" : aiThinking ? "Thinking…" : "Submit"}
               </button>
             </>
           )}
@@ -2427,11 +2461,7 @@ export default function BuildPage() {
                 }
                 activeFileId={activeTabId || undefined}
                 getToken={() => user!.getIdToken()}
-                initialMessage={aiInitialMessage}
-                initialMessageNonce={aiInitialMessageNonce}
-                initialMessageMode={aiInitialMessageMode}
-                onInitialMessageConsumed={() => setAiInitialMessage(undefined)}
-                onReplyComplete={handleAiReplyComplete}
+                injected={reviewTranscript}
                 onLoadingChange={setAiThinking}
               />
             </div>

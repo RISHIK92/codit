@@ -26,7 +26,7 @@ const (
 	UserProjectService_GetAllUserProjects_FullMethodName      = "/userProject.UserProjectService/GetAllUserProjects"
 	UserProjectService_GetUserProjectsByStatus_FullMethodName = "/userProject.UserProjectService/GetUserProjectsByStatus"
 	UserProjectService_SetUserProjectArchived_FullMethodName  = "/userProject.UserProjectService/SetUserProjectArchived"
-	UserProjectService_AdvancePhase_FullMethodName            = "/userProject.UserProjectService/AdvancePhase"
+	UserProjectService_SubmitPhaseReview_FullMethodName       = "/userProject.UserProjectService/SubmitPhaseReview"
 )
 
 // UserProjectServiceClient is the client API for UserProjectService service.
@@ -43,9 +43,19 @@ type UserProjectServiceClient interface {
 	// live slot to start a different one; resuming an archived project
 	// requires the live slot to be free first.
 	SetUserProjectArchived(ctx context.Context, in *SetUserProjectArchivedRequest, opts ...grpc.CallOption) (*SetUserProjectArchivedResponse, error)
-	// Advances current_phase by 1 — called after an AI review of a phase's
-	// submitted work judges the phase goal met.
-	AdvancePhase(ctx context.Context, in *AdvancePhaseRequest, opts ...grpc.CallOption) (*AdvancePhaseResponse, error)
+	// Submits the user's current phase for grading, and advances it if the
+	// grader judges the goal met.
+	//
+	// This is deliberately the ONLY path that can advance a phase. There is no
+	// separate "advance" RPC: an endpoint that advances on request is an
+	// endpoint any authenticated user can call to skip the work, which makes
+	// every guarantee about demonstrated understanding worthless. Grading,
+	// the verdict, and the advance all happen server-side inside this one call.
+	//
+	// The request carries only the project — the phase under review, its goal,
+	// and its knowledge-check status are all derived server-side from the
+	// caller's own enrollment, so none of them can be spoofed by the client.
+	SubmitPhaseReview(ctx context.Context, in *SubmitPhaseReviewRequest, opts ...grpc.CallOption) (*SubmitPhaseReviewResponse, error)
 }
 
 type userProjectServiceClient struct {
@@ -106,10 +116,10 @@ func (c *userProjectServiceClient) SetUserProjectArchived(ctx context.Context, i
 	return out, nil
 }
 
-func (c *userProjectServiceClient) AdvancePhase(ctx context.Context, in *AdvancePhaseRequest, opts ...grpc.CallOption) (*AdvancePhaseResponse, error) {
+func (c *userProjectServiceClient) SubmitPhaseReview(ctx context.Context, in *SubmitPhaseReviewRequest, opts ...grpc.CallOption) (*SubmitPhaseReviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AdvancePhaseResponse)
-	err := c.cc.Invoke(ctx, UserProjectService_AdvancePhase_FullMethodName, in, out, cOpts...)
+	out := new(SubmitPhaseReviewResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_SubmitPhaseReview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -130,9 +140,19 @@ type UserProjectServiceServer interface {
 	// live slot to start a different one; resuming an archived project
 	// requires the live slot to be free first.
 	SetUserProjectArchived(context.Context, *SetUserProjectArchivedRequest) (*SetUserProjectArchivedResponse, error)
-	// Advances current_phase by 1 — called after an AI review of a phase's
-	// submitted work judges the phase goal met.
-	AdvancePhase(context.Context, *AdvancePhaseRequest) (*AdvancePhaseResponse, error)
+	// Submits the user's current phase for grading, and advances it if the
+	// grader judges the goal met.
+	//
+	// This is deliberately the ONLY path that can advance a phase. There is no
+	// separate "advance" RPC: an endpoint that advances on request is an
+	// endpoint any authenticated user can call to skip the work, which makes
+	// every guarantee about demonstrated understanding worthless. Grading,
+	// the verdict, and the advance all happen server-side inside this one call.
+	//
+	// The request carries only the project — the phase under review, its goal,
+	// and its knowledge-check status are all derived server-side from the
+	// caller's own enrollment, so none of them can be spoofed by the client.
+	SubmitPhaseReview(context.Context, *SubmitPhaseReviewRequest) (*SubmitPhaseReviewResponse, error)
 	mustEmbedUnimplementedUserProjectServiceServer()
 }
 
@@ -158,8 +178,8 @@ func (UnimplementedUserProjectServiceServer) GetUserProjectsByStatus(context.Con
 func (UnimplementedUserProjectServiceServer) SetUserProjectArchived(context.Context, *SetUserProjectArchivedRequest) (*SetUserProjectArchivedResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetUserProjectArchived not implemented")
 }
-func (UnimplementedUserProjectServiceServer) AdvancePhase(context.Context, *AdvancePhaseRequest) (*AdvancePhaseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method AdvancePhase not implemented")
+func (UnimplementedUserProjectServiceServer) SubmitPhaseReview(context.Context, *SubmitPhaseReviewRequest) (*SubmitPhaseReviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SubmitPhaseReview not implemented")
 }
 func (UnimplementedUserProjectServiceServer) mustEmbedUnimplementedUserProjectServiceServer() {}
 func (UnimplementedUserProjectServiceServer) testEmbeddedByValue()                            {}
@@ -272,20 +292,20 @@ func _UserProjectService_SetUserProjectArchived_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserProjectService_AdvancePhase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AdvancePhaseRequest)
+func _UserProjectService_SubmitPhaseReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitPhaseReviewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserProjectServiceServer).AdvancePhase(ctx, in)
+		return srv.(UserProjectServiceServer).SubmitPhaseReview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserProjectService_AdvancePhase_FullMethodName,
+		FullMethod: UserProjectService_SubmitPhaseReview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserProjectServiceServer).AdvancePhase(ctx, req.(*AdvancePhaseRequest))
+		return srv.(UserProjectServiceServer).SubmitPhaseReview(ctx, req.(*SubmitPhaseReviewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -318,8 +338,8 @@ var UserProjectService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserProjectService_SetUserProjectArchived_Handler,
 		},
 		{
-			MethodName: "AdvancePhase",
-			Handler:    _UserProjectService_AdvancePhase_Handler,
+			MethodName: "SubmitPhaseReview",
+			Handler:    _UserProjectService_SubmitPhaseReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

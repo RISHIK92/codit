@@ -24,6 +24,32 @@ export const findById = async (id: string) => {
   return prisma.knowledgeChecks.findUnique({ where: { id } });
 };
 
+/**
+ * How many of a phase's knowledge checks the user has answered *correctly*.
+ *
+ * Correctness, not attemptedness, is the gate: a user who answered every
+ * question wrong has demonstrated the opposite of readiness, and letting that
+ * through to review reduces the checks to an attendance register. Retries are
+ * unlimited by design — the point is to end up understanding it, not to
+ * measure how many tries that took.
+ */
+export const getPhaseCheckProgress = async (
+  phaseId: string,
+  userEmail: string,
+): Promise<{ total: number; correct: number }> => {
+  const [total, correct] = await Promise.all([
+    prisma.knowledgeChecks.count({ where: { phase_id: phaseId } }),
+    prisma.knowledgeCheckAttempt.count({
+      where: {
+        user_email: userEmail,
+        is_correct: true,
+        knowledgeCheck: { phase_id: phaseId },
+      },
+    }),
+  ]);
+  return { total, correct };
+};
+
 /** Record a graded attempt — upsert so re-submitting updates the existing row. */
 export const upsertAttempt = async (
   knowledgeCheckId: string,

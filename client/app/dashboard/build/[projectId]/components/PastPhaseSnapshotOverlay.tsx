@@ -175,7 +175,13 @@ export function PastPhaseSnapshotOverlay({
                     <MonacoEditor
                       height="100%"
                       theme="vs-dark"
-                      path={activeFileId}
+                      // Namespaced, not the bare file path: @monaco-editor/react
+                      // keys its model registry globally by path, and the live
+                      // editor (still mounted underneath this overlay, just
+                      // visually covered) uses the bare path for the same
+                      // file — sharing it would mean this "read-only" view
+                      // is actually displaying the live, editable model.
+                      path={`__snapshot_phase_${phaseNumber}__/${activeFileId}`}
                       language={activeLanguage}
                       value={activeContent}
                       options={{

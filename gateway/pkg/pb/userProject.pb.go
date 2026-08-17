@@ -587,28 +587,32 @@ func (x *SetUserProjectArchivedResponse) GetUserProject() *UserProject {
 	return nil
 }
 
-type AdvancePhaseRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type SubmitPhaseReviewRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Email     string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// Optional: the file the user has open, passed through to the grader as
+	// context. Never used to decide anything — purely a hint about where the
+	// user is working.
+	ActiveFilePath string `protobuf:"bytes,3,opt,name=active_file_path,json=activeFilePath,proto3" json:"active_file_path,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-func (x *AdvancePhaseRequest) Reset() {
-	*x = AdvancePhaseRequest{}
+func (x *SubmitPhaseReviewRequest) Reset() {
+	*x = SubmitPhaseReviewRequest{}
 	mi := &file_userProject_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdvancePhaseRequest) String() string {
+func (x *SubmitPhaseReviewRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdvancePhaseRequest) ProtoMessage() {}
+func (*SubmitPhaseReviewRequest) ProtoMessage() {}
 
-func (x *AdvancePhaseRequest) ProtoReflect() protoreflect.Message {
+func (x *SubmitPhaseReviewRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_userProject_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -620,46 +624,69 @@ func (x *AdvancePhaseRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdvancePhaseRequest.ProtoReflect.Descriptor instead.
-func (*AdvancePhaseRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SubmitPhaseReviewRequest.ProtoReflect.Descriptor instead.
+func (*SubmitPhaseReviewRequest) Descriptor() ([]byte, []int) {
 	return file_userProject_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *AdvancePhaseRequest) GetProjectId() string {
+func (x *SubmitPhaseReviewRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
 	}
 	return ""
 }
 
-func (x *AdvancePhaseRequest) GetEmail() string {
+func (x *SubmitPhaseReviewRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
 	}
 	return ""
 }
 
-type AdvancePhaseResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserProject   *UserProject           `protobuf:"bytes,1,opt,name=user_project,json=userProject,proto3" json:"user_project,omitempty"`
+func (x *SubmitPhaseReviewRequest) GetActiveFilePath() string {
+	if x != nil {
+		return x.ActiveFilePath
+	}
+	return ""
+}
+
+type SubmitPhaseReviewResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// "met"     — goal judged met; the phase was advanced.
+	// "not_met" — goal judged not met; see feedback.
+	// "blocked" — never reached the grader: the phase's knowledge checks
+	//
+	//	aren't all answered correctly yet.
+	Verdict string `protobuf:"bytes,1,opt,name=verdict,proto3" json:"verdict,omitempty"`
+	// True only when the phase actually advanced. Clients must use this rather
+	// than inferring advancement from the feedback text.
+	Advanced bool `protobuf:"varint,2,opt,name=advanced,proto3" json:"advanced,omitempty"`
+	// The grader's prose explanation, or the reason the submission was blocked.
+	Feedback string `protobuf:"bytes,3,opt,name=feedback,proto3" json:"feedback,omitempty"`
+	// Authoritative post-review phase number — clients should adopt this rather
+	// than incrementing their own local counter.
+	CurrentPhase int32 `protobuf:"varint,4,opt,name=current_phase,json=currentPhase,proto3" json:"current_phase,omitempty"`
+	// Populated when verdict = "blocked", so the UI can say "3 of 5 correct".
+	ChecksTotal   int32 `protobuf:"varint,5,opt,name=checks_total,json=checksTotal,proto3" json:"checks_total,omitempty"`
+	ChecksCorrect int32 `protobuf:"varint,6,opt,name=checks_correct,json=checksCorrect,proto3" json:"checks_correct,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdvancePhaseResponse) Reset() {
-	*x = AdvancePhaseResponse{}
+func (x *SubmitPhaseReviewResponse) Reset() {
+	*x = SubmitPhaseReviewResponse{}
 	mi := &file_userProject_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdvancePhaseResponse) String() string {
+func (x *SubmitPhaseReviewResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdvancePhaseResponse) ProtoMessage() {}
+func (*SubmitPhaseReviewResponse) ProtoMessage() {}
 
-func (x *AdvancePhaseResponse) ProtoReflect() protoreflect.Message {
+func (x *SubmitPhaseReviewResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_userProject_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -671,16 +698,51 @@ func (x *AdvancePhaseResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdvancePhaseResponse.ProtoReflect.Descriptor instead.
-func (*AdvancePhaseResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use SubmitPhaseReviewResponse.ProtoReflect.Descriptor instead.
+func (*SubmitPhaseReviewResponse) Descriptor() ([]byte, []int) {
 	return file_userProject_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *AdvancePhaseResponse) GetUserProject() *UserProject {
+func (x *SubmitPhaseReviewResponse) GetVerdict() string {
 	if x != nil {
-		return x.UserProject
+		return x.Verdict
 	}
-	return nil
+	return ""
+}
+
+func (x *SubmitPhaseReviewResponse) GetAdvanced() bool {
+	if x != nil {
+		return x.Advanced
+	}
+	return false
+}
+
+func (x *SubmitPhaseReviewResponse) GetFeedback() string {
+	if x != nil {
+		return x.Feedback
+	}
+	return ""
+}
+
+func (x *SubmitPhaseReviewResponse) GetCurrentPhase() int32 {
+	if x != nil {
+		return x.CurrentPhase
+	}
+	return 0
+}
+
+func (x *SubmitPhaseReviewResponse) GetChecksTotal() int32 {
+	if x != nil {
+		return x.ChecksTotal
+	}
+	return 0
+}
+
+func (x *SubmitPhaseReviewResponse) GetChecksCorrect() int32 {
+	if x != nil {
+		return x.ChecksCorrect
+	}
+	return 0
 }
 
 var File_userProject_proto protoreflect.FileDescriptor
@@ -723,20 +785,26 @@ const file_userProject_proto_rawDesc = "" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
 	"\barchived\x18\x03 \x01(\bR\barchived\"]\n" +
 	"\x1eSetUserProjectArchivedResponse\x12;\n" +
-	"\fuser_project\x18\x01 \x01(\v2\x18.userProject.UserProjectR\vuserProject\"J\n" +
-	"\x13AdvancePhaseRequest\x12\x1d\n" +
+	"\fuser_project\x18\x01 \x01(\v2\x18.userProject.UserProjectR\vuserProject\"y\n" +
+	"\x18SubmitPhaseReviewRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"S\n" +
-	"\x14AdvancePhaseResponse\x12;\n" +
-	"\fuser_project\x18\x01 \x01(\v2\x18.userProject.UserProjectR\vuserProject2\x80\x05\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12(\n" +
+	"\x10active_file_path\x18\x03 \x01(\tR\x0eactiveFilePath\"\xdc\x01\n" +
+	"\x19SubmitPhaseReviewResponse\x12\x18\n" +
+	"\averdict\x18\x01 \x01(\tR\averdict\x12\x1a\n" +
+	"\badvanced\x18\x02 \x01(\bR\badvanced\x12\x1a\n" +
+	"\bfeedback\x18\x03 \x01(\tR\bfeedback\x12#\n" +
+	"\rcurrent_phase\x18\x04 \x01(\x05R\fcurrentPhase\x12!\n" +
+	"\fchecks_total\x18\x05 \x01(\x05R\vchecksTotal\x12%\n" +
+	"\x0echecks_correct\x18\x06 \x01(\x05R\rchecksCorrect2\x8f\x05\n" +
 	"\x12UserProjectService\x12^\n" +
 	"\rCreateProject\x12%.userProject.CreateUserProjectRequest\x1a&.userProject.CreateUserProjectResponse\x12e\n" +
 	"\x12GetUserProjectById\x12&.userProject.GetUserProjectByIdRequest\x1a'.userProject.GetUserProjectByIdResponse\x12e\n" +
 	"\x12GetAllUserProjects\x12&.userProject.GetAllUserProjectsRequest\x1a'.userProject.GetAllUserProjectsResponse\x12t\n" +
 	"\x17GetUserProjectsByStatus\x12+.userProject.GetUserProjectsByStatusRequest\x1a,.userProject.GetUserProjectsByStatusResponse\x12q\n" +
-	"\x16SetUserProjectArchived\x12*.userProject.SetUserProjectArchivedRequest\x1a+.userProject.SetUserProjectArchivedResponse\x12S\n" +
-	"\fAdvancePhase\x12 .userProject.AdvancePhaseRequest\x1a!.userProject.AdvancePhaseResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x16SetUserProjectArchived\x12*.userProject.SetUserProjectArchivedRequest\x1a+.userProject.SetUserProjectArchivedResponse\x12b\n" +
+	"\x11SubmitPhaseReview\x12%.userProject.SubmitPhaseReviewRequest\x1a&.userProject.SubmitPhaseReviewResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_userProject_proto_rawDescOnce sync.Once
@@ -763,32 +831,31 @@ var file_userProject_proto_goTypes = []any{
 	(*GetUserProjectsByStatusResponse)(nil), // 8: userProject.GetUserProjectsByStatusResponse
 	(*SetUserProjectArchivedRequest)(nil),   // 9: userProject.SetUserProjectArchivedRequest
 	(*SetUserProjectArchivedResponse)(nil),  // 10: userProject.SetUserProjectArchivedResponse
-	(*AdvancePhaseRequest)(nil),             // 11: userProject.AdvancePhaseRequest
-	(*AdvancePhaseResponse)(nil),            // 12: userProject.AdvancePhaseResponse
+	(*SubmitPhaseReviewRequest)(nil),        // 11: userProject.SubmitPhaseReviewRequest
+	(*SubmitPhaseReviewResponse)(nil),       // 12: userProject.SubmitPhaseReviewResponse
 }
 var file_userProject_proto_depIdxs = []int32{
 	6,  // 0: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
 	6,  // 1: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
 	6,  // 2: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
 	6,  // 3: userProject.SetUserProjectArchivedResponse.user_project:type_name -> userProject.UserProject
-	6,  // 4: userProject.AdvancePhaseResponse.user_project:type_name -> userProject.UserProject
-	0,  // 5: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
-	2,  // 6: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
-	4,  // 7: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
-	7,  // 8: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
-	9,  // 9: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
-	11, // 10: userProject.UserProjectService.AdvancePhase:input_type -> userProject.AdvancePhaseRequest
-	1,  // 11: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
-	3,  // 12: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
-	5,  // 13: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
-	8,  // 14: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
-	10, // 15: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
-	12, // 16: userProject.UserProjectService.AdvancePhase:output_type -> userProject.AdvancePhaseResponse
-	11, // [11:17] is the sub-list for method output_type
-	5,  // [5:11] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	0,  // 4: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
+	2,  // 5: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
+	4,  // 6: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
+	7,  // 7: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
+	9,  // 8: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
+	11, // 9: userProject.UserProjectService.SubmitPhaseReview:input_type -> userProject.SubmitPhaseReviewRequest
+	1,  // 10: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
+	3,  // 11: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
+	5,  // 12: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
+	8,  // 13: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
+	10, // 14: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
+	12, // 15: userProject.UserProjectService.SubmitPhaseReview:output_type -> userProject.SubmitPhaseReviewResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_userProject_proto_init() }

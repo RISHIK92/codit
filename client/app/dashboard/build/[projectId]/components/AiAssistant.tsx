@@ -47,6 +47,16 @@ interface AiAssistantProps {
   /** Mode for the auto-sent initialMessage — defaults to "chat" (agentic) */
   initialMessageMode?: ChatMode;
   onInitialMessageConsumed?: () => void;
+  /**
+   * Transcript entries to display without sending anything.
+   *
+   * Phase reviews are graded server-side (the server calls the AI, reads the
+   * verdict, and decides whether to advance), so by the time the result gets
+   * here the conversation has already happened. This renders it in the panel
+   * as-is — re-sending it through initialMessage would run a second, separate
+   * review whose result nothing acts on.
+   */
+  injected?: { nonce: number; userText: string; assistantText: string };
   /** Called with the full assistant reply once a message finishes streaming successfully. */
   onReplyComplete?: (fullText: string) => void;
   /** Mirrors whether a request is in flight — lets callers (e.g. the Submit button) disable themselves only while the AI is actually thinking. */
@@ -165,6 +175,7 @@ export function AiAssistant({
   onInitialMessageConsumed,
   onReplyComplete,
   onLoadingChange,
+  injected,
 }: AiAssistantProps) {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [input, setInput] = useState("");
@@ -181,10 +192,35 @@ export function AiAssistant({
   // of identical text (e.g. clicking "Submit" again) still goes out — only
   // a genuinely-repeated trigger (same nonce) is suppressed.
   const sentKeyRef = useRef<string | number | null>(null);
+  // Same Strict-Mode dedupe idea as sentKeyRef, for injected transcript entries.
+  const injectedKeyRef = useRef<number | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // Append an already-completed exchange (e.g. a server-graded phase review).
+  // Purely a render — no request is made.
+  useEffect(() => {
+    if (!injected || injectedKeyRef.current === injected.nonce) return;
+    injectedKeyRef.current = injected.nonce;
+    const now = new Date();
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: injected.userText,
+        timestamp: now,
+      },
+      {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: injected.assistantText,
+        timestamp: now,
+      },
+    ]);
+  }, [injected]);
 
   useEffect(() => {
     onLoadingChange?.(loading);

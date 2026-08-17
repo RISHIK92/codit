@@ -8,7 +8,7 @@
  *   GET  /api/user-projects/get?projectId= → GetUserProjectByIdResponse
  *   POST /api/user-projects/create         → { success: boolean }
  *   POST /api/user-projects/archive        → SetUserProjectArchivedResponse
- *   POST /api/user-projects/advance-phase  → AdvancePhaseResponse
+ *   POST /api/user-projects/submit-review  → SubmitPhaseReviewResponse
  *
  * ─── Public endpoints (no auth) ───────────────────────────────────────────────
  *   GET  /public/api/projects/get-all           → GetAllCatalogueProjectsResponse
@@ -335,23 +335,46 @@ export async function setUserProjectArchived(
   return res.json();
 }
 
+export interface PhaseReviewResultDTO {
+  /** "met" — advanced. "not_met" — graded and rejected. "blocked" — never
+   * reached the grader because the phase's knowledge checks aren't all
+   * correct yet. */
+  verdict: "met" | "not_met" | "blocked";
+  /** Whether the phase actually advanced. Trust this, never the feedback text. */
+  advanced: boolean;
+  /** The grader's explanation, or why the submission was blocked. */
+  feedback: string;
+  /** Authoritative post-review phase number — adopt this rather than
+   * incrementing a local counter. */
+  current_phase: number;
+  checks_total: number;
+  checks_correct: number;
+}
+
 /**
- * Advances the authenticated user's current_phase by 1 for a project —
- * called after an AI review of the submitted phase judges the goal met.
+ * Submits the user's current phase for grading, advancing it if the grader
+ * judges the goal met.
  *
- * Hits POST /api/user-projects/advance-phase on the gateway.
+ * Hits POST /api/user-projects/submit-review on the gateway.
+ *
+ * This is the only way a phase advances. The client does not grade, does not
+ * parse a verdict, and does not ask to advance — it submits, and renders the
+ * result. Everything that decides the outcome (which phase, whether its
+ * knowledge checks are passed, what the grader said, whether that counts)
+ * happens server-side, because a client that grades itself is not a gate.
  */
-export async function advanceUserProjectPhase(
+export async function submitPhaseReview(
   idToken: string,
   projectId: string,
-): Promise<{ user_project?: UserProjectDTO; userProject?: UserProjectDTO }> {
-  const res = await fetch(`${GATEWAY_URL}/api/user-projects/advance-phase`, {
+  activeFilePath?: string,
+): Promise<PhaseReviewResultDTO> {
+  const res = await fetch(`${GATEWAY_URL}/api/user-projects/submit-review`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${idToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ projectId }),
+    body: JSON.stringify({ projectId, activeFilePath: activeFilePath ?? "" }),
   });
 
   if (!res.ok) {
@@ -359,5 +382,14 @@ export async function advanceUserProjectPhase(
     throw new Error(msg || `Gateway error ${res.status}`);
   }
 
-  return res.json();
+  const json = await res.json();
+  // protojson emits camelCase and omits proto3 zero values; normalise both.
+  return {
+    verdict: json.verdict ?? "not_met",
+    advanced: json.advanced ?? false,
+    feedback: json.feedback ?? "",
+    current_phase: json.currentPhase ?? json.current_phase ?? 0,
+    checks_total: json.checksTotal ?? json.checks_total ?? 0,
+    checks_correct: json.checksCorrect ?? json.checks_correct ?? 0,
+  };
 }
