@@ -13,7 +13,14 @@ import {
   SetUserProjectArchivedResponse,
   SubmitPhaseReviewRequest,
   SubmitPhaseReviewResponse,
+  GetGrowthRequest,
+  GetGrowthResponse,
+  StartCheckpointRequest,
+  StartCheckpointResponse,
+  SubmitCheckpointRequest,
+  SubmitCheckpointResponse,
 } from "../generated/userProject";
+import * as growthService from "../services/growthService";
 import * as projectService from "../services/projectService";
 import * as phaseReviewService from "../services/phaseReviewService";
 import { Status } from "../db/prismaClient";
@@ -307,6 +314,74 @@ export const projectHandler: UserProjectServiceServer = {
         },
         null,
       );
+    }
+  },
+
+  getGrowth: async (
+    call: grpc.ServerUnaryCall<GetGrowthRequest, GetGrowthResponse>,
+    callback: grpc.sendUnaryData<GetGrowthResponse>,
+  ) => {
+    try {
+      const { stats, fog, era, unexplained } = await growthService.getGrowth(
+        call.request.email,
+      );
+      callback(null, {
+        build: stats.build,
+        understand: stats.understand,
+        explore: stats.explore,
+        show: stats.show,
+        eraName: era.current.name,
+        eraBlurb: era.current.blurb,
+        eraIndex: era.current.index,
+        nextEraName: era.next?.name ?? "",
+        nextRequirements: era.nextRequirements.map((r) => ({
+          label: r.label,
+          met: r.met,
+          have: r.have,
+          need: r.need,
+        })),
+        fogCount: fog.count,
+        unexplained: unexplained.map((u) => ({
+          projectId: u.projectId,
+          projectName: u.projectName,
+          phaseNumber: u.phaseNumber,
+        })),
+      });
+    } catch (error: any) {
+      console.error("GetGrowth failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+    }
+  },
+
+  startCheckpoint: async (
+    call: grpc.ServerUnaryCall<StartCheckpointRequest, StartCheckpointResponse>,
+    callback: grpc.sendUnaryData<StartCheckpointResponse>,
+  ) => {
+    try {
+      const { email, projectId, phaseNumber } = call.request;
+      const r = await growthService.startCheckpoint(email, projectId, phaseNumber);
+      callback(null, { checkpointId: r.checkpointId, question: r.question });
+    } catch (error: any) {
+      console.error("StartCheckpoint failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+    }
+  },
+
+  submitCheckpoint: async (
+    call: grpc.ServerUnaryCall<SubmitCheckpointRequest, SubmitCheckpointResponse>,
+    callback: grpc.sendUnaryData<SubmitCheckpointResponse>,
+  ) => {
+    try {
+      const { email, checkpointId, answer } = call.request;
+      const r = await growthService.submitCheckpoint(email, checkpointId, answer);
+      callback(null, {
+        passed: r.passed,
+        feedback: r.feedback,
+        missingConcepts: r.missingConcepts,
+      });
+    } catch (error: any) {
+      console.error("SubmitCheckpoint failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
     }
   },
 };

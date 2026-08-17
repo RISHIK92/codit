@@ -236,6 +236,20 @@ exports.Prisma.ReviewCriterionResultScalarFieldEnum = {
   reasoning: 'reasoning'
 };
 
+exports.Prisma.UnderstandingCheckpointScalarFieldEnum = {
+  id: 'id',
+  user_email: 'user_email',
+  project_id: 'project_id',
+  phase_number: 'phase_number',
+  question: 'question',
+  answer: 'answer',
+  passed: 'passed',
+  feedback: 'feedback',
+  missing_concepts: 'missing_concepts',
+  model: 'model',
+  created_at: 'created_at'
+};
+
 exports.Prisma.UserPhaseProgressScalarFieldEnum = {
   id: 'id',
   user_project_id: 'user_project_id',
@@ -414,6 +428,7 @@ exports.Prisma.ModelName = {
   UserProjects: 'UserProjects',
   PhaseReview: 'PhaseReview',
   ReviewCriterionResult: 'ReviewCriterionResult',
+  UnderstandingCheckpoint: 'UnderstandingCheckpoint',
   UserPhaseProgress: 'UserPhaseProgress',
   LearningPhase: 'LearningPhase',
   PhaseCriterion: 'PhaseCriterion',

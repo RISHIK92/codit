@@ -37,6 +37,52 @@ service AiService {
   // The caller decides the phase verdict by conjunction over these results;
   // this RPC never says whether the phase passed.
   rpc GradeCriteria (GradeCriteriaRequest) returns (GradeCriteriaResponse);
+
+  // Produces one "explain it back" question about work the user has already
+  // completed, grounded in their actual files rather than the phase's topic in
+  // the abstract — "why does your nav jump to the right section?" rather than
+  // "what is an anchor link?".
+  rpc GenerateCheckpoint (GenerateCheckpointRequest) returns (GenerateCheckpointResponse);
+
+  // Grades a free-text explanation for comprehension.
+  //
+  // This is the only grader in the system whose subject is the person rather
+  // than the code, and it is the one an AI-era junior cannot pass by prompting:
+  // the code already exists and already works, so reproducing it proves
+  // nothing. Pasted code is therefore an automatic fail, not a partial credit.
+  rpc GradeExplanation (GradeExplanationRequest) returns (GradeExplanationResponse);
+}
+
+// ── Checkpoints ──────────────────────────────────────────────────────────────
+
+message GenerateCheckpointRequest {
+  string user_email  = 1;
+  string project_id  = 2;
+  int32  phase_number = 3;
+  string phase_title = 4;
+  // Concepts the phase taught, so the question targets them rather than
+  // whatever happens to look interesting in the code.
+  repeated string concepts = 5;
+}
+
+message GenerateCheckpointResponse {
+  string question = 1;
+}
+
+message GradeExplanationRequest {
+  string question    = 1;
+  string answer      = 2;
+  string phase_title = 3;
+  repeated string concepts = 4;
+}
+
+message GradeExplanationResponse {
+  bool   passed = 1;
+  // Shown back to the user. On a failure this names what was missing without
+  // supplying it — the same no-ghostwriting rule the assistant follows.
+  string feedback = 2;
+  // Concepts judged absent from the explanation, for what to revisit.
+  repeated string missing_concepts = 3;
 }
 
 // ── GradeCriteria ────────────────────────────────────────────────────────────

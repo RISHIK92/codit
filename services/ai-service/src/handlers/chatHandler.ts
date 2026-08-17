@@ -7,8 +7,13 @@ import {
   GradeAnswerResponse,
   GradeCriteriaRequest,
   GradeCriteriaResponse,
+  GenerateCheckpointRequest,
+  GenerateCheckpointResponse,
+  GradeExplanationRequest,
+  GradeExplanationResponse,
 } from "../generated/ai";
 import { gradeCriteria } from "./criterionGrader";
+import { generateCheckpoint, gradeExplanation } from "./checkpointGrader";
 import {
   getUserProfile,
   getFileContent,
@@ -435,6 +440,48 @@ export const aiServiceHandler: AiServiceServer = {
       });
     } catch (err: any) {
       console.error("GradeCriteria failed:", err?.message ?? err);
+      callback({ code: grpc.status.INTERNAL, message: err.message }, null);
+    }
+  },
+
+  generateCheckpoint: async (
+    call: grpc.ServerUnaryCall<GenerateCheckpointRequest, GenerateCheckpointResponse>,
+    callback: grpc.sendUnaryData<GenerateCheckpointResponse>,
+  ) => {
+    try {
+      const { userEmail, projectId, phaseTitle, concepts } = call.request;
+      const question = await generateCheckpoint({
+        userEmail,
+        projectId,
+        phaseTitle,
+        concepts: concepts ?? [],
+      });
+      callback(null, { question });
+    } catch (err: any) {
+      console.error("GenerateCheckpoint failed:", err?.message ?? err);
+      callback({ code: grpc.status.INTERNAL, message: err.message }, null);
+    }
+  },
+
+  gradeExplanation: async (
+    call: grpc.ServerUnaryCall<GradeExplanationRequest, GradeExplanationResponse>,
+    callback: grpc.sendUnaryData<GradeExplanationResponse>,
+  ) => {
+    try {
+      const { question, answer, phaseTitle, concepts } = call.request;
+      const grade = await gradeExplanation({
+        question,
+        answer,
+        phaseTitle,
+        concepts: concepts ?? [],
+      });
+      callback(null, {
+        passed: grade.passed,
+        feedback: grade.feedback,
+        missingConcepts: grade.missingConcepts,
+      });
+    } catch (err: any) {
+      console.error("GradeExplanation failed:", err?.message ?? err);
       callback({ code: grpc.status.INTERNAL, message: err.message }, null);
     }
   },

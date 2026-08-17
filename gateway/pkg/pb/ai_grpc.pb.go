@@ -21,9 +21,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiService_Chat_FullMethodName          = "/ai.AiService/Chat"
-	AiService_GradeAnswer_FullMethodName   = "/ai.AiService/GradeAnswer"
-	AiService_GradeCriteria_FullMethodName = "/ai.AiService/GradeCriteria"
+	AiService_Chat_FullMethodName               = "/ai.AiService/Chat"
+	AiService_GradeAnswer_FullMethodName        = "/ai.AiService/GradeAnswer"
+	AiService_GradeCriteria_FullMethodName      = "/ai.AiService/GradeCriteria"
+	AiService_GenerateCheckpoint_FullMethodName = "/ai.AiService/GenerateCheckpoint"
+	AiService_GradeExplanation_FullMethodName   = "/ai.AiService/GradeExplanation"
 )
 
 // AiServiceClient is the client API for AiService service.
@@ -56,6 +58,18 @@ type AiServiceClient interface {
 	// The caller decides the phase verdict by conjunction over these results;
 	// this RPC never says whether the phase passed.
 	GradeCriteria(ctx context.Context, in *GradeCriteriaRequest, opts ...grpc.CallOption) (*GradeCriteriaResponse, error)
+	// Produces one "explain it back" question about work the user has already
+	// completed, grounded in their actual files rather than the phase's topic in
+	// the abstract — "why does your nav jump to the right section?" rather than
+	// "what is an anchor link?".
+	GenerateCheckpoint(ctx context.Context, in *GenerateCheckpointRequest, opts ...grpc.CallOption) (*GenerateCheckpointResponse, error)
+	// Grades a free-text explanation for comprehension.
+	//
+	// This is the only grader in the system whose subject is the person rather
+	// than the code, and it is the one an AI-era junior cannot pass by prompting:
+	// the code already exists and already works, so reproducing it proves
+	// nothing. Pasted code is therefore an automatic fail, not a partial credit.
+	GradeExplanation(ctx context.Context, in *GradeExplanationRequest, opts ...grpc.CallOption) (*GradeExplanationResponse, error)
 }
 
 type aiServiceClient struct {
@@ -105,6 +119,26 @@ func (c *aiServiceClient) GradeCriteria(ctx context.Context, in *GradeCriteriaRe
 	return out, nil
 }
 
+func (c *aiServiceClient) GenerateCheckpoint(ctx context.Context, in *GenerateCheckpointRequest, opts ...grpc.CallOption) (*GenerateCheckpointResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateCheckpointResponse)
+	err := c.cc.Invoke(ctx, AiService_GenerateCheckpoint_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiServiceClient) GradeExplanation(ctx context.Context, in *GradeExplanationRequest, opts ...grpc.CallOption) (*GradeExplanationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GradeExplanationResponse)
+	err := c.cc.Invoke(ctx, AiService_GradeExplanation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AiServiceServer is the server API for AiService service.
 // All implementations must embed UnimplementedAiServiceServer
 // for forward compatibility.
@@ -135,6 +169,18 @@ type AiServiceServer interface {
 	// The caller decides the phase verdict by conjunction over these results;
 	// this RPC never says whether the phase passed.
 	GradeCriteria(context.Context, *GradeCriteriaRequest) (*GradeCriteriaResponse, error)
+	// Produces one "explain it back" question about work the user has already
+	// completed, grounded in their actual files rather than the phase's topic in
+	// the abstract — "why does your nav jump to the right section?" rather than
+	// "what is an anchor link?".
+	GenerateCheckpoint(context.Context, *GenerateCheckpointRequest) (*GenerateCheckpointResponse, error)
+	// Grades a free-text explanation for comprehension.
+	//
+	// This is the only grader in the system whose subject is the person rather
+	// than the code, and it is the one an AI-era junior cannot pass by prompting:
+	// the code already exists and already works, so reproducing it proves
+	// nothing. Pasted code is therefore an automatic fail, not a partial credit.
+	GradeExplanation(context.Context, *GradeExplanationRequest) (*GradeExplanationResponse, error)
 	mustEmbedUnimplementedAiServiceServer()
 }
 
@@ -153,6 +199,12 @@ func (UnimplementedAiServiceServer) GradeAnswer(context.Context, *GradeAnswerReq
 }
 func (UnimplementedAiServiceServer) GradeCriteria(context.Context, *GradeCriteriaRequest) (*GradeCriteriaResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GradeCriteria not implemented")
+}
+func (UnimplementedAiServiceServer) GenerateCheckpoint(context.Context, *GenerateCheckpointRequest) (*GenerateCheckpointResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GenerateCheckpoint not implemented")
+}
+func (UnimplementedAiServiceServer) GradeExplanation(context.Context, *GradeExplanationRequest) (*GradeExplanationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GradeExplanation not implemented")
 }
 func (UnimplementedAiServiceServer) mustEmbedUnimplementedAiServiceServer() {}
 func (UnimplementedAiServiceServer) testEmbeddedByValue()                   {}
@@ -222,6 +274,42 @@ func _AiService_GradeCriteria_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiService_GenerateCheckpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateCheckpointRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiServiceServer).GenerateCheckpoint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiService_GenerateCheckpoint_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiServiceServer).GenerateCheckpoint(ctx, req.(*GenerateCheckpointRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiService_GradeExplanation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GradeExplanationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiServiceServer).GradeExplanation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiService_GradeExplanation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiServiceServer).GradeExplanation(ctx, req.(*GradeExplanationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AiService_ServiceDesc is the grpc.ServiceDesc for AiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -236,6 +324,14 @@ var AiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GradeCriteria",
 			Handler:    _AiService_GradeCriteria_Handler,
+		},
+		{
+			MethodName: "GenerateCheckpoint",
+			Handler:    _AiService_GenerateCheckpoint_Handler,
+		},
+		{
+			MethodName: "GradeExplanation",
+			Handler:    _AiService_GradeExplanation_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -21,6 +21,66 @@ import {
 
 export const protobufPackage = "userProject";
 
+export interface GetGrowthRequest {
+  email: string;
+}
+
+export interface EraRequirementProto {
+  /** phrased for a human; shown verbatim */
+  label: string;
+  met: boolean;
+  have: number;
+  need: number;
+}
+
+export interface UnexplainedPhaseProto {
+  projectId: string;
+  projectName: string;
+  phaseNumber: number;
+}
+
+export interface GetGrowthResponse {
+  /** Never blended. Four numbers, always four. */
+  build: number;
+  understand: number;
+  explore: number;
+  show: number;
+  eraName: string;
+  eraBlurb: string;
+  eraIndex: number;
+  nextEraName: string;
+  nextRequirements: EraRequirementProto[];
+  /**
+   * Fog: work shipped but never explained back. A property of the record, not
+   * a judgement about the person.
+   */
+  fogCount: number;
+  unexplained: UnexplainedPhaseProto[];
+}
+
+export interface StartCheckpointRequest {
+  email: string;
+  projectId: string;
+  phaseNumber: number;
+}
+
+export interface StartCheckpointResponse {
+  checkpointId: string;
+  question: string;
+}
+
+export interface SubmitCheckpointRequest {
+  email: string;
+  checkpointId: string;
+  answer: string;
+}
+
+export interface SubmitCheckpointResponse {
+  passed: boolean;
+  feedback: string;
+  missingConcepts: string[];
+}
+
 export interface CreateUserProjectRequest {
   projectId: string;
   email: string;
@@ -144,6 +204,906 @@ export interface SubmitPhaseReviewResponse {
   criteriaTotal: number;
   criteriaPassed: number;
 }
+
+function createBaseGetGrowthRequest(): GetGrowthRequest {
+  return { email: "" };
+}
+
+export const GetGrowthRequest: MessageFns<GetGrowthRequest> = {
+  encode(message: GetGrowthRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetGrowthRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetGrowthRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetGrowthRequest {
+    return { email: isSet(object.email) ? globalThis.String(object.email) : "" };
+  },
+
+  toJSON(message: GetGrowthRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetGrowthRequest>, I>>(base?: I): GetGrowthRequest {
+    return GetGrowthRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetGrowthRequest>, I>>(object: I): GetGrowthRequest {
+    const message = createBaseGetGrowthRequest();
+    message.email = object.email ?? "";
+    return message;
+  },
+};
+
+function createBaseEraRequirementProto(): EraRequirementProto {
+  return { label: "", met: false, have: 0, need: 0 };
+}
+
+export const EraRequirementProto: MessageFns<EraRequirementProto> = {
+  encode(message: EraRequirementProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.label !== "") {
+      writer.uint32(10).string(message.label);
+    }
+    if (message.met !== false) {
+      writer.uint32(16).bool(message.met);
+    }
+    if (message.have !== 0) {
+      writer.uint32(24).int32(message.have);
+    }
+    if (message.need !== 0) {
+      writer.uint32(32).int32(message.need);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EraRequirementProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEraRequirementProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.label = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.met = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.have = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.need = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EraRequirementProto {
+    return {
+      label: isSet(object.label) ? globalThis.String(object.label) : "",
+      met: isSet(object.met) ? globalThis.Boolean(object.met) : false,
+      have: isSet(object.have) ? globalThis.Number(object.have) : 0,
+      need: isSet(object.need) ? globalThis.Number(object.need) : 0,
+    };
+  },
+
+  toJSON(message: EraRequirementProto): unknown {
+    const obj: any = {};
+    if (message.label !== "") {
+      obj.label = message.label;
+    }
+    if (message.met !== false) {
+      obj.met = message.met;
+    }
+    if (message.have !== 0) {
+      obj.have = Math.round(message.have);
+    }
+    if (message.need !== 0) {
+      obj.need = Math.round(message.need);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EraRequirementProto>, I>>(base?: I): EraRequirementProto {
+    return EraRequirementProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EraRequirementProto>, I>>(object: I): EraRequirementProto {
+    const message = createBaseEraRequirementProto();
+    message.label = object.label ?? "";
+    message.met = object.met ?? false;
+    message.have = object.have ?? 0;
+    message.need = object.need ?? 0;
+    return message;
+  },
+};
+
+function createBaseUnexplainedPhaseProto(): UnexplainedPhaseProto {
+  return { projectId: "", projectName: "", phaseNumber: 0 };
+}
+
+export const UnexplainedPhaseProto: MessageFns<UnexplainedPhaseProto> = {
+  encode(message: UnexplainedPhaseProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.projectId !== "") {
+      writer.uint32(10).string(message.projectId);
+    }
+    if (message.projectName !== "") {
+      writer.uint32(18).string(message.projectName);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(24).int32(message.phaseNumber);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UnexplainedPhaseProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUnexplainedPhaseProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectName = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UnexplainedPhaseProto {
+    return {
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      projectName: isSet(object.projectName)
+        ? globalThis.String(object.projectName)
+        : isSet(object.project_name)
+        ? globalThis.String(object.project_name)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+    };
+  },
+
+  toJSON(message: UnexplainedPhaseProto): unknown {
+    const obj: any = {};
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.projectName !== "") {
+      obj.projectName = message.projectName;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UnexplainedPhaseProto>, I>>(base?: I): UnexplainedPhaseProto {
+    return UnexplainedPhaseProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UnexplainedPhaseProto>, I>>(object: I): UnexplainedPhaseProto {
+    const message = createBaseUnexplainedPhaseProto();
+    message.projectId = object.projectId ?? "";
+    message.projectName = object.projectName ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    return message;
+  },
+};
+
+function createBaseGetGrowthResponse(): GetGrowthResponse {
+  return {
+    build: 0,
+    understand: 0,
+    explore: 0,
+    show: 0,
+    eraName: "",
+    eraBlurb: "",
+    eraIndex: 0,
+    nextEraName: "",
+    nextRequirements: [],
+    fogCount: 0,
+    unexplained: [],
+  };
+}
+
+export const GetGrowthResponse: MessageFns<GetGrowthResponse> = {
+  encode(message: GetGrowthResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.build !== 0) {
+      writer.uint32(8).int32(message.build);
+    }
+    if (message.understand !== 0) {
+      writer.uint32(16).int32(message.understand);
+    }
+    if (message.explore !== 0) {
+      writer.uint32(24).int32(message.explore);
+    }
+    if (message.show !== 0) {
+      writer.uint32(32).int32(message.show);
+    }
+    if (message.eraName !== "") {
+      writer.uint32(42).string(message.eraName);
+    }
+    if (message.eraBlurb !== "") {
+      writer.uint32(50).string(message.eraBlurb);
+    }
+    if (message.eraIndex !== 0) {
+      writer.uint32(56).int32(message.eraIndex);
+    }
+    if (message.nextEraName !== "") {
+      writer.uint32(66).string(message.nextEraName);
+    }
+    for (const v of message.nextRequirements) {
+      EraRequirementProto.encode(v!, writer.uint32(74).fork()).join();
+    }
+    if (message.fogCount !== 0) {
+      writer.uint32(80).int32(message.fogCount);
+    }
+    for (const v of message.unexplained) {
+      UnexplainedPhaseProto.encode(v!, writer.uint32(90).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetGrowthResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetGrowthResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.build = reader.int32();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.understand = reader.int32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.explore = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.show = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.eraName = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.eraBlurb = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.eraIndex = reader.int32();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.nextEraName = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.nextRequirements.push(EraRequirementProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.fogCount = reader.int32();
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.unexplained.push(UnexplainedPhaseProto.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetGrowthResponse {
+    return {
+      build: isSet(object.build) ? globalThis.Number(object.build) : 0,
+      understand: isSet(object.understand) ? globalThis.Number(object.understand) : 0,
+      explore: isSet(object.explore) ? globalThis.Number(object.explore) : 0,
+      show: isSet(object.show) ? globalThis.Number(object.show) : 0,
+      eraName: isSet(object.eraName)
+        ? globalThis.String(object.eraName)
+        : isSet(object.era_name)
+        ? globalThis.String(object.era_name)
+        : "",
+      eraBlurb: isSet(object.eraBlurb)
+        ? globalThis.String(object.eraBlurb)
+        : isSet(object.era_blurb)
+        ? globalThis.String(object.era_blurb)
+        : "",
+      eraIndex: isSet(object.eraIndex)
+        ? globalThis.Number(object.eraIndex)
+        : isSet(object.era_index)
+        ? globalThis.Number(object.era_index)
+        : 0,
+      nextEraName: isSet(object.nextEraName)
+        ? globalThis.String(object.nextEraName)
+        : isSet(object.next_era_name)
+        ? globalThis.String(object.next_era_name)
+        : "",
+      nextRequirements: globalThis.Array.isArray(object?.nextRequirements)
+        ? object.nextRequirements.map((e: any) => EraRequirementProto.fromJSON(e))
+        : globalThis.Array.isArray(object?.next_requirements)
+        ? object.next_requirements.map((e: any) => EraRequirementProto.fromJSON(e))
+        : [],
+      fogCount: isSet(object.fogCount)
+        ? globalThis.Number(object.fogCount)
+        : isSet(object.fog_count)
+        ? globalThis.Number(object.fog_count)
+        : 0,
+      unexplained: globalThis.Array.isArray(object?.unexplained)
+        ? object.unexplained.map((e: any) => UnexplainedPhaseProto.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GetGrowthResponse): unknown {
+    const obj: any = {};
+    if (message.build !== 0) {
+      obj.build = Math.round(message.build);
+    }
+    if (message.understand !== 0) {
+      obj.understand = Math.round(message.understand);
+    }
+    if (message.explore !== 0) {
+      obj.explore = Math.round(message.explore);
+    }
+    if (message.show !== 0) {
+      obj.show = Math.round(message.show);
+    }
+    if (message.eraName !== "") {
+      obj.eraName = message.eraName;
+    }
+    if (message.eraBlurb !== "") {
+      obj.eraBlurb = message.eraBlurb;
+    }
+    if (message.eraIndex !== 0) {
+      obj.eraIndex = Math.round(message.eraIndex);
+    }
+    if (message.nextEraName !== "") {
+      obj.nextEraName = message.nextEraName;
+    }
+    if (message.nextRequirements?.length) {
+      obj.nextRequirements = message.nextRequirements.map((e) => EraRequirementProto.toJSON(e));
+    }
+    if (message.fogCount !== 0) {
+      obj.fogCount = Math.round(message.fogCount);
+    }
+    if (message.unexplained?.length) {
+      obj.unexplained = message.unexplained.map((e) => UnexplainedPhaseProto.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetGrowthResponse>, I>>(base?: I): GetGrowthResponse {
+    return GetGrowthResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetGrowthResponse>, I>>(object: I): GetGrowthResponse {
+    const message = createBaseGetGrowthResponse();
+    message.build = object.build ?? 0;
+    message.understand = object.understand ?? 0;
+    message.explore = object.explore ?? 0;
+    message.show = object.show ?? 0;
+    message.eraName = object.eraName ?? "";
+    message.eraBlurb = object.eraBlurb ?? "";
+    message.eraIndex = object.eraIndex ?? 0;
+    message.nextEraName = object.nextEraName ?? "";
+    message.nextRequirements = object.nextRequirements?.map((e) => EraRequirementProto.fromPartial(e)) || [];
+    message.fogCount = object.fogCount ?? 0;
+    message.unexplained = object.unexplained?.map((e) => UnexplainedPhaseProto.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseStartCheckpointRequest(): StartCheckpointRequest {
+  return { email: "", projectId: "", phaseNumber: 0 };
+}
+
+export const StartCheckpointRequest: MessageFns<StartCheckpointRequest> = {
+  encode(message: StartCheckpointRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    if (message.projectId !== "") {
+      writer.uint32(18).string(message.projectId);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(24).int32(message.phaseNumber);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StartCheckpointRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStartCheckpointRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StartCheckpointRequest {
+    return {
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+    };
+  },
+
+  toJSON(message: StartCheckpointRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StartCheckpointRequest>, I>>(base?: I): StartCheckpointRequest {
+    return StartCheckpointRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StartCheckpointRequest>, I>>(object: I): StartCheckpointRequest {
+    const message = createBaseStartCheckpointRequest();
+    message.email = object.email ?? "";
+    message.projectId = object.projectId ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    return message;
+  },
+};
+
+function createBaseStartCheckpointResponse(): StartCheckpointResponse {
+  return { checkpointId: "", question: "" };
+}
+
+export const StartCheckpointResponse: MessageFns<StartCheckpointResponse> = {
+  encode(message: StartCheckpointResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.checkpointId !== "") {
+      writer.uint32(10).string(message.checkpointId);
+    }
+    if (message.question !== "") {
+      writer.uint32(18).string(message.question);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StartCheckpointResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStartCheckpointResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.checkpointId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.question = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StartCheckpointResponse {
+    return {
+      checkpointId: isSet(object.checkpointId)
+        ? globalThis.String(object.checkpointId)
+        : isSet(object.checkpoint_id)
+        ? globalThis.String(object.checkpoint_id)
+        : "",
+      question: isSet(object.question) ? globalThis.String(object.question) : "",
+    };
+  },
+
+  toJSON(message: StartCheckpointResponse): unknown {
+    const obj: any = {};
+    if (message.checkpointId !== "") {
+      obj.checkpointId = message.checkpointId;
+    }
+    if (message.question !== "") {
+      obj.question = message.question;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StartCheckpointResponse>, I>>(base?: I): StartCheckpointResponse {
+    return StartCheckpointResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StartCheckpointResponse>, I>>(object: I): StartCheckpointResponse {
+    const message = createBaseStartCheckpointResponse();
+    message.checkpointId = object.checkpointId ?? "";
+    message.question = object.question ?? "";
+    return message;
+  },
+};
+
+function createBaseSubmitCheckpointRequest(): SubmitCheckpointRequest {
+  return { email: "", checkpointId: "", answer: "" };
+}
+
+export const SubmitCheckpointRequest: MessageFns<SubmitCheckpointRequest> = {
+  encode(message: SubmitCheckpointRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    if (message.checkpointId !== "") {
+      writer.uint32(18).string(message.checkpointId);
+    }
+    if (message.answer !== "") {
+      writer.uint32(26).string(message.answer);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SubmitCheckpointRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSubmitCheckpointRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.checkpointId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.answer = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SubmitCheckpointRequest {
+    return {
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      checkpointId: isSet(object.checkpointId)
+        ? globalThis.String(object.checkpointId)
+        : isSet(object.checkpoint_id)
+        ? globalThis.String(object.checkpoint_id)
+        : "",
+      answer: isSet(object.answer) ? globalThis.String(object.answer) : "",
+    };
+  },
+
+  toJSON(message: SubmitCheckpointRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.checkpointId !== "") {
+      obj.checkpointId = message.checkpointId;
+    }
+    if (message.answer !== "") {
+      obj.answer = message.answer;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SubmitCheckpointRequest>, I>>(base?: I): SubmitCheckpointRequest {
+    return SubmitCheckpointRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SubmitCheckpointRequest>, I>>(object: I): SubmitCheckpointRequest {
+    const message = createBaseSubmitCheckpointRequest();
+    message.email = object.email ?? "";
+    message.checkpointId = object.checkpointId ?? "";
+    message.answer = object.answer ?? "";
+    return message;
+  },
+};
+
+function createBaseSubmitCheckpointResponse(): SubmitCheckpointResponse {
+  return { passed: false, feedback: "", missingConcepts: [] };
+}
+
+export const SubmitCheckpointResponse: MessageFns<SubmitCheckpointResponse> = {
+  encode(message: SubmitCheckpointResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.passed !== false) {
+      writer.uint32(8).bool(message.passed);
+    }
+    if (message.feedback !== "") {
+      writer.uint32(18).string(message.feedback);
+    }
+    for (const v of message.missingConcepts) {
+      writer.uint32(26).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SubmitCheckpointResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSubmitCheckpointResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.passed = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.feedback = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.missingConcepts.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SubmitCheckpointResponse {
+    return {
+      passed: isSet(object.passed) ? globalThis.Boolean(object.passed) : false,
+      feedback: isSet(object.feedback) ? globalThis.String(object.feedback) : "",
+      missingConcepts: globalThis.Array.isArray(object?.missingConcepts)
+        ? object.missingConcepts.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.missing_concepts)
+        ? object.missing_concepts.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: SubmitCheckpointResponse): unknown {
+    const obj: any = {};
+    if (message.passed !== false) {
+      obj.passed = message.passed;
+    }
+    if (message.feedback !== "") {
+      obj.feedback = message.feedback;
+    }
+    if (message.missingConcepts?.length) {
+      obj.missingConcepts = message.missingConcepts;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SubmitCheckpointResponse>, I>>(base?: I): SubmitCheckpointResponse {
+    return SubmitCheckpointResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SubmitCheckpointResponse>, I>>(object: I): SubmitCheckpointResponse {
+    const message = createBaseSubmitCheckpointResponse();
+    message.passed = object.passed ?? false;
+    message.feedback = object.feedback ?? "";
+    message.missingConcepts = object.missingConcepts?.map((e) => e) || [];
+    return message;
+  },
+};
 
 function createBaseCreateUserProjectRequest(): CreateUserProjectRequest {
   return { projectId: "", email: "", status: "", currentPhase: 0 };
@@ -1634,6 +2594,50 @@ export const UserProjectServiceService = {
       Buffer.from(SubmitPhaseReviewResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): SubmitPhaseReviewResponse => SubmitPhaseReviewResponse.decode(value),
   },
+  /**
+   * The growth record: four stats, current era, and what the next one needs.
+   *
+   * Everything returned is derived from rows the user's own actions created —
+   * nothing is a stored score. The four stats are deliberately returned
+   * separately and never summed: a single number would let output stand in for
+   * comprehension, which is the substitution this product exists to prevent.
+   */
+  getGrowth: {
+    path: "/userProject.UserProjectService/GetGrowth" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetGrowthRequest): Buffer => Buffer.from(GetGrowthRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetGrowthRequest => GetGrowthRequest.decode(value),
+    responseSerialize: (value: GetGrowthResponse): Buffer => Buffer.from(GetGrowthResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetGrowthResponse => GetGrowthResponse.decode(value),
+  },
+  /**
+   * Begins an explain-it-back checkpoint on a phase the user has completed,
+   * returning a question grounded in the code they actually wrote.
+   */
+  startCheckpoint: {
+    path: "/userProject.UserProjectService/StartCheckpoint" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: StartCheckpointRequest): Buffer =>
+      Buffer.from(StartCheckpointRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): StartCheckpointRequest => StartCheckpointRequest.decode(value),
+    responseSerialize: (value: StartCheckpointResponse): Buffer =>
+      Buffer.from(StartCheckpointResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): StartCheckpointResponse => StartCheckpointResponse.decode(value),
+  },
+  /** Grades a checkpoint explanation. Passing is the only thing that clears fog. */
+  submitCheckpoint: {
+    path: "/userProject.UserProjectService/SubmitCheckpoint" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SubmitCheckpointRequest): Buffer =>
+      Buffer.from(SubmitCheckpointRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SubmitCheckpointRequest => SubmitCheckpointRequest.decode(value),
+    responseSerialize: (value: SubmitCheckpointResponse): Buffer =>
+      Buffer.from(SubmitCheckpointResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SubmitCheckpointResponse => SubmitCheckpointResponse.decode(value),
+  },
 } as const;
 
 export interface UserProjectServiceServer extends UntypedServiceImplementation {
@@ -1664,6 +2668,22 @@ export interface UserProjectServiceServer extends UntypedServiceImplementation {
    * caller's own enrollment, so none of them can be spoofed by the client.
    */
   submitPhaseReview: handleUnaryCall<SubmitPhaseReviewRequest, SubmitPhaseReviewResponse>;
+  /**
+   * The growth record: four stats, current era, and what the next one needs.
+   *
+   * Everything returned is derived from rows the user's own actions created —
+   * nothing is a stored score. The four stats are deliberately returned
+   * separately and never summed: a single number would let output stand in for
+   * comprehension, which is the substitution this product exists to prevent.
+   */
+  getGrowth: handleUnaryCall<GetGrowthRequest, GetGrowthResponse>;
+  /**
+   * Begins an explain-it-back checkpoint on a phase the user has completed,
+   * returning a question grounded in the code they actually wrote.
+   */
+  startCheckpoint: handleUnaryCall<StartCheckpointRequest, StartCheckpointResponse>;
+  /** Grades a checkpoint explanation. Passing is the only thing that clears fog. */
+  submitCheckpoint: handleUnaryCall<SubmitCheckpointRequest, SubmitCheckpointResponse>;
 }
 
 export interface UserProjectServiceClient extends Client {
@@ -1777,6 +2797,64 @@ export interface UserProjectServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: SubmitPhaseReviewResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * The growth record: four stats, current era, and what the next one needs.
+   *
+   * Everything returned is derived from rows the user's own actions created —
+   * nothing is a stored score. The four stats are deliberately returned
+   * separately and never summed: a single number would let output stand in for
+   * comprehension, which is the substitution this product exists to prevent.
+   */
+  getGrowth(
+    request: GetGrowthRequest,
+    callback: (error: ServiceError | null, response: GetGrowthResponse) => void,
+  ): ClientUnaryCall;
+  getGrowth(
+    request: GetGrowthRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetGrowthResponse) => void,
+  ): ClientUnaryCall;
+  getGrowth(
+    request: GetGrowthRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetGrowthResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Begins an explain-it-back checkpoint on a phase the user has completed,
+   * returning a question grounded in the code they actually wrote.
+   */
+  startCheckpoint(
+    request: StartCheckpointRequest,
+    callback: (error: ServiceError | null, response: StartCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  startCheckpoint(
+    request: StartCheckpointRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: StartCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  startCheckpoint(
+    request: StartCheckpointRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: StartCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  /** Grades a checkpoint explanation. Passing is the only thing that clears fog. */
+  submitCheckpoint(
+    request: SubmitCheckpointRequest,
+    callback: (error: ServiceError | null, response: SubmitCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  submitCheckpoint(
+    request: SubmitCheckpointRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SubmitCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  submitCheckpoint(
+    request: SubmitCheckpointRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SubmitCheckpointResponse) => void,
   ): ClientUnaryCall;
 }
 

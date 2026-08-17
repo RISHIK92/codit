@@ -5,6 +5,7 @@ import { useAuthStore, useDashboardStore } from "@/lib/stores";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Archive } from "lucide-react";
+import { GrowthPanel } from "@/components/dashboard/GrowthPanel";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -215,6 +216,14 @@ export default function DashboardPage() {
 
   return (
     <div className="p-8 md:p-12 w-full bg-surface">
+      {/* ── GROWTH RECORD ──
+          Four separate stats and a named era. No combined score anywhere: a
+          single number would let shipping stand in for understanding, and
+          keeping those apart is the whole point of this panel. */}
+      <div className="mb-12">
+        <GrowthPanel getToken={() => user!.getIdToken()} />
+      </div>
+
       {/* ── CURRENT PROJECT HERO CARD ── */}
       <div className="bg-void border border-border-s rounded-[4px] p-8 lg:p-10 mb-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_20%_30%,rgba(127,255,212,0.03)_0%,transparent_70%)] pointer-events-none" />

@@ -213,6 +213,45 @@ model ReviewCriterionResult {
   @@index([criterion_id])
 }
 
+/**
+ * An "explain it back" checkpoint: the user describes, in their own words, how
+ * something they built actually works.
+ * This is the only mechanism in the system that can evidence comprehension
+ * rather than output. Knowledge checks come close but are authored in advance
+ * and can be pattern-matched; a review proves the code works, which is not the
+ * same claim at all. Someone who prompted their way to a working phase can pass
+ * every other gate here and will not pass this one.
+ * It is also what fills the `conceptual` criterion slot that Phase 1 left
+ * deliberately unauthored, and what clears fog — fog being phases shipped but
+ * never explained back.
+ */
+model UnderstandingCheckpoint {
+  id               String   @id @default(uuid())
+  user_email       String
+  project_id       String
+  phase_number     Int
+  /**
+   * What they were asked to explain. Stored so a checkpoint stays meaningful
+   * after the generating prompt changes.
+   */
+  question         String
+  answer           String   @default("")
+  passed           Boolean  @default(false)
+  /**
+   * Why it passed or didn't — shown back, and the record of what was missing.
+   */
+  feedback         String   @default("")
+  /**
+   * Concepts the grader judged absent. Feeds what to revisit.
+   */
+  missing_concepts String[] @default([])
+  model            String   @default("")
+  created_at       DateTime @default(now())
+
+  @@index([user_email, project_id])
+  @@index([user_email, project_id, phase_number])
+}
+
 enum ResultSource {
   /**
    * Decided in code — no model involved, no judgement to second-guess.

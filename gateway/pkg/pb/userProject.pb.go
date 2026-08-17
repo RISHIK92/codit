@@ -23,6 +23,537 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GetGrowthRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGrowthRequest) Reset() {
+	*x = GetGrowthRequest{}
+	mi := &file_userProject_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGrowthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGrowthRequest) ProtoMessage() {}
+
+func (x *GetGrowthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGrowthRequest.ProtoReflect.Descriptor instead.
+func (*GetGrowthRequest) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetGrowthRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type EraRequirementProto struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"` // phrased for a human; shown verbatim
+	Met           bool                   `protobuf:"varint,2,opt,name=met,proto3" json:"met,omitempty"`
+	Have          int32                  `protobuf:"varint,3,opt,name=have,proto3" json:"have,omitempty"`
+	Need          int32                  `protobuf:"varint,4,opt,name=need,proto3" json:"need,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EraRequirementProto) Reset() {
+	*x = EraRequirementProto{}
+	mi := &file_userProject_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EraRequirementProto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EraRequirementProto) ProtoMessage() {}
+
+func (x *EraRequirementProto) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EraRequirementProto.ProtoReflect.Descriptor instead.
+func (*EraRequirementProto) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *EraRequirementProto) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *EraRequirementProto) GetMet() bool {
+	if x != nil {
+		return x.Met
+	}
+	return false
+}
+
+func (x *EraRequirementProto) GetHave() int32 {
+	if x != nil {
+		return x.Have
+	}
+	return 0
+}
+
+func (x *EraRequirementProto) GetNeed() int32 {
+	if x != nil {
+		return x.Need
+	}
+	return 0
+}
+
+type UnexplainedPhaseProto struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	ProjectName   string                 `protobuf:"bytes,2,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
+	PhaseNumber   int32                  `protobuf:"varint,3,opt,name=phase_number,json=phaseNumber,proto3" json:"phase_number,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnexplainedPhaseProto) Reset() {
+	*x = UnexplainedPhaseProto{}
+	mi := &file_userProject_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnexplainedPhaseProto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnexplainedPhaseProto) ProtoMessage() {}
+
+func (x *UnexplainedPhaseProto) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnexplainedPhaseProto.ProtoReflect.Descriptor instead.
+func (*UnexplainedPhaseProto) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UnexplainedPhaseProto) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *UnexplainedPhaseProto) GetProjectName() string {
+	if x != nil {
+		return x.ProjectName
+	}
+	return ""
+}
+
+func (x *UnexplainedPhaseProto) GetPhaseNumber() int32 {
+	if x != nil {
+		return x.PhaseNumber
+	}
+	return 0
+}
+
+type GetGrowthResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Never blended. Four numbers, always four.
+	Build            int32                  `protobuf:"varint,1,opt,name=build,proto3" json:"build,omitempty"`
+	Understand       int32                  `protobuf:"varint,2,opt,name=understand,proto3" json:"understand,omitempty"`
+	Explore          int32                  `protobuf:"varint,3,opt,name=explore,proto3" json:"explore,omitempty"`
+	Show             int32                  `protobuf:"varint,4,opt,name=show,proto3" json:"show,omitempty"`
+	EraName          string                 `protobuf:"bytes,5,opt,name=era_name,json=eraName,proto3" json:"era_name,omitempty"`
+	EraBlurb         string                 `protobuf:"bytes,6,opt,name=era_blurb,json=eraBlurb,proto3" json:"era_blurb,omitempty"`
+	EraIndex         int32                  `protobuf:"varint,7,opt,name=era_index,json=eraIndex,proto3" json:"era_index,omitempty"`
+	NextEraName      string                 `protobuf:"bytes,8,opt,name=next_era_name,json=nextEraName,proto3" json:"next_era_name,omitempty"`
+	NextRequirements []*EraRequirementProto `protobuf:"bytes,9,rep,name=next_requirements,json=nextRequirements,proto3" json:"next_requirements,omitempty"`
+	// Fog: work shipped but never explained back. A property of the record, not
+	// a judgement about the person.
+	FogCount      int32                    `protobuf:"varint,10,opt,name=fog_count,json=fogCount,proto3" json:"fog_count,omitempty"`
+	Unexplained   []*UnexplainedPhaseProto `protobuf:"bytes,11,rep,name=unexplained,proto3" json:"unexplained,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGrowthResponse) Reset() {
+	*x = GetGrowthResponse{}
+	mi := &file_userProject_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGrowthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGrowthResponse) ProtoMessage() {}
+
+func (x *GetGrowthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGrowthResponse.ProtoReflect.Descriptor instead.
+func (*GetGrowthResponse) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetGrowthResponse) GetBuild() int32 {
+	if x != nil {
+		return x.Build
+	}
+	return 0
+}
+
+func (x *GetGrowthResponse) GetUnderstand() int32 {
+	if x != nil {
+		return x.Understand
+	}
+	return 0
+}
+
+func (x *GetGrowthResponse) GetExplore() int32 {
+	if x != nil {
+		return x.Explore
+	}
+	return 0
+}
+
+func (x *GetGrowthResponse) GetShow() int32 {
+	if x != nil {
+		return x.Show
+	}
+	return 0
+}
+
+func (x *GetGrowthResponse) GetEraName() string {
+	if x != nil {
+		return x.EraName
+	}
+	return ""
+}
+
+func (x *GetGrowthResponse) GetEraBlurb() string {
+	if x != nil {
+		return x.EraBlurb
+	}
+	return ""
+}
+
+func (x *GetGrowthResponse) GetEraIndex() int32 {
+	if x != nil {
+		return x.EraIndex
+	}
+	return 0
+}
+
+func (x *GetGrowthResponse) GetNextEraName() string {
+	if x != nil {
+		return x.NextEraName
+	}
+	return ""
+}
+
+func (x *GetGrowthResponse) GetNextRequirements() []*EraRequirementProto {
+	if x != nil {
+		return x.NextRequirements
+	}
+	return nil
+}
+
+func (x *GetGrowthResponse) GetFogCount() int32 {
+	if x != nil {
+		return x.FogCount
+	}
+	return 0
+}
+
+func (x *GetGrowthResponse) GetUnexplained() []*UnexplainedPhaseProto {
+	if x != nil {
+		return x.Unexplained
+	}
+	return nil
+}
+
+type StartCheckpointRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	PhaseNumber   int32                  `protobuf:"varint,3,opt,name=phase_number,json=phaseNumber,proto3" json:"phase_number,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartCheckpointRequest) Reset() {
+	*x = StartCheckpointRequest{}
+	mi := &file_userProject_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartCheckpointRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartCheckpointRequest) ProtoMessage() {}
+
+func (x *StartCheckpointRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartCheckpointRequest.ProtoReflect.Descriptor instead.
+func (*StartCheckpointRequest) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StartCheckpointRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *StartCheckpointRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *StartCheckpointRequest) GetPhaseNumber() int32 {
+	if x != nil {
+		return x.PhaseNumber
+	}
+	return 0
+}
+
+type StartCheckpointResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CheckpointId  string                 `protobuf:"bytes,1,opt,name=checkpoint_id,json=checkpointId,proto3" json:"checkpoint_id,omitempty"`
+	Question      string                 `protobuf:"bytes,2,opt,name=question,proto3" json:"question,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartCheckpointResponse) Reset() {
+	*x = StartCheckpointResponse{}
+	mi := &file_userProject_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartCheckpointResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartCheckpointResponse) ProtoMessage() {}
+
+func (x *StartCheckpointResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartCheckpointResponse.ProtoReflect.Descriptor instead.
+func (*StartCheckpointResponse) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *StartCheckpointResponse) GetCheckpointId() string {
+	if x != nil {
+		return x.CheckpointId
+	}
+	return ""
+}
+
+func (x *StartCheckpointResponse) GetQuestion() string {
+	if x != nil {
+		return x.Question
+	}
+	return ""
+}
+
+type SubmitCheckpointRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	CheckpointId  string                 `protobuf:"bytes,2,opt,name=checkpoint_id,json=checkpointId,proto3" json:"checkpoint_id,omitempty"`
+	Answer        string                 `protobuf:"bytes,3,opt,name=answer,proto3" json:"answer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitCheckpointRequest) Reset() {
+	*x = SubmitCheckpointRequest{}
+	mi := &file_userProject_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitCheckpointRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitCheckpointRequest) ProtoMessage() {}
+
+func (x *SubmitCheckpointRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitCheckpointRequest.ProtoReflect.Descriptor instead.
+func (*SubmitCheckpointRequest) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SubmitCheckpointRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *SubmitCheckpointRequest) GetCheckpointId() string {
+	if x != nil {
+		return x.CheckpointId
+	}
+	return ""
+}
+
+func (x *SubmitCheckpointRequest) GetAnswer() string {
+	if x != nil {
+		return x.Answer
+	}
+	return ""
+}
+
+type SubmitCheckpointResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Passed          bool                   `protobuf:"varint,1,opt,name=passed,proto3" json:"passed,omitempty"`
+	Feedback        string                 `protobuf:"bytes,2,opt,name=feedback,proto3" json:"feedback,omitempty"`
+	MissingConcepts []string               `protobuf:"bytes,3,rep,name=missing_concepts,json=missingConcepts,proto3" json:"missing_concepts,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SubmitCheckpointResponse) Reset() {
+	*x = SubmitCheckpointResponse{}
+	mi := &file_userProject_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitCheckpointResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitCheckpointResponse) ProtoMessage() {}
+
+func (x *SubmitCheckpointResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitCheckpointResponse.ProtoReflect.Descriptor instead.
+func (*SubmitCheckpointResponse) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SubmitCheckpointResponse) GetPassed() bool {
+	if x != nil {
+		return x.Passed
+	}
+	return false
+}
+
+func (x *SubmitCheckpointResponse) GetFeedback() string {
+	if x != nil {
+		return x.Feedback
+	}
+	return ""
+}
+
+func (x *SubmitCheckpointResponse) GetMissingConcepts() []string {
+	if x != nil {
+		return x.MissingConcepts
+	}
+	return nil
+}
+
 type CreateUserProjectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
@@ -35,7 +566,7 @@ type CreateUserProjectRequest struct {
 
 func (x *CreateUserProjectRequest) Reset() {
 	*x = CreateUserProjectRequest{}
-	mi := &file_userProject_proto_msgTypes[0]
+	mi := &file_userProject_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +578,7 @@ func (x *CreateUserProjectRequest) String() string {
 func (*CreateUserProjectRequest) ProtoMessage() {}
 
 func (x *CreateUserProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[0]
+	mi := &file_userProject_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +591,7 @@ func (x *CreateUserProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUserProjectRequest.ProtoReflect.Descriptor instead.
 func (*CreateUserProjectRequest) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{0}
+	return file_userProject_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateUserProjectRequest) GetProjectId() string {
@@ -100,7 +631,7 @@ type CreateUserProjectResponse struct {
 
 func (x *CreateUserProjectResponse) Reset() {
 	*x = CreateUserProjectResponse{}
-	mi := &file_userProject_proto_msgTypes[1]
+	mi := &file_userProject_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -112,7 +643,7 @@ func (x *CreateUserProjectResponse) String() string {
 func (*CreateUserProjectResponse) ProtoMessage() {}
 
 func (x *CreateUserProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[1]
+	mi := &file_userProject_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -125,7 +656,7 @@ func (x *CreateUserProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUserProjectResponse.ProtoReflect.Descriptor instead.
 func (*CreateUserProjectResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{1}
+	return file_userProject_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateUserProjectResponse) GetSuccess() bool {
@@ -144,7 +675,7 @@ type GetUserProjectByIdRequest struct {
 
 func (x *GetUserProjectByIdRequest) Reset() {
 	*x = GetUserProjectByIdRequest{}
-	mi := &file_userProject_proto_msgTypes[2]
+	mi := &file_userProject_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -156,7 +687,7 @@ func (x *GetUserProjectByIdRequest) String() string {
 func (*GetUserProjectByIdRequest) ProtoMessage() {}
 
 func (x *GetUserProjectByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[2]
+	mi := &file_userProject_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -169,7 +700,7 @@ func (x *GetUserProjectByIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserProjectByIdRequest.ProtoReflect.Descriptor instead.
 func (*GetUserProjectByIdRequest) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{2}
+	return file_userProject_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetUserProjectByIdRequest) GetProjectId() string {
@@ -188,7 +719,7 @@ type GetUserProjectByIdResponse struct {
 
 func (x *GetUserProjectByIdResponse) Reset() {
 	*x = GetUserProjectByIdResponse{}
-	mi := &file_userProject_proto_msgTypes[3]
+	mi := &file_userProject_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +731,7 @@ func (x *GetUserProjectByIdResponse) String() string {
 func (*GetUserProjectByIdResponse) ProtoMessage() {}
 
 func (x *GetUserProjectByIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[3]
+	mi := &file_userProject_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +744,7 @@ func (x *GetUserProjectByIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserProjectByIdResponse.ProtoReflect.Descriptor instead.
 func (*GetUserProjectByIdResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{3}
+	return file_userProject_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetUserProjectByIdResponse) GetUserProject() *UserProject {
@@ -232,7 +763,7 @@ type GetAllUserProjectsRequest struct {
 
 func (x *GetAllUserProjectsRequest) Reset() {
 	*x = GetAllUserProjectsRequest{}
-	mi := &file_userProject_proto_msgTypes[4]
+	mi := &file_userProject_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -244,7 +775,7 @@ func (x *GetAllUserProjectsRequest) String() string {
 func (*GetAllUserProjectsRequest) ProtoMessage() {}
 
 func (x *GetAllUserProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[4]
+	mi := &file_userProject_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -257,7 +788,7 @@ func (x *GetAllUserProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllUserProjectsRequest.ProtoReflect.Descriptor instead.
 func (*GetAllUserProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{4}
+	return file_userProject_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetAllUserProjectsRequest) GetEmail() string {
@@ -276,7 +807,7 @@ type GetAllUserProjectsResponse struct {
 
 func (x *GetAllUserProjectsResponse) Reset() {
 	*x = GetAllUserProjectsResponse{}
-	mi := &file_userProject_proto_msgTypes[5]
+	mi := &file_userProject_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -288,7 +819,7 @@ func (x *GetAllUserProjectsResponse) String() string {
 func (*GetAllUserProjectsResponse) ProtoMessage() {}
 
 func (x *GetAllUserProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[5]
+	mi := &file_userProject_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -301,7 +832,7 @@ func (x *GetAllUserProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllUserProjectsResponse.ProtoReflect.Descriptor instead.
 func (*GetAllUserProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{5}
+	return file_userProject_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetAllUserProjectsResponse) GetUserProjects() []*UserProject {
@@ -324,7 +855,7 @@ type UserProject struct {
 
 func (x *UserProject) Reset() {
 	*x = UserProject{}
-	mi := &file_userProject_proto_msgTypes[6]
+	mi := &file_userProject_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -336,7 +867,7 @@ func (x *UserProject) String() string {
 func (*UserProject) ProtoMessage() {}
 
 func (x *UserProject) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[6]
+	mi := &file_userProject_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -349,7 +880,7 @@ func (x *UserProject) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserProject.ProtoReflect.Descriptor instead.
 func (*UserProject) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{6}
+	return file_userProject_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UserProject) GetProjectId() string {
@@ -397,7 +928,7 @@ type GetUserProjectsByStatusRequest struct {
 
 func (x *GetUserProjectsByStatusRequest) Reset() {
 	*x = GetUserProjectsByStatusRequest{}
-	mi := &file_userProject_proto_msgTypes[7]
+	mi := &file_userProject_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -409,7 +940,7 @@ func (x *GetUserProjectsByStatusRequest) String() string {
 func (*GetUserProjectsByStatusRequest) ProtoMessage() {}
 
 func (x *GetUserProjectsByStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[7]
+	mi := &file_userProject_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -422,7 +953,7 @@ func (x *GetUserProjectsByStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserProjectsByStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetUserProjectsByStatusRequest) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{7}
+	return file_userProject_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetUserProjectsByStatusRequest) GetEmail() string {
@@ -448,7 +979,7 @@ type GetUserProjectsByStatusResponse struct {
 
 func (x *GetUserProjectsByStatusResponse) Reset() {
 	*x = GetUserProjectsByStatusResponse{}
-	mi := &file_userProject_proto_msgTypes[8]
+	mi := &file_userProject_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +991,7 @@ func (x *GetUserProjectsByStatusResponse) String() string {
 func (*GetUserProjectsByStatusResponse) ProtoMessage() {}
 
 func (x *GetUserProjectsByStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[8]
+	mi := &file_userProject_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +1004,7 @@ func (x *GetUserProjectsByStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserProjectsByStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetUserProjectsByStatusResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{8}
+	return file_userProject_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetUserProjectsByStatusResponse) GetUserProjects() []*UserProject {
@@ -494,7 +1025,7 @@ type SetUserProjectArchivedRequest struct {
 
 func (x *SetUserProjectArchivedRequest) Reset() {
 	*x = SetUserProjectArchivedRequest{}
-	mi := &file_userProject_proto_msgTypes[9]
+	mi := &file_userProject_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -506,7 +1037,7 @@ func (x *SetUserProjectArchivedRequest) String() string {
 func (*SetUserProjectArchivedRequest) ProtoMessage() {}
 
 func (x *SetUserProjectArchivedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[9]
+	mi := &file_userProject_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +1050,7 @@ func (x *SetUserProjectArchivedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetUserProjectArchivedRequest.ProtoReflect.Descriptor instead.
 func (*SetUserProjectArchivedRequest) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{9}
+	return file_userProject_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *SetUserProjectArchivedRequest) GetProjectId() string {
@@ -552,7 +1083,7 @@ type SetUserProjectArchivedResponse struct {
 
 func (x *SetUserProjectArchivedResponse) Reset() {
 	*x = SetUserProjectArchivedResponse{}
-	mi := &file_userProject_proto_msgTypes[10]
+	mi := &file_userProject_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -564,7 +1095,7 @@ func (x *SetUserProjectArchivedResponse) String() string {
 func (*SetUserProjectArchivedResponse) ProtoMessage() {}
 
 func (x *SetUserProjectArchivedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[10]
+	mi := &file_userProject_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,7 +1108,7 @@ func (x *SetUserProjectArchivedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetUserProjectArchivedResponse.ProtoReflect.Descriptor instead.
 func (*SetUserProjectArchivedResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{10}
+	return file_userProject_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SetUserProjectArchivedResponse) GetUserProject() *UserProject {
@@ -601,7 +1132,7 @@ type SubmitPhaseReviewRequest struct {
 
 func (x *SubmitPhaseReviewRequest) Reset() {
 	*x = SubmitPhaseReviewRequest{}
-	mi := &file_userProject_proto_msgTypes[11]
+	mi := &file_userProject_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -613,7 +1144,7 @@ func (x *SubmitPhaseReviewRequest) String() string {
 func (*SubmitPhaseReviewRequest) ProtoMessage() {}
 
 func (x *SubmitPhaseReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[11]
+	mi := &file_userProject_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -626,7 +1157,7 @@ func (x *SubmitPhaseReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitPhaseReviewRequest.ProtoReflect.Descriptor instead.
 func (*SubmitPhaseReviewRequest) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{11}
+	return file_userProject_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SubmitPhaseReviewRequest) GetProjectId() string {
@@ -676,7 +1207,7 @@ type CriterionResultProto struct {
 
 func (x *CriterionResultProto) Reset() {
 	*x = CriterionResultProto{}
-	mi := &file_userProject_proto_msgTypes[12]
+	mi := &file_userProject_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -688,7 +1219,7 @@ func (x *CriterionResultProto) String() string {
 func (*CriterionResultProto) ProtoMessage() {}
 
 func (x *CriterionResultProto) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[12]
+	mi := &file_userProject_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -701,7 +1232,7 @@ func (x *CriterionResultProto) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CriterionResultProto.ProtoReflect.Descriptor instead.
 func (*CriterionResultProto) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{12}
+	return file_userProject_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CriterionResultProto) GetCriterionId() string {
@@ -797,7 +1328,7 @@ type SubmitPhaseReviewResponse struct {
 
 func (x *SubmitPhaseReviewResponse) Reset() {
 	*x = SubmitPhaseReviewResponse{}
-	mi := &file_userProject_proto_msgTypes[13]
+	mi := &file_userProject_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -809,7 +1340,7 @@ func (x *SubmitPhaseReviewResponse) String() string {
 func (*SubmitPhaseReviewResponse) ProtoMessage() {}
 
 func (x *SubmitPhaseReviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[13]
+	mi := &file_userProject_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -822,7 +1353,7 @@ func (x *SubmitPhaseReviewResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitPhaseReviewResponse.ProtoReflect.Descriptor instead.
 func (*SubmitPhaseReviewResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{13}
+	return file_userProject_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SubmitPhaseReviewResponse) GetVerdict() string {
@@ -892,7 +1423,50 @@ var File_userProject_proto protoreflect.FileDescriptor
 
 const file_userProject_proto_rawDesc = "" +
 	"\n" +
-	"\x11userProject.proto\x12\vuserProject\"\x8c\x01\n" +
+	"\x11userProject.proto\x12\vuserProject\"(\n" +
+	"\x10GetGrowthRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"e\n" +
+	"\x13EraRequirementProto\x12\x14\n" +
+	"\x05label\x18\x01 \x01(\tR\x05label\x12\x10\n" +
+	"\x03met\x18\x02 \x01(\bR\x03met\x12\x12\n" +
+	"\x04have\x18\x03 \x01(\x05R\x04have\x12\x12\n" +
+	"\x04need\x18\x04 \x01(\x05R\x04need\"|\n" +
+	"\x15UnexplainedPhaseProto\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12!\n" +
+	"\fproject_name\x18\x02 \x01(\tR\vprojectName\x12!\n" +
+	"\fphase_number\x18\x03 \x01(\x05R\vphaseNumber\"\xa2\x03\n" +
+	"\x11GetGrowthResponse\x12\x14\n" +
+	"\x05build\x18\x01 \x01(\x05R\x05build\x12\x1e\n" +
+	"\n" +
+	"understand\x18\x02 \x01(\x05R\n" +
+	"understand\x12\x18\n" +
+	"\aexplore\x18\x03 \x01(\x05R\aexplore\x12\x12\n" +
+	"\x04show\x18\x04 \x01(\x05R\x04show\x12\x19\n" +
+	"\bera_name\x18\x05 \x01(\tR\aeraName\x12\x1b\n" +
+	"\tera_blurb\x18\x06 \x01(\tR\beraBlurb\x12\x1b\n" +
+	"\tera_index\x18\a \x01(\x05R\beraIndex\x12\"\n" +
+	"\rnext_era_name\x18\b \x01(\tR\vnextEraName\x12M\n" +
+	"\x11next_requirements\x18\t \x03(\v2 .userProject.EraRequirementProtoR\x10nextRequirements\x12\x1b\n" +
+	"\tfog_count\x18\n" +
+	" \x01(\x05R\bfogCount\x12D\n" +
+	"\vunexplained\x18\v \x03(\v2\".userProject.UnexplainedPhaseProtoR\vunexplained\"p\n" +
+	"\x16StartCheckpointRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\x12!\n" +
+	"\fphase_number\x18\x03 \x01(\x05R\vphaseNumber\"Z\n" +
+	"\x17StartCheckpointResponse\x12#\n" +
+	"\rcheckpoint_id\x18\x01 \x01(\tR\fcheckpointId\x12\x1a\n" +
+	"\bquestion\x18\x02 \x01(\tR\bquestion\"l\n" +
+	"\x17SubmitCheckpointRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12#\n" +
+	"\rcheckpoint_id\x18\x02 \x01(\tR\fcheckpointId\x12\x16\n" +
+	"\x06answer\x18\x03 \x01(\tR\x06answer\"y\n" +
+	"\x18SubmitCheckpointResponse\x12\x16\n" +
+	"\x06passed\x18\x01 \x01(\bR\x06passed\x12\x1a\n" +
+	"\bfeedback\x18\x02 \x01(\tR\bfeedback\x12)\n" +
+	"\x10missing_concepts\x18\x03 \x03(\tR\x0fmissingConcepts\"\x8c\x01\n" +
 	"\x18CreateUserProjectRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
@@ -953,14 +1527,17 @@ const file_userProject_proto_rawDesc = "" +
 	"\x0echecks_correct\x18\x06 \x01(\x05R\rchecksCorrect\x12;\n" +
 	"\aresults\x18\a \x03(\v2!.userProject.CriterionResultProtoR\aresults\x12%\n" +
 	"\x0ecriteria_total\x18\b \x01(\x05R\rcriteriaTotal\x12'\n" +
-	"\x0fcriteria_passed\x18\t \x01(\x05R\x0ecriteriaPassed2\x8f\x05\n" +
+	"\x0fcriteria_passed\x18\t \x01(\x05R\x0ecriteriaPassed2\x9a\a\n" +
 	"\x12UserProjectService\x12^\n" +
 	"\rCreateProject\x12%.userProject.CreateUserProjectRequest\x1a&.userProject.CreateUserProjectResponse\x12e\n" +
 	"\x12GetUserProjectById\x12&.userProject.GetUserProjectByIdRequest\x1a'.userProject.GetUserProjectByIdResponse\x12e\n" +
 	"\x12GetAllUserProjects\x12&.userProject.GetAllUserProjectsRequest\x1a'.userProject.GetAllUserProjectsResponse\x12t\n" +
 	"\x17GetUserProjectsByStatus\x12+.userProject.GetUserProjectsByStatusRequest\x1a,.userProject.GetUserProjectsByStatusResponse\x12q\n" +
 	"\x16SetUserProjectArchived\x12*.userProject.SetUserProjectArchivedRequest\x1a+.userProject.SetUserProjectArchivedResponse\x12b\n" +
-	"\x11SubmitPhaseReview\x12%.userProject.SubmitPhaseReviewRequest\x1a&.userProject.SubmitPhaseReviewResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\x11SubmitPhaseReview\x12%.userProject.SubmitPhaseReviewRequest\x1a&.userProject.SubmitPhaseReviewResponse\x12J\n" +
+	"\tGetGrowth\x12\x1d.userProject.GetGrowthRequest\x1a\x1e.userProject.GetGrowthResponse\x12\\\n" +
+	"\x0fStartCheckpoint\x12#.userProject.StartCheckpointRequest\x1a$.userProject.StartCheckpointResponse\x12_\n" +
+	"\x10SubmitCheckpoint\x12$.userProject.SubmitCheckpointRequest\x1a%.userProject.SubmitCheckpointResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_userProject_proto_rawDescOnce sync.Once
@@ -974,46 +1551,62 @@ func file_userProject_proto_rawDescGZIP() []byte {
 	return file_userProject_proto_rawDescData
 }
 
-var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_userProject_proto_goTypes = []any{
-	(*CreateUserProjectRequest)(nil),        // 0: userProject.CreateUserProjectRequest
-	(*CreateUserProjectResponse)(nil),       // 1: userProject.CreateUserProjectResponse
-	(*GetUserProjectByIdRequest)(nil),       // 2: userProject.GetUserProjectByIdRequest
-	(*GetUserProjectByIdResponse)(nil),      // 3: userProject.GetUserProjectByIdResponse
-	(*GetAllUserProjectsRequest)(nil),       // 4: userProject.GetAllUserProjectsRequest
-	(*GetAllUserProjectsResponse)(nil),      // 5: userProject.GetAllUserProjectsResponse
-	(*UserProject)(nil),                     // 6: userProject.UserProject
-	(*GetUserProjectsByStatusRequest)(nil),  // 7: userProject.GetUserProjectsByStatusRequest
-	(*GetUserProjectsByStatusResponse)(nil), // 8: userProject.GetUserProjectsByStatusResponse
-	(*SetUserProjectArchivedRequest)(nil),   // 9: userProject.SetUserProjectArchivedRequest
-	(*SetUserProjectArchivedResponse)(nil),  // 10: userProject.SetUserProjectArchivedResponse
-	(*SubmitPhaseReviewRequest)(nil),        // 11: userProject.SubmitPhaseReviewRequest
-	(*CriterionResultProto)(nil),            // 12: userProject.CriterionResultProto
-	(*SubmitPhaseReviewResponse)(nil),       // 13: userProject.SubmitPhaseReviewResponse
+	(*GetGrowthRequest)(nil),                // 0: userProject.GetGrowthRequest
+	(*EraRequirementProto)(nil),             // 1: userProject.EraRequirementProto
+	(*UnexplainedPhaseProto)(nil),           // 2: userProject.UnexplainedPhaseProto
+	(*GetGrowthResponse)(nil),               // 3: userProject.GetGrowthResponse
+	(*StartCheckpointRequest)(nil),          // 4: userProject.StartCheckpointRequest
+	(*StartCheckpointResponse)(nil),         // 5: userProject.StartCheckpointResponse
+	(*SubmitCheckpointRequest)(nil),         // 6: userProject.SubmitCheckpointRequest
+	(*SubmitCheckpointResponse)(nil),        // 7: userProject.SubmitCheckpointResponse
+	(*CreateUserProjectRequest)(nil),        // 8: userProject.CreateUserProjectRequest
+	(*CreateUserProjectResponse)(nil),       // 9: userProject.CreateUserProjectResponse
+	(*GetUserProjectByIdRequest)(nil),       // 10: userProject.GetUserProjectByIdRequest
+	(*GetUserProjectByIdResponse)(nil),      // 11: userProject.GetUserProjectByIdResponse
+	(*GetAllUserProjectsRequest)(nil),       // 12: userProject.GetAllUserProjectsRequest
+	(*GetAllUserProjectsResponse)(nil),      // 13: userProject.GetAllUserProjectsResponse
+	(*UserProject)(nil),                     // 14: userProject.UserProject
+	(*GetUserProjectsByStatusRequest)(nil),  // 15: userProject.GetUserProjectsByStatusRequest
+	(*GetUserProjectsByStatusResponse)(nil), // 16: userProject.GetUserProjectsByStatusResponse
+	(*SetUserProjectArchivedRequest)(nil),   // 17: userProject.SetUserProjectArchivedRequest
+	(*SetUserProjectArchivedResponse)(nil),  // 18: userProject.SetUserProjectArchivedResponse
+	(*SubmitPhaseReviewRequest)(nil),        // 19: userProject.SubmitPhaseReviewRequest
+	(*CriterionResultProto)(nil),            // 20: userProject.CriterionResultProto
+	(*SubmitPhaseReviewResponse)(nil),       // 21: userProject.SubmitPhaseReviewResponse
 }
 var file_userProject_proto_depIdxs = []int32{
-	6,  // 0: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
-	6,  // 1: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
-	6,  // 2: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
-	6,  // 3: userProject.SetUserProjectArchivedResponse.user_project:type_name -> userProject.UserProject
-	12, // 4: userProject.SubmitPhaseReviewResponse.results:type_name -> userProject.CriterionResultProto
-	0,  // 5: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
-	2,  // 6: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
-	4,  // 7: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
-	7,  // 8: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
-	9,  // 9: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
-	11, // 10: userProject.UserProjectService.SubmitPhaseReview:input_type -> userProject.SubmitPhaseReviewRequest
-	1,  // 11: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
-	3,  // 12: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
-	5,  // 13: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
-	8,  // 14: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
-	10, // 15: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
-	13, // 16: userProject.UserProjectService.SubmitPhaseReview:output_type -> userProject.SubmitPhaseReviewResponse
-	11, // [11:17] is the sub-list for method output_type
-	5,  // [5:11] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	1,  // 0: userProject.GetGrowthResponse.next_requirements:type_name -> userProject.EraRequirementProto
+	2,  // 1: userProject.GetGrowthResponse.unexplained:type_name -> userProject.UnexplainedPhaseProto
+	14, // 2: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
+	14, // 3: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
+	14, // 4: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
+	14, // 5: userProject.SetUserProjectArchivedResponse.user_project:type_name -> userProject.UserProject
+	20, // 6: userProject.SubmitPhaseReviewResponse.results:type_name -> userProject.CriterionResultProto
+	8,  // 7: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
+	10, // 8: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
+	12, // 9: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
+	15, // 10: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
+	17, // 11: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
+	19, // 12: userProject.UserProjectService.SubmitPhaseReview:input_type -> userProject.SubmitPhaseReviewRequest
+	0,  // 13: userProject.UserProjectService.GetGrowth:input_type -> userProject.GetGrowthRequest
+	4,  // 14: userProject.UserProjectService.StartCheckpoint:input_type -> userProject.StartCheckpointRequest
+	6,  // 15: userProject.UserProjectService.SubmitCheckpoint:input_type -> userProject.SubmitCheckpointRequest
+	9,  // 16: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
+	11, // 17: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
+	13, // 18: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
+	16, // 19: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
+	18, // 20: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
+	21, // 21: userProject.UserProjectService.SubmitPhaseReview:output_type -> userProject.SubmitPhaseReviewResponse
+	3,  // 22: userProject.UserProjectService.GetGrowth:output_type -> userProject.GetGrowthResponse
+	5,  // 23: userProject.UserProjectService.StartCheckpoint:output_type -> userProject.StartCheckpointResponse
+	7,  // 24: userProject.UserProjectService.SubmitCheckpoint:output_type -> userProject.SubmitCheckpointResponse
+	16, // [16:25] is the sub-list for method output_type
+	7,  // [7:16] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_userProject_proto_init() }
@@ -1027,7 +1620,7 @@ func file_userProject_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_userProject_proto_rawDesc), len(file_userProject_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

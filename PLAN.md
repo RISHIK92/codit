@@ -303,7 +303,13 @@ This phase also listed cutting dead air — preview boot, review latency, save r
 
 ---
 
-## Phase 5 — Engagement II: the growth layer
+## Phase 5 — Engagement II: the growth layer ✅ DONE
+
+*Four stats derived from real rows, nine named eras, fog, and the explain-it-back
+checkpoint. Verified by 34 pure-logic checks and 22 live checks. The load-bearing
+test: **no era is reachable by building alone** — someone with 500 phases and 100
+projects but zero demonstrated comprehension stays at era one.*
+
 
 **Goal:** make the difficulty feel worth choosing.
 
@@ -322,6 +328,27 @@ Draws on the existing Observatory / Living Sky spec:
 **The design constraint that matters:** a failed review must still move *something*. That's the pressure valve for a gate that says no. It cannot move Build — but discovering you didn't understand something, and then resolving it, is precisely Understand movement.
 
 **Exit criteria:** stats derive from real grading data, not a fabricated score. A NOT MET verdict still produces visible progress.
+
+### The checkpoint finally fills the conceptual gap
+
+Phase 1 left `conceptual` criteria deliberately unauthored because nothing could grade them. This is that mechanism. It asks the user to explain, in their own words, why something *they already built* works — and because the code already exists and already works, reproducing it demonstrates nothing. **Pasted code is an automatic fail**, detected before the model is even asked so a lenient grader can't overrule it.
+
+It works. Asked to generate a question for a real submission, it produced:
+
+> Your navigation links jump to the About and Contact sections when clicked. What in your HTML makes the browser know where to scroll?
+
+Grounded in their actual file, not the topic in the abstract. Pasted markup failed it; a plain-prose explanation of the hash-to-id mechanism passed.
+
+### Design decisions worth keeping
+
+- **`criteriaRecovered` — failed once, passed later — is the most honest signal in the system.** Not "got it right", but "got it wrong, found out why, fixed it". It counts toward Understand, and it's worth more than passing first try is worth Build. An *ungraded* result never counts, so a grader outage can't be farmed.
+- **A failed review moves Explore.** That's the pressure valve: a gate that says no and moves nothing is the one that makes people quit.
+- **Fog is a property of the work, not the person.** It counts phases shipped but never explained, and building more *increases* it. Only a passed checkpoint clears it. The Cartographer era is the one gate that requires its absence.
+- **No decay, no streaks, no time terms anywhere.** Absence genuinely cannot cost you anything — asserted by a test rather than by intention.
+
+### Open question for you
+
+The era names: "Blank Page" and "The Long Approach" come from your spec; the seven between (First Light, Foundations, Apprentice, Debugger, Builder, Cartographer, Practitioner) are mine and are placeholders. The gates are the engineering — the names are yours to replace.
 
 **Size:** large, plus meaningful design work.
 

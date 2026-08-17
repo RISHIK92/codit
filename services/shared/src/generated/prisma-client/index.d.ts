@@ -90,6 +90,22 @@ export type PhaseReview = $Result.DefaultSelection<Prisma.$PhaseReviewPayload>
  */
 export type ReviewCriterionResult = $Result.DefaultSelection<Prisma.$ReviewCriterionResultPayload>
 /**
+ * Model UnderstandingCheckpoint
+ * * An "explain it back" checkpoint: the user describes, in their own words, how
+ *  * something they built actually works.
+ *  *
+ *  * This is the only mechanism in the system that can evidence comprehension
+ *  * rather than output. Knowledge checks come close but are authored in advance
+ *  * and can be pattern-matched; a review proves the code works, which is not the
+ *  * same claim at all. Someone who prompted their way to a working phase can pass
+ *  * every other gate here and will not pass this one.
+ *  *
+ *  * It is also what fills the `conceptual` criterion slot that Phase 1 left
+ *  * deliberately unauthored, and what clears fog — fog being phases shipped but
+ *  * never explained back.
+ */
+export type UnderstandingCheckpoint = $Result.DefaultSelection<Prisma.$UnderstandingCheckpointPayload>
+/**
  * Model UserPhaseProgress
  * * Per-user, per-phase status for one enrollment — LearningPhase.phase_status
  *  * is a shared catalogue field and can't represent per-user progress, since
@@ -499,6 +515,16 @@ export class PrismaClient<
     * ```
     */
   get reviewCriterionResult(): Prisma.ReviewCriterionResultDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.understandingCheckpoint`: Exposes CRUD operations for the **UnderstandingCheckpoint** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UnderstandingCheckpoints
+    * const understandingCheckpoints = await prisma.understandingCheckpoint.findMany()
+    * ```
+    */
+  get understandingCheckpoint(): Prisma.UnderstandingCheckpointDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userPhaseProgress`: Exposes CRUD operations for the **UserPhaseProgress** model.
@@ -1021,6 +1047,7 @@ export namespace Prisma {
     UserProjects: 'UserProjects',
     PhaseReview: 'PhaseReview',
     ReviewCriterionResult: 'ReviewCriterionResult',
+    UnderstandingCheckpoint: 'UnderstandingCheckpoint',
     UserPhaseProgress: 'UserPhaseProgress',
     LearningPhase: 'LearningPhase',
     PhaseCriterion: 'PhaseCriterion',
@@ -1046,7 +1073,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "reviewCriterionResult" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "reviewCriterionResult" | "understandingCheckpoint" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1864,6 +1891,80 @@ export namespace Prisma {
           }
         }
       }
+      UnderstandingCheckpoint: {
+        payload: Prisma.$UnderstandingCheckpointPayload<ExtArgs>
+        fields: Prisma.UnderstandingCheckpointFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UnderstandingCheckpointFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UnderstandingCheckpointFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>
+          }
+          findFirst: {
+            args: Prisma.UnderstandingCheckpointFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UnderstandingCheckpointFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>
+          }
+          findMany: {
+            args: Prisma.UnderstandingCheckpointFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>[]
+          }
+          create: {
+            args: Prisma.UnderstandingCheckpointCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>
+          }
+          createMany: {
+            args: Prisma.UnderstandingCheckpointCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UnderstandingCheckpointCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>[]
+          }
+          delete: {
+            args: Prisma.UnderstandingCheckpointDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>
+          }
+          update: {
+            args: Prisma.UnderstandingCheckpointUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>
+          }
+          deleteMany: {
+            args: Prisma.UnderstandingCheckpointDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UnderstandingCheckpointUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UnderstandingCheckpointUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>[]
+          }
+          upsert: {
+            args: Prisma.UnderstandingCheckpointUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnderstandingCheckpointPayload>
+          }
+          aggregate: {
+            args: Prisma.UnderstandingCheckpointAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUnderstandingCheckpoint>
+          }
+          groupBy: {
+            args: Prisma.UnderstandingCheckpointGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UnderstandingCheckpointGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UnderstandingCheckpointCountArgs<ExtArgs>
+            result: $Utils.Optional<UnderstandingCheckpointCountAggregateOutputType> | number
+          }
+        }
+      }
       UserPhaseProgress: {
         payload: Prisma.$UserPhaseProgressPayload<ExtArgs>
         fields: Prisma.UserPhaseProgressFieldRefs
@@ -2489,6 +2590,7 @@ export namespace Prisma {
     userProjects?: UserProjectsOmit
     phaseReview?: PhaseReviewOmit
     reviewCriterionResult?: ReviewCriterionResultOmit
+    understandingCheckpoint?: UnderstandingCheckpointOmit
     userPhaseProgress?: UserPhaseProgressOmit
     learningPhase?: LearningPhaseOmit
     phaseCriterion?: PhaseCriterionOmit
@@ -15398,6 +15500,1119 @@ export namespace Prisma {
 
 
   /**
+   * Model UnderstandingCheckpoint
+   */
+
+  export type AggregateUnderstandingCheckpoint = {
+    _count: UnderstandingCheckpointCountAggregateOutputType | null
+    _avg: UnderstandingCheckpointAvgAggregateOutputType | null
+    _sum: UnderstandingCheckpointSumAggregateOutputType | null
+    _min: UnderstandingCheckpointMinAggregateOutputType | null
+    _max: UnderstandingCheckpointMaxAggregateOutputType | null
+  }
+
+  export type UnderstandingCheckpointAvgAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type UnderstandingCheckpointSumAggregateOutputType = {
+    phase_number: number | null
+  }
+
+  export type UnderstandingCheckpointMinAggregateOutputType = {
+    id: string | null
+    user_email: string | null
+    project_id: string | null
+    phase_number: number | null
+    question: string | null
+    answer: string | null
+    passed: boolean | null
+    feedback: string | null
+    model: string | null
+    created_at: Date | null
+  }
+
+  export type UnderstandingCheckpointMaxAggregateOutputType = {
+    id: string | null
+    user_email: string | null
+    project_id: string | null
+    phase_number: number | null
+    question: string | null
+    answer: string | null
+    passed: boolean | null
+    feedback: string | null
+    model: string | null
+    created_at: Date | null
+  }
+
+  export type UnderstandingCheckpointCountAggregateOutputType = {
+    id: number
+    user_email: number
+    project_id: number
+    phase_number: number
+    question: number
+    answer: number
+    passed: number
+    feedback: number
+    missing_concepts: number
+    model: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type UnderstandingCheckpointAvgAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type UnderstandingCheckpointSumAggregateInputType = {
+    phase_number?: true
+  }
+
+  export type UnderstandingCheckpointMinAggregateInputType = {
+    id?: true
+    user_email?: true
+    project_id?: true
+    phase_number?: true
+    question?: true
+    answer?: true
+    passed?: true
+    feedback?: true
+    model?: true
+    created_at?: true
+  }
+
+  export type UnderstandingCheckpointMaxAggregateInputType = {
+    id?: true
+    user_email?: true
+    project_id?: true
+    phase_number?: true
+    question?: true
+    answer?: true
+    passed?: true
+    feedback?: true
+    model?: true
+    created_at?: true
+  }
+
+  export type UnderstandingCheckpointCountAggregateInputType = {
+    id?: true
+    user_email?: true
+    project_id?: true
+    phase_number?: true
+    question?: true
+    answer?: true
+    passed?: true
+    feedback?: true
+    missing_concepts?: true
+    model?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type UnderstandingCheckpointAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UnderstandingCheckpoint to aggregate.
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnderstandingCheckpoints to fetch.
+     */
+    orderBy?: UnderstandingCheckpointOrderByWithRelationInput | UnderstandingCheckpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UnderstandingCheckpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnderstandingCheckpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnderstandingCheckpoints.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UnderstandingCheckpoints
+    **/
+    _count?: true | UnderstandingCheckpointCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UnderstandingCheckpointAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UnderstandingCheckpointSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UnderstandingCheckpointMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UnderstandingCheckpointMaxAggregateInputType
+  }
+
+  export type GetUnderstandingCheckpointAggregateType<T extends UnderstandingCheckpointAggregateArgs> = {
+        [P in keyof T & keyof AggregateUnderstandingCheckpoint]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUnderstandingCheckpoint[P]>
+      : GetScalarType<T[P], AggregateUnderstandingCheckpoint[P]>
+  }
+
+
+
+
+  export type UnderstandingCheckpointGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UnderstandingCheckpointWhereInput
+    orderBy?: UnderstandingCheckpointOrderByWithAggregationInput | UnderstandingCheckpointOrderByWithAggregationInput[]
+    by: UnderstandingCheckpointScalarFieldEnum[] | UnderstandingCheckpointScalarFieldEnum
+    having?: UnderstandingCheckpointScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UnderstandingCheckpointCountAggregateInputType | true
+    _avg?: UnderstandingCheckpointAvgAggregateInputType
+    _sum?: UnderstandingCheckpointSumAggregateInputType
+    _min?: UnderstandingCheckpointMinAggregateInputType
+    _max?: UnderstandingCheckpointMaxAggregateInputType
+  }
+
+  export type UnderstandingCheckpointGroupByOutputType = {
+    id: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    question: string
+    answer: string
+    passed: boolean
+    feedback: string
+    missing_concepts: string[]
+    model: string
+    created_at: Date
+    _count: UnderstandingCheckpointCountAggregateOutputType | null
+    _avg: UnderstandingCheckpointAvgAggregateOutputType | null
+    _sum: UnderstandingCheckpointSumAggregateOutputType | null
+    _min: UnderstandingCheckpointMinAggregateOutputType | null
+    _max: UnderstandingCheckpointMaxAggregateOutputType | null
+  }
+
+  type GetUnderstandingCheckpointGroupByPayload<T extends UnderstandingCheckpointGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UnderstandingCheckpointGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UnderstandingCheckpointGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UnderstandingCheckpointGroupByOutputType[P]>
+            : GetScalarType<T[P], UnderstandingCheckpointGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UnderstandingCheckpointSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    question?: boolean
+    answer?: boolean
+    passed?: boolean
+    feedback?: boolean
+    missing_concepts?: boolean
+    model?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["understandingCheckpoint"]>
+
+  export type UnderstandingCheckpointSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    question?: boolean
+    answer?: boolean
+    passed?: boolean
+    feedback?: boolean
+    missing_concepts?: boolean
+    model?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["understandingCheckpoint"]>
+
+  export type UnderstandingCheckpointSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    question?: boolean
+    answer?: boolean
+    passed?: boolean
+    feedback?: boolean
+    missing_concepts?: boolean
+    model?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["understandingCheckpoint"]>
+
+  export type UnderstandingCheckpointSelectScalar = {
+    id?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    question?: boolean
+    answer?: boolean
+    passed?: boolean
+    feedback?: boolean
+    missing_concepts?: boolean
+    model?: boolean
+    created_at?: boolean
+  }
+
+  export type UnderstandingCheckpointOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_email" | "project_id" | "phase_number" | "question" | "answer" | "passed" | "feedback" | "missing_concepts" | "model" | "created_at", ExtArgs["result"]["understandingCheckpoint"]>
+
+  export type $UnderstandingCheckpointPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UnderstandingCheckpoint"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      user_email: string
+      project_id: string
+      phase_number: number
+      /**
+       * * What they were asked to explain. Stored so a checkpoint stays meaningful
+       *    * after the generating prompt changes.
+       */
+      question: string
+      answer: string
+      passed: boolean
+      /**
+       * * Why it passed or didn't — shown back, and the record of what was missing.
+       */
+      feedback: string
+      /**
+       * * Concepts the grader judged absent. Feeds what to revisit.
+       */
+      missing_concepts: string[]
+      model: string
+      created_at: Date
+    }, ExtArgs["result"]["understandingCheckpoint"]>
+    composites: {}
+  }
+
+  type UnderstandingCheckpointGetPayload<S extends boolean | null | undefined | UnderstandingCheckpointDefaultArgs> = $Result.GetResult<Prisma.$UnderstandingCheckpointPayload, S>
+
+  type UnderstandingCheckpointCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UnderstandingCheckpointFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UnderstandingCheckpointCountAggregateInputType | true
+    }
+
+  export interface UnderstandingCheckpointDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UnderstandingCheckpoint'], meta: { name: 'UnderstandingCheckpoint' } }
+    /**
+     * Find zero or one UnderstandingCheckpoint that matches the filter.
+     * @param {UnderstandingCheckpointFindUniqueArgs} args - Arguments to find a UnderstandingCheckpoint
+     * @example
+     * // Get one UnderstandingCheckpoint
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UnderstandingCheckpointFindUniqueArgs>(args: SelectSubset<T, UnderstandingCheckpointFindUniqueArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UnderstandingCheckpoint that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UnderstandingCheckpointFindUniqueOrThrowArgs} args - Arguments to find a UnderstandingCheckpoint
+     * @example
+     * // Get one UnderstandingCheckpoint
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UnderstandingCheckpointFindUniqueOrThrowArgs>(args: SelectSubset<T, UnderstandingCheckpointFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UnderstandingCheckpoint that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointFindFirstArgs} args - Arguments to find a UnderstandingCheckpoint
+     * @example
+     * // Get one UnderstandingCheckpoint
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UnderstandingCheckpointFindFirstArgs>(args?: SelectSubset<T, UnderstandingCheckpointFindFirstArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UnderstandingCheckpoint that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointFindFirstOrThrowArgs} args - Arguments to find a UnderstandingCheckpoint
+     * @example
+     * // Get one UnderstandingCheckpoint
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UnderstandingCheckpointFindFirstOrThrowArgs>(args?: SelectSubset<T, UnderstandingCheckpointFindFirstOrThrowArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UnderstandingCheckpoints that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UnderstandingCheckpoints
+     * const understandingCheckpoints = await prisma.understandingCheckpoint.findMany()
+     * 
+     * // Get first 10 UnderstandingCheckpoints
+     * const understandingCheckpoints = await prisma.understandingCheckpoint.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const understandingCheckpointWithIdOnly = await prisma.understandingCheckpoint.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UnderstandingCheckpointFindManyArgs>(args?: SelectSubset<T, UnderstandingCheckpointFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UnderstandingCheckpoint.
+     * @param {UnderstandingCheckpointCreateArgs} args - Arguments to create a UnderstandingCheckpoint.
+     * @example
+     * // Create one UnderstandingCheckpoint
+     * const UnderstandingCheckpoint = await prisma.understandingCheckpoint.create({
+     *   data: {
+     *     // ... data to create a UnderstandingCheckpoint
+     *   }
+     * })
+     * 
+     */
+    create<T extends UnderstandingCheckpointCreateArgs>(args: SelectSubset<T, UnderstandingCheckpointCreateArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UnderstandingCheckpoints.
+     * @param {UnderstandingCheckpointCreateManyArgs} args - Arguments to create many UnderstandingCheckpoints.
+     * @example
+     * // Create many UnderstandingCheckpoints
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UnderstandingCheckpointCreateManyArgs>(args?: SelectSubset<T, UnderstandingCheckpointCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UnderstandingCheckpoints and returns the data saved in the database.
+     * @param {UnderstandingCheckpointCreateManyAndReturnArgs} args - Arguments to create many UnderstandingCheckpoints.
+     * @example
+     * // Create many UnderstandingCheckpoints
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UnderstandingCheckpoints and only return the `id`
+     * const understandingCheckpointWithIdOnly = await prisma.understandingCheckpoint.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UnderstandingCheckpointCreateManyAndReturnArgs>(args?: SelectSubset<T, UnderstandingCheckpointCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UnderstandingCheckpoint.
+     * @param {UnderstandingCheckpointDeleteArgs} args - Arguments to delete one UnderstandingCheckpoint.
+     * @example
+     * // Delete one UnderstandingCheckpoint
+     * const UnderstandingCheckpoint = await prisma.understandingCheckpoint.delete({
+     *   where: {
+     *     // ... filter to delete one UnderstandingCheckpoint
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UnderstandingCheckpointDeleteArgs>(args: SelectSubset<T, UnderstandingCheckpointDeleteArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UnderstandingCheckpoint.
+     * @param {UnderstandingCheckpointUpdateArgs} args - Arguments to update one UnderstandingCheckpoint.
+     * @example
+     * // Update one UnderstandingCheckpoint
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UnderstandingCheckpointUpdateArgs>(args: SelectSubset<T, UnderstandingCheckpointUpdateArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UnderstandingCheckpoints.
+     * @param {UnderstandingCheckpointDeleteManyArgs} args - Arguments to filter UnderstandingCheckpoints to delete.
+     * @example
+     * // Delete a few UnderstandingCheckpoints
+     * const { count } = await prisma.understandingCheckpoint.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UnderstandingCheckpointDeleteManyArgs>(args?: SelectSubset<T, UnderstandingCheckpointDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UnderstandingCheckpoints.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UnderstandingCheckpoints
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UnderstandingCheckpointUpdateManyArgs>(args: SelectSubset<T, UnderstandingCheckpointUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UnderstandingCheckpoints and returns the data updated in the database.
+     * @param {UnderstandingCheckpointUpdateManyAndReturnArgs} args - Arguments to update many UnderstandingCheckpoints.
+     * @example
+     * // Update many UnderstandingCheckpoints
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UnderstandingCheckpoints and only return the `id`
+     * const understandingCheckpointWithIdOnly = await prisma.understandingCheckpoint.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UnderstandingCheckpointUpdateManyAndReturnArgs>(args: SelectSubset<T, UnderstandingCheckpointUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UnderstandingCheckpoint.
+     * @param {UnderstandingCheckpointUpsertArgs} args - Arguments to update or create a UnderstandingCheckpoint.
+     * @example
+     * // Update or create a UnderstandingCheckpoint
+     * const understandingCheckpoint = await prisma.understandingCheckpoint.upsert({
+     *   create: {
+     *     // ... data to create a UnderstandingCheckpoint
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UnderstandingCheckpoint we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UnderstandingCheckpointUpsertArgs>(args: SelectSubset<T, UnderstandingCheckpointUpsertArgs<ExtArgs>>): Prisma__UnderstandingCheckpointClient<$Result.GetResult<Prisma.$UnderstandingCheckpointPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UnderstandingCheckpoints.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointCountArgs} args - Arguments to filter UnderstandingCheckpoints to count.
+     * @example
+     * // Count the number of UnderstandingCheckpoints
+     * const count = await prisma.understandingCheckpoint.count({
+     *   where: {
+     *     // ... the filter for the UnderstandingCheckpoints we want to count
+     *   }
+     * })
+    **/
+    count<T extends UnderstandingCheckpointCountArgs>(
+      args?: Subset<T, UnderstandingCheckpointCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UnderstandingCheckpointCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UnderstandingCheckpoint.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UnderstandingCheckpointAggregateArgs>(args: Subset<T, UnderstandingCheckpointAggregateArgs>): Prisma.PrismaPromise<GetUnderstandingCheckpointAggregateType<T>>
+
+    /**
+     * Group by UnderstandingCheckpoint.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnderstandingCheckpointGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UnderstandingCheckpointGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UnderstandingCheckpointGroupByArgs['orderBy'] }
+        : { orderBy?: UnderstandingCheckpointGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UnderstandingCheckpointGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUnderstandingCheckpointGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UnderstandingCheckpoint model
+   */
+  readonly fields: UnderstandingCheckpointFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UnderstandingCheckpoint.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UnderstandingCheckpointClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UnderstandingCheckpoint model
+   */
+  interface UnderstandingCheckpointFieldRefs {
+    readonly id: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly user_email: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly project_id: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly phase_number: FieldRef<"UnderstandingCheckpoint", 'Int'>
+    readonly question: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly answer: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly passed: FieldRef<"UnderstandingCheckpoint", 'Boolean'>
+    readonly feedback: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly missing_concepts: FieldRef<"UnderstandingCheckpoint", 'String[]'>
+    readonly model: FieldRef<"UnderstandingCheckpoint", 'String'>
+    readonly created_at: FieldRef<"UnderstandingCheckpoint", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UnderstandingCheckpoint findUnique
+   */
+  export type UnderstandingCheckpointFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * Filter, which UnderstandingCheckpoint to fetch.
+     */
+    where: UnderstandingCheckpointWhereUniqueInput
+  }
+
+  /**
+   * UnderstandingCheckpoint findUniqueOrThrow
+   */
+  export type UnderstandingCheckpointFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * Filter, which UnderstandingCheckpoint to fetch.
+     */
+    where: UnderstandingCheckpointWhereUniqueInput
+  }
+
+  /**
+   * UnderstandingCheckpoint findFirst
+   */
+  export type UnderstandingCheckpointFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * Filter, which UnderstandingCheckpoint to fetch.
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnderstandingCheckpoints to fetch.
+     */
+    orderBy?: UnderstandingCheckpointOrderByWithRelationInput | UnderstandingCheckpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UnderstandingCheckpoints.
+     */
+    cursor?: UnderstandingCheckpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnderstandingCheckpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnderstandingCheckpoints.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UnderstandingCheckpoints.
+     */
+    distinct?: UnderstandingCheckpointScalarFieldEnum | UnderstandingCheckpointScalarFieldEnum[]
+  }
+
+  /**
+   * UnderstandingCheckpoint findFirstOrThrow
+   */
+  export type UnderstandingCheckpointFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * Filter, which UnderstandingCheckpoint to fetch.
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnderstandingCheckpoints to fetch.
+     */
+    orderBy?: UnderstandingCheckpointOrderByWithRelationInput | UnderstandingCheckpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UnderstandingCheckpoints.
+     */
+    cursor?: UnderstandingCheckpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnderstandingCheckpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnderstandingCheckpoints.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UnderstandingCheckpoints.
+     */
+    distinct?: UnderstandingCheckpointScalarFieldEnum | UnderstandingCheckpointScalarFieldEnum[]
+  }
+
+  /**
+   * UnderstandingCheckpoint findMany
+   */
+  export type UnderstandingCheckpointFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * Filter, which UnderstandingCheckpoints to fetch.
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnderstandingCheckpoints to fetch.
+     */
+    orderBy?: UnderstandingCheckpointOrderByWithRelationInput | UnderstandingCheckpointOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UnderstandingCheckpoints.
+     */
+    cursor?: UnderstandingCheckpointWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnderstandingCheckpoints from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnderstandingCheckpoints.
+     */
+    skip?: number
+    distinct?: UnderstandingCheckpointScalarFieldEnum | UnderstandingCheckpointScalarFieldEnum[]
+  }
+
+  /**
+   * UnderstandingCheckpoint create
+   */
+  export type UnderstandingCheckpointCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * The data needed to create a UnderstandingCheckpoint.
+     */
+    data: XOR<UnderstandingCheckpointCreateInput, UnderstandingCheckpointUncheckedCreateInput>
+  }
+
+  /**
+   * UnderstandingCheckpoint createMany
+   */
+  export type UnderstandingCheckpointCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UnderstandingCheckpoints.
+     */
+    data: UnderstandingCheckpointCreateManyInput | UnderstandingCheckpointCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UnderstandingCheckpoint createManyAndReturn
+   */
+  export type UnderstandingCheckpointCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * The data used to create many UnderstandingCheckpoints.
+     */
+    data: UnderstandingCheckpointCreateManyInput | UnderstandingCheckpointCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UnderstandingCheckpoint update
+   */
+  export type UnderstandingCheckpointUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * The data needed to update a UnderstandingCheckpoint.
+     */
+    data: XOR<UnderstandingCheckpointUpdateInput, UnderstandingCheckpointUncheckedUpdateInput>
+    /**
+     * Choose, which UnderstandingCheckpoint to update.
+     */
+    where: UnderstandingCheckpointWhereUniqueInput
+  }
+
+  /**
+   * UnderstandingCheckpoint updateMany
+   */
+  export type UnderstandingCheckpointUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UnderstandingCheckpoints.
+     */
+    data: XOR<UnderstandingCheckpointUpdateManyMutationInput, UnderstandingCheckpointUncheckedUpdateManyInput>
+    /**
+     * Filter which UnderstandingCheckpoints to update
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * Limit how many UnderstandingCheckpoints to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UnderstandingCheckpoint updateManyAndReturn
+   */
+  export type UnderstandingCheckpointUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * The data used to update UnderstandingCheckpoints.
+     */
+    data: XOR<UnderstandingCheckpointUpdateManyMutationInput, UnderstandingCheckpointUncheckedUpdateManyInput>
+    /**
+     * Filter which UnderstandingCheckpoints to update
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * Limit how many UnderstandingCheckpoints to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UnderstandingCheckpoint upsert
+   */
+  export type UnderstandingCheckpointUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * The filter to search for the UnderstandingCheckpoint to update in case it exists.
+     */
+    where: UnderstandingCheckpointWhereUniqueInput
+    /**
+     * In case the UnderstandingCheckpoint found by the `where` argument doesn't exist, create a new UnderstandingCheckpoint with this data.
+     */
+    create: XOR<UnderstandingCheckpointCreateInput, UnderstandingCheckpointUncheckedCreateInput>
+    /**
+     * In case the UnderstandingCheckpoint was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UnderstandingCheckpointUpdateInput, UnderstandingCheckpointUncheckedUpdateInput>
+  }
+
+  /**
+   * UnderstandingCheckpoint delete
+   */
+  export type UnderstandingCheckpointDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+    /**
+     * Filter which UnderstandingCheckpoint to delete.
+     */
+    where: UnderstandingCheckpointWhereUniqueInput
+  }
+
+  /**
+   * UnderstandingCheckpoint deleteMany
+   */
+  export type UnderstandingCheckpointDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UnderstandingCheckpoints to delete
+     */
+    where?: UnderstandingCheckpointWhereInput
+    /**
+     * Limit how many UnderstandingCheckpoints to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UnderstandingCheckpoint without action
+   */
+  export type UnderstandingCheckpointDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnderstandingCheckpoint
+     */
+    select?: UnderstandingCheckpointSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnderstandingCheckpoint
+     */
+    omit?: UnderstandingCheckpointOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model UserPhaseProgress
    */
 
@@ -23578,6 +24793,23 @@ export namespace Prisma {
   export type ReviewCriterionResultScalarFieldEnum = (typeof ReviewCriterionResultScalarFieldEnum)[keyof typeof ReviewCriterionResultScalarFieldEnum]
 
 
+  export const UnderstandingCheckpointScalarFieldEnum: {
+    id: 'id',
+    user_email: 'user_email',
+    project_id: 'project_id',
+    phase_number: 'phase_number',
+    question: 'question',
+    answer: 'answer',
+    passed: 'passed',
+    feedback: 'feedback',
+    missing_concepts: 'missing_concepts',
+    model: 'model',
+    created_at: 'created_at'
+  };
+
+  export type UnderstandingCheckpointScalarFieldEnum = (typeof UnderstandingCheckpointScalarFieldEnum)[keyof typeof UnderstandingCheckpointScalarFieldEnum]
+
+
   export const UserPhaseProgressScalarFieldEnum: {
     id: 'id',
     user_project_id: 'user_project_id',
@@ -24735,6 +25967,90 @@ export namespace Prisma {
     evidence_lines?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
     evidence_quote?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
     reasoning?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+  }
+
+  export type UnderstandingCheckpointWhereInput = {
+    AND?: UnderstandingCheckpointWhereInput | UnderstandingCheckpointWhereInput[]
+    OR?: UnderstandingCheckpointWhereInput[]
+    NOT?: UnderstandingCheckpointWhereInput | UnderstandingCheckpointWhereInput[]
+    id?: StringFilter<"UnderstandingCheckpoint"> | string
+    user_email?: StringFilter<"UnderstandingCheckpoint"> | string
+    project_id?: StringFilter<"UnderstandingCheckpoint"> | string
+    phase_number?: IntFilter<"UnderstandingCheckpoint"> | number
+    question?: StringFilter<"UnderstandingCheckpoint"> | string
+    answer?: StringFilter<"UnderstandingCheckpoint"> | string
+    passed?: BoolFilter<"UnderstandingCheckpoint"> | boolean
+    feedback?: StringFilter<"UnderstandingCheckpoint"> | string
+    missing_concepts?: StringNullableListFilter<"UnderstandingCheckpoint">
+    model?: StringFilter<"UnderstandingCheckpoint"> | string
+    created_at?: DateTimeFilter<"UnderstandingCheckpoint"> | Date | string
+  }
+
+  export type UnderstandingCheckpointOrderByWithRelationInput = {
+    id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    passed?: SortOrder
+    feedback?: SortOrder
+    missing_concepts?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type UnderstandingCheckpointWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: UnderstandingCheckpointWhereInput | UnderstandingCheckpointWhereInput[]
+    OR?: UnderstandingCheckpointWhereInput[]
+    NOT?: UnderstandingCheckpointWhereInput | UnderstandingCheckpointWhereInput[]
+    user_email?: StringFilter<"UnderstandingCheckpoint"> | string
+    project_id?: StringFilter<"UnderstandingCheckpoint"> | string
+    phase_number?: IntFilter<"UnderstandingCheckpoint"> | number
+    question?: StringFilter<"UnderstandingCheckpoint"> | string
+    answer?: StringFilter<"UnderstandingCheckpoint"> | string
+    passed?: BoolFilter<"UnderstandingCheckpoint"> | boolean
+    feedback?: StringFilter<"UnderstandingCheckpoint"> | string
+    missing_concepts?: StringNullableListFilter<"UnderstandingCheckpoint">
+    model?: StringFilter<"UnderstandingCheckpoint"> | string
+    created_at?: DateTimeFilter<"UnderstandingCheckpoint"> | Date | string
+  }, "id">
+
+  export type UnderstandingCheckpointOrderByWithAggregationInput = {
+    id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    passed?: SortOrder
+    feedback?: SortOrder
+    missing_concepts?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+    _count?: UnderstandingCheckpointCountOrderByAggregateInput
+    _avg?: UnderstandingCheckpointAvgOrderByAggregateInput
+    _max?: UnderstandingCheckpointMaxOrderByAggregateInput
+    _min?: UnderstandingCheckpointMinOrderByAggregateInput
+    _sum?: UnderstandingCheckpointSumOrderByAggregateInput
+  }
+
+  export type UnderstandingCheckpointScalarWhereWithAggregatesInput = {
+    AND?: UnderstandingCheckpointScalarWhereWithAggregatesInput | UnderstandingCheckpointScalarWhereWithAggregatesInput[]
+    OR?: UnderstandingCheckpointScalarWhereWithAggregatesInput[]
+    NOT?: UnderstandingCheckpointScalarWhereWithAggregatesInput | UnderstandingCheckpointScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    user_email?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    project_id?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    phase_number?: IntWithAggregatesFilter<"UnderstandingCheckpoint"> | number
+    question?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    answer?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    passed?: BoolWithAggregatesFilter<"UnderstandingCheckpoint"> | boolean
+    feedback?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    missing_concepts?: StringNullableListFilter<"UnderstandingCheckpoint">
+    model?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
+    created_at?: DateTimeWithAggregatesFilter<"UnderstandingCheckpoint"> | Date | string
   }
 
   export type UserPhaseProgressWhereInput = {
@@ -26098,6 +27414,104 @@ export namespace Prisma {
     evidence_lines?: StringFieldUpdateOperationsInput | string
     evidence_quote?: StringFieldUpdateOperationsInput | string
     reasoning?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type UnderstandingCheckpointCreateInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    question: string
+    answer?: string
+    passed?: boolean
+    feedback?: string
+    missing_concepts?: UnderstandingCheckpointCreatemissing_conceptsInput | string[]
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type UnderstandingCheckpointUncheckedCreateInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    question: string
+    answer?: string
+    passed?: boolean
+    feedback?: string
+    missing_concepts?: UnderstandingCheckpointCreatemissing_conceptsInput | string[]
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type UnderstandingCheckpointUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    feedback?: StringFieldUpdateOperationsInput | string
+    missing_concepts?: UnderstandingCheckpointUpdatemissing_conceptsInput | string[]
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnderstandingCheckpointUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    feedback?: StringFieldUpdateOperationsInput | string
+    missing_concepts?: UnderstandingCheckpointUpdatemissing_conceptsInput | string[]
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnderstandingCheckpointCreateManyInput = {
+    id?: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    question: string
+    answer?: string
+    passed?: boolean
+    feedback?: string
+    missing_concepts?: UnderstandingCheckpointCreatemissing_conceptsInput | string[]
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type UnderstandingCheckpointUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    feedback?: StringFieldUpdateOperationsInput | string
+    missing_concepts?: UnderstandingCheckpointUpdatemissing_conceptsInput | string[]
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnderstandingCheckpointUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    feedback?: StringFieldUpdateOperationsInput | string
+    missing_concepts?: UnderstandingCheckpointUpdatemissing_conceptsInput | string[]
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserPhaseProgressCreateInput = {
@@ -27639,6 +29053,54 @@ export namespace Prisma {
     _max?: NestedEnumResultSourceFilter<$PrismaModel>
   }
 
+  export type UnderstandingCheckpointCountOrderByAggregateInput = {
+    id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    passed?: SortOrder
+    feedback?: SortOrder
+    missing_concepts?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type UnderstandingCheckpointAvgOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
+  export type UnderstandingCheckpointMaxOrderByAggregateInput = {
+    id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    passed?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type UnderstandingCheckpointMinOrderByAggregateInput = {
+    id?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    passed?: SortOrder
+    feedback?: SortOrder
+    model?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type UnderstandingCheckpointSumOrderByAggregateInput = {
+    phase_number?: SortOrder
+  }
+
   export type EnumPhaseStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PhaseStatus | EnumPhaseStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PhaseStatus[] | ListEnumPhaseStatusFieldRefInput<$PrismaModel>
@@ -28723,6 +30185,15 @@ export namespace Prisma {
     upsert?: PhaseCriterionUpsertWithoutResultsInput
     connect?: PhaseCriterionWhereUniqueInput
     update?: XOR<XOR<PhaseCriterionUpdateToOneWithWhereWithoutResultsInput, PhaseCriterionUpdateWithoutResultsInput>, PhaseCriterionUncheckedUpdateWithoutResultsInput>
+  }
+
+  export type UnderstandingCheckpointCreatemissing_conceptsInput = {
+    set: string[]
+  }
+
+  export type UnderstandingCheckpointUpdatemissing_conceptsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type UserProjectsCreateNestedOneWithoutPhaseProgressInput = {

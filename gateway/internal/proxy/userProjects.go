@@ -216,3 +216,109 @@ func GetUserProjectsByStatusProxy(grpcClient pb.UserProjectServiceClient) http.H
 		json.NewEncoder(w).Encode(grpcRes)
 	}
 }
+// GetGrowthProxy forwards GET /api/growth to UserProjectService.GetGrowth.
+//
+// The four stats come back separately and are never summed here or anywhere
+// downstream — a single "level" number would let shipping stand in for
+// understanding, which is the substitution the whole growth layer exists to
+// make visible rather than hide.
+func GetGrowthProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+
+		grpcRes, err := grpcClient.GetGrowth(r.Context(), &pb.GetGrowthRequest{Email: email})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+// StartCheckpointProxy forwards POST /api/checkpoints/start.
+// Body: { "projectId": "...", "phaseNumber": 2 }
+func StartCheckpointProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+
+		var body struct {
+			ProjectID   string `json:"projectId"`
+			PhaseNumber int32  `json:"phaseNumber"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+		if body.ProjectID == "" {
+			http.Error(w, "projectId is required", http.StatusBadRequest)
+			return
+		}
+
+		grpcRes, err := grpcClient.StartCheckpoint(r.Context(), &pb.StartCheckpointRequest{
+			Email:       email,
+			ProjectId:   body.ProjectID,
+			PhaseNumber: body.PhaseNumber,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+// SubmitCheckpointProxy forwards POST /api/checkpoints/submit.
+// Body: { "checkpointId": "...", "answer": "..." }
+func SubmitCheckpointProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+
+		var body struct {
+			CheckpointID string `json:"checkpointId"`
+			Answer       string `json:"answer"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+		if body.CheckpointID == "" {
+			http.Error(w, "checkpointId is required", http.StatusBadRequest)
+			return
+		}
+
+		grpcRes, err := grpcClient.SubmitCheckpoint(r.Context(), &pb.SubmitCheckpointRequest{
+			Email:        email,
+			CheckpointId: body.CheckpointID,
+			Answer:       body.Answer,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}

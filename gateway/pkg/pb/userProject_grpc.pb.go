@@ -27,6 +27,9 @@ const (
 	UserProjectService_GetUserProjectsByStatus_FullMethodName = "/userProject.UserProjectService/GetUserProjectsByStatus"
 	UserProjectService_SetUserProjectArchived_FullMethodName  = "/userProject.UserProjectService/SetUserProjectArchived"
 	UserProjectService_SubmitPhaseReview_FullMethodName       = "/userProject.UserProjectService/SubmitPhaseReview"
+	UserProjectService_GetGrowth_FullMethodName               = "/userProject.UserProjectService/GetGrowth"
+	UserProjectService_StartCheckpoint_FullMethodName         = "/userProject.UserProjectService/StartCheckpoint"
+	UserProjectService_SubmitCheckpoint_FullMethodName        = "/userProject.UserProjectService/SubmitCheckpoint"
 )
 
 // UserProjectServiceClient is the client API for UserProjectService service.
@@ -56,6 +59,18 @@ type UserProjectServiceClient interface {
 	// and its knowledge-check status are all derived server-side from the
 	// caller's own enrollment, so none of them can be spoofed by the client.
 	SubmitPhaseReview(ctx context.Context, in *SubmitPhaseReviewRequest, opts ...grpc.CallOption) (*SubmitPhaseReviewResponse, error)
+	// The growth record: four stats, current era, and what the next one needs.
+	//
+	// Everything returned is derived from rows the user's own actions created —
+	// nothing is a stored score. The four stats are deliberately returned
+	// separately and never summed: a single number would let output stand in for
+	// comprehension, which is the substitution this product exists to prevent.
+	GetGrowth(ctx context.Context, in *GetGrowthRequest, opts ...grpc.CallOption) (*GetGrowthResponse, error)
+	// Begins an explain-it-back checkpoint on a phase the user has completed,
+	// returning a question grounded in the code they actually wrote.
+	StartCheckpoint(ctx context.Context, in *StartCheckpointRequest, opts ...grpc.CallOption) (*StartCheckpointResponse, error)
+	// Grades a checkpoint explanation. Passing is the only thing that clears fog.
+	SubmitCheckpoint(ctx context.Context, in *SubmitCheckpointRequest, opts ...grpc.CallOption) (*SubmitCheckpointResponse, error)
 }
 
 type userProjectServiceClient struct {
@@ -126,6 +141,36 @@ func (c *userProjectServiceClient) SubmitPhaseReview(ctx context.Context, in *Su
 	return out, nil
 }
 
+func (c *userProjectServiceClient) GetGrowth(ctx context.Context, in *GetGrowthRequest, opts ...grpc.CallOption) (*GetGrowthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetGrowthResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_GetGrowth_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userProjectServiceClient) StartCheckpoint(ctx context.Context, in *StartCheckpointRequest, opts ...grpc.CallOption) (*StartCheckpointResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartCheckpointResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_StartCheckpoint_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userProjectServiceClient) SubmitCheckpoint(ctx context.Context, in *SubmitCheckpointRequest, opts ...grpc.CallOption) (*SubmitCheckpointResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SubmitCheckpointResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_SubmitCheckpoint_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserProjectServiceServer is the server API for UserProjectService service.
 // All implementations must embed UnimplementedUserProjectServiceServer
 // for forward compatibility.
@@ -153,6 +198,18 @@ type UserProjectServiceServer interface {
 	// and its knowledge-check status are all derived server-side from the
 	// caller's own enrollment, so none of them can be spoofed by the client.
 	SubmitPhaseReview(context.Context, *SubmitPhaseReviewRequest) (*SubmitPhaseReviewResponse, error)
+	// The growth record: four stats, current era, and what the next one needs.
+	//
+	// Everything returned is derived from rows the user's own actions created —
+	// nothing is a stored score. The four stats are deliberately returned
+	// separately and never summed: a single number would let output stand in for
+	// comprehension, which is the substitution this product exists to prevent.
+	GetGrowth(context.Context, *GetGrowthRequest) (*GetGrowthResponse, error)
+	// Begins an explain-it-back checkpoint on a phase the user has completed,
+	// returning a question grounded in the code they actually wrote.
+	StartCheckpoint(context.Context, *StartCheckpointRequest) (*StartCheckpointResponse, error)
+	// Grades a checkpoint explanation. Passing is the only thing that clears fog.
+	SubmitCheckpoint(context.Context, *SubmitCheckpointRequest) (*SubmitCheckpointResponse, error)
 	mustEmbedUnimplementedUserProjectServiceServer()
 }
 
@@ -180,6 +237,15 @@ func (UnimplementedUserProjectServiceServer) SetUserProjectArchived(context.Cont
 }
 func (UnimplementedUserProjectServiceServer) SubmitPhaseReview(context.Context, *SubmitPhaseReviewRequest) (*SubmitPhaseReviewResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SubmitPhaseReview not implemented")
+}
+func (UnimplementedUserProjectServiceServer) GetGrowth(context.Context, *GetGrowthRequest) (*GetGrowthResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetGrowth not implemented")
+}
+func (UnimplementedUserProjectServiceServer) StartCheckpoint(context.Context, *StartCheckpointRequest) (*StartCheckpointResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartCheckpoint not implemented")
+}
+func (UnimplementedUserProjectServiceServer) SubmitCheckpoint(context.Context, *SubmitCheckpointRequest) (*SubmitCheckpointResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SubmitCheckpoint not implemented")
 }
 func (UnimplementedUserProjectServiceServer) mustEmbedUnimplementedUserProjectServiceServer() {}
 func (UnimplementedUserProjectServiceServer) testEmbeddedByValue()                            {}
@@ -310,6 +376,60 @@ func _UserProjectService_SubmitPhaseReview_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserProjectService_GetGrowth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGrowthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).GetGrowth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_GetGrowth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).GetGrowth(ctx, req.(*GetGrowthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserProjectService_StartCheckpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartCheckpointRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).StartCheckpoint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_StartCheckpoint_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).StartCheckpoint(ctx, req.(*StartCheckpointRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserProjectService_SubmitCheckpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitCheckpointRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).SubmitCheckpoint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_SubmitCheckpoint_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).SubmitCheckpoint(ctx, req.(*SubmitCheckpointRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserProjectService_ServiceDesc is the grpc.ServiceDesc for UserProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -340,6 +460,18 @@ var UserProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitPhaseReview",
 			Handler:    _UserProjectService_SubmitPhaseReview_Handler,
+		},
+		{
+			MethodName: "GetGrowth",
+			Handler:    _UserProjectService_GetGrowth_Handler,
+		},
+		{
+			MethodName: "StartCheckpoint",
+			Handler:    _UserProjectService_StartCheckpoint_Handler,
+		},
+		{
+			MethodName: "SubmitCheckpoint",
+			Handler:    _UserProjectService_SubmitCheckpoint_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

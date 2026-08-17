@@ -23,6 +23,40 @@ import {
 
 export const protobufPackage = "ai";
 
+export interface GenerateCheckpointRequest {
+  userEmail: string;
+  projectId: string;
+  phaseNumber: number;
+  phaseTitle: string;
+  /**
+   * Concepts the phase taught, so the question targets them rather than
+   * whatever happens to look interesting in the code.
+   */
+  concepts: string[];
+}
+
+export interface GenerateCheckpointResponse {
+  question: string;
+}
+
+export interface GradeExplanationRequest {
+  question: string;
+  answer: string;
+  phaseTitle: string;
+  concepts: string[];
+}
+
+export interface GradeExplanationResponse {
+  passed: boolean;
+  /**
+   * Shown back to the user. On a failure this names what was missing without
+   * supplying it — the same no-ghostwriting rule the assistant follows.
+   */
+  feedback: string;
+  /** Concepts judged absent from the explanation, for what to revisit. */
+  missingConcepts: string[];
+}
+
 export interface CriterionToGrade {
   id: string;
   text: string;
@@ -143,6 +177,414 @@ export interface GradeAnswerRequest {
 export interface GradeAnswerResponse {
   isCorrect: boolean;
 }
+
+function createBaseGenerateCheckpointRequest(): GenerateCheckpointRequest {
+  return { userEmail: "", projectId: "", phaseNumber: 0, phaseTitle: "", concepts: [] };
+}
+
+export const GenerateCheckpointRequest: MessageFns<GenerateCheckpointRequest> = {
+  encode(message: GenerateCheckpointRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userEmail !== "") {
+      writer.uint32(10).string(message.userEmail);
+    }
+    if (message.projectId !== "") {
+      writer.uint32(18).string(message.projectId);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(24).int32(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      writer.uint32(34).string(message.phaseTitle);
+    }
+    for (const v of message.concepts) {
+      writer.uint32(42).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GenerateCheckpointRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGenerateCheckpointRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userEmail = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.phaseTitle = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.concepts.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GenerateCheckpointRequest {
+    return {
+      userEmail: isSet(object.userEmail)
+        ? globalThis.String(object.userEmail)
+        : isSet(object.user_email)
+        ? globalThis.String(object.user_email)
+        : "",
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+      phaseTitle: isSet(object.phaseTitle)
+        ? globalThis.String(object.phaseTitle)
+        : isSet(object.phase_title)
+        ? globalThis.String(object.phase_title)
+        : "",
+      concepts: globalThis.Array.isArray(object?.concepts)
+        ? object.concepts.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GenerateCheckpointRequest): unknown {
+    const obj: any = {};
+    if (message.userEmail !== "") {
+      obj.userEmail = message.userEmail;
+    }
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      obj.phaseTitle = message.phaseTitle;
+    }
+    if (message.concepts?.length) {
+      obj.concepts = message.concepts;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GenerateCheckpointRequest>, I>>(base?: I): GenerateCheckpointRequest {
+    return GenerateCheckpointRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GenerateCheckpointRequest>, I>>(object: I): GenerateCheckpointRequest {
+    const message = createBaseGenerateCheckpointRequest();
+    message.userEmail = object.userEmail ?? "";
+    message.projectId = object.projectId ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    message.phaseTitle = object.phaseTitle ?? "";
+    message.concepts = object.concepts?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseGenerateCheckpointResponse(): GenerateCheckpointResponse {
+  return { question: "" };
+}
+
+export const GenerateCheckpointResponse: MessageFns<GenerateCheckpointResponse> = {
+  encode(message: GenerateCheckpointResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.question !== "") {
+      writer.uint32(10).string(message.question);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GenerateCheckpointResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGenerateCheckpointResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.question = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GenerateCheckpointResponse {
+    return { question: isSet(object.question) ? globalThis.String(object.question) : "" };
+  },
+
+  toJSON(message: GenerateCheckpointResponse): unknown {
+    const obj: any = {};
+    if (message.question !== "") {
+      obj.question = message.question;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GenerateCheckpointResponse>, I>>(base?: I): GenerateCheckpointResponse {
+    return GenerateCheckpointResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GenerateCheckpointResponse>, I>>(object: I): GenerateCheckpointResponse {
+    const message = createBaseGenerateCheckpointResponse();
+    message.question = object.question ?? "";
+    return message;
+  },
+};
+
+function createBaseGradeExplanationRequest(): GradeExplanationRequest {
+  return { question: "", answer: "", phaseTitle: "", concepts: [] };
+}
+
+export const GradeExplanationRequest: MessageFns<GradeExplanationRequest> = {
+  encode(message: GradeExplanationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.question !== "") {
+      writer.uint32(10).string(message.question);
+    }
+    if (message.answer !== "") {
+      writer.uint32(18).string(message.answer);
+    }
+    if (message.phaseTitle !== "") {
+      writer.uint32(26).string(message.phaseTitle);
+    }
+    for (const v of message.concepts) {
+      writer.uint32(34).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeExplanationRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGradeExplanationRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.question = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.answer = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.phaseTitle = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.concepts.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GradeExplanationRequest {
+    return {
+      question: isSet(object.question) ? globalThis.String(object.question) : "",
+      answer: isSet(object.answer) ? globalThis.String(object.answer) : "",
+      phaseTitle: isSet(object.phaseTitle)
+        ? globalThis.String(object.phaseTitle)
+        : isSet(object.phase_title)
+        ? globalThis.String(object.phase_title)
+        : "",
+      concepts: globalThis.Array.isArray(object?.concepts) ? object.concepts.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: GradeExplanationRequest): unknown {
+    const obj: any = {};
+    if (message.question !== "") {
+      obj.question = message.question;
+    }
+    if (message.answer !== "") {
+      obj.answer = message.answer;
+    }
+    if (message.phaseTitle !== "") {
+      obj.phaseTitle = message.phaseTitle;
+    }
+    if (message.concepts?.length) {
+      obj.concepts = message.concepts;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GradeExplanationRequest>, I>>(base?: I): GradeExplanationRequest {
+    return GradeExplanationRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GradeExplanationRequest>, I>>(object: I): GradeExplanationRequest {
+    const message = createBaseGradeExplanationRequest();
+    message.question = object.question ?? "";
+    message.answer = object.answer ?? "";
+    message.phaseTitle = object.phaseTitle ?? "";
+    message.concepts = object.concepts?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseGradeExplanationResponse(): GradeExplanationResponse {
+  return { passed: false, feedback: "", missingConcepts: [] };
+}
+
+export const GradeExplanationResponse: MessageFns<GradeExplanationResponse> = {
+  encode(message: GradeExplanationResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.passed !== false) {
+      writer.uint32(8).bool(message.passed);
+    }
+    if (message.feedback !== "") {
+      writer.uint32(18).string(message.feedback);
+    }
+    for (const v of message.missingConcepts) {
+      writer.uint32(26).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeExplanationResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGradeExplanationResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.passed = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.feedback = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.missingConcepts.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GradeExplanationResponse {
+    return {
+      passed: isSet(object.passed) ? globalThis.Boolean(object.passed) : false,
+      feedback: isSet(object.feedback) ? globalThis.String(object.feedback) : "",
+      missingConcepts: globalThis.Array.isArray(object?.missingConcepts)
+        ? object.missingConcepts.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.missing_concepts)
+        ? object.missing_concepts.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GradeExplanationResponse): unknown {
+    const obj: any = {};
+    if (message.passed !== false) {
+      obj.passed = message.passed;
+    }
+    if (message.feedback !== "") {
+      obj.feedback = message.feedback;
+    }
+    if (message.missingConcepts?.length) {
+      obj.missingConcepts = message.missingConcepts;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GradeExplanationResponse>, I>>(base?: I): GradeExplanationResponse {
+    return GradeExplanationResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GradeExplanationResponse>, I>>(object: I): GradeExplanationResponse {
+    const message = createBaseGradeExplanationResponse();
+    message.passed = object.passed ?? false;
+    message.feedback = object.feedback ?? "";
+    message.missingConcepts = object.missingConcepts?.map((e) => e) || [];
+    return message;
+  },
+};
 
 function createBaseCriterionToGrade(): CriterionToGrade {
   return { id: "", text: "", kind: "" };
@@ -1253,6 +1695,42 @@ export const AiServiceService = {
       Buffer.from(GradeCriteriaResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): GradeCriteriaResponse => GradeCriteriaResponse.decode(value),
   },
+  /**
+   * Produces one "explain it back" question about work the user has already
+   * completed, grounded in their actual files rather than the phase's topic in
+   * the abstract — "why does your nav jump to the right section?" rather than
+   * "what is an anchor link?".
+   */
+  generateCheckpoint: {
+    path: "/ai.AiService/GenerateCheckpoint" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GenerateCheckpointRequest): Buffer =>
+      Buffer.from(GenerateCheckpointRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GenerateCheckpointRequest => GenerateCheckpointRequest.decode(value),
+    responseSerialize: (value: GenerateCheckpointResponse): Buffer =>
+      Buffer.from(GenerateCheckpointResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GenerateCheckpointResponse => GenerateCheckpointResponse.decode(value),
+  },
+  /**
+   * Grades a free-text explanation for comprehension.
+   *
+   * This is the only grader in the system whose subject is the person rather
+   * than the code, and it is the one an AI-era junior cannot pass by prompting:
+   * the code already exists and already works, so reproducing it proves
+   * nothing. Pasted code is therefore an automatic fail, not a partial credit.
+   */
+  gradeExplanation: {
+    path: "/ai.AiService/GradeExplanation" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GradeExplanationRequest): Buffer =>
+      Buffer.from(GradeExplanationRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GradeExplanationRequest => GradeExplanationRequest.decode(value),
+    responseSerialize: (value: GradeExplanationResponse): Buffer =>
+      Buffer.from(GradeExplanationResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GradeExplanationResponse => GradeExplanationResponse.decode(value),
+  },
 } as const;
 
 export interface AiServiceServer extends UntypedServiceImplementation {
@@ -1288,6 +1766,22 @@ export interface AiServiceServer extends UntypedServiceImplementation {
    * this RPC never says whether the phase passed.
    */
   gradeCriteria: handleUnaryCall<GradeCriteriaRequest, GradeCriteriaResponse>;
+  /**
+   * Produces one "explain it back" question about work the user has already
+   * completed, grounded in their actual files rather than the phase's topic in
+   * the abstract — "why does your nav jump to the right section?" rather than
+   * "what is an anchor link?".
+   */
+  generateCheckpoint: handleUnaryCall<GenerateCheckpointRequest, GenerateCheckpointResponse>;
+  /**
+   * Grades a free-text explanation for comprehension.
+   *
+   * This is the only grader in the system whose subject is the person rather
+   * than the code, and it is the one an AI-era junior cannot pass by prompting:
+   * the code already exists and already works, so reproducing it proves
+   * nothing. Pasted code is therefore an automatic fail, not a partial credit.
+   */
+  gradeExplanation: handleUnaryCall<GradeExplanationRequest, GradeExplanationResponse>;
 }
 
 export interface AiServiceClient extends Client {
@@ -1351,6 +1845,50 @@ export interface AiServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: GradeCriteriaResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Produces one "explain it back" question about work the user has already
+   * completed, grounded in their actual files rather than the phase's topic in
+   * the abstract — "why does your nav jump to the right section?" rather than
+   * "what is an anchor link?".
+   */
+  generateCheckpoint(
+    request: GenerateCheckpointRequest,
+    callback: (error: ServiceError | null, response: GenerateCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  generateCheckpoint(
+    request: GenerateCheckpointRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GenerateCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  generateCheckpoint(
+    request: GenerateCheckpointRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GenerateCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Grades a free-text explanation for comprehension.
+   *
+   * This is the only grader in the system whose subject is the person rather
+   * than the code, and it is the one an AI-era junior cannot pass by prompting:
+   * the code already exists and already works, so reproducing it proves
+   * nothing. Pasted code is therefore an automatic fail, not a partial credit.
+   */
+  gradeExplanation(
+    request: GradeExplanationRequest,
+    callback: (error: ServiceError | null, response: GradeExplanationResponse) => void,
+  ): ClientUnaryCall;
+  gradeExplanation(
+    request: GradeExplanationRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GradeExplanationResponse) => void,
+  ): ClientUnaryCall;
+  gradeExplanation(
+    request: GradeExplanationRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GradeExplanationResponse) => void,
   ): ClientUnaryCall;
 }
 

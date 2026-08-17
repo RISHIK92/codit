@@ -30,6 +30,82 @@ service UserProjectService {
   // and its knowledge-check status are all derived server-side from the
   // caller's own enrollment, so none of them can be spoofed by the client.
   rpc SubmitPhaseReview (SubmitPhaseReviewRequest) returns (SubmitPhaseReviewResponse);
+
+  // The growth record: four stats, current era, and what the next one needs.
+  //
+  // Everything returned is derived from rows the user's own actions created —
+  // nothing is a stored score. The four stats are deliberately returned
+  // separately and never summed: a single number would let output stand in for
+  // comprehension, which is the substitution this product exists to prevent.
+  rpc GetGrowth (GetGrowthRequest) returns (GetGrowthResponse);
+
+  // Begins an explain-it-back checkpoint on a phase the user has completed,
+  // returning a question grounded in the code they actually wrote.
+  rpc StartCheckpoint (StartCheckpointRequest) returns (StartCheckpointResponse);
+
+  // Grades a checkpoint explanation. Passing is the only thing that clears fog.
+  rpc SubmitCheckpoint (SubmitCheckpointRequest) returns (SubmitCheckpointResponse);
+}
+
+// ── Growth ───────────────────────────────────────────────────────────────────
+
+message GetGrowthRequest {
+  string email = 1;
+}
+
+message EraRequirementProto {
+  string label = 1;   // phrased for a human; shown verbatim
+  bool   met   = 2;
+  int32  have  = 3;
+  int32  need  = 4;
+}
+
+message UnexplainedPhaseProto {
+  string project_id   = 1;
+  string project_name = 2;
+  int32  phase_number = 3;
+}
+
+message GetGrowthResponse {
+  // Never blended. Four numbers, always four.
+  int32  build      = 1;
+  int32  understand = 2;
+  int32  explore    = 3;
+  int32  show       = 4;
+
+  string era_name  = 5;
+  string era_blurb = 6;
+  int32  era_index = 7;
+  string next_era_name = 8;
+  repeated EraRequirementProto next_requirements = 9;
+
+  // Fog: work shipped but never explained back. A property of the record, not
+  // a judgement about the person.
+  int32  fog_count = 10;
+  repeated UnexplainedPhaseProto unexplained = 11;
+}
+
+message StartCheckpointRequest {
+  string email        = 1;
+  string project_id   = 2;
+  int32  phase_number = 3;
+}
+
+message StartCheckpointResponse {
+  string checkpoint_id = 1;
+  string question      = 2;
+}
+
+message SubmitCheckpointRequest {
+  string email         = 1;
+  string checkpoint_id = 2;
+  string answer        = 3;
+}
+
+message SubmitCheckpointResponse {
+  bool   passed   = 1;
+  string feedback = 2;
+  repeated string missing_concepts = 3;
 }
 
 message CreateUserProjectRequest {
