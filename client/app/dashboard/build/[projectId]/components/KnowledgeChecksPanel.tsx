@@ -22,6 +22,9 @@ interface KnowledgeChecksPanelProps {
   phaseNumber?: number;
   projectId: string;
   getToken: () => Promise<string>;
+  /** Fires on every graded answer. Repeatedly getting the same check wrong is
+   * a comprehension gap, which is the signal the stuck detector most wants. */
+  onGraded?: (checkId: string, isCorrect: boolean) => void;
 }
 
 const TYPE_META: Record<string, { icon: React.ReactNode; label: string }> = {
@@ -228,6 +231,7 @@ export function KnowledgeChecksPanel({
   phaseNumber,
   projectId,
   getToken,
+  onGraded,
 }: KnowledgeChecksPanelProps) {
   const [checks, setChecks] = useState<KnowledgeCheckItemDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -260,6 +264,7 @@ export function KnowledgeChecksPanel({
 
   const handleAnswered = useCallback(
     (id: string, result: { is_correct: boolean; explanation: string; answer: string }) => {
+      onGraded?.(id, result.is_correct);
       setChecks((prev) =>
         prev.map((c) =>
           c.id === id
@@ -274,7 +279,7 @@ export function KnowledgeChecksPanel({
         ),
       );
     },
-    [],
+    [onGraded],
   );
 
   if (!phaseId) {

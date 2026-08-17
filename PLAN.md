@@ -257,7 +257,11 @@ The mechanism is just handing it a structural map up front (what each file expor
 
 ---
 
-## Phase 4 — Engagement I: the moment-to-moment loop
+## Phase 4 — Engagement I: the moment-to-moment loop ✅ MOSTLY DONE
+
+*Stuck detection and the nudge are built and tested (35 checks on the pure
+heuristic). The latency work in this phase is **not** done — see below.*
+
 
 **Goal:** make the struggle feel supported rather than abandoned.
 
@@ -270,6 +274,30 @@ The mechanism is just handing it a structural map up front (what each file expor
 - **Faster feedback.** Cut dead air in the build loop: preview boot time, review latency, save round-trips.
 
 **Exit criteria:** the suggester fires when users are actually stuck and is dismissed rather than resented.
+
+### The heuristic, and why it's shaped this way
+
+The whole risk of this feature is the timing, so the judgement lives in one pure, clock-injected module (`client/lib/stuck/stuckDetector.ts`) with 35 tests, most of which assert **silence**. A nudge at the wrong moment costs more trust than a missed nudge saves.
+
+Signals, ordered by specificity — because specificity is what makes a nudge worth receiving:
+
+1. **Same criterion failing across submissions** (2×). The strongest signal available: the user is trying, not converging, and the rubric says exactly what on. This only exists because of Phase 2.
+2. **Same knowledge check wrong** (3×). A comprehension gap — the thing this product most wants to catch.
+3. **Consecutive failed runs** (3×), reset by any success.
+4. **Idle after real activity** (4 min). Deliberately last and weakest: it can't point anywhere specific, and someone who opened the page and walked away is *absent*, not stuck. It never fires unless they've actually edited something first.
+
+Anti-paperclip guards, each independently tested:
+
+- Never within 45s of a keystroke. Someone typing is by definition not stuck, and interrupting mid-edit is the paperclip's signature move.
+- Nothing in the first minute after arriving.
+- Silent while the assistant is already open, a review is on screen, or the user is reading frozen history.
+- **A dismissal is treated as information, not noise** — cooldown triples, and two dismissals mute for the session. There's also a plainly-offered permanent "turn these off" that persists across reloads.
+- The same trigger is never offered twice. If the nudge didn't help the first time, repeating it is strictly worse than silence.
+- Fixing one criterion clears its streak, so progress never reads as stuckness.
+
+### Not done: the latency work
+
+This phase also listed cutting dead air — preview boot, review latency, save round-trips. None of that is done. Review latency in particular got *worse* in Phase 2, since per-criterion grading is serial by default. That is a real, known regression in felt speed, and it belongs to whoever picks this up next.
 
 **Size:** medium.
 

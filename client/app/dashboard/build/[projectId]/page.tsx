@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -90,6 +90,9 @@ import { PreviewPane } from "./components/PreviewPane";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
 import { ReviewResultsPanel } from "./components/ReviewResultsPanel";
+import { SuggestionToast } from "./components/SuggestionToast";
+import { useStuckDetector } from "./hooks/useStuckDetector";
+import type { StuckEvent } from "@/lib/stuck/stuckDetector";
 import { ResourcesPanel } from "./components/ResourcesPanel";
 import { KnowledgeChecksPanel } from "./components/KnowledgeChecksPanel";
 
@@ -207,6 +210,9 @@ export default function BuildPage() {
   const [reviewResult, setReviewResult] = useState<PhaseReviewResultDTO | null>(
     null,
   );
+  // Indirection so the Monaco onMount closure — which captures once and never
+  // re-runs — can still reach the current recorder.
+  const stuckRef = useRef<((e: StuckEvent) => void) | null>(null);
   const [submitChecking, setSubmitChecking] = useState(false);
   const [submitPrompt, setSubmitPrompt] = useState<string | null>(null);
   // Mirrors AiAssistant's internal loading state — Submit is only disabled
@@ -1355,6 +1361,36 @@ export default function BuildPage() {
     setActivePhaseIdx(liveIdx >= 0 ? liveIdx : 0);
   }, [phases, currentPhaseNum, restoreLiveToWc]);
 
+  // ── Unprompted nudges ─────────────────────────────────────────────────────
+  // Suppressed whenever the user is already being helped or is reading history:
+  // a nudge on top of an open assistant, a fresh review verdict, or frozen
+  // past work is noise at best.
+  const criterionTextById = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const c of activePhase?.criteria ?? []) map[c.id] = c.text;
+    return map;
+  }, [activePhase]);
+
+  const {
+    suggestion,
+    record: recordStuck,
+    dismiss: dismissSuggestion,
+    turnOff: turnOffSuggestions,
+  } = useStuckDetector({
+    projectId,
+    activeFilePath: activeTabId || undefined,
+    currentTask: activePhase
+      ? `${projectName} — Phase ${activePhase.phase_number}: ${activePhase.title}`
+      : projectName,
+    getToken: useCallback(() => user!.getIdToken(), [user]),
+    criterionText: criterionTextById,
+    suppressed: aiOpen || reviewResult !== null || viewingPastPhase !== null,
+  });
+
+  useEffect(() => {
+    stuckRef.current = recordStuck;
+  }, [recordStuck]);
+
   // ── Submit for review ────────────────────────────────────────────────────
   //
   // One server call does everything: it checks the phase's knowledge checks are
@@ -1388,6 +1424,20 @@ export default function BuildPage() {
 
       const result = await submitPhaseReview(token, projectId, activeTabId);
       setReviewResult(result);
+
+      // The strongest stuck signal there is: the same criterion failing across
+      // submissions means the user is trying and not converging, and we know
+      // exactly what on.
+      if (result.verdict === "met") {
+        recordStuck({ type: "review_passed" });
+      } else if (result.verdict === "not_met") {
+        recordStuck({
+          type: "review_failed",
+          failedCriterionIds: result.results
+            .filter((r) => !r.passed && !r.ungraded)
+            .map((r) => r.criterion_id),
+        });
+      }
 
       if (result.verdict === "blocked") {
         setSubmitPrompt(result.feedback);
@@ -1678,6 +1728,13 @@ export default function BuildPage() {
               phaseNumber={activePhase?.phase_number}
               projectId={projectId}
               getToken={() => user!.getIdToken()}
+              onGraded={(checkId, isCorrect) =>
+                recordStuck(
+                  isCorrect
+                    ? { type: "check_passed", checkId }
+                    : { type: "check_failed", checkId },
+                )
+              }
             />
           )}
         </div>
@@ -2163,6 +2220,10 @@ export default function BuildPage() {
                       let writeTimer: ReturnType<typeof setTimeout> | null =
                         null;
                       editor.onDidChangeModelContent(() => {
+                        // Feeds the stuck detector. Typing is the signal that
+                        // suppresses nudges, not one that invites them —
+                        // someone actively editing is by definition not stuck.
+                        stuckRef.current?.({ type: "edit" });
                         if (writeTimer) clearTimeout(writeTimer);
                         writeTimer = setTimeout(() => {
                           const model = editor.getModel();
@@ -2414,6 +2475,17 @@ export default function BuildPage() {
         </div>
 
         {/* ── AI ASSISTANT — resizable sidebar alongside the editor, not a modal ── */}
+        {/* Unprompted nudge. Fixed-position and non-blocking on purpose — the
+            user didn't ask for it, so it must never cover the editor or take
+            focus. */}
+        {suggestion && viewingPastPhase === null && (
+          <SuggestionToast
+            suggestion={suggestion}
+            onDismiss={dismissSuggestion}
+            onTurnOff={turnOffSuggestions}
+          />
+        )}
+
         {/* Review outcome, in its own panel rather than as prose in the chat —
             a checklist with reasons and evidence is actionable in a way a
             paragraph isn't. */}
