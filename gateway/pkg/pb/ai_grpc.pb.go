@@ -21,8 +21,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiService_Chat_FullMethodName        = "/ai.AiService/Chat"
-	AiService_GradeAnswer_FullMethodName = "/ai.AiService/GradeAnswer"
+	AiService_Chat_FullMethodName          = "/ai.AiService/Chat"
+	AiService_GradeAnswer_FullMethodName   = "/ai.AiService/GradeAnswer"
+	AiService_GradeCriteria_FullMethodName = "/ai.AiService/GradeCriteria"
 )
 
 // AiServiceClient is the client API for AiService service.
@@ -41,6 +42,20 @@ type AiServiceClient interface {
 	// variable names, or an answer that states only the crucial change rather
 	// than the whole surrounding snippet) are graded correct.
 	GradeAnswer(ctx context.Context, in *GradeAnswerRequest, opts ...grpc.CallOption) (*GradeAnswerResponse, error)
+	// Grades a phase submission one criterion at a time, each verdict carrying
+	// the evidence for it.
+	//
+	// Deliberately not a chat call. Asking a model "does this submission meet the
+	// goal?" produces a holistic opinion, and holistic opinions drift generous —
+	// which is the failure that matters, because a false pass silently turns a
+	// learning gate into a rubber stamp. Judging one narrow criterion at a time
+	// and demanding a file, a line range, and a quote for every pass converts the
+	// question from "is this good" into "point at where this is true", which a
+	// model cannot answer by being agreeable.
+	//
+	// The caller decides the phase verdict by conjunction over these results;
+	// this RPC never says whether the phase passed.
+	GradeCriteria(ctx context.Context, in *GradeCriteriaRequest, opts ...grpc.CallOption) (*GradeCriteriaResponse, error)
 }
 
 type aiServiceClient struct {
@@ -80,6 +95,16 @@ func (c *aiServiceClient) GradeAnswer(ctx context.Context, in *GradeAnswerReques
 	return out, nil
 }
 
+func (c *aiServiceClient) GradeCriteria(ctx context.Context, in *GradeCriteriaRequest, opts ...grpc.CallOption) (*GradeCriteriaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GradeCriteriaResponse)
+	err := c.cc.Invoke(ctx, AiService_GradeCriteria_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AiServiceServer is the server API for AiService service.
 // All implementations must embed UnimplementedAiServiceServer
 // for forward compatibility.
@@ -96,6 +121,20 @@ type AiServiceServer interface {
 	// variable names, or an answer that states only the crucial change rather
 	// than the whole surrounding snippet) are graded correct.
 	GradeAnswer(context.Context, *GradeAnswerRequest) (*GradeAnswerResponse, error)
+	// Grades a phase submission one criterion at a time, each verdict carrying
+	// the evidence for it.
+	//
+	// Deliberately not a chat call. Asking a model "does this submission meet the
+	// goal?" produces a holistic opinion, and holistic opinions drift generous —
+	// which is the failure that matters, because a false pass silently turns a
+	// learning gate into a rubber stamp. Judging one narrow criterion at a time
+	// and demanding a file, a line range, and a quote for every pass converts the
+	// question from "is this good" into "point at where this is true", which a
+	// model cannot answer by being agreeable.
+	//
+	// The caller decides the phase verdict by conjunction over these results;
+	// this RPC never says whether the phase passed.
+	GradeCriteria(context.Context, *GradeCriteriaRequest) (*GradeCriteriaResponse, error)
 	mustEmbedUnimplementedAiServiceServer()
 }
 
@@ -111,6 +150,9 @@ func (UnimplementedAiServiceServer) Chat(*ChatRequest, grpc.ServerStreamingServe
 }
 func (UnimplementedAiServiceServer) GradeAnswer(context.Context, *GradeAnswerRequest) (*GradeAnswerResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GradeAnswer not implemented")
+}
+func (UnimplementedAiServiceServer) GradeCriteria(context.Context, *GradeCriteriaRequest) (*GradeCriteriaResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GradeCriteria not implemented")
 }
 func (UnimplementedAiServiceServer) mustEmbedUnimplementedAiServiceServer() {}
 func (UnimplementedAiServiceServer) testEmbeddedByValue()                   {}
@@ -162,6 +204,24 @@ func _AiService_GradeAnswer_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiService_GradeCriteria_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GradeCriteriaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiServiceServer).GradeCriteria(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiService_GradeCriteria_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiServiceServer).GradeCriteria(ctx, req.(*GradeCriteriaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AiService_ServiceDesc is the grpc.ServiceDesc for AiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -172,6 +232,10 @@ var AiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GradeAnswer",
 			Handler:    _AiService_GradeAnswer_Handler,
+		},
+		{
+			MethodName: "GradeCriteria",
+			Handler:    _AiService_GradeCriteria_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -23,6 +23,51 @@ import {
 
 export const protobufPackage = "ai";
 
+export interface CriterionToGrade {
+  id: string;
+  text: string;
+  /** "behavioral" | "structural" | "conceptual" */
+  kind: string;
+}
+
+export interface GradeCriteriaRequest {
+  userEmail: string;
+  projectId: string;
+  phaseTitle: string;
+  /**
+   * Context only — criteria are what gets graded. Included so the model can
+   * tell which phase it's in and stay out of later phases' concerns.
+   */
+  phaseGoal: string;
+  criteria: CriterionToGrade[];
+}
+
+export interface CriterionVerdict {
+  criterionId: string;
+  passed: boolean;
+  /**
+   * Required when passed. A pass with no citable evidence is downgraded to a
+   * failure by the caller — an unevidenced claim is exactly what this design
+   * exists to reject.
+   */
+  evidencePath: string;
+  evidenceLines: string;
+  evidenceQuote: string;
+  /** One sentence. Shown to the user when the criterion failed. */
+  reasoning: string;
+  /**
+   * True when this criterion could not be graded at all (model error, malformed
+   * response). Not the same as failing: the user's work wasn't judged.
+   */
+  ungraded: boolean;
+}
+
+export interface GradeCriteriaResponse {
+  verdicts: CriterionVerdict[];
+  /** Model that produced these, recorded so a bad batch can be traced. */
+  model: string;
+}
+
 export interface ChatMessage {
   /** "user" | "assistant" */
   role: string;
@@ -91,6 +136,498 @@ export interface GradeAnswerRequest {
 export interface GradeAnswerResponse {
   isCorrect: boolean;
 }
+
+function createBaseCriterionToGrade(): CriterionToGrade {
+  return { id: "", text: "", kind: "" };
+}
+
+export const CriterionToGrade: MessageFns<CriterionToGrade> = {
+  encode(message: CriterionToGrade, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.text !== "") {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.kind !== "") {
+      writer.uint32(26).string(message.kind);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CriterionToGrade {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCriterionToGrade();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.kind = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CriterionToGrade {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
+    };
+  },
+
+  toJSON(message: CriterionToGrade): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.kind !== "") {
+      obj.kind = message.kind;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CriterionToGrade>, I>>(base?: I): CriterionToGrade {
+    return CriterionToGrade.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CriterionToGrade>, I>>(object: I): CriterionToGrade {
+    const message = createBaseCriterionToGrade();
+    message.id = object.id ?? "";
+    message.text = object.text ?? "";
+    message.kind = object.kind ?? "";
+    return message;
+  },
+};
+
+function createBaseGradeCriteriaRequest(): GradeCriteriaRequest {
+  return { userEmail: "", projectId: "", phaseTitle: "", phaseGoal: "", criteria: [] };
+}
+
+export const GradeCriteriaRequest: MessageFns<GradeCriteriaRequest> = {
+  encode(message: GradeCriteriaRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userEmail !== "") {
+      writer.uint32(10).string(message.userEmail);
+    }
+    if (message.projectId !== "") {
+      writer.uint32(18).string(message.projectId);
+    }
+    if (message.phaseTitle !== "") {
+      writer.uint32(26).string(message.phaseTitle);
+    }
+    if (message.phaseGoal !== "") {
+      writer.uint32(34).string(message.phaseGoal);
+    }
+    for (const v of message.criteria) {
+      CriterionToGrade.encode(v!, writer.uint32(42).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeCriteriaRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGradeCriteriaRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userEmail = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.phaseTitle = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.phaseGoal = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.criteria.push(CriterionToGrade.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GradeCriteriaRequest {
+    return {
+      userEmail: isSet(object.userEmail)
+        ? globalThis.String(object.userEmail)
+        : isSet(object.user_email)
+        ? globalThis.String(object.user_email)
+        : "",
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      phaseTitle: isSet(object.phaseTitle)
+        ? globalThis.String(object.phaseTitle)
+        : isSet(object.phase_title)
+        ? globalThis.String(object.phase_title)
+        : "",
+      phaseGoal: isSet(object.phaseGoal)
+        ? globalThis.String(object.phaseGoal)
+        : isSet(object.phase_goal)
+        ? globalThis.String(object.phase_goal)
+        : "",
+      criteria: globalThis.Array.isArray(object?.criteria)
+        ? object.criteria.map((e: any) => CriterionToGrade.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GradeCriteriaRequest): unknown {
+    const obj: any = {};
+    if (message.userEmail !== "") {
+      obj.userEmail = message.userEmail;
+    }
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.phaseTitle !== "") {
+      obj.phaseTitle = message.phaseTitle;
+    }
+    if (message.phaseGoal !== "") {
+      obj.phaseGoal = message.phaseGoal;
+    }
+    if (message.criteria?.length) {
+      obj.criteria = message.criteria.map((e) => CriterionToGrade.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GradeCriteriaRequest>, I>>(base?: I): GradeCriteriaRequest {
+    return GradeCriteriaRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GradeCriteriaRequest>, I>>(object: I): GradeCriteriaRequest {
+    const message = createBaseGradeCriteriaRequest();
+    message.userEmail = object.userEmail ?? "";
+    message.projectId = object.projectId ?? "";
+    message.phaseTitle = object.phaseTitle ?? "";
+    message.phaseGoal = object.phaseGoal ?? "";
+    message.criteria = object.criteria?.map((e) => CriterionToGrade.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseCriterionVerdict(): CriterionVerdict {
+  return {
+    criterionId: "",
+    passed: false,
+    evidencePath: "",
+    evidenceLines: "",
+    evidenceQuote: "",
+    reasoning: "",
+    ungraded: false,
+  };
+}
+
+export const CriterionVerdict: MessageFns<CriterionVerdict> = {
+  encode(message: CriterionVerdict, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.criterionId !== "") {
+      writer.uint32(10).string(message.criterionId);
+    }
+    if (message.passed !== false) {
+      writer.uint32(16).bool(message.passed);
+    }
+    if (message.evidencePath !== "") {
+      writer.uint32(26).string(message.evidencePath);
+    }
+    if (message.evidenceLines !== "") {
+      writer.uint32(34).string(message.evidenceLines);
+    }
+    if (message.evidenceQuote !== "") {
+      writer.uint32(42).string(message.evidenceQuote);
+    }
+    if (message.reasoning !== "") {
+      writer.uint32(50).string(message.reasoning);
+    }
+    if (message.ungraded !== false) {
+      writer.uint32(56).bool(message.ungraded);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CriterionVerdict {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCriterionVerdict();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.criterionId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.passed = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.evidencePath = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.evidenceLines = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.evidenceQuote = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.reasoning = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.ungraded = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CriterionVerdict {
+    return {
+      criterionId: isSet(object.criterionId)
+        ? globalThis.String(object.criterionId)
+        : isSet(object.criterion_id)
+        ? globalThis.String(object.criterion_id)
+        : "",
+      passed: isSet(object.passed) ? globalThis.Boolean(object.passed) : false,
+      evidencePath: isSet(object.evidencePath)
+        ? globalThis.String(object.evidencePath)
+        : isSet(object.evidence_path)
+        ? globalThis.String(object.evidence_path)
+        : "",
+      evidenceLines: isSet(object.evidenceLines)
+        ? globalThis.String(object.evidenceLines)
+        : isSet(object.evidence_lines)
+        ? globalThis.String(object.evidence_lines)
+        : "",
+      evidenceQuote: isSet(object.evidenceQuote)
+        ? globalThis.String(object.evidenceQuote)
+        : isSet(object.evidence_quote)
+        ? globalThis.String(object.evidence_quote)
+        : "",
+      reasoning: isSet(object.reasoning) ? globalThis.String(object.reasoning) : "",
+      ungraded: isSet(object.ungraded) ? globalThis.Boolean(object.ungraded) : false,
+    };
+  },
+
+  toJSON(message: CriterionVerdict): unknown {
+    const obj: any = {};
+    if (message.criterionId !== "") {
+      obj.criterionId = message.criterionId;
+    }
+    if (message.passed !== false) {
+      obj.passed = message.passed;
+    }
+    if (message.evidencePath !== "") {
+      obj.evidencePath = message.evidencePath;
+    }
+    if (message.evidenceLines !== "") {
+      obj.evidenceLines = message.evidenceLines;
+    }
+    if (message.evidenceQuote !== "") {
+      obj.evidenceQuote = message.evidenceQuote;
+    }
+    if (message.reasoning !== "") {
+      obj.reasoning = message.reasoning;
+    }
+    if (message.ungraded !== false) {
+      obj.ungraded = message.ungraded;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CriterionVerdict>, I>>(base?: I): CriterionVerdict {
+    return CriterionVerdict.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CriterionVerdict>, I>>(object: I): CriterionVerdict {
+    const message = createBaseCriterionVerdict();
+    message.criterionId = object.criterionId ?? "";
+    message.passed = object.passed ?? false;
+    message.evidencePath = object.evidencePath ?? "";
+    message.evidenceLines = object.evidenceLines ?? "";
+    message.evidenceQuote = object.evidenceQuote ?? "";
+    message.reasoning = object.reasoning ?? "";
+    message.ungraded = object.ungraded ?? false;
+    return message;
+  },
+};
+
+function createBaseGradeCriteriaResponse(): GradeCriteriaResponse {
+  return { verdicts: [], model: "" };
+}
+
+export const GradeCriteriaResponse: MessageFns<GradeCriteriaResponse> = {
+  encode(message: GradeCriteriaResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.verdicts) {
+      CriterionVerdict.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.model !== "") {
+      writer.uint32(18).string(message.model);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeCriteriaResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGradeCriteriaResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.verdicts.push(CriterionVerdict.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.model = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GradeCriteriaResponse {
+    return {
+      verdicts: globalThis.Array.isArray(object?.verdicts)
+        ? object.verdicts.map((e: any) => CriterionVerdict.fromJSON(e))
+        : [],
+      model: isSet(object.model) ? globalThis.String(object.model) : "",
+    };
+  },
+
+  toJSON(message: GradeCriteriaResponse): unknown {
+    const obj: any = {};
+    if (message.verdicts?.length) {
+      obj.verdicts = message.verdicts.map((e) => CriterionVerdict.toJSON(e));
+    }
+    if (message.model !== "") {
+      obj.model = message.model;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GradeCriteriaResponse>, I>>(base?: I): GradeCriteriaResponse {
+    return GradeCriteriaResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GradeCriteriaResponse>, I>>(object: I): GradeCriteriaResponse {
+    const message = createBaseGradeCriteriaResponse();
+    message.verdicts = object.verdicts?.map((e) => CriterionVerdict.fromPartial(e)) || [];
+    message.model = object.model ?? "";
+    return message;
+  },
+};
 
 function createBaseChatMessage(): ChatMessage {
   return { role: "", content: "" };
@@ -684,6 +1221,31 @@ export const AiServiceService = {
     responseSerialize: (value: GradeAnswerResponse): Buffer => Buffer.from(GradeAnswerResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): GradeAnswerResponse => GradeAnswerResponse.decode(value),
   },
+  /**
+   * Grades a phase submission one criterion at a time, each verdict carrying
+   * the evidence for it.
+   *
+   * Deliberately not a chat call. Asking a model "does this submission meet the
+   * goal?" produces a holistic opinion, and holistic opinions drift generous —
+   * which is the failure that matters, because a false pass silently turns a
+   * learning gate into a rubber stamp. Judging one narrow criterion at a time
+   * and demanding a file, a line range, and a quote for every pass converts the
+   * question from "is this good" into "point at where this is true", which a
+   * model cannot answer by being agreeable.
+   *
+   * The caller decides the phase verdict by conjunction over these results;
+   * this RPC never says whether the phase passed.
+   */
+  gradeCriteria: {
+    path: "/ai.AiService/GradeCriteria" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GradeCriteriaRequest): Buffer => Buffer.from(GradeCriteriaRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GradeCriteriaRequest => GradeCriteriaRequest.decode(value),
+    responseSerialize: (value: GradeCriteriaResponse): Buffer =>
+      Buffer.from(GradeCriteriaResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GradeCriteriaResponse => GradeCriteriaResponse.decode(value),
+  },
 } as const;
 
 export interface AiServiceServer extends UntypedServiceImplementation {
@@ -703,6 +1265,22 @@ export interface AiServiceServer extends UntypedServiceImplementation {
    * than the whole surrounding snippet) are graded correct.
    */
   gradeAnswer: handleUnaryCall<GradeAnswerRequest, GradeAnswerResponse>;
+  /**
+   * Grades a phase submission one criterion at a time, each verdict carrying
+   * the evidence for it.
+   *
+   * Deliberately not a chat call. Asking a model "does this submission meet the
+   * goal?" produces a holistic opinion, and holistic opinions drift generous —
+   * which is the failure that matters, because a false pass silently turns a
+   * learning gate into a rubber stamp. Judging one narrow criterion at a time
+   * and demanding a file, a line range, and a quote for every pass converts the
+   * question from "is this good" into "point at where this is true", which a
+   * model cannot answer by being agreeable.
+   *
+   * The caller decides the phase verdict by conjunction over these results;
+   * this RPC never says whether the phase passed.
+   */
+  gradeCriteria: handleUnaryCall<GradeCriteriaRequest, GradeCriteriaResponse>;
 }
 
 export interface AiServiceClient extends Client {
@@ -736,6 +1314,36 @@ export interface AiServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: GradeAnswerResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Grades a phase submission one criterion at a time, each verdict carrying
+   * the evidence for it.
+   *
+   * Deliberately not a chat call. Asking a model "does this submission meet the
+   * goal?" produces a holistic opinion, and holistic opinions drift generous —
+   * which is the failure that matters, because a false pass silently turns a
+   * learning gate into a rubber stamp. Judging one narrow criterion at a time
+   * and demanding a file, a line range, and a quote for every pass converts the
+   * question from "is this good" into "point at where this is true", which a
+   * model cannot answer by being agreeable.
+   *
+   * The caller decides the phase verdict by conjunction over these results;
+   * this RPC never says whether the phase passed.
+   */
+  gradeCriteria(
+    request: GradeCriteriaRequest,
+    callback: (error: ServiceError | null, response: GradeCriteriaResponse) => void,
+  ): ClientUnaryCall;
+  gradeCriteria(
+    request: GradeCriteriaRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GradeCriteriaResponse) => void,
+  ): ClientUnaryCall;
+  gradeCriteria(
+    request: GradeCriteriaRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GradeCriteriaResponse) => void,
   ): ClientUnaryCall;
 }
 

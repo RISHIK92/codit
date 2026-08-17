@@ -88,7 +88,12 @@ export const advancePhase = async (
   expectedCompletedPhase: number,
   /** Written in the same transaction as the advance, so a passed review and
    * the advance it authorised can never disagree. */
-  review: { verdict: "met"; feedback: string; model: string },
+  review: {
+    verdict: "met";
+    feedback: string;
+    model: string;
+    results?: CriterionResultInput[];
+  },
 ) => {
   return await prisma.$transaction(async (tx) => {
     const current = await tx.userProjects.findUniqueOrThrow({
@@ -133,7 +138,7 @@ export const advancePhase = async (
       );
     }
 
-    await tx.phaseReview.create({
+    const created = await tx.phaseReview.create({
       data: {
         user_project_id: current.id,
         phase_number: completedPhaseNumber,
@@ -142,6 +147,11 @@ export const advancePhase = async (
         model: review.model,
       },
     });
+    if (review.results?.length) {
+      await tx.reviewCriterionResult.createMany({
+        data: review.results.map((r) => toResultRow(created.id, r)),
+      });
+    }
 
     const files = await tx.projectFile.findMany({
       where: { project_id: projectId, user_email: email },
@@ -243,6 +253,29 @@ export const advancePhase = async (
  * grading). Kept alongside passes so the full submission history is auditable
  * — a verdict record that only exists on success can't tell you how often the
  * grader is wrong. */
+export interface CriterionResultInput {
+  criterionId: string;
+  passed: boolean;
+  decidedBy: "deterministic" | "model" | "ungraded";
+  evidencePath?: string;
+  evidenceLines?: string;
+  evidenceQuote?: string;
+  reasoning?: string;
+}
+
+function toResultRow(reviewId: string, r: CriterionResultInput) {
+  return {
+    review_id: reviewId,
+    criterion_id: r.criterionId,
+    passed: r.passed,
+    decided_by: r.decidedBy,
+    evidence_path: r.evidencePath ?? "",
+    evidence_lines: r.evidenceLines ?? "",
+    evidence_quote: (r.evidenceQuote ?? "").slice(0, 400),
+    reasoning: r.reasoning ?? "",
+  };
+}
+
 export const recordFailedReview = async (
   projectId: string,
   email: string,
@@ -250,12 +283,13 @@ export const recordFailedReview = async (
   verdict: "not_met" | "blocked",
   feedback: string,
   model: string,
+  results?: CriterionResultInput[],
 ) => {
   const current = await prisma.userProjects.findUniqueOrThrow({
     where: { project_id_user_email: { project_id: projectId, user_email: email } },
     select: { id: true },
   });
-  return prisma.phaseReview.create({
+  const review = await prisma.phaseReview.create({
     data: {
       user_project_id: current.id,
       phase_number: phaseNumber,
@@ -263,6 +297,21 @@ export const recordFailedReview = async (
       feedback,
       model,
     },
+  });
+  if (results?.length) {
+    await prisma.reviewCriterionResult.createMany({
+      data: results.map((r) => toResultRow(review.id, r)),
+    });
+  }
+  return review;
+};
+
+/** The rubric for a phase, in order, including grading internals — this is the
+ * server-side read, unlike the catalogue query which omits them. */
+export const getPhaseCriteria = async (phaseId: string) => {
+  return prisma.phaseCriterion.findMany({
+    where: { phase_id: phaseId },
+    orderBy: { order: "asc" },
   });
 };
 

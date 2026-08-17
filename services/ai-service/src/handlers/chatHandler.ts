@@ -5,7 +5,10 @@ import {
   ChatResponse,
   GradeAnswerRequest,
   GradeAnswerResponse,
+  GradeCriteriaRequest,
+  GradeCriteriaResponse,
 } from "../generated/ai";
+import { gradeCriteria } from "./criterionGrader";
 import {
   getUserProfile,
   getFileContent,
@@ -342,6 +345,40 @@ export const aiServiceHandler: AiServiceServer = {
       const verdict = (result.content ?? "").trim().toUpperCase();
       callback(null, { isCorrect: verdict.startsWith("YES") });
     } catch (err: any) {
+      callback({ code: grpc.status.INTERNAL, message: err.message }, null);
+    }
+  },
+
+  gradeCriteria: async (
+    call: grpc.ServerUnaryCall<GradeCriteriaRequest, GradeCriteriaResponse>,
+    callback: grpc.sendUnaryData<GradeCriteriaResponse>,
+  ) => {
+    try {
+      const { userEmail, projectId, phaseTitle, phaseGoal, criteria } =
+        call.request;
+
+      const outcomes = await gradeCriteria({
+        userEmail,
+        projectId,
+        phaseTitle,
+        phaseGoal,
+        criteria: criteria.map((c) => ({ id: c.id, text: c.text, kind: c.kind })),
+      });
+
+      callback(null, {
+        verdicts: outcomes.map((o) => ({
+          criterionId: o.criterionId,
+          passed: o.passed,
+          evidencePath: o.evidencePath,
+          evidenceLines: o.evidenceLines,
+          evidenceQuote: o.evidenceQuote,
+          reasoning: o.reasoning,
+          ungraded: o.ungraded,
+        })),
+        model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
+      });
+    } catch (err: any) {
+      console.error("GradeCriteria failed:", err?.message ?? err);
       callback({ code: grpc.status.INTERNAL, message: err.message }, null);
     }
   },

@@ -22,6 +22,61 @@ service AiService {
   // variable names, or an answer that states only the crucial change rather
   // than the whole surrounding snippet) are graded correct.
   rpc GradeAnswer (GradeAnswerRequest) returns (GradeAnswerResponse);
+
+  // Grades a phase submission one criterion at a time, each verdict carrying
+  // the evidence for it.
+  //
+  // Deliberately not a chat call. Asking a model "does this submission meet the
+  // goal?" produces a holistic opinion, and holistic opinions drift generous —
+  // which is the failure that matters, because a false pass silently turns a
+  // learning gate into a rubber stamp. Judging one narrow criterion at a time
+  // and demanding a file, a line range, and a quote for every pass converts the
+  // question from "is this good" into "point at where this is true", which a
+  // model cannot answer by being agreeable.
+  //
+  // The caller decides the phase verdict by conjunction over these results;
+  // this RPC never says whether the phase passed.
+  rpc GradeCriteria (GradeCriteriaRequest) returns (GradeCriteriaResponse);
+}
+
+// ── GradeCriteria ────────────────────────────────────────────────────────────
+
+message CriterionToGrade {
+  string id   = 1;
+  string text = 2;
+  string kind = 3;  // "behavioral" | "structural" | "conceptual"
+}
+
+message GradeCriteriaRequest {
+  string user_email  = 1;
+  string project_id  = 2;
+  string phase_title = 3;
+  // Context only — criteria are what gets graded. Included so the model can
+  // tell which phase it's in and stay out of later phases' concerns.
+  string phase_goal  = 4;
+  repeated CriterionToGrade criteria = 5;
+}
+
+message CriterionVerdict {
+  string criterion_id   = 1;
+  bool   passed         = 2;
+  // Required when passed. A pass with no citable evidence is downgraded to a
+  // failure by the caller — an unevidenced claim is exactly what this design
+  // exists to reject.
+  string evidence_path  = 3;
+  string evidence_lines = 4;
+  string evidence_quote = 5;
+  // One sentence. Shown to the user when the criterion failed.
+  string reasoning      = 6;
+  // True when this criterion could not be graded at all (model error, malformed
+  // response). Not the same as failing: the user's work wasn't judged.
+  bool   ungraded       = 7;
+}
+
+message GradeCriteriaResponse {
+  repeated CriterionVerdict verdicts = 1;
+  // Model that produced these, recorded so a bad batch can be traced.
+  string model = 2;
 }
 
 // ── Chat ──────────────────────────────────────────────────────────────────────

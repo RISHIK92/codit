@@ -173,9 +173,61 @@ model PhaseReview {
   model           String        @default("")
   created_at      DateTime      @default(now())
 
-  userProject UserProjects @relation(fields: [user_project_id], references: [id])
+  userProject UserProjects            @relation(fields: [user_project_id], references: [id])
+  results     ReviewCriterionResult[]
 
   @@index([user_project_id, phase_number])
+}
+
+/**
+ * How one criterion was judged in one submission.
+ * The verdict on a phase is the conjunction of these, computed — never a
+ * holistic opinion parsed out of prose. Each model-judged row has to carry the
+ * file and lines that satisfy the criterion: a model asked "is this good?"
+ * drifts generous, while a model required to point at the line has to either
+ * find it or fail. That requirement is the main defence against a false pass.
+ * Rows are kept for failed submissions too. Measuring how often grading is
+ * wrong is impossible from success records alone.
+ */
+model ReviewCriterionResult {
+  id             String       @id @default(uuid())
+  review_id      String
+  criterion_id   String
+  passed         Boolean
+  decided_by     ResultSource
+  /**
+   * Where the evidence was found. Empty for deterministic checks and failures.
+   */
+  evidence_path  String       @default("")
+  evidence_lines String       @default("")
+  evidence_quote String       @default("")
+  /**
+   * One sentence on why. Shown to the user when the criterion failed.
+   */
+  reasoning      String       @default("")
+
+  review    PhaseReview    @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  criterion PhaseCriterion @relation(fields: [criterion_id], references: [id])
+
+  @@unique([review_id, criterion_id])
+  @@index([criterion_id])
+}
+
+enum ResultSource {
+  /**
+   * Decided in code — no model involved, no judgement to second-guess.
+   */
+  deterministic
+  /**
+   * Decided by a model that cited evidence for its answer.
+   */
+  model
+  /**
+   * The grader errored or returned an unusable answer. Counts as not passed:
+   * an unanswered criterion is not a met one. Recorded distinctly so grading
+   * failures never get mistaken for judgements about the user's work.
+   */
+  ungraded
 }
 
 /**
@@ -254,7 +306,8 @@ model PhaseCriterion {
    */
   hint         String        @default("")
 
-  learningPhase LearningPhase @relation(fields: [phase_id], references: [id])
+  learningPhase LearningPhase           @relation(fields: [phase_id], references: [id])
+  results       ReviewCriterionResult[]
 
   @@unique([phase_id, order])
   @@index([phase_id])

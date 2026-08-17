@@ -86,6 +86,33 @@ export interface SubmitPhaseReviewRequest {
   activeFilePath: string;
 }
 
+/**
+ * How one criterion was judged, sent back so the user sees a checklist rather
+ * than a paragraph. Being told "3 of 5 checks passed, here's which two didn't
+ * and where" is actionable; a prose verdict is something to argue with.
+ */
+export interface CriterionResultProto {
+  criterionId: string;
+  text: string;
+  kind: string;
+  passed: boolean;
+  /** Why it failed, or where it was found when it passed. */
+  reasoning: string;
+  /**
+   * Populated on a pass — lets the user see what the grader actually looked at,
+   * which is also what makes a wrong verdict arguable rather than mysterious.
+   */
+  evidencePath: string;
+  evidenceLines: string;
+  /** Shown only on failure. Names the concept, never the code. */
+  hint: string;
+  /**
+   * True when grading failed rather than the work — the user should retry, not
+   * go looking for a mistake they didn't make.
+   */
+  ungraded: boolean;
+}
+
 export interface SubmitPhaseReviewResponse {
   /**
    * "met"     — goal judged met; the phase was advanced.
@@ -109,6 +136,13 @@ export interface SubmitPhaseReviewResponse {
   /** Populated when verdict = "blocked", so the UI can say "3 of 5 correct". */
   checksTotal: number;
   checksCorrect: number;
+  /**
+   * Per-criterion outcomes, in rubric order. Empty when blocked (nothing was
+   * graded) or for phases with no rubric authored.
+   */
+  results: CriterionResultProto[];
+  criteriaTotal: number;
+  criteriaPassed: number;
 }
 
 function createBaseCreateUserProjectRequest(): CreateUserProjectRequest {
@@ -1079,8 +1113,228 @@ export const SubmitPhaseReviewRequest: MessageFns<SubmitPhaseReviewRequest> = {
   },
 };
 
+function createBaseCriterionResultProto(): CriterionResultProto {
+  return {
+    criterionId: "",
+    text: "",
+    kind: "",
+    passed: false,
+    reasoning: "",
+    evidencePath: "",
+    evidenceLines: "",
+    hint: "",
+    ungraded: false,
+  };
+}
+
+export const CriterionResultProto: MessageFns<CriterionResultProto> = {
+  encode(message: CriterionResultProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.criterionId !== "") {
+      writer.uint32(10).string(message.criterionId);
+    }
+    if (message.text !== "") {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.kind !== "") {
+      writer.uint32(26).string(message.kind);
+    }
+    if (message.passed !== false) {
+      writer.uint32(32).bool(message.passed);
+    }
+    if (message.reasoning !== "") {
+      writer.uint32(42).string(message.reasoning);
+    }
+    if (message.evidencePath !== "") {
+      writer.uint32(50).string(message.evidencePath);
+    }
+    if (message.evidenceLines !== "") {
+      writer.uint32(58).string(message.evidenceLines);
+    }
+    if (message.hint !== "") {
+      writer.uint32(66).string(message.hint);
+    }
+    if (message.ungraded !== false) {
+      writer.uint32(72).bool(message.ungraded);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CriterionResultProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCriterionResultProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.criterionId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.kind = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.passed = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.reasoning = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.evidencePath = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.evidenceLines = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.hint = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.ungraded = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CriterionResultProto {
+    return {
+      criterionId: isSet(object.criterionId)
+        ? globalThis.String(object.criterionId)
+        : isSet(object.criterion_id)
+        ? globalThis.String(object.criterion_id)
+        : "",
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
+      passed: isSet(object.passed) ? globalThis.Boolean(object.passed) : false,
+      reasoning: isSet(object.reasoning) ? globalThis.String(object.reasoning) : "",
+      evidencePath: isSet(object.evidencePath)
+        ? globalThis.String(object.evidencePath)
+        : isSet(object.evidence_path)
+        ? globalThis.String(object.evidence_path)
+        : "",
+      evidenceLines: isSet(object.evidenceLines)
+        ? globalThis.String(object.evidenceLines)
+        : isSet(object.evidence_lines)
+        ? globalThis.String(object.evidence_lines)
+        : "",
+      hint: isSet(object.hint) ? globalThis.String(object.hint) : "",
+      ungraded: isSet(object.ungraded) ? globalThis.Boolean(object.ungraded) : false,
+    };
+  },
+
+  toJSON(message: CriterionResultProto): unknown {
+    const obj: any = {};
+    if (message.criterionId !== "") {
+      obj.criterionId = message.criterionId;
+    }
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.kind !== "") {
+      obj.kind = message.kind;
+    }
+    if (message.passed !== false) {
+      obj.passed = message.passed;
+    }
+    if (message.reasoning !== "") {
+      obj.reasoning = message.reasoning;
+    }
+    if (message.evidencePath !== "") {
+      obj.evidencePath = message.evidencePath;
+    }
+    if (message.evidenceLines !== "") {
+      obj.evidenceLines = message.evidenceLines;
+    }
+    if (message.hint !== "") {
+      obj.hint = message.hint;
+    }
+    if (message.ungraded !== false) {
+      obj.ungraded = message.ungraded;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CriterionResultProto>, I>>(base?: I): CriterionResultProto {
+    return CriterionResultProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CriterionResultProto>, I>>(object: I): CriterionResultProto {
+    const message = createBaseCriterionResultProto();
+    message.criterionId = object.criterionId ?? "";
+    message.text = object.text ?? "";
+    message.kind = object.kind ?? "";
+    message.passed = object.passed ?? false;
+    message.reasoning = object.reasoning ?? "";
+    message.evidencePath = object.evidencePath ?? "";
+    message.evidenceLines = object.evidenceLines ?? "";
+    message.hint = object.hint ?? "";
+    message.ungraded = object.ungraded ?? false;
+    return message;
+  },
+};
+
 function createBaseSubmitPhaseReviewResponse(): SubmitPhaseReviewResponse {
-  return { verdict: "", advanced: false, feedback: "", currentPhase: 0, checksTotal: 0, checksCorrect: 0 };
+  return {
+    verdict: "",
+    advanced: false,
+    feedback: "",
+    currentPhase: 0,
+    checksTotal: 0,
+    checksCorrect: 0,
+    results: [],
+    criteriaTotal: 0,
+    criteriaPassed: 0,
+  };
 }
 
 export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = {
@@ -1102,6 +1356,15 @@ export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = 
     }
     if (message.checksCorrect !== 0) {
       writer.uint32(48).int32(message.checksCorrect);
+    }
+    for (const v of message.results) {
+      CriterionResultProto.encode(v!, writer.uint32(58).fork()).join();
+    }
+    if (message.criteriaTotal !== 0) {
+      writer.uint32(64).int32(message.criteriaTotal);
+    }
+    if (message.criteriaPassed !== 0) {
+      writer.uint32(72).int32(message.criteriaPassed);
     }
     return writer;
   },
@@ -1161,6 +1424,30 @@ export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = 
           message.checksCorrect = reader.int32();
           continue;
         }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.results.push(CriterionResultProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.criteriaTotal = reader.int32();
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.criteriaPassed = reader.int32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1190,6 +1477,19 @@ export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = 
         : isSet(object.checks_correct)
         ? globalThis.Number(object.checks_correct)
         : 0,
+      results: globalThis.Array.isArray(object?.results)
+        ? object.results.map((e: any) => CriterionResultProto.fromJSON(e))
+        : [],
+      criteriaTotal: isSet(object.criteriaTotal)
+        ? globalThis.Number(object.criteriaTotal)
+        : isSet(object.criteria_total)
+        ? globalThis.Number(object.criteria_total)
+        : 0,
+      criteriaPassed: isSet(object.criteriaPassed)
+        ? globalThis.Number(object.criteriaPassed)
+        : isSet(object.criteria_passed)
+        ? globalThis.Number(object.criteria_passed)
+        : 0,
     };
   },
 
@@ -1213,6 +1513,15 @@ export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = 
     if (message.checksCorrect !== 0) {
       obj.checksCorrect = Math.round(message.checksCorrect);
     }
+    if (message.results?.length) {
+      obj.results = message.results.map((e) => CriterionResultProto.toJSON(e));
+    }
+    if (message.criteriaTotal !== 0) {
+      obj.criteriaTotal = Math.round(message.criteriaTotal);
+    }
+    if (message.criteriaPassed !== 0) {
+      obj.criteriaPassed = Math.round(message.criteriaPassed);
+    }
     return obj;
   },
 
@@ -1227,6 +1536,9 @@ export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = 
     message.currentPhase = object.currentPhase ?? 0;
     message.checksTotal = object.checksTotal ?? 0;
     message.checksCorrect = object.checksCorrect ?? 0;
+    message.results = object.results?.map((e) => CriterionResultProto.fromPartial(e)) || [];
+    message.criteriaTotal = object.criteriaTotal ?? 0;
+    message.criteriaPassed = object.criteriaPassed ?? 0;
     return message;
   },
 };

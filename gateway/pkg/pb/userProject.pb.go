@@ -650,6 +650,123 @@ func (x *SubmitPhaseReviewRequest) GetActiveFilePath() string {
 	return ""
 }
 
+// How one criterion was judged, sent back so the user sees a checklist rather
+// than a paragraph. Being told "3 of 5 checks passed, here's which two didn't
+// and where" is actionable; a prose verdict is something to argue with.
+type CriterionResultProto struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	CriterionId string                 `protobuf:"bytes,1,opt,name=criterion_id,json=criterionId,proto3" json:"criterion_id,omitempty"`
+	Text        string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	Kind        string                 `protobuf:"bytes,3,opt,name=kind,proto3" json:"kind,omitempty"`
+	Passed      bool                   `protobuf:"varint,4,opt,name=passed,proto3" json:"passed,omitempty"`
+	// Why it failed, or where it was found when it passed.
+	Reasoning string `protobuf:"bytes,5,opt,name=reasoning,proto3" json:"reasoning,omitempty"`
+	// Populated on a pass — lets the user see what the grader actually looked at,
+	// which is also what makes a wrong verdict arguable rather than mysterious.
+	EvidencePath  string `protobuf:"bytes,6,opt,name=evidence_path,json=evidencePath,proto3" json:"evidence_path,omitempty"`
+	EvidenceLines string `protobuf:"bytes,7,opt,name=evidence_lines,json=evidenceLines,proto3" json:"evidence_lines,omitempty"`
+	// Shown only on failure. Names the concept, never the code.
+	Hint string `protobuf:"bytes,8,opt,name=hint,proto3" json:"hint,omitempty"`
+	// True when grading failed rather than the work — the user should retry, not
+	// go looking for a mistake they didn't make.
+	Ungraded      bool `protobuf:"varint,9,opt,name=ungraded,proto3" json:"ungraded,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CriterionResultProto) Reset() {
+	*x = CriterionResultProto{}
+	mi := &file_userProject_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CriterionResultProto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CriterionResultProto) ProtoMessage() {}
+
+func (x *CriterionResultProto) ProtoReflect() protoreflect.Message {
+	mi := &file_userProject_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CriterionResultProto.ProtoReflect.Descriptor instead.
+func (*CriterionResultProto) Descriptor() ([]byte, []int) {
+	return file_userProject_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CriterionResultProto) GetCriterionId() string {
+	if x != nil {
+		return x.CriterionId
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetPassed() bool {
+	if x != nil {
+		return x.Passed
+	}
+	return false
+}
+
+func (x *CriterionResultProto) GetReasoning() string {
+	if x != nil {
+		return x.Reasoning
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetEvidencePath() string {
+	if x != nil {
+		return x.EvidencePath
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetEvidenceLines() string {
+	if x != nil {
+		return x.EvidenceLines
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetHint() string {
+	if x != nil {
+		return x.Hint
+	}
+	return ""
+}
+
+func (x *CriterionResultProto) GetUngraded() bool {
+	if x != nil {
+		return x.Ungraded
+	}
+	return false
+}
+
 type SubmitPhaseReviewResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// "met"     — goal judged met; the phase was advanced.
@@ -669,13 +786,18 @@ type SubmitPhaseReviewResponse struct {
 	// Populated when verdict = "blocked", so the UI can say "3 of 5 correct".
 	ChecksTotal   int32 `protobuf:"varint,5,opt,name=checks_total,json=checksTotal,proto3" json:"checks_total,omitempty"`
 	ChecksCorrect int32 `protobuf:"varint,6,opt,name=checks_correct,json=checksCorrect,proto3" json:"checks_correct,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Per-criterion outcomes, in rubric order. Empty when blocked (nothing was
+	// graded) or for phases with no rubric authored.
+	Results        []*CriterionResultProto `protobuf:"bytes,7,rep,name=results,proto3" json:"results,omitempty"`
+	CriteriaTotal  int32                   `protobuf:"varint,8,opt,name=criteria_total,json=criteriaTotal,proto3" json:"criteria_total,omitempty"`
+	CriteriaPassed int32                   `protobuf:"varint,9,opt,name=criteria_passed,json=criteriaPassed,proto3" json:"criteria_passed,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SubmitPhaseReviewResponse) Reset() {
 	*x = SubmitPhaseReviewResponse{}
-	mi := &file_userProject_proto_msgTypes[12]
+	mi := &file_userProject_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +809,7 @@ func (x *SubmitPhaseReviewResponse) String() string {
 func (*SubmitPhaseReviewResponse) ProtoMessage() {}
 
 func (x *SubmitPhaseReviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userProject_proto_msgTypes[12]
+	mi := &file_userProject_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +822,7 @@ func (x *SubmitPhaseReviewResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitPhaseReviewResponse.ProtoReflect.Descriptor instead.
 func (*SubmitPhaseReviewResponse) Descriptor() ([]byte, []int) {
-	return file_userProject_proto_rawDescGZIP(), []int{12}
+	return file_userProject_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *SubmitPhaseReviewResponse) GetVerdict() string {
@@ -741,6 +863,27 @@ func (x *SubmitPhaseReviewResponse) GetChecksTotal() int32 {
 func (x *SubmitPhaseReviewResponse) GetChecksCorrect() int32 {
 	if x != nil {
 		return x.ChecksCorrect
+	}
+	return 0
+}
+
+func (x *SubmitPhaseReviewResponse) GetResults() []*CriterionResultProto {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+func (x *SubmitPhaseReviewResponse) GetCriteriaTotal() int32 {
+	if x != nil {
+		return x.CriteriaTotal
+	}
+	return 0
+}
+
+func (x *SubmitPhaseReviewResponse) GetCriteriaPassed() int32 {
+	if x != nil {
+		return x.CriteriaPassed
 	}
 	return 0
 }
@@ -790,14 +933,27 @@ const file_userProject_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12(\n" +
-	"\x10active_file_path\x18\x03 \x01(\tR\x0eactiveFilePath\"\xdc\x01\n" +
+	"\x10active_file_path\x18\x03 \x01(\tR\x0eactiveFilePath\"\x93\x02\n" +
+	"\x14CriterionResultProto\x12!\n" +
+	"\fcriterion_id\x18\x01 \x01(\tR\vcriterionId\x12\x12\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x12\n" +
+	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x16\n" +
+	"\x06passed\x18\x04 \x01(\bR\x06passed\x12\x1c\n" +
+	"\treasoning\x18\x05 \x01(\tR\treasoning\x12#\n" +
+	"\revidence_path\x18\x06 \x01(\tR\fevidencePath\x12%\n" +
+	"\x0eevidence_lines\x18\a \x01(\tR\revidenceLines\x12\x12\n" +
+	"\x04hint\x18\b \x01(\tR\x04hint\x12\x1a\n" +
+	"\bungraded\x18\t \x01(\bR\bungraded\"\xe9\x02\n" +
 	"\x19SubmitPhaseReviewResponse\x12\x18\n" +
 	"\averdict\x18\x01 \x01(\tR\averdict\x12\x1a\n" +
 	"\badvanced\x18\x02 \x01(\bR\badvanced\x12\x1a\n" +
 	"\bfeedback\x18\x03 \x01(\tR\bfeedback\x12#\n" +
 	"\rcurrent_phase\x18\x04 \x01(\x05R\fcurrentPhase\x12!\n" +
 	"\fchecks_total\x18\x05 \x01(\x05R\vchecksTotal\x12%\n" +
-	"\x0echecks_correct\x18\x06 \x01(\x05R\rchecksCorrect2\x8f\x05\n" +
+	"\x0echecks_correct\x18\x06 \x01(\x05R\rchecksCorrect\x12;\n" +
+	"\aresults\x18\a \x03(\v2!.userProject.CriterionResultProtoR\aresults\x12%\n" +
+	"\x0ecriteria_total\x18\b \x01(\x05R\rcriteriaTotal\x12'\n" +
+	"\x0fcriteria_passed\x18\t \x01(\x05R\x0ecriteriaPassed2\x8f\x05\n" +
 	"\x12UserProjectService\x12^\n" +
 	"\rCreateProject\x12%.userProject.CreateUserProjectRequest\x1a&.userProject.CreateUserProjectResponse\x12e\n" +
 	"\x12GetUserProjectById\x12&.userProject.GetUserProjectByIdRequest\x1a'.userProject.GetUserProjectByIdResponse\x12e\n" +
@@ -818,7 +974,7 @@ func file_userProject_proto_rawDescGZIP() []byte {
 	return file_userProject_proto_rawDescData
 }
 
-var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_userProject_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_userProject_proto_goTypes = []any{
 	(*CreateUserProjectRequest)(nil),        // 0: userProject.CreateUserProjectRequest
 	(*CreateUserProjectResponse)(nil),       // 1: userProject.CreateUserProjectResponse
@@ -832,30 +988,32 @@ var file_userProject_proto_goTypes = []any{
 	(*SetUserProjectArchivedRequest)(nil),   // 9: userProject.SetUserProjectArchivedRequest
 	(*SetUserProjectArchivedResponse)(nil),  // 10: userProject.SetUserProjectArchivedResponse
 	(*SubmitPhaseReviewRequest)(nil),        // 11: userProject.SubmitPhaseReviewRequest
-	(*SubmitPhaseReviewResponse)(nil),       // 12: userProject.SubmitPhaseReviewResponse
+	(*CriterionResultProto)(nil),            // 12: userProject.CriterionResultProto
+	(*SubmitPhaseReviewResponse)(nil),       // 13: userProject.SubmitPhaseReviewResponse
 }
 var file_userProject_proto_depIdxs = []int32{
 	6,  // 0: userProject.GetUserProjectByIdResponse.user_project:type_name -> userProject.UserProject
 	6,  // 1: userProject.GetAllUserProjectsResponse.user_projects:type_name -> userProject.UserProject
 	6,  // 2: userProject.GetUserProjectsByStatusResponse.user_projects:type_name -> userProject.UserProject
 	6,  // 3: userProject.SetUserProjectArchivedResponse.user_project:type_name -> userProject.UserProject
-	0,  // 4: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
-	2,  // 5: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
-	4,  // 6: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
-	7,  // 7: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
-	9,  // 8: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
-	11, // 9: userProject.UserProjectService.SubmitPhaseReview:input_type -> userProject.SubmitPhaseReviewRequest
-	1,  // 10: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
-	3,  // 11: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
-	5,  // 12: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
-	8,  // 13: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
-	10, // 14: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
-	12, // 15: userProject.UserProjectService.SubmitPhaseReview:output_type -> userProject.SubmitPhaseReviewResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	12, // 4: userProject.SubmitPhaseReviewResponse.results:type_name -> userProject.CriterionResultProto
+	0,  // 5: userProject.UserProjectService.CreateProject:input_type -> userProject.CreateUserProjectRequest
+	2,  // 6: userProject.UserProjectService.GetUserProjectById:input_type -> userProject.GetUserProjectByIdRequest
+	4,  // 7: userProject.UserProjectService.GetAllUserProjects:input_type -> userProject.GetAllUserProjectsRequest
+	7,  // 8: userProject.UserProjectService.GetUserProjectsByStatus:input_type -> userProject.GetUserProjectsByStatusRequest
+	9,  // 9: userProject.UserProjectService.SetUserProjectArchived:input_type -> userProject.SetUserProjectArchivedRequest
+	11, // 10: userProject.UserProjectService.SubmitPhaseReview:input_type -> userProject.SubmitPhaseReviewRequest
+	1,  // 11: userProject.UserProjectService.CreateProject:output_type -> userProject.CreateUserProjectResponse
+	3,  // 12: userProject.UserProjectService.GetUserProjectById:output_type -> userProject.GetUserProjectByIdResponse
+	5,  // 13: userProject.UserProjectService.GetAllUserProjects:output_type -> userProject.GetAllUserProjectsResponse
+	8,  // 14: userProject.UserProjectService.GetUserProjectsByStatus:output_type -> userProject.GetUserProjectsByStatusResponse
+	10, // 15: userProject.UserProjectService.SetUserProjectArchived:output_type -> userProject.SetUserProjectArchivedResponse
+	13, // 16: userProject.UserProjectService.SubmitPhaseReview:output_type -> userProject.SubmitPhaseReviewResponse
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_userProject_proto_init() }
@@ -869,7 +1027,7 @@ func file_userProject_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_userProject_proto_rawDesc), len(file_userProject_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

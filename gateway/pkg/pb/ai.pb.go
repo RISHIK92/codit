@@ -23,6 +23,295 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CriterionToGrade struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	Kind          string                 `protobuf:"bytes,3,opt,name=kind,proto3" json:"kind,omitempty"` // "behavioral" | "structural" | "conceptual"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CriterionToGrade) Reset() {
+	*x = CriterionToGrade{}
+	mi := &file_ai_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CriterionToGrade) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CriterionToGrade) ProtoMessage() {}
+
+func (x *CriterionToGrade) ProtoReflect() protoreflect.Message {
+	mi := &file_ai_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CriterionToGrade.ProtoReflect.Descriptor instead.
+func (*CriterionToGrade) Descriptor() ([]byte, []int) {
+	return file_ai_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CriterionToGrade) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CriterionToGrade) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *CriterionToGrade) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+type GradeCriteriaRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	UserEmail  string                 `protobuf:"bytes,1,opt,name=user_email,json=userEmail,proto3" json:"user_email,omitempty"`
+	ProjectId  string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	PhaseTitle string                 `protobuf:"bytes,3,opt,name=phase_title,json=phaseTitle,proto3" json:"phase_title,omitempty"`
+	// Context only — criteria are what gets graded. Included so the model can
+	// tell which phase it's in and stay out of later phases' concerns.
+	PhaseGoal     string              `protobuf:"bytes,4,opt,name=phase_goal,json=phaseGoal,proto3" json:"phase_goal,omitempty"`
+	Criteria      []*CriterionToGrade `protobuf:"bytes,5,rep,name=criteria,proto3" json:"criteria,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GradeCriteriaRequest) Reset() {
+	*x = GradeCriteriaRequest{}
+	mi := &file_ai_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GradeCriteriaRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GradeCriteriaRequest) ProtoMessage() {}
+
+func (x *GradeCriteriaRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ai_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GradeCriteriaRequest.ProtoReflect.Descriptor instead.
+func (*GradeCriteriaRequest) Descriptor() ([]byte, []int) {
+	return file_ai_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GradeCriteriaRequest) GetUserEmail() string {
+	if x != nil {
+		return x.UserEmail
+	}
+	return ""
+}
+
+func (x *GradeCriteriaRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *GradeCriteriaRequest) GetPhaseTitle() string {
+	if x != nil {
+		return x.PhaseTitle
+	}
+	return ""
+}
+
+func (x *GradeCriteriaRequest) GetPhaseGoal() string {
+	if x != nil {
+		return x.PhaseGoal
+	}
+	return ""
+}
+
+func (x *GradeCriteriaRequest) GetCriteria() []*CriterionToGrade {
+	if x != nil {
+		return x.Criteria
+	}
+	return nil
+}
+
+type CriterionVerdict struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	CriterionId string                 `protobuf:"bytes,1,opt,name=criterion_id,json=criterionId,proto3" json:"criterion_id,omitempty"`
+	Passed      bool                   `protobuf:"varint,2,opt,name=passed,proto3" json:"passed,omitempty"`
+	// Required when passed. A pass with no citable evidence is downgraded to a
+	// failure by the caller — an unevidenced claim is exactly what this design
+	// exists to reject.
+	EvidencePath  string `protobuf:"bytes,3,opt,name=evidence_path,json=evidencePath,proto3" json:"evidence_path,omitempty"`
+	EvidenceLines string `protobuf:"bytes,4,opt,name=evidence_lines,json=evidenceLines,proto3" json:"evidence_lines,omitempty"`
+	EvidenceQuote string `protobuf:"bytes,5,opt,name=evidence_quote,json=evidenceQuote,proto3" json:"evidence_quote,omitempty"`
+	// One sentence. Shown to the user when the criterion failed.
+	Reasoning string `protobuf:"bytes,6,opt,name=reasoning,proto3" json:"reasoning,omitempty"`
+	// True when this criterion could not be graded at all (model error, malformed
+	// response). Not the same as failing: the user's work wasn't judged.
+	Ungraded      bool `protobuf:"varint,7,opt,name=ungraded,proto3" json:"ungraded,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CriterionVerdict) Reset() {
+	*x = CriterionVerdict{}
+	mi := &file_ai_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CriterionVerdict) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CriterionVerdict) ProtoMessage() {}
+
+func (x *CriterionVerdict) ProtoReflect() protoreflect.Message {
+	mi := &file_ai_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CriterionVerdict.ProtoReflect.Descriptor instead.
+func (*CriterionVerdict) Descriptor() ([]byte, []int) {
+	return file_ai_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CriterionVerdict) GetCriterionId() string {
+	if x != nil {
+		return x.CriterionId
+	}
+	return ""
+}
+
+func (x *CriterionVerdict) GetPassed() bool {
+	if x != nil {
+		return x.Passed
+	}
+	return false
+}
+
+func (x *CriterionVerdict) GetEvidencePath() string {
+	if x != nil {
+		return x.EvidencePath
+	}
+	return ""
+}
+
+func (x *CriterionVerdict) GetEvidenceLines() string {
+	if x != nil {
+		return x.EvidenceLines
+	}
+	return ""
+}
+
+func (x *CriterionVerdict) GetEvidenceQuote() string {
+	if x != nil {
+		return x.EvidenceQuote
+	}
+	return ""
+}
+
+func (x *CriterionVerdict) GetReasoning() string {
+	if x != nil {
+		return x.Reasoning
+	}
+	return ""
+}
+
+func (x *CriterionVerdict) GetUngraded() bool {
+	if x != nil {
+		return x.Ungraded
+	}
+	return false
+}
+
+type GradeCriteriaResponse struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Verdicts []*CriterionVerdict    `protobuf:"bytes,1,rep,name=verdicts,proto3" json:"verdicts,omitempty"`
+	// Model that produced these, recorded so a bad batch can be traced.
+	Model         string `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GradeCriteriaResponse) Reset() {
+	*x = GradeCriteriaResponse{}
+	mi := &file_ai_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GradeCriteriaResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GradeCriteriaResponse) ProtoMessage() {}
+
+func (x *GradeCriteriaResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ai_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GradeCriteriaResponse.ProtoReflect.Descriptor instead.
+func (*GradeCriteriaResponse) Descriptor() ([]byte, []int) {
+	return file_ai_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GradeCriteriaResponse) GetVerdicts() []*CriterionVerdict {
+	if x != nil {
+		return x.Verdicts
+	}
+	return nil
+}
+
+func (x *GradeCriteriaResponse) GetModel() string {
+	if x != nil {
+		return x.Model
+	}
+	return ""
+}
+
 type ChatMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Role          string                 `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"` // "user" | "assistant"
@@ -33,7 +322,7 @@ type ChatMessage struct {
 
 func (x *ChatMessage) Reset() {
 	*x = ChatMessage{}
-	mi := &file_ai_proto_msgTypes[0]
+	mi := &file_ai_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +334,7 @@ func (x *ChatMessage) String() string {
 func (*ChatMessage) ProtoMessage() {}
 
 func (x *ChatMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_ai_proto_msgTypes[0]
+	mi := &file_ai_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +347,7 @@ func (x *ChatMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatMessage.ProtoReflect.Descriptor instead.
 func (*ChatMessage) Descriptor() ([]byte, []int) {
-	return file_ai_proto_rawDescGZIP(), []int{0}
+	return file_ai_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ChatMessage) GetRole() string {
@@ -113,7 +402,7 @@ type ChatRequest struct {
 
 func (x *ChatRequest) Reset() {
 	*x = ChatRequest{}
-	mi := &file_ai_proto_msgTypes[1]
+	mi := &file_ai_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -125,7 +414,7 @@ func (x *ChatRequest) String() string {
 func (*ChatRequest) ProtoMessage() {}
 
 func (x *ChatRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ai_proto_msgTypes[1]
+	mi := &file_ai_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -138,7 +427,7 @@ func (x *ChatRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRequest.ProtoReflect.Descriptor instead.
 func (*ChatRequest) Descriptor() ([]byte, []int) {
-	return file_ai_proto_rawDescGZIP(), []int{1}
+	return file_ai_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ChatRequest) GetUserEmail() string {
@@ -215,7 +504,7 @@ type ChatResponse struct {
 
 func (x *ChatResponse) Reset() {
 	*x = ChatResponse{}
-	mi := &file_ai_proto_msgTypes[2]
+	mi := &file_ai_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -227,7 +516,7 @@ func (x *ChatResponse) String() string {
 func (*ChatResponse) ProtoMessage() {}
 
 func (x *ChatResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ai_proto_msgTypes[2]
+	mi := &file_ai_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -240,7 +529,7 @@ func (x *ChatResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatResponse.ProtoReflect.Descriptor instead.
 func (*ChatResponse) Descriptor() ([]byte, []int) {
-	return file_ai_proto_rawDescGZIP(), []int{2}
+	return file_ai_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ChatResponse) GetReply() string {
@@ -263,7 +552,7 @@ type GradeAnswerRequest struct {
 
 func (x *GradeAnswerRequest) Reset() {
 	*x = GradeAnswerRequest{}
-	mi := &file_ai_proto_msgTypes[3]
+	mi := &file_ai_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -275,7 +564,7 @@ func (x *GradeAnswerRequest) String() string {
 func (*GradeAnswerRequest) ProtoMessage() {}
 
 func (x *GradeAnswerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ai_proto_msgTypes[3]
+	mi := &file_ai_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -288,7 +577,7 @@ func (x *GradeAnswerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GradeAnswerRequest.ProtoReflect.Descriptor instead.
 func (*GradeAnswerRequest) Descriptor() ([]byte, []int) {
-	return file_ai_proto_rawDescGZIP(), []int{3}
+	return file_ai_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GradeAnswerRequest) GetQuestion() string {
@@ -335,7 +624,7 @@ type GradeAnswerResponse struct {
 
 func (x *GradeAnswerResponse) Reset() {
 	*x = GradeAnswerResponse{}
-	mi := &file_ai_proto_msgTypes[4]
+	mi := &file_ai_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -347,7 +636,7 @@ func (x *GradeAnswerResponse) String() string {
 func (*GradeAnswerResponse) ProtoMessage() {}
 
 func (x *GradeAnswerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ai_proto_msgTypes[4]
+	mi := &file_ai_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -360,7 +649,7 @@ func (x *GradeAnswerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GradeAnswerResponse.ProtoReflect.Descriptor instead.
 func (*GradeAnswerResponse) Descriptor() ([]byte, []int) {
-	return file_ai_proto_rawDescGZIP(), []int{4}
+	return file_ai_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GradeAnswerResponse) GetIsCorrect() bool {
@@ -374,7 +663,32 @@ var File_ai_proto protoreflect.FileDescriptor
 
 const file_ai_proto_rawDesc = "" +
 	"\n" +
-	"\bai.proto\x12\x02ai\";\n" +
+	"\bai.proto\x12\x02ai\"J\n" +
+	"\x10CriterionToGrade\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x12\n" +
+	"\x04kind\x18\x03 \x01(\tR\x04kind\"\xc6\x01\n" +
+	"\x14GradeCriteriaRequest\x12\x1d\n" +
+	"\n" +
+	"user_email\x18\x01 \x01(\tR\tuserEmail\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\x12\x1f\n" +
+	"\vphase_title\x18\x03 \x01(\tR\n" +
+	"phaseTitle\x12\x1d\n" +
+	"\n" +
+	"phase_goal\x18\x04 \x01(\tR\tphaseGoal\x120\n" +
+	"\bcriteria\x18\x05 \x03(\v2\x14.ai.CriterionToGradeR\bcriteria\"\xfa\x01\n" +
+	"\x10CriterionVerdict\x12!\n" +
+	"\fcriterion_id\x18\x01 \x01(\tR\vcriterionId\x12\x16\n" +
+	"\x06passed\x18\x02 \x01(\bR\x06passed\x12#\n" +
+	"\revidence_path\x18\x03 \x01(\tR\fevidencePath\x12%\n" +
+	"\x0eevidence_lines\x18\x04 \x01(\tR\revidenceLines\x12%\n" +
+	"\x0eevidence_quote\x18\x05 \x01(\tR\revidenceQuote\x12\x1c\n" +
+	"\treasoning\x18\x06 \x01(\tR\treasoning\x12\x1a\n" +
+	"\bungraded\x18\a \x01(\bR\bungraded\"_\n" +
+	"\x15GradeCriteriaResponse\x120\n" +
+	"\bverdicts\x18\x01 \x03(\v2\x14.ai.CriterionVerdictR\bverdicts\x12\x14\n" +
+	"\x05model\x18\x02 \x01(\tR\x05model\";\n" +
 	"\vChatMessage\x12\x12\n" +
 	"\x04role\x18\x01 \x01(\tR\x04role\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\"\xc0\x02\n" +
@@ -401,10 +715,11 @@ const file_ai_proto_rawDesc = "" +
 	"userAnswer\"4\n" +
 	"\x13GradeAnswerResponse\x12\x1d\n" +
 	"\n" +
-	"is_correct\x18\x01 \x01(\bR\tisCorrect2x\n" +
+	"is_correct\x18\x01 \x01(\bR\tisCorrect2\xbe\x01\n" +
 	"\tAiService\x12+\n" +
 	"\x04Chat\x12\x0f.ai.ChatRequest\x1a\x10.ai.ChatResponse0\x01\x12>\n" +
-	"\vGradeAnswer\x12\x16.ai.GradeAnswerRequest\x1a\x17.ai.GradeAnswerResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
+	"\vGradeAnswer\x12\x16.ai.GradeAnswerRequest\x1a\x17.ai.GradeAnswerResponse\x12D\n" +
+	"\rGradeCriteria\x12\x18.ai.GradeCriteriaRequest\x1a\x19.ai.GradeCriteriaResponseB\x10Z\x0egateway/pkg/pbb\x06proto3"
 
 var (
 	file_ai_proto_rawDescOnce sync.Once
@@ -418,25 +733,33 @@ func file_ai_proto_rawDescGZIP() []byte {
 	return file_ai_proto_rawDescData
 }
 
-var file_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_ai_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_ai_proto_goTypes = []any{
-	(*ChatMessage)(nil),         // 0: ai.ChatMessage
-	(*ChatRequest)(nil),         // 1: ai.ChatRequest
-	(*ChatResponse)(nil),        // 2: ai.ChatResponse
-	(*GradeAnswerRequest)(nil),  // 3: ai.GradeAnswerRequest
-	(*GradeAnswerResponse)(nil), // 4: ai.GradeAnswerResponse
+	(*CriterionToGrade)(nil),      // 0: ai.CriterionToGrade
+	(*GradeCriteriaRequest)(nil),  // 1: ai.GradeCriteriaRequest
+	(*CriterionVerdict)(nil),      // 2: ai.CriterionVerdict
+	(*GradeCriteriaResponse)(nil), // 3: ai.GradeCriteriaResponse
+	(*ChatMessage)(nil),           // 4: ai.ChatMessage
+	(*ChatRequest)(nil),           // 5: ai.ChatRequest
+	(*ChatResponse)(nil),          // 6: ai.ChatResponse
+	(*GradeAnswerRequest)(nil),    // 7: ai.GradeAnswerRequest
+	(*GradeAnswerResponse)(nil),   // 8: ai.GradeAnswerResponse
 }
 var file_ai_proto_depIdxs = []int32{
-	0, // 0: ai.ChatRequest.history:type_name -> ai.ChatMessage
-	1, // 1: ai.AiService.Chat:input_type -> ai.ChatRequest
-	3, // 2: ai.AiService.GradeAnswer:input_type -> ai.GradeAnswerRequest
-	2, // 3: ai.AiService.Chat:output_type -> ai.ChatResponse
-	4, // 4: ai.AiService.GradeAnswer:output_type -> ai.GradeAnswerResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: ai.GradeCriteriaRequest.criteria:type_name -> ai.CriterionToGrade
+	2, // 1: ai.GradeCriteriaResponse.verdicts:type_name -> ai.CriterionVerdict
+	4, // 2: ai.ChatRequest.history:type_name -> ai.ChatMessage
+	5, // 3: ai.AiService.Chat:input_type -> ai.ChatRequest
+	7, // 4: ai.AiService.GradeAnswer:input_type -> ai.GradeAnswerRequest
+	1, // 5: ai.AiService.GradeCriteria:input_type -> ai.GradeCriteriaRequest
+	6, // 6: ai.AiService.Chat:output_type -> ai.ChatResponse
+	8, // 7: ai.AiService.GradeAnswer:output_type -> ai.GradeAnswerResponse
+	3, // 8: ai.AiService.GradeCriteria:output_type -> ai.GradeCriteriaResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_ai_proto_init() }
@@ -450,7 +773,7 @@ func file_ai_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ai_proto_rawDesc), len(file_ai_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

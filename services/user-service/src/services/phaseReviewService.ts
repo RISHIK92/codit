@@ -1,42 +1,50 @@
+import { Metadata } from "@grpc/grpc-js";
 import * as projectRepo from "../repositories/projectRepo";
 import * as knowledgeCheckRepo from "../repositories/knowledgeCheckRepo";
+import * as fileRepo from "../repositories/fileRepo";
 import { aiClient } from "../grpc-clients/aiClient";
+import {
+  runDeterministicCheck,
+  type CheckSubject,
+} from "../grading/deterministicChecks";
 
 /**
  * The phase gate.
  *
  * Everything that decides whether a user advances lives here, on the server:
  * which phase is under review, whether its knowledge checks are passed, what
- * the grader was asked, how its verdict was read, and whether the phase moved.
- * The client's only role is to say "I'm submitting" and render what comes back.
+ * each criterion was judged against, and whether the phase moved. The client's
+ * only role is to say "I'm submitting" and render what comes back.
  *
- * This used to be split across the browser and the AI service — the client sent
- * a review-mode chat message, regex-matched "VERDICT: MET" in the streamed
- * reply, and called a separate advance endpoint on a match. Three things were
- * wrong with that: the advance endpoint would advance anyone who called it, the
- * regex could fire on prose merely *describing* a passing verdict, and a client
- * that grades itself isn't a gate at all.
+ * The verdict is a conjunction over criteria, computed — never an opinion
+ * parsed out of prose. Two earlier designs failed at exactly that point: first
+ * the browser regex-matched "VERDICT: MET" out of a chat reply and called a
+ * separate advance endpoint (so the client decided, and prose describing a
+ * passing verdict could trip the match), then the server did the same parse on
+ * a holistic judgement (better, but a single "is this good?" question drifts
+ * generous, and generous is the direction that breaks the product).
+ *
+ * Now: deterministic checks run first, in code. Everything else is graded one
+ * criterion at a time with evidence required. Every criterion must pass.
  */
 
-/** Mirrors the literal contract the review prompt in ai-service enforces. */
-const VERDICT_MET = /^\s*VERDICT:\s*MET\s*$/im;
-const VERDICT_NOT_MET = /^\s*VERDICT:\s*NOT\s*MET\s*$/im;
+const GRADING_TIMEOUT_MS = 120_000;
 
-/** Recorded with each verdict so a bad grading batch can be traced to a model. */
-const gradingModel = () =>
-  process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+const gradingModel = () => process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
-/**
- * Hard ceiling on a grading call.
- *
- * Grading runs a multi-round tool-calling loop against an external model, and
- * that loop can stall — a malformed tool call, a provider hiccup, a stream that
- * never ends. Without a deadline the gRPC call waits forever, which means the
- * HTTP request waits forever, which means the user's Submit button spins with
- * no verdict and no error. Bounding it converts an indefinite hang into a
- * plain "try again", which is recoverable.
- */
-const GRADING_TIMEOUT_MS = 90_000;
+export interface CriterionResult {
+  criterionId: string;
+  text: string;
+  kind: string;
+  passed: boolean;
+  reasoning: string;
+  evidencePath: string;
+  evidenceLines: string;
+  evidenceQuote: string;
+  hint: string;
+  ungraded: boolean;
+  decidedBy: "deterministic" | "model" | "ungraded";
+}
 
 export interface PhaseReviewResult {
   verdict: "met" | "not_met" | "blocked";
@@ -45,54 +53,61 @@ export interface PhaseReviewResult {
   currentPhase: number;
   checksTotal: number;
   checksCorrect: number;
+  results: CriterionResult[];
+  criteriaTotal: number;
+  criteriaPassed: number;
 }
 
-/**
- * Runs the AI grader over the user's submission and returns its full reply.
- *
- * `Chat` is a server-streaming RPC, so this collects the stream. It's a single
- * write today, but consuming it properly means per-token streaming can be
- * turned on in ai-service without breaking grading.
- */
-function gradeSubmission(params: {
+function gradeViaAi(params: {
   userEmail: string;
   projectId: string;
-  phaseId: string;
-  activeFilePath: string;
-  message: string;
-  currentTask: string;
-}): Promise<string> {
+  phaseTitle: string;
+  phaseGoal: string;
+  criteria: { id: string; text: string; kind: string }[];
+}): Promise<{ verdicts: any[]; model: string }> {
   return new Promise((resolve, reject) => {
-    const stream = aiClient.chat(
-      {
-        userEmail: params.userEmail,
-        projectId: params.projectId,
-        phaseId: params.phaseId,
-        activeFilePath: params.activeFilePath,
-        message: params.message,
-        history: [],
-        mode: "review",
-        currentTask: params.currentTask,
-        snapshotPhaseNumber: 0,
-      },
+    aiClient.gradeCriteria(
+      params,
+      new Metadata(),
       { deadline: new Date(Date.now() + GRADING_TIMEOUT_MS) },
+      (err: any, res: any) => {
+        if (err || !res) {
+          reject(err ?? new Error("No response from grader"));
+          return;
+        }
+        resolve(res);
+      },
     );
-
-    let full = "";
-    stream.on("data", (res: { reply?: string }) => {
-      full += res.reply ?? "";
-    });
-    stream.on("error", reject);
-    stream.on("end", () => resolve(full));
   });
 }
 
-/** Strips the machine-read verdict line before the feedback is shown to the
- * user — it's a protocol token between services, not something worth reading. */
-function stripVerdictLine(text: string): string {
-  return text
-    .replace(/^\s*VERDICT:\s*(NOT\s*)?MET\s*$/gim, "")
-    .trim();
+/**
+ * Human-readable summary. Deliberately does not restate every passing check —
+ * the client renders the full checklist, and repeating it here would bury what
+ * actually needs attention.
+ */
+function buildFeedback(results: CriterionResult[], met: boolean): string {
+  const failed = results.filter((r) => !r.passed);
+  const ungraded = failed.filter((r) => r.ungraded);
+
+  if (met) {
+    return `All ${results.length} checks passed. Phase complete.`;
+  }
+  if (ungraded.length === failed.length && ungraded.length > 0) {
+    return `${ungraded.length} of ${results.length} checks couldn't be graded just now — your work hasn't been judged. Try submitting again in a moment.`;
+  }
+
+  const lines = [
+    `${results.length - failed.length} of ${results.length} checks passed. Still to fix:`,
+    "",
+  ];
+  for (const r of failed) {
+    lines.push(`• ${r.text}`);
+    if (r.reasoning) lines.push(`  ${r.reasoning}`);
+    if (r.hint) lines.push(`  Hint: ${r.hint}`);
+    lines.push("");
+  }
+  return lines.join("\n").trim();
 }
 
 export const submitPhaseReview = async (
@@ -100,13 +115,11 @@ export const submitPhaseReview = async (
   email: string,
   activeFilePath: string,
 ): Promise<PhaseReviewResult> => {
-  const resolved = await projectRepo.getEnrollmentWithCurrentPhase(
-    projectId,
-    email,
-  );
-  if (!resolved) {
-    throw new Error("You're not enrolled in this project.");
-  }
+  void activeFilePath; // context hint only; nothing is decided from it
+
+  const resolved = await projectRepo.getEnrollmentWithCurrentPhase(projectId, email);
+  if (!resolved) throw new Error("You're not enrolled in this project.");
+
   const { enrollment, phase, phaseNumber, projectName } = resolved;
 
   if (enrollment.archived) {
@@ -115,14 +128,13 @@ export const submitPhaseReview = async (
   if (enrollment.status !== "in_progress") {
     throw new Error(`This project is already ${enrollment.status}.`);
   }
-  if (!phase) {
-    throw new Error("There's no phase left to submit on this project.");
-  }
+  if (!phase) throw new Error("There's no phase left to submit on this project.");
+
+  const empty = { results: [] as CriterionResult[], criteriaTotal: 0, criteriaPassed: 0 };
 
   // ── Gate 1: knowledge checks, on correctness ──────────────────────────────
-  // Enforced here rather than only in the UI. A client-side check is a
-  // courtesy that saves a wasted grading call; it is not a gate, because
-  // nothing stops a caller from skipping it.
+  // Enforced here rather than only in the UI. A client-side check is a courtesy
+  // that saves a wasted grading call; it is not a gate.
   const { total, correct } = await knowledgeCheckRepo.getPhaseCheckProgress(
     phase.id,
     email,
@@ -131,14 +143,7 @@ export const submitPhaseReview = async (
     const feedback =
       `Answer all of this phase's knowledge checks correctly before submitting — ` +
       `${correct} of ${total} so far. You can retry them as many times as you need.`;
-    await projectRepo.recordFailedReview(
-      projectId,
-      email,
-      phaseNumber,
-      "blocked",
-      feedback,
-      "",
-    );
+    await projectRepo.recordFailedReview(projectId, email, phaseNumber, "blocked", feedback, "");
     return {
       verdict: "blocked",
       advanced: false,
@@ -146,60 +151,125 @@ export const submitPhaseReview = async (
       currentPhase: enrollment.current_phase,
       checksTotal: total,
       checksCorrect: correct,
+      ...empty,
     };
   }
 
-  // ── Gate 2: the grader ────────────────────────────────────────────────────
-  // The goal comes from the database, not the request. A client-supplied goal
-  // would let a caller grade themselves against a trivially easy one.
-  const goalText =
-    phase.goal && typeof phase.goal === "object" && "description" in phase.goal
-      ? String((phase.goal as { description?: unknown }).description ?? "")
-      : "";
-
-  const message = [
-    `Review my submission for Phase ${phase.phase_number}: ${phase.title}.`,
-    goalText ? `Goal: ${goalText}` : "",
-    phase.concepts.length
-      ? `Concepts this phase covers: ${phase.concepts.join(", ")}.`
-      : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  // A grader that errors or times out has not judged anything. Recording that
-  // as "not_met" would both tell the user their work failed when it was never
-  // looked at, and poison the review history that the grading-accuracy audit
-  // depends on. Surface it as the infrastructure failure it is.
-  let reply: string;
-  try {
-    reply = await gradeSubmission({
-      userEmail: email,
-      projectId,
-      phaseId: phase.id,
-      activeFilePath,
-      message,
-      currentTask: `Project: ${projectName} — Phase ${phase.phase_number}: ${phase.title}`,
-    });
-  } catch (err: any) {
-    console.error(
-      `Grading call failed for ${projectId} (${email}) phase ${phaseNumber}:`,
-      err?.message ?? err,
-    );
+  // ── Gate 2: the rubric ────────────────────────────────────────────────────
+  const criteria = await projectRepo.getPhaseCriteria(phase.id);
+  if (criteria.length === 0) {
+    // No rubric authored. Refuse rather than inventing a standard — advancing
+    // on an empty rubric would be a free pass, and grading against a goal
+    // sentence is the holistic judgement this design exists to replace.
     throw new Error(
-      "The reviewer couldn't be reached just now — your work is saved, try submitting again in a moment.",
+      "This phase has no review criteria yet, so it can't be graded. Please report this.",
     );
   }
 
-  const feedback = stripVerdictLine(reply);
-  const model = gradingModel();
+  const files = await fileRepo.listFiles(projectId, email);
+  const subject: CheckSubject = {
+    files: new Map(
+      files.filter((f: any) => !f.is_directory).map((f: any) => [f.file_path, f.content ?? ""]),
+    ),
+  };
 
-  // Require an explicit, well-formed MET line on a line of its own. Anything
-  // else — a NOT MET, a malformed reply, an empty one, or a model that talked
-  // about verdicts without issuing one — does not advance. Failing closed is
-  // the whole point: a false "met" silently turns this into the tutorial
-  // platform it exists to not be.
-  const met = VERDICT_MET.test(reply) && !VERDICT_NOT_MET.test(reply);
+  const results: CriterionResult[] = [];
+
+  // Deterministic first — instant, free, and unarguable.
+  const deterministic = criteria.filter((c) => c.check_type === "deterministic");
+  for (const c of deterministic) {
+    const outcome = runDeterministicCheck(c.check_config as any, subject);
+    results.push({
+      criterionId: c.id,
+      text: c.text,
+      kind: c.kind,
+      passed: outcome.passed,
+      reasoning: outcome.reasoning,
+      evidencePath: outcome.evidencePath ?? "",
+      evidenceLines: outcome.evidenceLines ?? "",
+      evidenceQuote: outcome.evidenceQuote ?? "",
+      hint: c.hint ?? "",
+      ungraded: false,
+      decidedBy: "deterministic",
+    });
+  }
+
+  // Then the model-judged ones, each with evidence required.
+  const modelJudged = criteria.filter((c) => c.check_type === "model_judged");
+  let model = "";
+  if (modelJudged.length > 0) {
+    const goalText =
+      phase.goal && typeof phase.goal === "object" && "description" in phase.goal
+        ? String((phase.goal as { description?: unknown }).description ?? "")
+        : "";
+    try {
+      const res = await gradeViaAi({
+        userEmail: email,
+        projectId,
+        phaseTitle: `${projectName} — Phase ${phase.phase_number}: ${phase.title}`,
+        phaseGoal: goalText,
+        criteria: modelJudged.map((c) => ({ id: c.id, text: c.text, kind: c.kind })),
+      });
+      model = res.model ?? gradingModel();
+      const byId = new Map(res.verdicts.map((v: any) => [v.criterionId, v]));
+      for (const c of modelJudged) {
+        const v: any = byId.get(c.id);
+        results.push({
+          criterionId: c.id,
+          text: c.text,
+          kind: c.kind,
+          // A criterion the grader didn't return an answer for is not a met one.
+          passed: v ? !!v.passed && !v.ungraded : false,
+          reasoning: v?.reasoning || "This check couldn't be graded — try submitting again.",
+          evidencePath: v?.evidencePath ?? "",
+          evidenceLines: v?.evidenceLines ?? "",
+          evidenceQuote: v?.evidenceQuote ?? "",
+          hint: c.hint ?? "",
+          ungraded: v ? !!v.ungraded : true,
+          decidedBy: v && !v.ungraded ? "model" : "ungraded",
+        });
+      }
+    } catch (err: any) {
+      // The grader is unreachable. Every model-judged criterion is ungraded —
+      // NOT failed. Telling users their work is wrong when grading broke is
+      // both untrue and poisons the accuracy record these rows feed.
+      console.error(
+        `Grading call failed for ${projectId} (${email}) phase ${phaseNumber}:`,
+        err?.message ?? err,
+      );
+      for (const c of modelJudged) {
+        results.push({
+          criterionId: c.id,
+          text: c.text,
+          kind: c.kind,
+          passed: false,
+          reasoning: "The reviewer couldn't be reached — this check wasn't graded.",
+          evidencePath: "",
+          evidenceLines: "",
+          evidenceQuote: "",
+          hint: c.hint ?? "",
+          ungraded: true,
+          decidedBy: "ungraded",
+        });
+      }
+    }
+  }
+
+  // Restore rubric order — deterministic checks were evaluated first.
+  const orderById = new Map(criteria.map((c) => [c.id, c.order]));
+  results.sort((a, b) => (orderById.get(a.criterionId) ?? 0) - (orderById.get(b.criterionId) ?? 0));
+
+  const passedCount = results.filter((r) => r.passed).length;
+  const met = passedCount === results.length;
+  const feedback = buildFeedback(results, met);
+
+  const base = {
+    checksTotal: total,
+    checksCorrect: correct,
+    results,
+    criteriaTotal: results.length,
+    criteriaPassed: passedCount,
+  };
 
   if (!met) {
     await projectRepo.recordFailedReview(
@@ -208,26 +278,23 @@ export const submitPhaseReview = async (
       phaseNumber,
       "not_met",
       feedback,
-      model,
+      model || gradingModel(),
+      results,
     );
     return {
       verdict: "not_met",
       advanced: false,
-      feedback:
-        feedback ||
-        "The grader couldn't complete a review just now — try submitting again.",
+      feedback,
       currentPhase: enrollment.current_phase,
-      checksTotal: total,
-      checksCorrect: correct,
+      ...base,
     };
   }
 
-  // Records the passing review and advances in one transaction, so a pass can
-  // never exist without the advance it authorised, or the reverse.
   const updated = await projectRepo.advancePhase(projectId, email, phaseNumber, {
     verdict: "met",
     feedback,
-    model,
+    model: model || gradingModel(),
+    results,
   });
 
   return {
@@ -235,7 +302,6 @@ export const submitPhaseReview = async (
     advanced: true,
     feedback,
     currentPhase: updated.current_phase,
-    checksTotal: total,
-    checksCorrect: correct,
+    ...base,
   };
 };

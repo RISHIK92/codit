@@ -224,6 +224,18 @@ exports.Prisma.PhaseReviewScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.ReviewCriterionResultScalarFieldEnum = {
+  id: 'id',
+  review_id: 'review_id',
+  criterion_id: 'criterion_id',
+  passed: 'passed',
+  decided_by: 'decided_by',
+  evidence_path: 'evidence_path',
+  evidence_lines: 'evidence_lines',
+  evidence_quote: 'evidence_quote',
+  reasoning: 'reasoning'
+};
+
 exports.Prisma.UserPhaseProgressScalarFieldEnum = {
   id: 'id',
   user_project_id: 'user_project_id',
@@ -361,6 +373,12 @@ exports.ReviewVerdict = exports.$Enums.ReviewVerdict = {
   blocked: 'blocked'
 };
 
+exports.ResultSource = exports.$Enums.ResultSource = {
+  deterministic: 'deterministic',
+  model: 'model',
+  ungraded: 'ungraded'
+};
+
 exports.PhaseStatus = exports.$Enums.PhaseStatus = {
   in_progress: 'in_progress',
   completed: 'completed',
@@ -395,6 +413,7 @@ exports.Prisma.ModelName = {
   Blob: 'Blob',
   UserProjects: 'UserProjects',
   PhaseReview: 'PhaseReview',
+  ReviewCriterionResult: 'ReviewCriterionResult',
   UserPhaseProgress: 'UserPhaseProgress',
   LearningPhase: 'LearningPhase',
   PhaseCriterion: 'PhaseCriterion',

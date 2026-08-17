@@ -75,13 +75,74 @@ export interface SetUserProjectArchivedResponse {
   userProject: UserProject | undefined;
 }
 
-export interface AdvancePhaseRequest {
+export interface SubmitPhaseReviewRequest {
   projectId: string;
   email: string;
+  /**
+   * Optional: the file the user has open, passed through to the grader as
+   * context. Never used to decide anything — purely a hint about where the
+   * user is working.
+   */
+  activeFilePath: string;
 }
 
-export interface AdvancePhaseResponse {
-  userProject: UserProject | undefined;
+/**
+ * How one criterion was judged, sent back so the user sees a checklist rather
+ * than a paragraph. Being told "3 of 5 checks passed, here's which two didn't
+ * and where" is actionable; a prose verdict is something to argue with.
+ */
+export interface CriterionResultProto {
+  criterionId: string;
+  text: string;
+  kind: string;
+  passed: boolean;
+  /** Why it failed, or where it was found when it passed. */
+  reasoning: string;
+  /**
+   * Populated on a pass — lets the user see what the grader actually looked at,
+   * which is also what makes a wrong verdict arguable rather than mysterious.
+   */
+  evidencePath: string;
+  evidenceLines: string;
+  /** Shown only on failure. Names the concept, never the code. */
+  hint: string;
+  /**
+   * True when grading failed rather than the work — the user should retry, not
+   * go looking for a mistake they didn't make.
+   */
+  ungraded: boolean;
+}
+
+export interface SubmitPhaseReviewResponse {
+  /**
+   * "met"     — goal judged met; the phase was advanced.
+   * "not_met" — goal judged not met; see feedback.
+   * "blocked" — never reached the grader: the phase's knowledge checks
+   *             aren't all answered correctly yet.
+   */
+  verdict: string;
+  /**
+   * True only when the phase actually advanced. Clients must use this rather
+   * than inferring advancement from the feedback text.
+   */
+  advanced: boolean;
+  /** The grader's prose explanation, or the reason the submission was blocked. */
+  feedback: string;
+  /**
+   * Authoritative post-review phase number — clients should adopt this rather
+   * than incrementing their own local counter.
+   */
+  currentPhase: number;
+  /** Populated when verdict = "blocked", so the UI can say "3 of 5 correct". */
+  checksTotal: number;
+  checksCorrect: number;
+  /**
+   * Per-criterion outcomes, in rubric order. Empty when blocked (nothing was
+   * graded) or for phases with no rubric authored.
+   */
+  results: CriterionResultProto[];
+  criteriaTotal: number;
+  criteriaPassed: number;
 }
 
 function createBaseCreateUserProjectRequest(): CreateUserProjectRequest {
@@ -952,25 +1013,28 @@ export const SetUserProjectArchivedResponse: MessageFns<SetUserProjectArchivedRe
   },
 };
 
-function createBaseAdvancePhaseRequest(): AdvancePhaseRequest {
-  return { projectId: "", email: "" };
+function createBaseSubmitPhaseReviewRequest(): SubmitPhaseReviewRequest {
+  return { projectId: "", email: "", activeFilePath: "" };
 }
 
-export const AdvancePhaseRequest: MessageFns<AdvancePhaseRequest> = {
-  encode(message: AdvancePhaseRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SubmitPhaseReviewRequest: MessageFns<SubmitPhaseReviewRequest> = {
+  encode(message: SubmitPhaseReviewRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.projectId !== "") {
       writer.uint32(10).string(message.projectId);
     }
     if (message.email !== "") {
       writer.uint32(18).string(message.email);
     }
+    if (message.activeFilePath !== "") {
+      writer.uint32(26).string(message.activeFilePath);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): AdvancePhaseRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): SubmitPhaseReviewRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAdvancePhaseRequest();
+    const message = createBaseSubmitPhaseReviewRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -990,73 +1054,12 @@ export const AdvancePhaseRequest: MessageFns<AdvancePhaseRequest> = {
           message.email = reader.string();
           continue;
         }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): AdvancePhaseRequest {
-    return {
-      projectId: isSet(object.projectId)
-        ? globalThis.String(object.projectId)
-        : isSet(object.project_id)
-        ? globalThis.String(object.project_id)
-        : "",
-      email: isSet(object.email) ? globalThis.String(object.email) : "",
-    };
-  },
-
-  toJSON(message: AdvancePhaseRequest): unknown {
-    const obj: any = {};
-    if (message.projectId !== "") {
-      obj.projectId = message.projectId;
-    }
-    if (message.email !== "") {
-      obj.email = message.email;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<AdvancePhaseRequest>, I>>(base?: I): AdvancePhaseRequest {
-    return AdvancePhaseRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<AdvancePhaseRequest>, I>>(object: I): AdvancePhaseRequest {
-    const message = createBaseAdvancePhaseRequest();
-    message.projectId = object.projectId ?? "";
-    message.email = object.email ?? "";
-    return message;
-  },
-};
-
-function createBaseAdvancePhaseResponse(): AdvancePhaseResponse {
-  return { userProject: undefined };
-}
-
-export const AdvancePhaseResponse: MessageFns<AdvancePhaseResponse> = {
-  encode(message: AdvancePhaseResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.userProject !== undefined) {
-      UserProject.encode(message.userProject, writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): AdvancePhaseResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseAdvancePhaseResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
+        case 3: {
+          if (tag !== 26) {
             break;
           }
 
-          message.userProject = UserProject.decode(reader, reader.uint32());
+          message.activeFilePath = reader.string();
           continue;
         }
       }
@@ -1068,32 +1071,474 @@ export const AdvancePhaseResponse: MessageFns<AdvancePhaseResponse> = {
     return message;
   },
 
-  fromJSON(object: any): AdvancePhaseResponse {
+  fromJSON(object: any): SubmitPhaseReviewRequest {
     return {
-      userProject: isSet(object.userProject)
-        ? UserProject.fromJSON(object.userProject)
-        : isSet(object.user_project)
-        ? UserProject.fromJSON(object.user_project)
-        : undefined,
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      activeFilePath: isSet(object.activeFilePath)
+        ? globalThis.String(object.activeFilePath)
+        : isSet(object.active_file_path)
+        ? globalThis.String(object.active_file_path)
+        : "",
     };
   },
 
-  toJSON(message: AdvancePhaseResponse): unknown {
+  toJSON(message: SubmitPhaseReviewRequest): unknown {
     const obj: any = {};
-    if (message.userProject !== undefined) {
-      obj.userProject = UserProject.toJSON(message.userProject);
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.activeFilePath !== "") {
+      obj.activeFilePath = message.activeFilePath;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AdvancePhaseResponse>, I>>(base?: I): AdvancePhaseResponse {
-    return AdvancePhaseResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SubmitPhaseReviewRequest>, I>>(base?: I): SubmitPhaseReviewRequest {
+    return SubmitPhaseReviewRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AdvancePhaseResponse>, I>>(object: I): AdvancePhaseResponse {
-    const message = createBaseAdvancePhaseResponse();
-    message.userProject = (object.userProject !== undefined && object.userProject !== null)
-      ? UserProject.fromPartial(object.userProject)
-      : undefined;
+  fromPartial<I extends Exact<DeepPartial<SubmitPhaseReviewRequest>, I>>(object: I): SubmitPhaseReviewRequest {
+    const message = createBaseSubmitPhaseReviewRequest();
+    message.projectId = object.projectId ?? "";
+    message.email = object.email ?? "";
+    message.activeFilePath = object.activeFilePath ?? "";
+    return message;
+  },
+};
+
+function createBaseCriterionResultProto(): CriterionResultProto {
+  return {
+    criterionId: "",
+    text: "",
+    kind: "",
+    passed: false,
+    reasoning: "",
+    evidencePath: "",
+    evidenceLines: "",
+    hint: "",
+    ungraded: false,
+  };
+}
+
+export const CriterionResultProto: MessageFns<CriterionResultProto> = {
+  encode(message: CriterionResultProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.criterionId !== "") {
+      writer.uint32(10).string(message.criterionId);
+    }
+    if (message.text !== "") {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.kind !== "") {
+      writer.uint32(26).string(message.kind);
+    }
+    if (message.passed !== false) {
+      writer.uint32(32).bool(message.passed);
+    }
+    if (message.reasoning !== "") {
+      writer.uint32(42).string(message.reasoning);
+    }
+    if (message.evidencePath !== "") {
+      writer.uint32(50).string(message.evidencePath);
+    }
+    if (message.evidenceLines !== "") {
+      writer.uint32(58).string(message.evidenceLines);
+    }
+    if (message.hint !== "") {
+      writer.uint32(66).string(message.hint);
+    }
+    if (message.ungraded !== false) {
+      writer.uint32(72).bool(message.ungraded);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CriterionResultProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCriterionResultProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.criterionId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.kind = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.passed = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.reasoning = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.evidencePath = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.evidenceLines = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.hint = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.ungraded = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CriterionResultProto {
+    return {
+      criterionId: isSet(object.criterionId)
+        ? globalThis.String(object.criterionId)
+        : isSet(object.criterion_id)
+        ? globalThis.String(object.criterion_id)
+        : "",
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
+      passed: isSet(object.passed) ? globalThis.Boolean(object.passed) : false,
+      reasoning: isSet(object.reasoning) ? globalThis.String(object.reasoning) : "",
+      evidencePath: isSet(object.evidencePath)
+        ? globalThis.String(object.evidencePath)
+        : isSet(object.evidence_path)
+        ? globalThis.String(object.evidence_path)
+        : "",
+      evidenceLines: isSet(object.evidenceLines)
+        ? globalThis.String(object.evidenceLines)
+        : isSet(object.evidence_lines)
+        ? globalThis.String(object.evidence_lines)
+        : "",
+      hint: isSet(object.hint) ? globalThis.String(object.hint) : "",
+      ungraded: isSet(object.ungraded) ? globalThis.Boolean(object.ungraded) : false,
+    };
+  },
+
+  toJSON(message: CriterionResultProto): unknown {
+    const obj: any = {};
+    if (message.criterionId !== "") {
+      obj.criterionId = message.criterionId;
+    }
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.kind !== "") {
+      obj.kind = message.kind;
+    }
+    if (message.passed !== false) {
+      obj.passed = message.passed;
+    }
+    if (message.reasoning !== "") {
+      obj.reasoning = message.reasoning;
+    }
+    if (message.evidencePath !== "") {
+      obj.evidencePath = message.evidencePath;
+    }
+    if (message.evidenceLines !== "") {
+      obj.evidenceLines = message.evidenceLines;
+    }
+    if (message.hint !== "") {
+      obj.hint = message.hint;
+    }
+    if (message.ungraded !== false) {
+      obj.ungraded = message.ungraded;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CriterionResultProto>, I>>(base?: I): CriterionResultProto {
+    return CriterionResultProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CriterionResultProto>, I>>(object: I): CriterionResultProto {
+    const message = createBaseCriterionResultProto();
+    message.criterionId = object.criterionId ?? "";
+    message.text = object.text ?? "";
+    message.kind = object.kind ?? "";
+    message.passed = object.passed ?? false;
+    message.reasoning = object.reasoning ?? "";
+    message.evidencePath = object.evidencePath ?? "";
+    message.evidenceLines = object.evidenceLines ?? "";
+    message.hint = object.hint ?? "";
+    message.ungraded = object.ungraded ?? false;
+    return message;
+  },
+};
+
+function createBaseSubmitPhaseReviewResponse(): SubmitPhaseReviewResponse {
+  return {
+    verdict: "",
+    advanced: false,
+    feedback: "",
+    currentPhase: 0,
+    checksTotal: 0,
+    checksCorrect: 0,
+    results: [],
+    criteriaTotal: 0,
+    criteriaPassed: 0,
+  };
+}
+
+export const SubmitPhaseReviewResponse: MessageFns<SubmitPhaseReviewResponse> = {
+  encode(message: SubmitPhaseReviewResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.verdict !== "") {
+      writer.uint32(10).string(message.verdict);
+    }
+    if (message.advanced !== false) {
+      writer.uint32(16).bool(message.advanced);
+    }
+    if (message.feedback !== "") {
+      writer.uint32(26).string(message.feedback);
+    }
+    if (message.currentPhase !== 0) {
+      writer.uint32(32).int32(message.currentPhase);
+    }
+    if (message.checksTotal !== 0) {
+      writer.uint32(40).int32(message.checksTotal);
+    }
+    if (message.checksCorrect !== 0) {
+      writer.uint32(48).int32(message.checksCorrect);
+    }
+    for (const v of message.results) {
+      CriterionResultProto.encode(v!, writer.uint32(58).fork()).join();
+    }
+    if (message.criteriaTotal !== 0) {
+      writer.uint32(64).int32(message.criteriaTotal);
+    }
+    if (message.criteriaPassed !== 0) {
+      writer.uint32(72).int32(message.criteriaPassed);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SubmitPhaseReviewResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSubmitPhaseReviewResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.verdict = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.advanced = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.feedback = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.currentPhase = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.checksTotal = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.checksCorrect = reader.int32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.results.push(CriterionResultProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.criteriaTotal = reader.int32();
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.criteriaPassed = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SubmitPhaseReviewResponse {
+    return {
+      verdict: isSet(object.verdict) ? globalThis.String(object.verdict) : "",
+      advanced: isSet(object.advanced) ? globalThis.Boolean(object.advanced) : false,
+      feedback: isSet(object.feedback) ? globalThis.String(object.feedback) : "",
+      currentPhase: isSet(object.currentPhase)
+        ? globalThis.Number(object.currentPhase)
+        : isSet(object.current_phase)
+        ? globalThis.Number(object.current_phase)
+        : 0,
+      checksTotal: isSet(object.checksTotal)
+        ? globalThis.Number(object.checksTotal)
+        : isSet(object.checks_total)
+        ? globalThis.Number(object.checks_total)
+        : 0,
+      checksCorrect: isSet(object.checksCorrect)
+        ? globalThis.Number(object.checksCorrect)
+        : isSet(object.checks_correct)
+        ? globalThis.Number(object.checks_correct)
+        : 0,
+      results: globalThis.Array.isArray(object?.results)
+        ? object.results.map((e: any) => CriterionResultProto.fromJSON(e))
+        : [],
+      criteriaTotal: isSet(object.criteriaTotal)
+        ? globalThis.Number(object.criteriaTotal)
+        : isSet(object.criteria_total)
+        ? globalThis.Number(object.criteria_total)
+        : 0,
+      criteriaPassed: isSet(object.criteriaPassed)
+        ? globalThis.Number(object.criteriaPassed)
+        : isSet(object.criteria_passed)
+        ? globalThis.Number(object.criteria_passed)
+        : 0,
+    };
+  },
+
+  toJSON(message: SubmitPhaseReviewResponse): unknown {
+    const obj: any = {};
+    if (message.verdict !== "") {
+      obj.verdict = message.verdict;
+    }
+    if (message.advanced !== false) {
+      obj.advanced = message.advanced;
+    }
+    if (message.feedback !== "") {
+      obj.feedback = message.feedback;
+    }
+    if (message.currentPhase !== 0) {
+      obj.currentPhase = Math.round(message.currentPhase);
+    }
+    if (message.checksTotal !== 0) {
+      obj.checksTotal = Math.round(message.checksTotal);
+    }
+    if (message.checksCorrect !== 0) {
+      obj.checksCorrect = Math.round(message.checksCorrect);
+    }
+    if (message.results?.length) {
+      obj.results = message.results.map((e) => CriterionResultProto.toJSON(e));
+    }
+    if (message.criteriaTotal !== 0) {
+      obj.criteriaTotal = Math.round(message.criteriaTotal);
+    }
+    if (message.criteriaPassed !== 0) {
+      obj.criteriaPassed = Math.round(message.criteriaPassed);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SubmitPhaseReviewResponse>, I>>(base?: I): SubmitPhaseReviewResponse {
+    return SubmitPhaseReviewResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SubmitPhaseReviewResponse>, I>>(object: I): SubmitPhaseReviewResponse {
+    const message = createBaseSubmitPhaseReviewResponse();
+    message.verdict = object.verdict ?? "";
+    message.advanced = object.advanced ?? false;
+    message.feedback = object.feedback ?? "";
+    message.currentPhase = object.currentPhase ?? 0;
+    message.checksTotal = object.checksTotal ?? 0;
+    message.checksCorrect = object.checksCorrect ?? 0;
+    message.results = object.results?.map((e) => CriterionResultProto.fromPartial(e)) || [];
+    message.criteriaTotal = object.criteriaTotal ?? 0;
+    message.criteriaPassed = object.criteriaPassed ?? 0;
     return message;
   },
 };
@@ -1165,18 +1610,29 @@ export const UserProjectServiceService = {
       SetUserProjectArchivedResponse.decode(value),
   },
   /**
-   * Advances current_phase by 1 — called after an AI review of a phase's
-   * submitted work judges the phase goal met.
+   * Submits the user's current phase for grading, and advances it if the
+   * grader judges the goal met.
+   *
+   * This is deliberately the ONLY path that can advance a phase. There is no
+   * separate "advance" RPC: an endpoint that advances on request is an
+   * endpoint any authenticated user can call to skip the work, which makes
+   * every guarantee about demonstrated understanding worthless. Grading,
+   * the verdict, and the advance all happen server-side inside this one call.
+   *
+   * The request carries only the project — the phase under review, its goal,
+   * and its knowledge-check status are all derived server-side from the
+   * caller's own enrollment, so none of them can be spoofed by the client.
    */
-  advancePhase: {
-    path: "/userProject.UserProjectService/AdvancePhase" as const,
+  submitPhaseReview: {
+    path: "/userProject.UserProjectService/SubmitPhaseReview" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: AdvancePhaseRequest): Buffer => Buffer.from(AdvancePhaseRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): AdvancePhaseRequest => AdvancePhaseRequest.decode(value),
-    responseSerialize: (value: AdvancePhaseResponse): Buffer =>
-      Buffer.from(AdvancePhaseResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): AdvancePhaseResponse => AdvancePhaseResponse.decode(value),
+    requestSerialize: (value: SubmitPhaseReviewRequest): Buffer =>
+      Buffer.from(SubmitPhaseReviewRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SubmitPhaseReviewRequest => SubmitPhaseReviewRequest.decode(value),
+    responseSerialize: (value: SubmitPhaseReviewResponse): Buffer =>
+      Buffer.from(SubmitPhaseReviewResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SubmitPhaseReviewResponse => SubmitPhaseReviewResponse.decode(value),
   },
 } as const;
 
@@ -1194,10 +1650,20 @@ export interface UserProjectServiceServer extends UntypedServiceImplementation {
    */
   setUserProjectArchived: handleUnaryCall<SetUserProjectArchivedRequest, SetUserProjectArchivedResponse>;
   /**
-   * Advances current_phase by 1 — called after an AI review of a phase's
-   * submitted work judges the phase goal met.
+   * Submits the user's current phase for grading, and advances it if the
+   * grader judges the goal met.
+   *
+   * This is deliberately the ONLY path that can advance a phase. There is no
+   * separate "advance" RPC: an endpoint that advances on request is an
+   * endpoint any authenticated user can call to skip the work, which makes
+   * every guarantee about demonstrated understanding worthless. Grading,
+   * the verdict, and the advance all happen server-side inside this one call.
+   *
+   * The request carries only the project — the phase under review, its goal,
+   * and its knowledge-check status are all derived server-side from the
+   * caller's own enrollment, so none of them can be spoofed by the client.
    */
-  advancePhase: handleUnaryCall<AdvancePhaseRequest, AdvancePhaseResponse>;
+  submitPhaseReview: handleUnaryCall<SubmitPhaseReviewRequest, SubmitPhaseReviewResponse>;
 }
 
 export interface UserProjectServiceClient extends Client {
@@ -1284,23 +1750,33 @@ export interface UserProjectServiceClient extends Client {
     callback: (error: ServiceError | null, response: SetUserProjectArchivedResponse) => void,
   ): ClientUnaryCall;
   /**
-   * Advances current_phase by 1 — called after an AI review of a phase's
-   * submitted work judges the phase goal met.
+   * Submits the user's current phase for grading, and advances it if the
+   * grader judges the goal met.
+   *
+   * This is deliberately the ONLY path that can advance a phase. There is no
+   * separate "advance" RPC: an endpoint that advances on request is an
+   * endpoint any authenticated user can call to skip the work, which makes
+   * every guarantee about demonstrated understanding worthless. Grading,
+   * the verdict, and the advance all happen server-side inside this one call.
+   *
+   * The request carries only the project — the phase under review, its goal,
+   * and its knowledge-check status are all derived server-side from the
+   * caller's own enrollment, so none of them can be spoofed by the client.
    */
-  advancePhase(
-    request: AdvancePhaseRequest,
-    callback: (error: ServiceError | null, response: AdvancePhaseResponse) => void,
+  submitPhaseReview(
+    request: SubmitPhaseReviewRequest,
+    callback: (error: ServiceError | null, response: SubmitPhaseReviewResponse) => void,
   ): ClientUnaryCall;
-  advancePhase(
-    request: AdvancePhaseRequest,
+  submitPhaseReview(
+    request: SubmitPhaseReviewRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: AdvancePhaseResponse) => void,
+    callback: (error: ServiceError | null, response: SubmitPhaseReviewResponse) => void,
   ): ClientUnaryCall;
-  advancePhase(
-    request: AdvancePhaseRequest,
+  submitPhaseReview(
+    request: SubmitPhaseReviewRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: AdvancePhaseResponse) => void,
+    callback: (error: ServiceError | null, response: SubmitPhaseReviewResponse) => void,
   ): ClientUnaryCall;
 }
 

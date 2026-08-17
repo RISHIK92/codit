@@ -132,7 +132,13 @@ Worth recording, because this is the spec Phase 7's generator has to hit:
 
 ---
 
-## Phase 2 — The rigorous gate
+## Phase 2 — The rigorous gate ✅ DONE
+
+*Deterministic checks + per-criterion evidence grading, verdict computed as a
+conjunction. Audit result on the portfolio phase-1 fixture set (7 fixtures × 2
+runs): **0% false pass, 0% false fail, 10/10 criterion attribution exact, 7/7
+stable verdicts**. Re-run with `npx ts-node tests/phase2.accuracy.test.ts`.*
+
 
 **Goal:** a verdict you'd bet the product on.
 
@@ -179,6 +185,19 @@ Ship an audit: sample N submissions, hand-review the verdicts, and track **false
 **Exit criteria:** verdicts are server-computed from evidenced per-criterion results, every submission is recorded, and false-MET rate is a number you can quote.
 
 **Size:** large. This is the centerpiece.
+
+### What building the audit actually caught
+
+Every one of these was invisible until there was a number:
+
+- **The default model was decommissioned.** `llama-3.3-70b-versatile` 404s. Every AI feature — chat, explain, knowledge-check grading, review — was silently broken. Now `openai/gpt-oss-120b`, overridable via `GROQ_MODEL`.
+- **No rate-limit handling anywhere.** Per-criterion grading issues one request per criterion, which bursts straight through a low tokens-per-minute quota. Criteria came back *ungraded*, which the gate correctly refused to treat as failures. Fixed with 429-aware backoff that honours the provider's own stated wait.
+- **The evidence check was too strict, and it was mine, not the model's.** Requiring one contiguous verbatim quote rejected correct work whenever a criterion is satisfied by several separate places in a file ("uses header, main, section and footer" is four non-adjacent elements). That alone produced a **100% false-fail rate** while the model was behaving perfectly. Now verified segment-by-segment: every segment must exist, so invented evidence still fails.
+- **Criterion wording measurably changes accuracy.** "X rather than Y" is two claims, and graders conflate them. Rewording one such criterion as a single positive claim improved attribution from 3/5 to 4/5 immediately. **34 criteria in `criteria.ts` still use that shape** — worth a pass.
+
+### Known cost
+
+Per-criterion grading resends the file context for each criterion, so a 5-criterion phase costs roughly 5× the tokens of one holistic call. That is the price of the accuracy, and it is the right trade — but it makes the free Groq tier (8000 TPM) impractical, and grading runs serially by default because of it (`GRADING_CONCURRENCY`). Batching criteria into one call would cut this, at the cost of reintroducing the anchoring the design exists to avoid.
 
 ---
 

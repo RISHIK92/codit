@@ -76,6 +76,20 @@ export type UserProjects = $Result.DefaultSelection<Prisma.$UserProjectsPayload>
  */
 export type PhaseReview = $Result.DefaultSelection<Prisma.$PhaseReviewPayload>
 /**
+ * Model ReviewCriterionResult
+ * * How one criterion was judged in one submission.
+ *  *
+ *  * The verdict on a phase is the conjunction of these, computed — never a
+ *  * holistic opinion parsed out of prose. Each model-judged row has to carry the
+ *  * file and lines that satisfy the criterion: a model asked "is this good?"
+ *  * drifts generous, while a model required to point at the line has to either
+ *  * find it or fail. That requirement is the main defence against a false pass.
+ *  *
+ *  * Rows are kept for failed submissions too. Measuring how often grading is
+ *  * wrong is impossible from success records alone.
+ */
+export type ReviewCriterionResult = $Result.DefaultSelection<Prisma.$ReviewCriterionResultPayload>
+/**
  * Model UserPhaseProgress
  * * Per-user, per-phase status for one enrollment — LearningPhase.phase_status
  *  * is a shared catalogue field and can't represent per-user progress, since
@@ -129,7 +143,16 @@ export type ResourceProgress = $Result.DefaultSelection<Prisma.$ResourceProgress
  * Enums
  */
 export namespace $Enums {
-  export const CriterionKind: {
+  export const ResultSource: {
+  deterministic: 'deterministic',
+  model: 'model',
+  ungraded: 'ungraded'
+};
+
+export type ResultSource = (typeof ResultSource)[keyof typeof ResultSource]
+
+
+export const CriterionKind: {
   behavioral: 'behavioral',
   structural: 'structural',
   conceptual: 'conceptual'
@@ -208,6 +231,10 @@ export const ReviewVerdict: {
 export type ReviewVerdict = (typeof ReviewVerdict)[keyof typeof ReviewVerdict]
 
 }
+
+export type ResultSource = $Enums.ResultSource
+
+export const ResultSource: typeof $Enums.ResultSource
 
 export type CriterionKind = $Enums.CriterionKind
 
@@ -462,6 +489,16 @@ export class PrismaClient<
     * ```
     */
   get phaseReview(): Prisma.PhaseReviewDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reviewCriterionResult`: Exposes CRUD operations for the **ReviewCriterionResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReviewCriterionResults
+    * const reviewCriterionResults = await prisma.reviewCriterionResult.findMany()
+    * ```
+    */
+  get reviewCriterionResult(): Prisma.ReviewCriterionResultDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userPhaseProgress`: Exposes CRUD operations for the **UserPhaseProgress** model.
@@ -983,6 +1020,7 @@ export namespace Prisma {
     Blob: 'Blob',
     UserProjects: 'UserProjects',
     PhaseReview: 'PhaseReview',
+    ReviewCriterionResult: 'ReviewCriterionResult',
     UserPhaseProgress: 'UserPhaseProgress',
     LearningPhase: 'LearningPhase',
     PhaseCriterion: 'PhaseCriterion',
@@ -1008,7 +1046,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "reviewCriterionResult" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1752,6 +1790,80 @@ export namespace Prisma {
           }
         }
       }
+      ReviewCriterionResult: {
+        payload: Prisma.$ReviewCriterionResultPayload<ExtArgs>
+        fields: Prisma.ReviewCriterionResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReviewCriterionResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReviewCriterionResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>
+          }
+          findFirst: {
+            args: Prisma.ReviewCriterionResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReviewCriterionResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>
+          }
+          findMany: {
+            args: Prisma.ReviewCriterionResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>[]
+          }
+          create: {
+            args: Prisma.ReviewCriterionResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>
+          }
+          createMany: {
+            args: Prisma.ReviewCriterionResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReviewCriterionResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>[]
+          }
+          delete: {
+            args: Prisma.ReviewCriterionResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>
+          }
+          update: {
+            args: Prisma.ReviewCriterionResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReviewCriterionResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReviewCriterionResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReviewCriterionResultUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReviewCriterionResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReviewCriterionResultPayload>
+          }
+          aggregate: {
+            args: Prisma.ReviewCriterionResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReviewCriterionResult>
+          }
+          groupBy: {
+            args: Prisma.ReviewCriterionResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReviewCriterionResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReviewCriterionResultCountArgs<ExtArgs>
+            result: $Utils.Optional<ReviewCriterionResultCountAggregateOutputType> | number
+          }
+        }
+      }
       UserPhaseProgress: {
         payload: Prisma.$UserPhaseProgressPayload<ExtArgs>
         fields: Prisma.UserPhaseProgressFieldRefs
@@ -2376,6 +2488,7 @@ export namespace Prisma {
     blob?: BlobOmit
     userProjects?: UserProjectsOmit
     phaseReview?: PhaseReviewOmit
+    reviewCriterionResult?: ReviewCriterionResultOmit
     userPhaseProgress?: UserPhaseProgressOmit
     learningPhase?: LearningPhaseOmit
     phaseCriterion?: PhaseCriterionOmit
@@ -2619,6 +2732,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type PhaseReviewCountOutputType
+   */
+
+  export type PhaseReviewCountOutputType = {
+    results: number
+  }
+
+  export type PhaseReviewCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    results?: boolean | PhaseReviewCountOutputTypeCountResultsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PhaseReviewCountOutputType without action
+   */
+  export type PhaseReviewCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseReviewCountOutputType
+     */
+    select?: PhaseReviewCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PhaseReviewCountOutputType without action
+   */
+  export type PhaseReviewCountOutputTypeCountResultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReviewCriterionResultWhereInput
+  }
+
+
+  /**
    * Count Type LearningPhaseCountOutputType
    */
 
@@ -2664,6 +2808,37 @@ export namespace Prisma {
    */
   export type LearningPhaseCountOutputTypeCountCriteriaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PhaseCriterionWhereInput
+  }
+
+
+  /**
+   * Count Type PhaseCriterionCountOutputType
+   */
+
+  export type PhaseCriterionCountOutputType = {
+    results: number
+  }
+
+  export type PhaseCriterionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    results?: boolean | PhaseCriterionCountOutputTypeCountResultsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PhaseCriterionCountOutputType without action
+   */
+  export type PhaseCriterionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterionCountOutputType
+     */
+    select?: PhaseCriterionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PhaseCriterionCountOutputType without action
+   */
+  export type PhaseCriterionCountOutputTypeCountResultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReviewCriterionResultWhereInput
   }
 
 
@@ -13159,6 +13334,8 @@ export namespace Prisma {
     model?: boolean
     created_at?: boolean
     userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+    results?: boolean | PhaseReview$resultsArgs<ExtArgs>
+    _count?: boolean | PhaseReviewCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["phaseReview"]>
 
   export type PhaseReviewSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -13196,6 +13373,8 @@ export namespace Prisma {
   export type PhaseReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_project_id" | "phase_number" | "verdict" | "feedback" | "model" | "created_at", ExtArgs["result"]["phaseReview"]>
   export type PhaseReviewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
+    results?: boolean | PhaseReview$resultsArgs<ExtArgs>
+    _count?: boolean | PhaseReviewCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PhaseReviewIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     userProject?: boolean | UserProjectsDefaultArgs<ExtArgs>
@@ -13208,6 +13387,7 @@ export namespace Prisma {
     name: "PhaseReview"
     objects: {
       userProject: Prisma.$UserProjectsPayload<ExtArgs>
+      results: Prisma.$ReviewCriterionResultPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13618,6 +13798,7 @@ export namespace Prisma {
   export interface Prisma__PhaseReviewClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     userProject<T extends UserProjectsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserProjectsDefaultArgs<ExtArgs>>): Prisma__UserProjectsClient<$Result.GetResult<Prisma.$UserProjectsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    results<T extends PhaseReview$resultsArgs<ExtArgs> = {}>(args?: Subset<T, PhaseReview$resultsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14050,6 +14231,30 @@ export namespace Prisma {
   }
 
   /**
+   * PhaseReview.results
+   */
+  export type PhaseReview$resultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    where?: ReviewCriterionResultWhereInput
+    orderBy?: ReviewCriterionResultOrderByWithRelationInput | ReviewCriterionResultOrderByWithRelationInput[]
+    cursor?: ReviewCriterionResultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReviewCriterionResultScalarFieldEnum | ReviewCriterionResultScalarFieldEnum[]
+  }
+
+  /**
    * PhaseReview without action
    */
   export type PhaseReviewDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14065,6 +14270,1130 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PhaseReviewInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReviewCriterionResult
+   */
+
+  export type AggregateReviewCriterionResult = {
+    _count: ReviewCriterionResultCountAggregateOutputType | null
+    _min: ReviewCriterionResultMinAggregateOutputType | null
+    _max: ReviewCriterionResultMaxAggregateOutputType | null
+  }
+
+  export type ReviewCriterionResultMinAggregateOutputType = {
+    id: string | null
+    review_id: string | null
+    criterion_id: string | null
+    passed: boolean | null
+    decided_by: $Enums.ResultSource | null
+    evidence_path: string | null
+    evidence_lines: string | null
+    evidence_quote: string | null
+    reasoning: string | null
+  }
+
+  export type ReviewCriterionResultMaxAggregateOutputType = {
+    id: string | null
+    review_id: string | null
+    criterion_id: string | null
+    passed: boolean | null
+    decided_by: $Enums.ResultSource | null
+    evidence_path: string | null
+    evidence_lines: string | null
+    evidence_quote: string | null
+    reasoning: string | null
+  }
+
+  export type ReviewCriterionResultCountAggregateOutputType = {
+    id: number
+    review_id: number
+    criterion_id: number
+    passed: number
+    decided_by: number
+    evidence_path: number
+    evidence_lines: number
+    evidence_quote: number
+    reasoning: number
+    _all: number
+  }
+
+
+  export type ReviewCriterionResultMinAggregateInputType = {
+    id?: true
+    review_id?: true
+    criterion_id?: true
+    passed?: true
+    decided_by?: true
+    evidence_path?: true
+    evidence_lines?: true
+    evidence_quote?: true
+    reasoning?: true
+  }
+
+  export type ReviewCriterionResultMaxAggregateInputType = {
+    id?: true
+    review_id?: true
+    criterion_id?: true
+    passed?: true
+    decided_by?: true
+    evidence_path?: true
+    evidence_lines?: true
+    evidence_quote?: true
+    reasoning?: true
+  }
+
+  export type ReviewCriterionResultCountAggregateInputType = {
+    id?: true
+    review_id?: true
+    criterion_id?: true
+    passed?: true
+    decided_by?: true
+    evidence_path?: true
+    evidence_lines?: true
+    evidence_quote?: true
+    reasoning?: true
+    _all?: true
+  }
+
+  export type ReviewCriterionResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReviewCriterionResult to aggregate.
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReviewCriterionResults to fetch.
+     */
+    orderBy?: ReviewCriterionResultOrderByWithRelationInput | ReviewCriterionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReviewCriterionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReviewCriterionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReviewCriterionResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReviewCriterionResults
+    **/
+    _count?: true | ReviewCriterionResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReviewCriterionResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReviewCriterionResultMaxAggregateInputType
+  }
+
+  export type GetReviewCriterionResultAggregateType<T extends ReviewCriterionResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateReviewCriterionResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReviewCriterionResult[P]>
+      : GetScalarType<T[P], AggregateReviewCriterionResult[P]>
+  }
+
+
+
+
+  export type ReviewCriterionResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReviewCriterionResultWhereInput
+    orderBy?: ReviewCriterionResultOrderByWithAggregationInput | ReviewCriterionResultOrderByWithAggregationInput[]
+    by: ReviewCriterionResultScalarFieldEnum[] | ReviewCriterionResultScalarFieldEnum
+    having?: ReviewCriterionResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReviewCriterionResultCountAggregateInputType | true
+    _min?: ReviewCriterionResultMinAggregateInputType
+    _max?: ReviewCriterionResultMaxAggregateInputType
+  }
+
+  export type ReviewCriterionResultGroupByOutputType = {
+    id: string
+    review_id: string
+    criterion_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path: string
+    evidence_lines: string
+    evidence_quote: string
+    reasoning: string
+    _count: ReviewCriterionResultCountAggregateOutputType | null
+    _min: ReviewCriterionResultMinAggregateOutputType | null
+    _max: ReviewCriterionResultMaxAggregateOutputType | null
+  }
+
+  type GetReviewCriterionResultGroupByPayload<T extends ReviewCriterionResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReviewCriterionResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReviewCriterionResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReviewCriterionResultGroupByOutputType[P]>
+            : GetScalarType<T[P], ReviewCriterionResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReviewCriterionResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    review_id?: boolean
+    criterion_id?: boolean
+    passed?: boolean
+    decided_by?: boolean
+    evidence_path?: boolean
+    evidence_lines?: boolean
+    evidence_quote?: boolean
+    reasoning?: boolean
+    review?: boolean | PhaseReviewDefaultArgs<ExtArgs>
+    criterion?: boolean | PhaseCriterionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reviewCriterionResult"]>
+
+  export type ReviewCriterionResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    review_id?: boolean
+    criterion_id?: boolean
+    passed?: boolean
+    decided_by?: boolean
+    evidence_path?: boolean
+    evidence_lines?: boolean
+    evidence_quote?: boolean
+    reasoning?: boolean
+    review?: boolean | PhaseReviewDefaultArgs<ExtArgs>
+    criterion?: boolean | PhaseCriterionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reviewCriterionResult"]>
+
+  export type ReviewCriterionResultSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    review_id?: boolean
+    criterion_id?: boolean
+    passed?: boolean
+    decided_by?: boolean
+    evidence_path?: boolean
+    evidence_lines?: boolean
+    evidence_quote?: boolean
+    reasoning?: boolean
+    review?: boolean | PhaseReviewDefaultArgs<ExtArgs>
+    criterion?: boolean | PhaseCriterionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reviewCriterionResult"]>
+
+  export type ReviewCriterionResultSelectScalar = {
+    id?: boolean
+    review_id?: boolean
+    criterion_id?: boolean
+    passed?: boolean
+    decided_by?: boolean
+    evidence_path?: boolean
+    evidence_lines?: boolean
+    evidence_quote?: boolean
+    reasoning?: boolean
+  }
+
+  export type ReviewCriterionResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "review_id" | "criterion_id" | "passed" | "decided_by" | "evidence_path" | "evidence_lines" | "evidence_quote" | "reasoning", ExtArgs["result"]["reviewCriterionResult"]>
+  export type ReviewCriterionResultInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    review?: boolean | PhaseReviewDefaultArgs<ExtArgs>
+    criterion?: boolean | PhaseCriterionDefaultArgs<ExtArgs>
+  }
+  export type ReviewCriterionResultIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    review?: boolean | PhaseReviewDefaultArgs<ExtArgs>
+    criterion?: boolean | PhaseCriterionDefaultArgs<ExtArgs>
+  }
+  export type ReviewCriterionResultIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    review?: boolean | PhaseReviewDefaultArgs<ExtArgs>
+    criterion?: boolean | PhaseCriterionDefaultArgs<ExtArgs>
+  }
+
+  export type $ReviewCriterionResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReviewCriterionResult"
+    objects: {
+      review: Prisma.$PhaseReviewPayload<ExtArgs>
+      criterion: Prisma.$PhaseCriterionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      review_id: string
+      criterion_id: string
+      passed: boolean
+      decided_by: $Enums.ResultSource
+      /**
+       * * Where the evidence was found. Empty for deterministic checks and failures.
+       */
+      evidence_path: string
+      evidence_lines: string
+      evidence_quote: string
+      /**
+       * * One sentence on why. Shown to the user when the criterion failed.
+       */
+      reasoning: string
+    }, ExtArgs["result"]["reviewCriterionResult"]>
+    composites: {}
+  }
+
+  type ReviewCriterionResultGetPayload<S extends boolean | null | undefined | ReviewCriterionResultDefaultArgs> = $Result.GetResult<Prisma.$ReviewCriterionResultPayload, S>
+
+  type ReviewCriterionResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReviewCriterionResultFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReviewCriterionResultCountAggregateInputType | true
+    }
+
+  export interface ReviewCriterionResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReviewCriterionResult'], meta: { name: 'ReviewCriterionResult' } }
+    /**
+     * Find zero or one ReviewCriterionResult that matches the filter.
+     * @param {ReviewCriterionResultFindUniqueArgs} args - Arguments to find a ReviewCriterionResult
+     * @example
+     * // Get one ReviewCriterionResult
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReviewCriterionResultFindUniqueArgs>(args: SelectSubset<T, ReviewCriterionResultFindUniqueArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReviewCriterionResult that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReviewCriterionResultFindUniqueOrThrowArgs} args - Arguments to find a ReviewCriterionResult
+     * @example
+     * // Get one ReviewCriterionResult
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReviewCriterionResultFindUniqueOrThrowArgs>(args: SelectSubset<T, ReviewCriterionResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReviewCriterionResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultFindFirstArgs} args - Arguments to find a ReviewCriterionResult
+     * @example
+     * // Get one ReviewCriterionResult
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReviewCriterionResultFindFirstArgs>(args?: SelectSubset<T, ReviewCriterionResultFindFirstArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReviewCriterionResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultFindFirstOrThrowArgs} args - Arguments to find a ReviewCriterionResult
+     * @example
+     * // Get one ReviewCriterionResult
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReviewCriterionResultFindFirstOrThrowArgs>(args?: SelectSubset<T, ReviewCriterionResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReviewCriterionResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReviewCriterionResults
+     * const reviewCriterionResults = await prisma.reviewCriterionResult.findMany()
+     * 
+     * // Get first 10 ReviewCriterionResults
+     * const reviewCriterionResults = await prisma.reviewCriterionResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reviewCriterionResultWithIdOnly = await prisma.reviewCriterionResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReviewCriterionResultFindManyArgs>(args?: SelectSubset<T, ReviewCriterionResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReviewCriterionResult.
+     * @param {ReviewCriterionResultCreateArgs} args - Arguments to create a ReviewCriterionResult.
+     * @example
+     * // Create one ReviewCriterionResult
+     * const ReviewCriterionResult = await prisma.reviewCriterionResult.create({
+     *   data: {
+     *     // ... data to create a ReviewCriterionResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReviewCriterionResultCreateArgs>(args: SelectSubset<T, ReviewCriterionResultCreateArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReviewCriterionResults.
+     * @param {ReviewCriterionResultCreateManyArgs} args - Arguments to create many ReviewCriterionResults.
+     * @example
+     * // Create many ReviewCriterionResults
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReviewCriterionResultCreateManyArgs>(args?: SelectSubset<T, ReviewCriterionResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReviewCriterionResults and returns the data saved in the database.
+     * @param {ReviewCriterionResultCreateManyAndReturnArgs} args - Arguments to create many ReviewCriterionResults.
+     * @example
+     * // Create many ReviewCriterionResults
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReviewCriterionResults and only return the `id`
+     * const reviewCriterionResultWithIdOnly = await prisma.reviewCriterionResult.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReviewCriterionResultCreateManyAndReturnArgs>(args?: SelectSubset<T, ReviewCriterionResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReviewCriterionResult.
+     * @param {ReviewCriterionResultDeleteArgs} args - Arguments to delete one ReviewCriterionResult.
+     * @example
+     * // Delete one ReviewCriterionResult
+     * const ReviewCriterionResult = await prisma.reviewCriterionResult.delete({
+     *   where: {
+     *     // ... filter to delete one ReviewCriterionResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReviewCriterionResultDeleteArgs>(args: SelectSubset<T, ReviewCriterionResultDeleteArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReviewCriterionResult.
+     * @param {ReviewCriterionResultUpdateArgs} args - Arguments to update one ReviewCriterionResult.
+     * @example
+     * // Update one ReviewCriterionResult
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReviewCriterionResultUpdateArgs>(args: SelectSubset<T, ReviewCriterionResultUpdateArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReviewCriterionResults.
+     * @param {ReviewCriterionResultDeleteManyArgs} args - Arguments to filter ReviewCriterionResults to delete.
+     * @example
+     * // Delete a few ReviewCriterionResults
+     * const { count } = await prisma.reviewCriterionResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReviewCriterionResultDeleteManyArgs>(args?: SelectSubset<T, ReviewCriterionResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReviewCriterionResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReviewCriterionResults
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReviewCriterionResultUpdateManyArgs>(args: SelectSubset<T, ReviewCriterionResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReviewCriterionResults and returns the data updated in the database.
+     * @param {ReviewCriterionResultUpdateManyAndReturnArgs} args - Arguments to update many ReviewCriterionResults.
+     * @example
+     * // Update many ReviewCriterionResults
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReviewCriterionResults and only return the `id`
+     * const reviewCriterionResultWithIdOnly = await prisma.reviewCriterionResult.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReviewCriterionResultUpdateManyAndReturnArgs>(args: SelectSubset<T, ReviewCriterionResultUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReviewCriterionResult.
+     * @param {ReviewCriterionResultUpsertArgs} args - Arguments to update or create a ReviewCriterionResult.
+     * @example
+     * // Update or create a ReviewCriterionResult
+     * const reviewCriterionResult = await prisma.reviewCriterionResult.upsert({
+     *   create: {
+     *     // ... data to create a ReviewCriterionResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReviewCriterionResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReviewCriterionResultUpsertArgs>(args: SelectSubset<T, ReviewCriterionResultUpsertArgs<ExtArgs>>): Prisma__ReviewCriterionResultClient<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReviewCriterionResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultCountArgs} args - Arguments to filter ReviewCriterionResults to count.
+     * @example
+     * // Count the number of ReviewCriterionResults
+     * const count = await prisma.reviewCriterionResult.count({
+     *   where: {
+     *     // ... the filter for the ReviewCriterionResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReviewCriterionResultCountArgs>(
+      args?: Subset<T, ReviewCriterionResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReviewCriterionResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReviewCriterionResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReviewCriterionResultAggregateArgs>(args: Subset<T, ReviewCriterionResultAggregateArgs>): Prisma.PrismaPromise<GetReviewCriterionResultAggregateType<T>>
+
+    /**
+     * Group by ReviewCriterionResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReviewCriterionResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReviewCriterionResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReviewCriterionResultGroupByArgs['orderBy'] }
+        : { orderBy?: ReviewCriterionResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReviewCriterionResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReviewCriterionResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReviewCriterionResult model
+   */
+  readonly fields: ReviewCriterionResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReviewCriterionResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReviewCriterionResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    review<T extends PhaseReviewDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PhaseReviewDefaultArgs<ExtArgs>>): Prisma__PhaseReviewClient<$Result.GetResult<Prisma.$PhaseReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    criterion<T extends PhaseCriterionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PhaseCriterionDefaultArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReviewCriterionResult model
+   */
+  interface ReviewCriterionResultFieldRefs {
+    readonly id: FieldRef<"ReviewCriterionResult", 'String'>
+    readonly review_id: FieldRef<"ReviewCriterionResult", 'String'>
+    readonly criterion_id: FieldRef<"ReviewCriterionResult", 'String'>
+    readonly passed: FieldRef<"ReviewCriterionResult", 'Boolean'>
+    readonly decided_by: FieldRef<"ReviewCriterionResult", 'ResultSource'>
+    readonly evidence_path: FieldRef<"ReviewCriterionResult", 'String'>
+    readonly evidence_lines: FieldRef<"ReviewCriterionResult", 'String'>
+    readonly evidence_quote: FieldRef<"ReviewCriterionResult", 'String'>
+    readonly reasoning: FieldRef<"ReviewCriterionResult", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReviewCriterionResult findUnique
+   */
+  export type ReviewCriterionResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ReviewCriterionResult to fetch.
+     */
+    where: ReviewCriterionResultWhereUniqueInput
+  }
+
+  /**
+   * ReviewCriterionResult findUniqueOrThrow
+   */
+  export type ReviewCriterionResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ReviewCriterionResult to fetch.
+     */
+    where: ReviewCriterionResultWhereUniqueInput
+  }
+
+  /**
+   * ReviewCriterionResult findFirst
+   */
+  export type ReviewCriterionResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ReviewCriterionResult to fetch.
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReviewCriterionResults to fetch.
+     */
+    orderBy?: ReviewCriterionResultOrderByWithRelationInput | ReviewCriterionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReviewCriterionResults.
+     */
+    cursor?: ReviewCriterionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReviewCriterionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReviewCriterionResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReviewCriterionResults.
+     */
+    distinct?: ReviewCriterionResultScalarFieldEnum | ReviewCriterionResultScalarFieldEnum[]
+  }
+
+  /**
+   * ReviewCriterionResult findFirstOrThrow
+   */
+  export type ReviewCriterionResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ReviewCriterionResult to fetch.
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReviewCriterionResults to fetch.
+     */
+    orderBy?: ReviewCriterionResultOrderByWithRelationInput | ReviewCriterionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReviewCriterionResults.
+     */
+    cursor?: ReviewCriterionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReviewCriterionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReviewCriterionResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReviewCriterionResults.
+     */
+    distinct?: ReviewCriterionResultScalarFieldEnum | ReviewCriterionResultScalarFieldEnum[]
+  }
+
+  /**
+   * ReviewCriterionResult findMany
+   */
+  export type ReviewCriterionResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ReviewCriterionResults to fetch.
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReviewCriterionResults to fetch.
+     */
+    orderBy?: ReviewCriterionResultOrderByWithRelationInput | ReviewCriterionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReviewCriterionResults.
+     */
+    cursor?: ReviewCriterionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReviewCriterionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReviewCriterionResults.
+     */
+    skip?: number
+    distinct?: ReviewCriterionResultScalarFieldEnum | ReviewCriterionResultScalarFieldEnum[]
+  }
+
+  /**
+   * ReviewCriterionResult create
+   */
+  export type ReviewCriterionResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReviewCriterionResult.
+     */
+    data: XOR<ReviewCriterionResultCreateInput, ReviewCriterionResultUncheckedCreateInput>
+  }
+
+  /**
+   * ReviewCriterionResult createMany
+   */
+  export type ReviewCriterionResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReviewCriterionResults.
+     */
+    data: ReviewCriterionResultCreateManyInput | ReviewCriterionResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReviewCriterionResult createManyAndReturn
+   */
+  export type ReviewCriterionResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReviewCriterionResults.
+     */
+    data: ReviewCriterionResultCreateManyInput | ReviewCriterionResultCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReviewCriterionResult update
+   */
+  export type ReviewCriterionResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReviewCriterionResult.
+     */
+    data: XOR<ReviewCriterionResultUpdateInput, ReviewCriterionResultUncheckedUpdateInput>
+    /**
+     * Choose, which ReviewCriterionResult to update.
+     */
+    where: ReviewCriterionResultWhereUniqueInput
+  }
+
+  /**
+   * ReviewCriterionResult updateMany
+   */
+  export type ReviewCriterionResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReviewCriterionResults.
+     */
+    data: XOR<ReviewCriterionResultUpdateManyMutationInput, ReviewCriterionResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ReviewCriterionResults to update
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * Limit how many ReviewCriterionResults to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReviewCriterionResult updateManyAndReturn
+   */
+  export type ReviewCriterionResultUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * The data used to update ReviewCriterionResults.
+     */
+    data: XOR<ReviewCriterionResultUpdateManyMutationInput, ReviewCriterionResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ReviewCriterionResults to update
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * Limit how many ReviewCriterionResults to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReviewCriterionResult upsert
+   */
+  export type ReviewCriterionResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReviewCriterionResult to update in case it exists.
+     */
+    where: ReviewCriterionResultWhereUniqueInput
+    /**
+     * In case the ReviewCriterionResult found by the `where` argument doesn't exist, create a new ReviewCriterionResult with this data.
+     */
+    create: XOR<ReviewCriterionResultCreateInput, ReviewCriterionResultUncheckedCreateInput>
+    /**
+     * In case the ReviewCriterionResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReviewCriterionResultUpdateInput, ReviewCriterionResultUncheckedUpdateInput>
+  }
+
+  /**
+   * ReviewCriterionResult delete
+   */
+  export type ReviewCriterionResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    /**
+     * Filter which ReviewCriterionResult to delete.
+     */
+    where: ReviewCriterionResultWhereUniqueInput
+  }
+
+  /**
+   * ReviewCriterionResult deleteMany
+   */
+  export type ReviewCriterionResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReviewCriterionResults to delete
+     */
+    where?: ReviewCriterionResultWhereInput
+    /**
+     * Limit how many ReviewCriterionResults to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReviewCriterionResult without action
+   */
+  export type ReviewCriterionResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
   }
 
 
@@ -16657,6 +17986,8 @@ export namespace Prisma {
     check_config?: boolean
     hint?: boolean
     learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+    results?: boolean | PhaseCriterion$resultsArgs<ExtArgs>
+    _count?: boolean | PhaseCriterionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["phaseCriterion"]>
 
   export type PhaseCriterionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -16697,6 +18028,8 @@ export namespace Prisma {
   export type PhaseCriterionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phase_id" | "order" | "text" | "kind" | "check_type" | "check_config" | "hint", ExtArgs["result"]["phaseCriterion"]>
   export type PhaseCriterionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+    results?: boolean | PhaseCriterion$resultsArgs<ExtArgs>
+    _count?: boolean | PhaseCriterionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PhaseCriterionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
@@ -16709,6 +18042,7 @@ export namespace Prisma {
     name: "PhaseCriterion"
     objects: {
       learningPhase: Prisma.$LearningPhasePayload<ExtArgs>
+      results: Prisma.$ReviewCriterionResultPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17128,6 +18462,7 @@ export namespace Prisma {
   export interface Prisma__PhaseCriterionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     learningPhase<T extends LearningPhaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LearningPhaseDefaultArgs<ExtArgs>>): Prisma__LearningPhaseClient<$Result.GetResult<Prisma.$LearningPhasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    results<T extends PhaseCriterion$resultsArgs<ExtArgs> = {}>(args?: Subset<T, PhaseCriterion$resultsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewCriterionResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17558,6 +18893,30 @@ export namespace Prisma {
      * Limit how many PhaseCriteria to delete.
      */
     limit?: number
+  }
+
+  /**
+   * PhaseCriterion.results
+   */
+  export type PhaseCriterion$resultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReviewCriterionResult
+     */
+    select?: ReviewCriterionResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReviewCriterionResult
+     */
+    omit?: ReviewCriterionResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReviewCriterionResultInclude<ExtArgs> | null
+    where?: ReviewCriterionResultWhereInput
+    orderBy?: ReviewCriterionResultOrderByWithRelationInput | ReviewCriterionResultOrderByWithRelationInput[]
+    cursor?: ReviewCriterionResultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReviewCriterionResultScalarFieldEnum | ReviewCriterionResultScalarFieldEnum[]
   }
 
   /**
@@ -22204,6 +23563,21 @@ export namespace Prisma {
   export type PhaseReviewScalarFieldEnum = (typeof PhaseReviewScalarFieldEnum)[keyof typeof PhaseReviewScalarFieldEnum]
 
 
+  export const ReviewCriterionResultScalarFieldEnum: {
+    id: 'id',
+    review_id: 'review_id',
+    criterion_id: 'criterion_id',
+    passed: 'passed',
+    decided_by: 'decided_by',
+    evidence_path: 'evidence_path',
+    evidence_lines: 'evidence_lines',
+    evidence_quote: 'evidence_quote',
+    reasoning: 'reasoning'
+  };
+
+  export type ReviewCriterionResultScalarFieldEnum = (typeof ReviewCriterionResultScalarFieldEnum)[keyof typeof ReviewCriterionResultScalarFieldEnum]
+
+
   export const UserPhaseProgressScalarFieldEnum: {
     id: 'id',
     user_project_id: 'user_project_id',
@@ -22487,6 +23861,20 @@ export namespace Prisma {
    * Reference to a field of type 'ReviewVerdict[]'
    */
   export type ListEnumReviewVerdictFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewVerdict[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResultSource'
+   */
+  export type EnumResultSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResultSource'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResultSource[]'
+   */
+  export type ListEnumResultSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResultSource[]'>
     
 
 
@@ -23212,6 +24600,7 @@ export namespace Prisma {
     model?: StringFilter<"PhaseReview"> | string
     created_at?: DateTimeFilter<"PhaseReview"> | Date | string
     userProject?: XOR<UserProjectsScalarRelationFilter, UserProjectsWhereInput>
+    results?: ReviewCriterionResultListRelationFilter
   }
 
   export type PhaseReviewOrderByWithRelationInput = {
@@ -23223,6 +24612,7 @@ export namespace Prisma {
     model?: SortOrder
     created_at?: SortOrder
     userProject?: UserProjectsOrderByWithRelationInput
+    results?: ReviewCriterionResultOrderByRelationAggregateInput
   }
 
   export type PhaseReviewWhereUniqueInput = Prisma.AtLeast<{
@@ -23237,6 +24627,7 @@ export namespace Prisma {
     model?: StringFilter<"PhaseReview"> | string
     created_at?: DateTimeFilter<"PhaseReview"> | Date | string
     userProject?: XOR<UserProjectsScalarRelationFilter, UserProjectsWhereInput>
+    results?: ReviewCriterionResultListRelationFilter
   }, "id">
 
   export type PhaseReviewOrderByWithAggregationInput = {
@@ -23265,6 +24656,85 @@ export namespace Prisma {
     feedback?: StringWithAggregatesFilter<"PhaseReview"> | string
     model?: StringWithAggregatesFilter<"PhaseReview"> | string
     created_at?: DateTimeWithAggregatesFilter<"PhaseReview"> | Date | string
+  }
+
+  export type ReviewCriterionResultWhereInput = {
+    AND?: ReviewCriterionResultWhereInput | ReviewCriterionResultWhereInput[]
+    OR?: ReviewCriterionResultWhereInput[]
+    NOT?: ReviewCriterionResultWhereInput | ReviewCriterionResultWhereInput[]
+    id?: StringFilter<"ReviewCriterionResult"> | string
+    review_id?: StringFilter<"ReviewCriterionResult"> | string
+    criterion_id?: StringFilter<"ReviewCriterionResult"> | string
+    passed?: BoolFilter<"ReviewCriterionResult"> | boolean
+    decided_by?: EnumResultSourceFilter<"ReviewCriterionResult"> | $Enums.ResultSource
+    evidence_path?: StringFilter<"ReviewCriterionResult"> | string
+    evidence_lines?: StringFilter<"ReviewCriterionResult"> | string
+    evidence_quote?: StringFilter<"ReviewCriterionResult"> | string
+    reasoning?: StringFilter<"ReviewCriterionResult"> | string
+    review?: XOR<PhaseReviewScalarRelationFilter, PhaseReviewWhereInput>
+    criterion?: XOR<PhaseCriterionScalarRelationFilter, PhaseCriterionWhereInput>
+  }
+
+  export type ReviewCriterionResultOrderByWithRelationInput = {
+    id?: SortOrder
+    review_id?: SortOrder
+    criterion_id?: SortOrder
+    passed?: SortOrder
+    decided_by?: SortOrder
+    evidence_path?: SortOrder
+    evidence_lines?: SortOrder
+    evidence_quote?: SortOrder
+    reasoning?: SortOrder
+    review?: PhaseReviewOrderByWithRelationInput
+    criterion?: PhaseCriterionOrderByWithRelationInput
+  }
+
+  export type ReviewCriterionResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    review_id_criterion_id?: ReviewCriterionResultReview_idCriterion_idCompoundUniqueInput
+    AND?: ReviewCriterionResultWhereInput | ReviewCriterionResultWhereInput[]
+    OR?: ReviewCriterionResultWhereInput[]
+    NOT?: ReviewCriterionResultWhereInput | ReviewCriterionResultWhereInput[]
+    review_id?: StringFilter<"ReviewCriterionResult"> | string
+    criterion_id?: StringFilter<"ReviewCriterionResult"> | string
+    passed?: BoolFilter<"ReviewCriterionResult"> | boolean
+    decided_by?: EnumResultSourceFilter<"ReviewCriterionResult"> | $Enums.ResultSource
+    evidence_path?: StringFilter<"ReviewCriterionResult"> | string
+    evidence_lines?: StringFilter<"ReviewCriterionResult"> | string
+    evidence_quote?: StringFilter<"ReviewCriterionResult"> | string
+    reasoning?: StringFilter<"ReviewCriterionResult"> | string
+    review?: XOR<PhaseReviewScalarRelationFilter, PhaseReviewWhereInput>
+    criterion?: XOR<PhaseCriterionScalarRelationFilter, PhaseCriterionWhereInput>
+  }, "id" | "review_id_criterion_id">
+
+  export type ReviewCriterionResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    review_id?: SortOrder
+    criterion_id?: SortOrder
+    passed?: SortOrder
+    decided_by?: SortOrder
+    evidence_path?: SortOrder
+    evidence_lines?: SortOrder
+    evidence_quote?: SortOrder
+    reasoning?: SortOrder
+    _count?: ReviewCriterionResultCountOrderByAggregateInput
+    _max?: ReviewCriterionResultMaxOrderByAggregateInput
+    _min?: ReviewCriterionResultMinOrderByAggregateInput
+  }
+
+  export type ReviewCriterionResultScalarWhereWithAggregatesInput = {
+    AND?: ReviewCriterionResultScalarWhereWithAggregatesInput | ReviewCriterionResultScalarWhereWithAggregatesInput[]
+    OR?: ReviewCriterionResultScalarWhereWithAggregatesInput[]
+    NOT?: ReviewCriterionResultScalarWhereWithAggregatesInput | ReviewCriterionResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+    review_id?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+    criterion_id?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+    passed?: BoolWithAggregatesFilter<"ReviewCriterionResult"> | boolean
+    decided_by?: EnumResultSourceWithAggregatesFilter<"ReviewCriterionResult"> | $Enums.ResultSource
+    evidence_path?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+    evidence_lines?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+    evidence_quote?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
+    reasoning?: StringWithAggregatesFilter<"ReviewCriterionResult"> | string
   }
 
   export type UserPhaseProgressWhereInput = {
@@ -23444,6 +24914,7 @@ export namespace Prisma {
     check_config?: JsonNullableFilter<"PhaseCriterion">
     hint?: StringFilter<"PhaseCriterion"> | string
     learningPhase?: XOR<LearningPhaseScalarRelationFilter, LearningPhaseWhereInput>
+    results?: ReviewCriterionResultListRelationFilter
   }
 
   export type PhaseCriterionOrderByWithRelationInput = {
@@ -23456,6 +24927,7 @@ export namespace Prisma {
     check_config?: SortOrderInput | SortOrder
     hint?: SortOrder
     learningPhase?: LearningPhaseOrderByWithRelationInput
+    results?: ReviewCriterionResultOrderByRelationAggregateInput
   }
 
   export type PhaseCriterionWhereUniqueInput = Prisma.AtLeast<{
@@ -23472,6 +24944,7 @@ export namespace Prisma {
     check_config?: JsonNullableFilter<"PhaseCriterion">
     hint?: StringFilter<"PhaseCriterion"> | string
     learningPhase?: XOR<LearningPhaseScalarRelationFilter, LearningPhaseWhereInput>
+    results?: ReviewCriterionResultListRelationFilter
   }, "id" | "phase_id_order">
 
   export type PhaseCriterionOrderByWithAggregationInput = {
@@ -24480,6 +25953,7 @@ export namespace Prisma {
     model?: string
     created_at?: Date | string
     userProject: UserProjectsCreateNestedOneWithoutPhaseReviewsInput
+    results?: ReviewCriterionResultCreateNestedManyWithoutReviewInput
   }
 
   export type PhaseReviewUncheckedCreateInput = {
@@ -24490,6 +25964,7 @@ export namespace Prisma {
     feedback?: string
     model?: string
     created_at?: Date | string
+    results?: ReviewCriterionResultUncheckedCreateNestedManyWithoutReviewInput
   }
 
   export type PhaseReviewUpdateInput = {
@@ -24500,6 +25975,7 @@ export namespace Prisma {
     model?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     userProject?: UserProjectsUpdateOneRequiredWithoutPhaseReviewsNestedInput
+    results?: ReviewCriterionResultUpdateManyWithoutReviewNestedInput
   }
 
   export type PhaseReviewUncheckedUpdateInput = {
@@ -24510,6 +25986,7 @@ export namespace Prisma {
     feedback?: StringFieldUpdateOperationsInput | string
     model?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    results?: ReviewCriterionResultUncheckedUpdateManyWithoutReviewNestedInput
   }
 
   export type PhaseReviewCreateManyInput = {
@@ -24539,6 +26016,88 @@ export namespace Prisma {
     feedback?: StringFieldUpdateOperationsInput | string
     model?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReviewCriterionResultCreateInput = {
+    id?: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+    review: PhaseReviewCreateNestedOneWithoutResultsInput
+    criterion: PhaseCriterionCreateNestedOneWithoutResultsInput
+  }
+
+  export type ReviewCriterionResultUncheckedCreateInput = {
+    id?: string
+    review_id: string
+    criterion_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+  }
+
+  export type ReviewCriterionResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+    review?: PhaseReviewUpdateOneRequiredWithoutResultsNestedInput
+    criterion?: PhaseCriterionUpdateOneRequiredWithoutResultsNestedInput
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    review_id?: StringFieldUpdateOperationsInput | string
+    criterion_id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReviewCriterionResultCreateManyInput = {
+    id?: string
+    review_id: string
+    criterion_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+  }
+
+  export type ReviewCriterionResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    review_id?: StringFieldUpdateOperationsInput | string
+    criterion_id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
   }
 
   export type UserPhaseProgressCreateInput = {
@@ -24728,6 +26287,7 @@ export namespace Prisma {
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: string
     learningPhase: LearningPhaseCreateNestedOneWithoutCriteriaInput
+    results?: ReviewCriterionResultCreateNestedManyWithoutCriterionInput
   }
 
   export type PhaseCriterionUncheckedCreateInput = {
@@ -24739,6 +26299,7 @@ export namespace Prisma {
     check_type: $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: string
+    results?: ReviewCriterionResultUncheckedCreateNestedManyWithoutCriterionInput
   }
 
   export type PhaseCriterionUpdateInput = {
@@ -24750,6 +26311,7 @@ export namespace Prisma {
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: StringFieldUpdateOperationsInput | string
     learningPhase?: LearningPhaseUpdateOneRequiredWithoutCriteriaNestedInput
+    results?: ReviewCriterionResultUpdateManyWithoutCriterionNestedInput
   }
 
   export type PhaseCriterionUncheckedUpdateInput = {
@@ -24761,6 +26323,7 @@ export namespace Prisma {
     check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: StringFieldUpdateOperationsInput | string
+    results?: ReviewCriterionResultUncheckedUpdateManyWithoutCriterionNestedInput
   }
 
   export type PhaseCriterionCreateManyInput = {
@@ -25950,6 +27513,16 @@ export namespace Prisma {
     not?: NestedEnumReviewVerdictFilter<$PrismaModel> | $Enums.ReviewVerdict
   }
 
+  export type ReviewCriterionResultListRelationFilter = {
+    every?: ReviewCriterionResultWhereInput
+    some?: ReviewCriterionResultWhereInput
+    none?: ReviewCriterionResultWhereInput
+  }
+
+  export type ReviewCriterionResultOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type PhaseReviewCountOrderByAggregateInput = {
     id?: SortOrder
     user_project_id?: SortOrder
@@ -25996,6 +27569,74 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumReviewVerdictFilter<$PrismaModel>
     _max?: NestedEnumReviewVerdictFilter<$PrismaModel>
+  }
+
+  export type EnumResultSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSource | EnumResultSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSourceFilter<$PrismaModel> | $Enums.ResultSource
+  }
+
+  export type PhaseReviewScalarRelationFilter = {
+    is?: PhaseReviewWhereInput
+    isNot?: PhaseReviewWhereInput
+  }
+
+  export type PhaseCriterionScalarRelationFilter = {
+    is?: PhaseCriterionWhereInput
+    isNot?: PhaseCriterionWhereInput
+  }
+
+  export type ReviewCriterionResultReview_idCriterion_idCompoundUniqueInput = {
+    review_id: string
+    criterion_id: string
+  }
+
+  export type ReviewCriterionResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    review_id?: SortOrder
+    criterion_id?: SortOrder
+    passed?: SortOrder
+    decided_by?: SortOrder
+    evidence_path?: SortOrder
+    evidence_lines?: SortOrder
+    evidence_quote?: SortOrder
+    reasoning?: SortOrder
+  }
+
+  export type ReviewCriterionResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    review_id?: SortOrder
+    criterion_id?: SortOrder
+    passed?: SortOrder
+    decided_by?: SortOrder
+    evidence_path?: SortOrder
+    evidence_lines?: SortOrder
+    evidence_quote?: SortOrder
+    reasoning?: SortOrder
+  }
+
+  export type ReviewCriterionResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    review_id?: SortOrder
+    criterion_id?: SortOrder
+    passed?: SortOrder
+    decided_by?: SortOrder
+    evidence_path?: SortOrder
+    evidence_lines?: SortOrder
+    evidence_quote?: SortOrder
+    reasoning?: SortOrder
+  }
+
+  export type EnumResultSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSource | EnumResultSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSourceWithAggregatesFilter<$PrismaModel> | $Enums.ResultSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResultSourceFilter<$PrismaModel>
+    _max?: NestedEnumResultSourceFilter<$PrismaModel>
   }
 
   export type EnumPhaseStatusFilter<$PrismaModel = never> = {
@@ -26998,6 +28639,20 @@ export namespace Prisma {
     connect?: UserProjectsWhereUniqueInput
   }
 
+  export type ReviewCriterionResultCreateNestedManyWithoutReviewInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutReviewInput, ReviewCriterionResultUncheckedCreateWithoutReviewInput> | ReviewCriterionResultCreateWithoutReviewInput[] | ReviewCriterionResultUncheckedCreateWithoutReviewInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutReviewInput | ReviewCriterionResultCreateOrConnectWithoutReviewInput[]
+    createMany?: ReviewCriterionResultCreateManyReviewInputEnvelope
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+  }
+
+  export type ReviewCriterionResultUncheckedCreateNestedManyWithoutReviewInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutReviewInput, ReviewCriterionResultUncheckedCreateWithoutReviewInput> | ReviewCriterionResultCreateWithoutReviewInput[] | ReviewCriterionResultUncheckedCreateWithoutReviewInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutReviewInput | ReviewCriterionResultCreateOrConnectWithoutReviewInput[]
+    createMany?: ReviewCriterionResultCreateManyReviewInputEnvelope
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+  }
+
   export type EnumReviewVerdictFieldUpdateOperationsInput = {
     set?: $Enums.ReviewVerdict
   }
@@ -27008,6 +28663,66 @@ export namespace Prisma {
     upsert?: UserProjectsUpsertWithoutPhaseReviewsInput
     connect?: UserProjectsWhereUniqueInput
     update?: XOR<XOR<UserProjectsUpdateToOneWithWhereWithoutPhaseReviewsInput, UserProjectsUpdateWithoutPhaseReviewsInput>, UserProjectsUncheckedUpdateWithoutPhaseReviewsInput>
+  }
+
+  export type ReviewCriterionResultUpdateManyWithoutReviewNestedInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutReviewInput, ReviewCriterionResultUncheckedCreateWithoutReviewInput> | ReviewCriterionResultCreateWithoutReviewInput[] | ReviewCriterionResultUncheckedCreateWithoutReviewInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutReviewInput | ReviewCriterionResultCreateOrConnectWithoutReviewInput[]
+    upsert?: ReviewCriterionResultUpsertWithWhereUniqueWithoutReviewInput | ReviewCriterionResultUpsertWithWhereUniqueWithoutReviewInput[]
+    createMany?: ReviewCriterionResultCreateManyReviewInputEnvelope
+    set?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    disconnect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    delete?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    update?: ReviewCriterionResultUpdateWithWhereUniqueWithoutReviewInput | ReviewCriterionResultUpdateWithWhereUniqueWithoutReviewInput[]
+    updateMany?: ReviewCriterionResultUpdateManyWithWhereWithoutReviewInput | ReviewCriterionResultUpdateManyWithWhereWithoutReviewInput[]
+    deleteMany?: ReviewCriterionResultScalarWhereInput | ReviewCriterionResultScalarWhereInput[]
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateManyWithoutReviewNestedInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutReviewInput, ReviewCriterionResultUncheckedCreateWithoutReviewInput> | ReviewCriterionResultCreateWithoutReviewInput[] | ReviewCriterionResultUncheckedCreateWithoutReviewInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutReviewInput | ReviewCriterionResultCreateOrConnectWithoutReviewInput[]
+    upsert?: ReviewCriterionResultUpsertWithWhereUniqueWithoutReviewInput | ReviewCriterionResultUpsertWithWhereUniqueWithoutReviewInput[]
+    createMany?: ReviewCriterionResultCreateManyReviewInputEnvelope
+    set?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    disconnect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    delete?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    update?: ReviewCriterionResultUpdateWithWhereUniqueWithoutReviewInput | ReviewCriterionResultUpdateWithWhereUniqueWithoutReviewInput[]
+    updateMany?: ReviewCriterionResultUpdateManyWithWhereWithoutReviewInput | ReviewCriterionResultUpdateManyWithWhereWithoutReviewInput[]
+    deleteMany?: ReviewCriterionResultScalarWhereInput | ReviewCriterionResultScalarWhereInput[]
+  }
+
+  export type PhaseReviewCreateNestedOneWithoutResultsInput = {
+    create?: XOR<PhaseReviewCreateWithoutResultsInput, PhaseReviewUncheckedCreateWithoutResultsInput>
+    connectOrCreate?: PhaseReviewCreateOrConnectWithoutResultsInput
+    connect?: PhaseReviewWhereUniqueInput
+  }
+
+  export type PhaseCriterionCreateNestedOneWithoutResultsInput = {
+    create?: XOR<PhaseCriterionCreateWithoutResultsInput, PhaseCriterionUncheckedCreateWithoutResultsInput>
+    connectOrCreate?: PhaseCriterionCreateOrConnectWithoutResultsInput
+    connect?: PhaseCriterionWhereUniqueInput
+  }
+
+  export type EnumResultSourceFieldUpdateOperationsInput = {
+    set?: $Enums.ResultSource
+  }
+
+  export type PhaseReviewUpdateOneRequiredWithoutResultsNestedInput = {
+    create?: XOR<PhaseReviewCreateWithoutResultsInput, PhaseReviewUncheckedCreateWithoutResultsInput>
+    connectOrCreate?: PhaseReviewCreateOrConnectWithoutResultsInput
+    upsert?: PhaseReviewUpsertWithoutResultsInput
+    connect?: PhaseReviewWhereUniqueInput
+    update?: XOR<XOR<PhaseReviewUpdateToOneWithWhereWithoutResultsInput, PhaseReviewUpdateWithoutResultsInput>, PhaseReviewUncheckedUpdateWithoutResultsInput>
+  }
+
+  export type PhaseCriterionUpdateOneRequiredWithoutResultsNestedInput = {
+    create?: XOR<PhaseCriterionCreateWithoutResultsInput, PhaseCriterionUncheckedCreateWithoutResultsInput>
+    connectOrCreate?: PhaseCriterionCreateOrConnectWithoutResultsInput
+    upsert?: PhaseCriterionUpsertWithoutResultsInput
+    connect?: PhaseCriterionWhereUniqueInput
+    update?: XOR<XOR<PhaseCriterionUpdateToOneWithWhereWithoutResultsInput, PhaseCriterionUpdateWithoutResultsInput>, PhaseCriterionUncheckedUpdateWithoutResultsInput>
   }
 
   export type UserProjectsCreateNestedOneWithoutPhaseProgressInput = {
@@ -27183,6 +28898,20 @@ export namespace Prisma {
     connect?: LearningPhaseWhereUniqueInput
   }
 
+  export type ReviewCriterionResultCreateNestedManyWithoutCriterionInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutCriterionInput, ReviewCriterionResultUncheckedCreateWithoutCriterionInput> | ReviewCriterionResultCreateWithoutCriterionInput[] | ReviewCriterionResultUncheckedCreateWithoutCriterionInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutCriterionInput | ReviewCriterionResultCreateOrConnectWithoutCriterionInput[]
+    createMany?: ReviewCriterionResultCreateManyCriterionInputEnvelope
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+  }
+
+  export type ReviewCriterionResultUncheckedCreateNestedManyWithoutCriterionInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutCriterionInput, ReviewCriterionResultUncheckedCreateWithoutCriterionInput> | ReviewCriterionResultCreateWithoutCriterionInput[] | ReviewCriterionResultUncheckedCreateWithoutCriterionInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutCriterionInput | ReviewCriterionResultCreateOrConnectWithoutCriterionInput[]
+    createMany?: ReviewCriterionResultCreateManyCriterionInputEnvelope
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+  }
+
   export type EnumCriterionKindFieldUpdateOperationsInput = {
     set?: $Enums.CriterionKind
   }
@@ -27197,6 +28926,34 @@ export namespace Prisma {
     upsert?: LearningPhaseUpsertWithoutCriteriaInput
     connect?: LearningPhaseWhereUniqueInput
     update?: XOR<XOR<LearningPhaseUpdateToOneWithWhereWithoutCriteriaInput, LearningPhaseUpdateWithoutCriteriaInput>, LearningPhaseUncheckedUpdateWithoutCriteriaInput>
+  }
+
+  export type ReviewCriterionResultUpdateManyWithoutCriterionNestedInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutCriterionInput, ReviewCriterionResultUncheckedCreateWithoutCriterionInput> | ReviewCriterionResultCreateWithoutCriterionInput[] | ReviewCriterionResultUncheckedCreateWithoutCriterionInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutCriterionInput | ReviewCriterionResultCreateOrConnectWithoutCriterionInput[]
+    upsert?: ReviewCriterionResultUpsertWithWhereUniqueWithoutCriterionInput | ReviewCriterionResultUpsertWithWhereUniqueWithoutCriterionInput[]
+    createMany?: ReviewCriterionResultCreateManyCriterionInputEnvelope
+    set?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    disconnect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    delete?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    update?: ReviewCriterionResultUpdateWithWhereUniqueWithoutCriterionInput | ReviewCriterionResultUpdateWithWhereUniqueWithoutCriterionInput[]
+    updateMany?: ReviewCriterionResultUpdateManyWithWhereWithoutCriterionInput | ReviewCriterionResultUpdateManyWithWhereWithoutCriterionInput[]
+    deleteMany?: ReviewCriterionResultScalarWhereInput | ReviewCriterionResultScalarWhereInput[]
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateManyWithoutCriterionNestedInput = {
+    create?: XOR<ReviewCriterionResultCreateWithoutCriterionInput, ReviewCriterionResultUncheckedCreateWithoutCriterionInput> | ReviewCriterionResultCreateWithoutCriterionInput[] | ReviewCriterionResultUncheckedCreateWithoutCriterionInput[]
+    connectOrCreate?: ReviewCriterionResultCreateOrConnectWithoutCriterionInput | ReviewCriterionResultCreateOrConnectWithoutCriterionInput[]
+    upsert?: ReviewCriterionResultUpsertWithWhereUniqueWithoutCriterionInput | ReviewCriterionResultUpsertWithWhereUniqueWithoutCriterionInput[]
+    createMany?: ReviewCriterionResultCreateManyCriterionInputEnvelope
+    set?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    disconnect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    delete?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    connect?: ReviewCriterionResultWhereUniqueInput | ReviewCriterionResultWhereUniqueInput[]
+    update?: ReviewCriterionResultUpdateWithWhereUniqueWithoutCriterionInput | ReviewCriterionResultUpdateWithWhereUniqueWithoutCriterionInput[]
+    updateMany?: ReviewCriterionResultUpdateManyWithWhereWithoutCriterionInput | ReviewCriterionResultUpdateManyWithWhereWithoutCriterionInput[]
+    deleteMany?: ReviewCriterionResultScalarWhereInput | ReviewCriterionResultScalarWhereInput[]
   }
 
   export type KnowledgeChecksCreateoptionsInput = {
@@ -27720,6 +29477,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumReviewVerdictFilter<$PrismaModel>
     _max?: NestedEnumReviewVerdictFilter<$PrismaModel>
+  }
+
+  export type NestedEnumResultSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSource | EnumResultSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSourceFilter<$PrismaModel> | $Enums.ResultSource
+  }
+
+  export type NestedEnumResultSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSource | EnumResultSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSource[] | ListEnumResultSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSourceWithAggregatesFilter<$PrismaModel> | $Enums.ResultSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResultSourceFilter<$PrismaModel>
+    _max?: NestedEnumResultSourceFilter<$PrismaModel>
   }
 
   export type NestedEnumPhaseStatusFilter<$PrismaModel = never> = {
@@ -28536,6 +30310,7 @@ export namespace Prisma {
     feedback?: string
     model?: string
     created_at?: Date | string
+    results?: ReviewCriterionResultCreateNestedManyWithoutReviewInput
   }
 
   export type PhaseReviewUncheckedCreateWithoutUserProjectInput = {
@@ -28545,6 +30320,7 @@ export namespace Prisma {
     feedback?: string
     model?: string
     created_at?: Date | string
+    results?: ReviewCriterionResultUncheckedCreateNestedManyWithoutReviewInput
   }
 
   export type PhaseReviewCreateOrConnectWithoutUserProjectInput = {
@@ -28750,6 +30526,38 @@ export namespace Prisma {
     create: XOR<UserProjectsCreateWithoutPhaseReviewsInput, UserProjectsUncheckedCreateWithoutPhaseReviewsInput>
   }
 
+  export type ReviewCriterionResultCreateWithoutReviewInput = {
+    id?: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+    criterion: PhaseCriterionCreateNestedOneWithoutResultsInput
+  }
+
+  export type ReviewCriterionResultUncheckedCreateWithoutReviewInput = {
+    id?: string
+    criterion_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+  }
+
+  export type ReviewCriterionResultCreateOrConnectWithoutReviewInput = {
+    where: ReviewCriterionResultWhereUniqueInput
+    create: XOR<ReviewCriterionResultCreateWithoutReviewInput, ReviewCriterionResultUncheckedCreateWithoutReviewInput>
+  }
+
+  export type ReviewCriterionResultCreateManyReviewInputEnvelope = {
+    data: ReviewCriterionResultCreateManyReviewInput | ReviewCriterionResultCreateManyReviewInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserProjectsUpsertWithoutPhaseReviewsInput = {
     update: XOR<UserProjectsUpdateWithoutPhaseReviewsInput, UserProjectsUncheckedUpdateWithoutPhaseReviewsInput>
     create: XOR<UserProjectsCreateWithoutPhaseReviewsInput, UserProjectsUncheckedCreateWithoutPhaseReviewsInput>
@@ -28785,6 +30593,153 @@ export namespace Prisma {
     archived?: NullableBoolFieldUpdateOperationsInput | boolean | null
     projectFiles?: ProjectFileUncheckedUpdateManyWithoutUserProjectNestedInput
     phaseProgress?: UserPhaseProgressUncheckedUpdateManyWithoutUserProjectNestedInput
+  }
+
+  export type ReviewCriterionResultUpsertWithWhereUniqueWithoutReviewInput = {
+    where: ReviewCriterionResultWhereUniqueInput
+    update: XOR<ReviewCriterionResultUpdateWithoutReviewInput, ReviewCriterionResultUncheckedUpdateWithoutReviewInput>
+    create: XOR<ReviewCriterionResultCreateWithoutReviewInput, ReviewCriterionResultUncheckedCreateWithoutReviewInput>
+  }
+
+  export type ReviewCriterionResultUpdateWithWhereUniqueWithoutReviewInput = {
+    where: ReviewCriterionResultWhereUniqueInput
+    data: XOR<ReviewCriterionResultUpdateWithoutReviewInput, ReviewCriterionResultUncheckedUpdateWithoutReviewInput>
+  }
+
+  export type ReviewCriterionResultUpdateManyWithWhereWithoutReviewInput = {
+    where: ReviewCriterionResultScalarWhereInput
+    data: XOR<ReviewCriterionResultUpdateManyMutationInput, ReviewCriterionResultUncheckedUpdateManyWithoutReviewInput>
+  }
+
+  export type ReviewCriterionResultScalarWhereInput = {
+    AND?: ReviewCriterionResultScalarWhereInput | ReviewCriterionResultScalarWhereInput[]
+    OR?: ReviewCriterionResultScalarWhereInput[]
+    NOT?: ReviewCriterionResultScalarWhereInput | ReviewCriterionResultScalarWhereInput[]
+    id?: StringFilter<"ReviewCriterionResult"> | string
+    review_id?: StringFilter<"ReviewCriterionResult"> | string
+    criterion_id?: StringFilter<"ReviewCriterionResult"> | string
+    passed?: BoolFilter<"ReviewCriterionResult"> | boolean
+    decided_by?: EnumResultSourceFilter<"ReviewCriterionResult"> | $Enums.ResultSource
+    evidence_path?: StringFilter<"ReviewCriterionResult"> | string
+    evidence_lines?: StringFilter<"ReviewCriterionResult"> | string
+    evidence_quote?: StringFilter<"ReviewCriterionResult"> | string
+    reasoning?: StringFilter<"ReviewCriterionResult"> | string
+  }
+
+  export type PhaseReviewCreateWithoutResultsInput = {
+    id?: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+    userProject: UserProjectsCreateNestedOneWithoutPhaseReviewsInput
+  }
+
+  export type PhaseReviewUncheckedCreateWithoutResultsInput = {
+    id?: string
+    user_project_id: string
+    phase_number: number
+    verdict: $Enums.ReviewVerdict
+    feedback?: string
+    model?: string
+    created_at?: Date | string
+  }
+
+  export type PhaseReviewCreateOrConnectWithoutResultsInput = {
+    where: PhaseReviewWhereUniqueInput
+    create: XOR<PhaseReviewCreateWithoutResultsInput, PhaseReviewUncheckedCreateWithoutResultsInput>
+  }
+
+  export type PhaseCriterionCreateWithoutResultsInput = {
+    id?: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+    learningPhase: LearningPhaseCreateNestedOneWithoutCriteriaInput
+  }
+
+  export type PhaseCriterionUncheckedCreateWithoutResultsInput = {
+    id?: string
+    phase_id: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+  }
+
+  export type PhaseCriterionCreateOrConnectWithoutResultsInput = {
+    where: PhaseCriterionWhereUniqueInput
+    create: XOR<PhaseCriterionCreateWithoutResultsInput, PhaseCriterionUncheckedCreateWithoutResultsInput>
+  }
+
+  export type PhaseReviewUpsertWithoutResultsInput = {
+    update: XOR<PhaseReviewUpdateWithoutResultsInput, PhaseReviewUncheckedUpdateWithoutResultsInput>
+    create: XOR<PhaseReviewCreateWithoutResultsInput, PhaseReviewUncheckedCreateWithoutResultsInput>
+    where?: PhaseReviewWhereInput
+  }
+
+  export type PhaseReviewUpdateToOneWithWhereWithoutResultsInput = {
+    where?: PhaseReviewWhereInput
+    data: XOR<PhaseReviewUpdateWithoutResultsInput, PhaseReviewUncheckedUpdateWithoutResultsInput>
+  }
+
+  export type PhaseReviewUpdateWithoutResultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    userProject?: UserProjectsUpdateOneRequiredWithoutPhaseReviewsNestedInput
+  }
+
+  export type PhaseReviewUncheckedUpdateWithoutResultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    verdict?: EnumReviewVerdictFieldUpdateOperationsInput | $Enums.ReviewVerdict
+    feedback?: StringFieldUpdateOperationsInput | string
+    model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseCriterionUpsertWithoutResultsInput = {
+    update: XOR<PhaseCriterionUpdateWithoutResultsInput, PhaseCriterionUncheckedUpdateWithoutResultsInput>
+    create: XOR<PhaseCriterionCreateWithoutResultsInput, PhaseCriterionUncheckedCreateWithoutResultsInput>
+    where?: PhaseCriterionWhereInput
+  }
+
+  export type PhaseCriterionUpdateToOneWithWhereWithoutResultsInput = {
+    where?: PhaseCriterionWhereInput
+    data: XOR<PhaseCriterionUpdateWithoutResultsInput, PhaseCriterionUncheckedUpdateWithoutResultsInput>
+  }
+
+  export type PhaseCriterionUpdateWithoutResultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
+    learningPhase?: LearningPhaseUpdateOneRequiredWithoutCriteriaNestedInput
+  }
+
+  export type PhaseCriterionUncheckedUpdateWithoutResultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
   }
 
   export type UserProjectsCreateWithoutPhaseProgressInput = {
@@ -28962,6 +30917,7 @@ export namespace Prisma {
     check_type: $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: string
+    results?: ReviewCriterionResultCreateNestedManyWithoutCriterionInput
   }
 
   export type PhaseCriterionUncheckedCreateWithoutLearningPhaseInput = {
@@ -28972,6 +30928,7 @@ export namespace Prisma {
     check_type: $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: string
+    results?: ReviewCriterionResultUncheckedCreateNestedManyWithoutCriterionInput
   }
 
   export type PhaseCriterionCreateOrConnectWithoutLearningPhaseInput = {
@@ -29152,6 +31109,38 @@ export namespace Prisma {
     create: XOR<LearningPhaseCreateWithoutCriteriaInput, LearningPhaseUncheckedCreateWithoutCriteriaInput>
   }
 
+  export type ReviewCriterionResultCreateWithoutCriterionInput = {
+    id?: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+    review: PhaseReviewCreateNestedOneWithoutResultsInput
+  }
+
+  export type ReviewCriterionResultUncheckedCreateWithoutCriterionInput = {
+    id?: string
+    review_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+  }
+
+  export type ReviewCriterionResultCreateOrConnectWithoutCriterionInput = {
+    where: ReviewCriterionResultWhereUniqueInput
+    create: XOR<ReviewCriterionResultCreateWithoutCriterionInput, ReviewCriterionResultUncheckedCreateWithoutCriterionInput>
+  }
+
+  export type ReviewCriterionResultCreateManyCriterionInputEnvelope = {
+    data: ReviewCriterionResultCreateManyCriterionInput | ReviewCriterionResultCreateManyCriterionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type LearningPhaseUpsertWithoutCriteriaInput = {
     update: XOR<LearningPhaseUpdateWithoutCriteriaInput, LearningPhaseUncheckedUpdateWithoutCriteriaInput>
     create: XOR<LearningPhaseCreateWithoutCriteriaInput, LearningPhaseUncheckedCreateWithoutCriteriaInput>
@@ -29193,6 +31182,22 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resources?: ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput
     knowledgeChecks?: KnowledgeChecksUncheckedUpdateManyWithoutLearningPhaseNestedInput
+  }
+
+  export type ReviewCriterionResultUpsertWithWhereUniqueWithoutCriterionInput = {
+    where: ReviewCriterionResultWhereUniqueInput
+    update: XOR<ReviewCriterionResultUpdateWithoutCriterionInput, ReviewCriterionResultUncheckedUpdateWithoutCriterionInput>
+    create: XOR<ReviewCriterionResultCreateWithoutCriterionInput, ReviewCriterionResultUncheckedCreateWithoutCriterionInput>
+  }
+
+  export type ReviewCriterionResultUpdateWithWhereUniqueWithoutCriterionInput = {
+    where: ReviewCriterionResultWhereUniqueInput
+    data: XOR<ReviewCriterionResultUpdateWithoutCriterionInput, ReviewCriterionResultUncheckedUpdateWithoutCriterionInput>
+  }
+
+  export type ReviewCriterionResultUpdateManyWithWhereWithoutCriterionInput = {
+    where: ReviewCriterionResultScalarWhereInput
+    data: XOR<ReviewCriterionResultUpdateManyMutationInput, ReviewCriterionResultUncheckedUpdateManyWithoutCriterionInput>
   }
 
   export type LearningPhaseCreateWithoutKnowledgeChecksInput = {
@@ -29897,6 +31902,7 @@ export namespace Prisma {
     feedback?: StringFieldUpdateOperationsInput | string
     model?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    results?: ReviewCriterionResultUpdateManyWithoutReviewNestedInput
   }
 
   export type PhaseReviewUncheckedUpdateWithoutUserProjectInput = {
@@ -29906,6 +31912,7 @@ export namespace Prisma {
     feedback?: StringFieldUpdateOperationsInput | string
     model?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    results?: ReviewCriterionResultUncheckedUpdateManyWithoutReviewNestedInput
   }
 
   export type PhaseReviewUncheckedUpdateManyWithoutUserProjectInput = {
@@ -29915,6 +31922,50 @@ export namespace Prisma {
     feedback?: StringFieldUpdateOperationsInput | string
     model?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReviewCriterionResultCreateManyReviewInput = {
+    id?: string
+    criterion_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+  }
+
+  export type ReviewCriterionResultUpdateWithoutReviewInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+    criterion?: PhaseCriterionUpdateOneRequiredWithoutResultsNestedInput
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateWithoutReviewInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    criterion_id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateManyWithoutReviewInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    criterion_id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
   }
 
   export type ResourcesCreateManyLearningPhaseInput = {
@@ -30019,6 +32070,7 @@ export namespace Prisma {
     check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: StringFieldUpdateOperationsInput | string
+    results?: ReviewCriterionResultUpdateManyWithoutCriterionNestedInput
   }
 
   export type PhaseCriterionUncheckedUpdateWithoutLearningPhaseInput = {
@@ -30029,6 +32081,7 @@ export namespace Prisma {
     check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: StringFieldUpdateOperationsInput | string
+    results?: ReviewCriterionResultUncheckedUpdateManyWithoutCriterionNestedInput
   }
 
   export type PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseInput = {
@@ -30039,6 +32092,50 @@ export namespace Prisma {
     check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
     check_config?: NullableJsonNullValueInput | InputJsonValue
     hint?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReviewCriterionResultCreateManyCriterionInput = {
+    id?: string
+    review_id: string
+    passed: boolean
+    decided_by: $Enums.ResultSource
+    evidence_path?: string
+    evidence_lines?: string
+    evidence_quote?: string
+    reasoning?: string
+  }
+
+  export type ReviewCriterionResultUpdateWithoutCriterionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+    review?: PhaseReviewUpdateOneRequiredWithoutResultsNestedInput
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateWithoutCriterionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    review_id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReviewCriterionResultUncheckedUpdateManyWithoutCriterionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    review_id?: StringFieldUpdateOperationsInput | string
+    passed?: BoolFieldUpdateOperationsInput | boolean
+    decided_by?: EnumResultSourceFieldUpdateOperationsInput | $Enums.ResultSource
+    evidence_path?: StringFieldUpdateOperationsInput | string
+    evidence_lines?: StringFieldUpdateOperationsInput | string
+    evidence_quote?: StringFieldUpdateOperationsInput | string
+    reasoning?: StringFieldUpdateOperationsInput | string
   }
 
   export type KnowledgeCheckAttemptCreateManyKnowledgeCheckInput = {

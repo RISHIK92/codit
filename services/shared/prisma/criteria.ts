@@ -103,7 +103,11 @@ const portfolio: ProjectCriteria = {
     d(2, "The page has header, about, projects, and contact sections", "behavioral",
       { check: "file_matches", path: "index.html", pattern: "id=[\"'](about)[\"']", flags: "i" },
       "Each major area of the page needs to be its own section element with an id you can link to."),
-    m(3, "Sections use semantic elements (header, main, section, footer) rather than a page built entirely from divs", "structural",
+    // Reworded from "uses semantic elements rather than a page built entirely
+    // from divs" after the accuracy audit showed it failing on correct
+    // submissions. A criterion of the form "X rather than Y" is two claims, and
+    // a grader answering both at once conflates them. Single positive claim.
+    m(3, "The page is structured with semantic elements: header, main, section and footer", "structural",
       "A div says nothing about what it contains. HTML has elements that describe their own role — look up HTML5 semantic elements."),
     m(4, "The contact form's inputs each have an associated label", "structural",
       "A placeholder is not a label. Look up how the label element is tied to an input, and why a screen reader needs that connection."),

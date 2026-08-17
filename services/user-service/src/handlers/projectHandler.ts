@@ -276,6 +276,21 @@ export const projectHandler: UserProjectServiceServer = {
         currentPhase: result.currentPhase,
         checksTotal: result.checksTotal,
         checksCorrect: result.checksCorrect,
+        criteriaTotal: result.criteriaTotal,
+        criteriaPassed: result.criteriaPassed,
+        results: result.results.map((r) => ({
+          criterionId: r.criterionId,
+          text: r.text,
+          kind: r.kind,
+          passed: r.passed,
+          reasoning: r.reasoning,
+          evidencePath: r.evidencePath,
+          evidenceLines: r.evidenceLines,
+          // The hint is the nudge toward the concept — only useful, and only
+          // sent, once the check has actually failed.
+          hint: r.passed ? "" : r.hint,
+          ungraded: r.ungraded,
+        })),
       });
     } catch (error: any) {
       console.error("Failed to review phase submission:", error.message);

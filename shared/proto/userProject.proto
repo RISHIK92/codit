@@ -95,6 +95,27 @@ message SubmitPhaseReviewRequest {
   string active_file_path = 3;
 }
 
+// How one criterion was judged, sent back so the user sees a checklist rather
+// than a paragraph. Being told "3 of 5 checks passed, here's which two didn't
+// and where" is actionable; a prose verdict is something to argue with.
+message CriterionResultProto {
+  string criterion_id   = 1;
+  string text           = 2;
+  string kind           = 3;
+  bool   passed         = 4;
+  // Why it failed, or where it was found when it passed.
+  string reasoning      = 5;
+  // Populated on a pass — lets the user see what the grader actually looked at,
+  // which is also what makes a wrong verdict arguable rather than mysterious.
+  string evidence_path  = 6;
+  string evidence_lines = 7;
+  // Shown only on failure. Names the concept, never the code.
+  string hint           = 8;
+  // True when grading failed rather than the work — the user should retry, not
+  // go looking for a mistake they didn't make.
+  bool   ungraded       = 9;
+}
+
 message SubmitPhaseReviewResponse {
   // "met"     — goal judged met; the phase was advanced.
   // "not_met" — goal judged not met; see feedback.
@@ -112,4 +133,9 @@ message SubmitPhaseReviewResponse {
   // Populated when verdict = "blocked", so the UI can say "3 of 5 correct".
   int32  checks_total = 5;
   int32  checks_correct = 6;
+  // Per-criterion outcomes, in rubric order. Empty when blocked (nothing was
+  // graded) or for phases with no rubric authored.
+  repeated CriterionResultProto results = 7;
+  int32  criteria_total  = 8;
+  int32  criteria_passed = 9;
 }

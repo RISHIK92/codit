@@ -127,6 +127,36 @@ async function rawChatCompletion(opts: {
   });
 }
 
+const RATE_LIMIT_RETRIES = 4;
+const MAX_RETRY_WAIT_MS = 30_000;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * How long to wait after a 429. Prefers the provider's own guidance — the
+ * Retry-After header, else the "try again in 4.117s" it puts in the error
+ * message — and falls back to exponential backoff. A little padding is added
+ * because the window is measured server-side and retrying at exactly the stated
+ * moment tends to land just inside it.
+ */
+function retryAfterMs(res: Response, body: string, attempt: number): number {
+  const header = res.headers.get("retry-after");
+  if (header) {
+    const secs = Number(header);
+    if (Number.isFinite(secs) && secs >= 0) {
+      return Math.min(secs * 1000 + 500, MAX_RETRY_WAIT_MS);
+    }
+  }
+  const stated = body.match(/try again in ([\d.]+)\s*s/i);
+  if (stated) {
+    const secs = Number(stated[1]);
+    if (Number.isFinite(secs)) {
+      return Math.min(secs * 1000 + 500, MAX_RETRY_WAIT_MS);
+    }
+  }
+  return Math.min(1000 * 2 ** attempt, MAX_RETRY_WAIT_MS);
+}
+
 function isToolUseFailure(body: string): boolean {
   try {
     return JSON.parse(body)?.error?.code === "tool_use_failed";
@@ -151,6 +181,22 @@ async function requestWithToolFailureRetry(opts: {
   stream?: boolean;
 }): Promise<Response> {
   let res = await rawChatCompletion(opts);
+
+  // Rate limits are routine, not exceptional — per-criterion grading issues one
+  // request per criterion, which bursts easily on a low tokens-per-minute tier.
+  // Without this the caller sees a criterion it couldn't grade, which is a much
+  // worse outcome than waiting a few seconds. The provider tells us how long to
+  // wait; honour it rather than guessing.
+  for (let attempt = 0; attempt < RATE_LIMIT_RETRIES && res.status === 429; attempt++) {
+    const body = await res.clone().text();
+    const waitMs = retryAfterMs(res, body, attempt);
+    console.warn(
+      `${opts.providerName}: rate limited, retrying in ${(waitMs / 1000).toFixed(1)}s ` +
+        `(attempt ${attempt + 1}/${RATE_LIMIT_RETRIES})`,
+    );
+    await sleep(waitMs);
+    res = await rawChatCompletion(opts);
+  }
 
   if (res.ok) return res;
 

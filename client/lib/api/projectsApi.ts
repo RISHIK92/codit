@@ -356,6 +356,22 @@ export async function setUserProjectArchived(
   return res.json();
 }
 
+/** How one criterion was judged in a submission. */
+export interface CriterionResultDTO {
+  criterion_id: string;
+  text: string;
+  kind: string;
+  passed: boolean;
+  /** Why it failed, or where it was found when it passed. */
+  reasoning: string;
+  evidence_path: string;
+  evidence_lines: string;
+  /** Only sent once the check has failed. Names the concept, never the code. */
+  hint: string;
+  /** True when grading itself failed — the work wasn't judged, so retry. */
+  ungraded: boolean;
+}
+
 export interface PhaseReviewResultDTO {
   /** "met" — advanced. "not_met" — graded and rejected. "blocked" — never
    * reached the grader because the phase's knowledge checks aren't all
@@ -370,6 +386,10 @@ export interface PhaseReviewResultDTO {
   current_phase: number;
   checks_total: number;
   checks_correct: number;
+  /** Per-criterion outcomes in rubric order. Empty when blocked. */
+  results: CriterionResultDTO[];
+  criteria_total: number;
+  criteria_passed: number;
 }
 
 /**
@@ -412,5 +432,18 @@ export async function submitPhaseReview(
     current_phase: json.currentPhase ?? json.current_phase ?? 0,
     checks_total: json.checksTotal ?? json.checks_total ?? 0,
     checks_correct: json.checksCorrect ?? json.checks_correct ?? 0,
+    criteria_total: json.criteriaTotal ?? json.criteria_total ?? 0,
+    criteria_passed: json.criteriaPassed ?? json.criteria_passed ?? 0,
+    results: (json.results ?? []).map((r: any) => ({
+      criterion_id: r.criterionId ?? r.criterion_id ?? "",
+      text: r.text ?? "",
+      kind: r.kind ?? "",
+      passed: r.passed ?? false,
+      reasoning: r.reasoning ?? "",
+      evidence_path: r.evidencePath ?? r.evidence_path ?? "",
+      evidence_lines: r.evidenceLines ?? r.evidence_lines ?? "",
+      hint: r.hint ?? "",
+      ungraded: r.ungraded ?? false,
+    })),
   };
 }

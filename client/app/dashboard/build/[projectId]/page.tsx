@@ -8,6 +8,7 @@ import { useAuthStore, useDashboardStore } from "@/lib/stores";
 import {
   getProjectWithPhases,
   submitPhaseReview,
+  type PhaseReviewResultDTO,
   getAllUserProjects,
   type LearningPhaseDTO,
 } from "@/lib/api/projectsApi";
@@ -88,6 +89,7 @@ import { PanelModeSwitcher } from "./components/PanelModeSwitcher";
 import { PreviewPane } from "./components/PreviewPane";
 import { XTermPanel } from "./components/XTermPanel";
 import { AiAssistant } from "./components/AiAssistant";
+import { ReviewResultsPanel } from "./components/ReviewResultsPanel";
 import { ResourcesPanel } from "./components/ResourcesPanel";
 import { KnowledgeChecksPanel } from "./components/KnowledgeChecksPanel";
 
@@ -201,10 +203,10 @@ export default function BuildPage() {
   // decides the verdict, and advances the phase if it passed. The result is
   // then shown in the AI panel as an already-finished exchange — the client
   // neither grades nor asks to advance.
-  // Server-graded review result, rendered into the AI panel without sending.
-  const [reviewTranscript, setReviewTranscript] = useState<
-    { nonce: number; userText: string; assistantText: string } | undefined
-  >();
+  // Server-graded review outcome, rendered as a checklist in its own panel.
+  const [reviewResult, setReviewResult] = useState<PhaseReviewResultDTO | null>(
+    null,
+  );
   const [submitChecking, setSubmitChecking] = useState(false);
   const [submitPrompt, setSubmitPrompt] = useState<string | null>(null);
   // Mirrors AiAssistant's internal loading state — Submit is only disabled
@@ -1384,20 +1386,8 @@ export default function BuildPage() {
         return;
       }
 
-      const goalText = parseGoal(activePhase.goal);
-      const submissionText = `Review my submission for Phase ${activePhase.phase_number}: ${activePhase.title}.${
-        goalText ? ` Goal: ${goalText}` : ""
-      }`;
-
-      setAiOpen(true);
       const result = await submitPhaseReview(token, projectId, activeTabId);
-
-      // Show the graded exchange in the AI panel without re-running it.
-      setReviewTranscript({
-        nonce: Date.now(),
-        userText: submissionText,
-        assistantText: result.feedback,
-      });
+      setReviewResult(result);
 
       if (result.verdict === "blocked") {
         setSubmitPrompt(result.feedback);
@@ -2424,6 +2414,24 @@ export default function BuildPage() {
         </div>
 
         {/* ── AI ASSISTANT — resizable sidebar alongside the editor, not a modal ── */}
+        {/* Review outcome, in its own panel rather than as prose in the chat —
+            a checklist with reasons and evidence is actionable in a way a
+            paragraph isn't. */}
+        {reviewResult && viewingPastPhase === null && (
+          <>
+            <div className="w-1.5 shrink-0 bg-border-s" />
+            <div
+              className="shrink-0 border-l border-border-s flex flex-col overflow-hidden"
+              style={{ width: aiPanelWidth }}
+            >
+              <ReviewResultsPanel
+                result={reviewResult}
+                onClose={() => setReviewResult(null)}
+              />
+            </div>
+          </>
+        )}
+
         {aiOpen && viewingPastPhase === null && (
           <>
             <div
@@ -2461,7 +2469,6 @@ export default function BuildPage() {
                 }
                 activeFileId={activeTabId || undefined}
                 getToken={() => user!.getIdToken()}
-                injected={reviewTranscript}
                 onLoadingChange={setAiThinking}
               />
             </div>
