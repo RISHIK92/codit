@@ -21,6 +21,7 @@ export const getGrowthInputs = async (email: string): Promise<
     resourcesCompleted,
     reviewAttempts,
     engagedPhases,
+    sharedArtifacts,
   ] = await Promise.all([
     prisma.userPhaseProgress.count({
       where: { status: "completed", userProject: { user_email: email } },
@@ -46,6 +47,9 @@ export const getGrowthInputs = async (email: string): Promise<
       select: { knowledgeCheck: { select: { phase_id: true } } },
       distinct: ["knowledge_check_id"],
     }),
+    // Only live shares count. A revoked artifact is one the author took back,
+    // and Show should fall when they do.
+    prisma.sharedArtifact.count({ where: { user_email: email, revoked: false } }),
   ]);
 
   const criteriaPassed = { behavioral: 0, structural: 0, conceptual: 0 };
@@ -89,9 +93,7 @@ export const getGrowthInputs = async (email: string): Promise<
     resourcesCompleted,
     reviewAttempts,
     phasesEngaged,
-    // Phase 6. Reported as zero rather than omitted, so the stat is visibly
-    // "not yet earned" rather than quietly missing.
-    sharedArtifacts: 0,
+    sharedArtifacts,
     phasesWithPassedCheckpoint,
   };
 };

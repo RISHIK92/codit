@@ -106,6 +106,23 @@ export type ReviewCriterionResult = $Result.DefaultSelection<Prisma.$ReviewCrite
  */
 export type UnderstandingCheckpoint = $Result.DefaultSelection<Prisma.$UnderstandingCheckpointPayload>
 /**
+ * Model SharedArtifact
+ * * A phase the user has chosen to publish.
+ *  *
+ *  * Sharing requires a PASSED checkpoint on that phase — not merely completing
+ *  * it. A shareable artifact should be evidence of understanding rather than of
+ *  * output, or it becomes exactly the credential-without-substance this product
+ *  * exists to argue against. It also means Show can only ever be earned through
+ *  * Understand, which keeps the four stats from collapsing into "activity".
+ *  *
+ *  * Publishing exposes the user's own code and their explanation to anyone with
+ *  * the link, so it is explicit, per-phase, and revocable at any time. The slug
+ *  * is unguessable rather than sequential, and revoking is honoured immediately;
+ *  * `revoked` rows are kept rather than deleted so a link that once worked can
+ *  * report that it was withdrawn instead of looking broken.
+ */
+export type SharedArtifact = $Result.DefaultSelection<Prisma.$SharedArtifactPayload>
+/**
  * Model UserPhaseProgress
  * * Per-user, per-phase status for one enrollment — LearningPhase.phase_status
  *  * is a shared catalogue field and can't represent per-user progress, since
@@ -525,6 +542,16 @@ export class PrismaClient<
     * ```
     */
   get understandingCheckpoint(): Prisma.UnderstandingCheckpointDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sharedArtifact`: Exposes CRUD operations for the **SharedArtifact** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SharedArtifacts
+    * const sharedArtifacts = await prisma.sharedArtifact.findMany()
+    * ```
+    */
+  get sharedArtifact(): Prisma.SharedArtifactDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userPhaseProgress`: Exposes CRUD operations for the **UserPhaseProgress** model.
@@ -1048,6 +1075,7 @@ export namespace Prisma {
     PhaseReview: 'PhaseReview',
     ReviewCriterionResult: 'ReviewCriterionResult',
     UnderstandingCheckpoint: 'UnderstandingCheckpoint',
+    SharedArtifact: 'SharedArtifact',
     UserPhaseProgress: 'UserPhaseProgress',
     LearningPhase: 'LearningPhase',
     PhaseCriterion: 'PhaseCriterion',
@@ -1073,7 +1101,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "reviewCriterionResult" | "understandingCheckpoint" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "reviewCriterionResult" | "understandingCheckpoint" | "sharedArtifact" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1965,6 +1993,80 @@ export namespace Prisma {
           }
         }
       }
+      SharedArtifact: {
+        payload: Prisma.$SharedArtifactPayload<ExtArgs>
+        fields: Prisma.SharedArtifactFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SharedArtifactFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SharedArtifactFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>
+          }
+          findFirst: {
+            args: Prisma.SharedArtifactFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SharedArtifactFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>
+          }
+          findMany: {
+            args: Prisma.SharedArtifactFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>[]
+          }
+          create: {
+            args: Prisma.SharedArtifactCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>
+          }
+          createMany: {
+            args: Prisma.SharedArtifactCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SharedArtifactCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>[]
+          }
+          delete: {
+            args: Prisma.SharedArtifactDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>
+          }
+          update: {
+            args: Prisma.SharedArtifactUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>
+          }
+          deleteMany: {
+            args: Prisma.SharedArtifactDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SharedArtifactUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SharedArtifactUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>[]
+          }
+          upsert: {
+            args: Prisma.SharedArtifactUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SharedArtifactPayload>
+          }
+          aggregate: {
+            args: Prisma.SharedArtifactAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSharedArtifact>
+          }
+          groupBy: {
+            args: Prisma.SharedArtifactGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SharedArtifactGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SharedArtifactCountArgs<ExtArgs>
+            result: $Utils.Optional<SharedArtifactCountAggregateOutputType> | number
+          }
+        }
+      }
       UserPhaseProgress: {
         payload: Prisma.$UserPhaseProgressPayload<ExtArgs>
         fields: Prisma.UserPhaseProgressFieldRefs
@@ -2591,6 +2693,7 @@ export namespace Prisma {
     phaseReview?: PhaseReviewOmit
     reviewCriterionResult?: ReviewCriterionResultOmit
     understandingCheckpoint?: UnderstandingCheckpointOmit
+    sharedArtifact?: SharedArtifactOmit
     userPhaseProgress?: UserPhaseProgressOmit
     learningPhase?: LearningPhaseOmit
     phaseCriterion?: PhaseCriterionOmit
@@ -16613,6 +16716,1098 @@ export namespace Prisma {
 
 
   /**
+   * Model SharedArtifact
+   */
+
+  export type AggregateSharedArtifact = {
+    _count: SharedArtifactCountAggregateOutputType | null
+    _avg: SharedArtifactAvgAggregateOutputType | null
+    _sum: SharedArtifactSumAggregateOutputType | null
+    _min: SharedArtifactMinAggregateOutputType | null
+    _max: SharedArtifactMaxAggregateOutputType | null
+  }
+
+  export type SharedArtifactAvgAggregateOutputType = {
+    phase_number: number | null
+    view_count: number | null
+  }
+
+  export type SharedArtifactSumAggregateOutputType = {
+    phase_number: number | null
+    view_count: number | null
+  }
+
+  export type SharedArtifactMinAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    user_email: string | null
+    project_id: string | null
+    phase_number: number | null
+    include_code: boolean | null
+    revoked: boolean | null
+    view_count: number | null
+    created_at: Date | null
+  }
+
+  export type SharedArtifactMaxAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    user_email: string | null
+    project_id: string | null
+    phase_number: number | null
+    include_code: boolean | null
+    revoked: boolean | null
+    view_count: number | null
+    created_at: Date | null
+  }
+
+  export type SharedArtifactCountAggregateOutputType = {
+    id: number
+    slug: number
+    user_email: number
+    project_id: number
+    phase_number: number
+    include_code: number
+    revoked: number
+    view_count: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type SharedArtifactAvgAggregateInputType = {
+    phase_number?: true
+    view_count?: true
+  }
+
+  export type SharedArtifactSumAggregateInputType = {
+    phase_number?: true
+    view_count?: true
+  }
+
+  export type SharedArtifactMinAggregateInputType = {
+    id?: true
+    slug?: true
+    user_email?: true
+    project_id?: true
+    phase_number?: true
+    include_code?: true
+    revoked?: true
+    view_count?: true
+    created_at?: true
+  }
+
+  export type SharedArtifactMaxAggregateInputType = {
+    id?: true
+    slug?: true
+    user_email?: true
+    project_id?: true
+    phase_number?: true
+    include_code?: true
+    revoked?: true
+    view_count?: true
+    created_at?: true
+  }
+
+  export type SharedArtifactCountAggregateInputType = {
+    id?: true
+    slug?: true
+    user_email?: true
+    project_id?: true
+    phase_number?: true
+    include_code?: true
+    revoked?: true
+    view_count?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type SharedArtifactAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SharedArtifact to aggregate.
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SharedArtifacts to fetch.
+     */
+    orderBy?: SharedArtifactOrderByWithRelationInput | SharedArtifactOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SharedArtifactWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SharedArtifacts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SharedArtifacts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SharedArtifacts
+    **/
+    _count?: true | SharedArtifactCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SharedArtifactAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SharedArtifactSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SharedArtifactMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SharedArtifactMaxAggregateInputType
+  }
+
+  export type GetSharedArtifactAggregateType<T extends SharedArtifactAggregateArgs> = {
+        [P in keyof T & keyof AggregateSharedArtifact]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSharedArtifact[P]>
+      : GetScalarType<T[P], AggregateSharedArtifact[P]>
+  }
+
+
+
+
+  export type SharedArtifactGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SharedArtifactWhereInput
+    orderBy?: SharedArtifactOrderByWithAggregationInput | SharedArtifactOrderByWithAggregationInput[]
+    by: SharedArtifactScalarFieldEnum[] | SharedArtifactScalarFieldEnum
+    having?: SharedArtifactScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SharedArtifactCountAggregateInputType | true
+    _avg?: SharedArtifactAvgAggregateInputType
+    _sum?: SharedArtifactSumAggregateInputType
+    _min?: SharedArtifactMinAggregateInputType
+    _max?: SharedArtifactMaxAggregateInputType
+  }
+
+  export type SharedArtifactGroupByOutputType = {
+    id: string
+    slug: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    include_code: boolean
+    revoked: boolean
+    view_count: number
+    created_at: Date
+    _count: SharedArtifactCountAggregateOutputType | null
+    _avg: SharedArtifactAvgAggregateOutputType | null
+    _sum: SharedArtifactSumAggregateOutputType | null
+    _min: SharedArtifactMinAggregateOutputType | null
+    _max: SharedArtifactMaxAggregateOutputType | null
+  }
+
+  type GetSharedArtifactGroupByPayload<T extends SharedArtifactGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SharedArtifactGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SharedArtifactGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SharedArtifactGroupByOutputType[P]>
+            : GetScalarType<T[P], SharedArtifactGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SharedArtifactSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["sharedArtifact"]>
+
+  export type SharedArtifactSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["sharedArtifact"]>
+
+  export type SharedArtifactSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["sharedArtifact"]>
+
+  export type SharedArtifactSelectScalar = {
+    id?: boolean
+    slug?: boolean
+    user_email?: boolean
+    project_id?: boolean
+    phase_number?: boolean
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: boolean
+    created_at?: boolean
+  }
+
+  export type SharedArtifactOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "user_email" | "project_id" | "phase_number" | "include_code" | "revoked" | "view_count" | "created_at", ExtArgs["result"]["sharedArtifact"]>
+
+  export type $SharedArtifactPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SharedArtifact"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      /**
+       * * Unguessable public identifier. Never the row id or anything enumerable.
+       */
+      slug: string
+      user_email: string
+      project_id: string
+      phase_number: number
+      /**
+       * * Whether the frozen snapshot of their code is published alongside the
+       *    * explanation, or only the criteria and the write-up. Opt-in per share.
+       */
+      include_code: boolean
+      revoked: boolean
+      view_count: number
+      created_at: Date
+    }, ExtArgs["result"]["sharedArtifact"]>
+    composites: {}
+  }
+
+  type SharedArtifactGetPayload<S extends boolean | null | undefined | SharedArtifactDefaultArgs> = $Result.GetResult<Prisma.$SharedArtifactPayload, S>
+
+  type SharedArtifactCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SharedArtifactFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SharedArtifactCountAggregateInputType | true
+    }
+
+  export interface SharedArtifactDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SharedArtifact'], meta: { name: 'SharedArtifact' } }
+    /**
+     * Find zero or one SharedArtifact that matches the filter.
+     * @param {SharedArtifactFindUniqueArgs} args - Arguments to find a SharedArtifact
+     * @example
+     * // Get one SharedArtifact
+     * const sharedArtifact = await prisma.sharedArtifact.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SharedArtifactFindUniqueArgs>(args: SelectSubset<T, SharedArtifactFindUniqueArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SharedArtifact that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SharedArtifactFindUniqueOrThrowArgs} args - Arguments to find a SharedArtifact
+     * @example
+     * // Get one SharedArtifact
+     * const sharedArtifact = await prisma.sharedArtifact.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SharedArtifactFindUniqueOrThrowArgs>(args: SelectSubset<T, SharedArtifactFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SharedArtifact that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactFindFirstArgs} args - Arguments to find a SharedArtifact
+     * @example
+     * // Get one SharedArtifact
+     * const sharedArtifact = await prisma.sharedArtifact.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SharedArtifactFindFirstArgs>(args?: SelectSubset<T, SharedArtifactFindFirstArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SharedArtifact that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactFindFirstOrThrowArgs} args - Arguments to find a SharedArtifact
+     * @example
+     * // Get one SharedArtifact
+     * const sharedArtifact = await prisma.sharedArtifact.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SharedArtifactFindFirstOrThrowArgs>(args?: SelectSubset<T, SharedArtifactFindFirstOrThrowArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SharedArtifacts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SharedArtifacts
+     * const sharedArtifacts = await prisma.sharedArtifact.findMany()
+     * 
+     * // Get first 10 SharedArtifacts
+     * const sharedArtifacts = await prisma.sharedArtifact.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sharedArtifactWithIdOnly = await prisma.sharedArtifact.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SharedArtifactFindManyArgs>(args?: SelectSubset<T, SharedArtifactFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SharedArtifact.
+     * @param {SharedArtifactCreateArgs} args - Arguments to create a SharedArtifact.
+     * @example
+     * // Create one SharedArtifact
+     * const SharedArtifact = await prisma.sharedArtifact.create({
+     *   data: {
+     *     // ... data to create a SharedArtifact
+     *   }
+     * })
+     * 
+     */
+    create<T extends SharedArtifactCreateArgs>(args: SelectSubset<T, SharedArtifactCreateArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SharedArtifacts.
+     * @param {SharedArtifactCreateManyArgs} args - Arguments to create many SharedArtifacts.
+     * @example
+     * // Create many SharedArtifacts
+     * const sharedArtifact = await prisma.sharedArtifact.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SharedArtifactCreateManyArgs>(args?: SelectSubset<T, SharedArtifactCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SharedArtifacts and returns the data saved in the database.
+     * @param {SharedArtifactCreateManyAndReturnArgs} args - Arguments to create many SharedArtifacts.
+     * @example
+     * // Create many SharedArtifacts
+     * const sharedArtifact = await prisma.sharedArtifact.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SharedArtifacts and only return the `id`
+     * const sharedArtifactWithIdOnly = await prisma.sharedArtifact.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SharedArtifactCreateManyAndReturnArgs>(args?: SelectSubset<T, SharedArtifactCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SharedArtifact.
+     * @param {SharedArtifactDeleteArgs} args - Arguments to delete one SharedArtifact.
+     * @example
+     * // Delete one SharedArtifact
+     * const SharedArtifact = await prisma.sharedArtifact.delete({
+     *   where: {
+     *     // ... filter to delete one SharedArtifact
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SharedArtifactDeleteArgs>(args: SelectSubset<T, SharedArtifactDeleteArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SharedArtifact.
+     * @param {SharedArtifactUpdateArgs} args - Arguments to update one SharedArtifact.
+     * @example
+     * // Update one SharedArtifact
+     * const sharedArtifact = await prisma.sharedArtifact.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SharedArtifactUpdateArgs>(args: SelectSubset<T, SharedArtifactUpdateArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SharedArtifacts.
+     * @param {SharedArtifactDeleteManyArgs} args - Arguments to filter SharedArtifacts to delete.
+     * @example
+     * // Delete a few SharedArtifacts
+     * const { count } = await prisma.sharedArtifact.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SharedArtifactDeleteManyArgs>(args?: SelectSubset<T, SharedArtifactDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SharedArtifacts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SharedArtifacts
+     * const sharedArtifact = await prisma.sharedArtifact.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SharedArtifactUpdateManyArgs>(args: SelectSubset<T, SharedArtifactUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SharedArtifacts and returns the data updated in the database.
+     * @param {SharedArtifactUpdateManyAndReturnArgs} args - Arguments to update many SharedArtifacts.
+     * @example
+     * // Update many SharedArtifacts
+     * const sharedArtifact = await prisma.sharedArtifact.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SharedArtifacts and only return the `id`
+     * const sharedArtifactWithIdOnly = await prisma.sharedArtifact.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SharedArtifactUpdateManyAndReturnArgs>(args: SelectSubset<T, SharedArtifactUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SharedArtifact.
+     * @param {SharedArtifactUpsertArgs} args - Arguments to update or create a SharedArtifact.
+     * @example
+     * // Update or create a SharedArtifact
+     * const sharedArtifact = await prisma.sharedArtifact.upsert({
+     *   create: {
+     *     // ... data to create a SharedArtifact
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SharedArtifact we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SharedArtifactUpsertArgs>(args: SelectSubset<T, SharedArtifactUpsertArgs<ExtArgs>>): Prisma__SharedArtifactClient<$Result.GetResult<Prisma.$SharedArtifactPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SharedArtifacts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactCountArgs} args - Arguments to filter SharedArtifacts to count.
+     * @example
+     * // Count the number of SharedArtifacts
+     * const count = await prisma.sharedArtifact.count({
+     *   where: {
+     *     // ... the filter for the SharedArtifacts we want to count
+     *   }
+     * })
+    **/
+    count<T extends SharedArtifactCountArgs>(
+      args?: Subset<T, SharedArtifactCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SharedArtifactCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SharedArtifact.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SharedArtifactAggregateArgs>(args: Subset<T, SharedArtifactAggregateArgs>): Prisma.PrismaPromise<GetSharedArtifactAggregateType<T>>
+
+    /**
+     * Group by SharedArtifact.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SharedArtifactGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SharedArtifactGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SharedArtifactGroupByArgs['orderBy'] }
+        : { orderBy?: SharedArtifactGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SharedArtifactGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSharedArtifactGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SharedArtifact model
+   */
+  readonly fields: SharedArtifactFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SharedArtifact.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SharedArtifactClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SharedArtifact model
+   */
+  interface SharedArtifactFieldRefs {
+    readonly id: FieldRef<"SharedArtifact", 'String'>
+    readonly slug: FieldRef<"SharedArtifact", 'String'>
+    readonly user_email: FieldRef<"SharedArtifact", 'String'>
+    readonly project_id: FieldRef<"SharedArtifact", 'String'>
+    readonly phase_number: FieldRef<"SharedArtifact", 'Int'>
+    readonly include_code: FieldRef<"SharedArtifact", 'Boolean'>
+    readonly revoked: FieldRef<"SharedArtifact", 'Boolean'>
+    readonly view_count: FieldRef<"SharedArtifact", 'Int'>
+    readonly created_at: FieldRef<"SharedArtifact", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SharedArtifact findUnique
+   */
+  export type SharedArtifactFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * Filter, which SharedArtifact to fetch.
+     */
+    where: SharedArtifactWhereUniqueInput
+  }
+
+  /**
+   * SharedArtifact findUniqueOrThrow
+   */
+  export type SharedArtifactFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * Filter, which SharedArtifact to fetch.
+     */
+    where: SharedArtifactWhereUniqueInput
+  }
+
+  /**
+   * SharedArtifact findFirst
+   */
+  export type SharedArtifactFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * Filter, which SharedArtifact to fetch.
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SharedArtifacts to fetch.
+     */
+    orderBy?: SharedArtifactOrderByWithRelationInput | SharedArtifactOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SharedArtifacts.
+     */
+    cursor?: SharedArtifactWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SharedArtifacts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SharedArtifacts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SharedArtifacts.
+     */
+    distinct?: SharedArtifactScalarFieldEnum | SharedArtifactScalarFieldEnum[]
+  }
+
+  /**
+   * SharedArtifact findFirstOrThrow
+   */
+  export type SharedArtifactFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * Filter, which SharedArtifact to fetch.
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SharedArtifacts to fetch.
+     */
+    orderBy?: SharedArtifactOrderByWithRelationInput | SharedArtifactOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SharedArtifacts.
+     */
+    cursor?: SharedArtifactWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SharedArtifacts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SharedArtifacts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SharedArtifacts.
+     */
+    distinct?: SharedArtifactScalarFieldEnum | SharedArtifactScalarFieldEnum[]
+  }
+
+  /**
+   * SharedArtifact findMany
+   */
+  export type SharedArtifactFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * Filter, which SharedArtifacts to fetch.
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SharedArtifacts to fetch.
+     */
+    orderBy?: SharedArtifactOrderByWithRelationInput | SharedArtifactOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SharedArtifacts.
+     */
+    cursor?: SharedArtifactWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SharedArtifacts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SharedArtifacts.
+     */
+    skip?: number
+    distinct?: SharedArtifactScalarFieldEnum | SharedArtifactScalarFieldEnum[]
+  }
+
+  /**
+   * SharedArtifact create
+   */
+  export type SharedArtifactCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SharedArtifact.
+     */
+    data: XOR<SharedArtifactCreateInput, SharedArtifactUncheckedCreateInput>
+  }
+
+  /**
+   * SharedArtifact createMany
+   */
+  export type SharedArtifactCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SharedArtifacts.
+     */
+    data: SharedArtifactCreateManyInput | SharedArtifactCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SharedArtifact createManyAndReturn
+   */
+  export type SharedArtifactCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * The data used to create many SharedArtifacts.
+     */
+    data: SharedArtifactCreateManyInput | SharedArtifactCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SharedArtifact update
+   */
+  export type SharedArtifactUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SharedArtifact.
+     */
+    data: XOR<SharedArtifactUpdateInput, SharedArtifactUncheckedUpdateInput>
+    /**
+     * Choose, which SharedArtifact to update.
+     */
+    where: SharedArtifactWhereUniqueInput
+  }
+
+  /**
+   * SharedArtifact updateMany
+   */
+  export type SharedArtifactUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SharedArtifacts.
+     */
+    data: XOR<SharedArtifactUpdateManyMutationInput, SharedArtifactUncheckedUpdateManyInput>
+    /**
+     * Filter which SharedArtifacts to update
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * Limit how many SharedArtifacts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SharedArtifact updateManyAndReturn
+   */
+  export type SharedArtifactUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * The data used to update SharedArtifacts.
+     */
+    data: XOR<SharedArtifactUpdateManyMutationInput, SharedArtifactUncheckedUpdateManyInput>
+    /**
+     * Filter which SharedArtifacts to update
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * Limit how many SharedArtifacts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SharedArtifact upsert
+   */
+  export type SharedArtifactUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SharedArtifact to update in case it exists.
+     */
+    where: SharedArtifactWhereUniqueInput
+    /**
+     * In case the SharedArtifact found by the `where` argument doesn't exist, create a new SharedArtifact with this data.
+     */
+    create: XOR<SharedArtifactCreateInput, SharedArtifactUncheckedCreateInput>
+    /**
+     * In case the SharedArtifact was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SharedArtifactUpdateInput, SharedArtifactUncheckedUpdateInput>
+  }
+
+  /**
+   * SharedArtifact delete
+   */
+  export type SharedArtifactDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+    /**
+     * Filter which SharedArtifact to delete.
+     */
+    where: SharedArtifactWhereUniqueInput
+  }
+
+  /**
+   * SharedArtifact deleteMany
+   */
+  export type SharedArtifactDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SharedArtifacts to delete
+     */
+    where?: SharedArtifactWhereInput
+    /**
+     * Limit how many SharedArtifacts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SharedArtifact without action
+   */
+  export type SharedArtifactDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SharedArtifact
+     */
+    select?: SharedArtifactSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SharedArtifact
+     */
+    omit?: SharedArtifactOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model UserPhaseProgress
    */
 
@@ -24810,6 +26005,21 @@ export namespace Prisma {
   export type UnderstandingCheckpointScalarFieldEnum = (typeof UnderstandingCheckpointScalarFieldEnum)[keyof typeof UnderstandingCheckpointScalarFieldEnum]
 
 
+  export const SharedArtifactScalarFieldEnum: {
+    id: 'id',
+    slug: 'slug',
+    user_email: 'user_email',
+    project_id: 'project_id',
+    phase_number: 'phase_number',
+    include_code: 'include_code',
+    revoked: 'revoked',
+    view_count: 'view_count',
+    created_at: 'created_at'
+  };
+
+  export type SharedArtifactScalarFieldEnum = (typeof SharedArtifactScalarFieldEnum)[keyof typeof SharedArtifactScalarFieldEnum]
+
+
   export const UserPhaseProgressScalarFieldEnum: {
     id: 'id',
     user_project_id: 'user_project_id',
@@ -26051,6 +27261,81 @@ export namespace Prisma {
     missing_concepts?: StringNullableListFilter<"UnderstandingCheckpoint">
     model?: StringWithAggregatesFilter<"UnderstandingCheckpoint"> | string
     created_at?: DateTimeWithAggregatesFilter<"UnderstandingCheckpoint"> | Date | string
+  }
+
+  export type SharedArtifactWhereInput = {
+    AND?: SharedArtifactWhereInput | SharedArtifactWhereInput[]
+    OR?: SharedArtifactWhereInput[]
+    NOT?: SharedArtifactWhereInput | SharedArtifactWhereInput[]
+    id?: StringFilter<"SharedArtifact"> | string
+    slug?: StringFilter<"SharedArtifact"> | string
+    user_email?: StringFilter<"SharedArtifact"> | string
+    project_id?: StringFilter<"SharedArtifact"> | string
+    phase_number?: IntFilter<"SharedArtifact"> | number
+    include_code?: BoolFilter<"SharedArtifact"> | boolean
+    revoked?: BoolFilter<"SharedArtifact"> | boolean
+    view_count?: IntFilter<"SharedArtifact"> | number
+    created_at?: DateTimeFilter<"SharedArtifact"> | Date | string
+  }
+
+  export type SharedArtifactOrderByWithRelationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    include_code?: SortOrder
+    revoked?: SortOrder
+    view_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type SharedArtifactWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug?: string
+    user_email_project_id_phase_number?: SharedArtifactUser_emailProject_idPhase_numberCompoundUniqueInput
+    AND?: SharedArtifactWhereInput | SharedArtifactWhereInput[]
+    OR?: SharedArtifactWhereInput[]
+    NOT?: SharedArtifactWhereInput | SharedArtifactWhereInput[]
+    user_email?: StringFilter<"SharedArtifact"> | string
+    project_id?: StringFilter<"SharedArtifact"> | string
+    phase_number?: IntFilter<"SharedArtifact"> | number
+    include_code?: BoolFilter<"SharedArtifact"> | boolean
+    revoked?: BoolFilter<"SharedArtifact"> | boolean
+    view_count?: IntFilter<"SharedArtifact"> | number
+    created_at?: DateTimeFilter<"SharedArtifact"> | Date | string
+  }, "id" | "slug" | "user_email_project_id_phase_number">
+
+  export type SharedArtifactOrderByWithAggregationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    include_code?: SortOrder
+    revoked?: SortOrder
+    view_count?: SortOrder
+    created_at?: SortOrder
+    _count?: SharedArtifactCountOrderByAggregateInput
+    _avg?: SharedArtifactAvgOrderByAggregateInput
+    _max?: SharedArtifactMaxOrderByAggregateInput
+    _min?: SharedArtifactMinOrderByAggregateInput
+    _sum?: SharedArtifactSumOrderByAggregateInput
+  }
+
+  export type SharedArtifactScalarWhereWithAggregatesInput = {
+    AND?: SharedArtifactScalarWhereWithAggregatesInput | SharedArtifactScalarWhereWithAggregatesInput[]
+    OR?: SharedArtifactScalarWhereWithAggregatesInput[]
+    NOT?: SharedArtifactScalarWhereWithAggregatesInput | SharedArtifactScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SharedArtifact"> | string
+    slug?: StringWithAggregatesFilter<"SharedArtifact"> | string
+    user_email?: StringWithAggregatesFilter<"SharedArtifact"> | string
+    project_id?: StringWithAggregatesFilter<"SharedArtifact"> | string
+    phase_number?: IntWithAggregatesFilter<"SharedArtifact"> | number
+    include_code?: BoolWithAggregatesFilter<"SharedArtifact"> | boolean
+    revoked?: BoolWithAggregatesFilter<"SharedArtifact"> | boolean
+    view_count?: IntWithAggregatesFilter<"SharedArtifact"> | number
+    created_at?: DateTimeWithAggregatesFilter<"SharedArtifact"> | Date | string
   }
 
   export type UserPhaseProgressWhereInput = {
@@ -27511,6 +28796,90 @@ export namespace Prisma {
     feedback?: StringFieldUpdateOperationsInput | string
     missing_concepts?: UnderstandingCheckpointUpdatemissing_conceptsInput | string[]
     model?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SharedArtifactCreateInput = {
+    id?: string
+    slug: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: number
+    created_at?: Date | string
+  }
+
+  export type SharedArtifactUncheckedCreateInput = {
+    id?: string
+    slug: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: number
+    created_at?: Date | string
+  }
+
+  export type SharedArtifactUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    include_code?: BoolFieldUpdateOperationsInput | boolean
+    revoked?: BoolFieldUpdateOperationsInput | boolean
+    view_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SharedArtifactUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    include_code?: BoolFieldUpdateOperationsInput | boolean
+    revoked?: BoolFieldUpdateOperationsInput | boolean
+    view_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SharedArtifactCreateManyInput = {
+    id?: string
+    slug: string
+    user_email: string
+    project_id: string
+    phase_number: number
+    include_code?: boolean
+    revoked?: boolean
+    view_count?: number
+    created_at?: Date | string
+  }
+
+  export type SharedArtifactUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    include_code?: BoolFieldUpdateOperationsInput | boolean
+    revoked?: BoolFieldUpdateOperationsInput | boolean
+    view_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SharedArtifactUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    user_email?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    phase_number?: IntFieldUpdateOperationsInput | number
+    include_code?: BoolFieldUpdateOperationsInput | boolean
+    revoked?: BoolFieldUpdateOperationsInput | boolean
+    view_count?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -29099,6 +30468,58 @@ export namespace Prisma {
 
   export type UnderstandingCheckpointSumOrderByAggregateInput = {
     phase_number?: SortOrder
+  }
+
+  export type SharedArtifactUser_emailProject_idPhase_numberCompoundUniqueInput = {
+    user_email: string
+    project_id: string
+    phase_number: number
+  }
+
+  export type SharedArtifactCountOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    include_code?: SortOrder
+    revoked?: SortOrder
+    view_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type SharedArtifactAvgOrderByAggregateInput = {
+    phase_number?: SortOrder
+    view_count?: SortOrder
+  }
+
+  export type SharedArtifactMaxOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    include_code?: SortOrder
+    revoked?: SortOrder
+    view_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type SharedArtifactMinOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    user_email?: SortOrder
+    project_id?: SortOrder
+    phase_number?: SortOrder
+    include_code?: SortOrder
+    revoked?: SortOrder
+    view_count?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type SharedArtifactSumOrderByAggregateInput = {
+    phase_number?: SortOrder
+    view_count?: SortOrder
   }
 
   export type EnumPhaseStatusFilter<$PrismaModel = never> = {

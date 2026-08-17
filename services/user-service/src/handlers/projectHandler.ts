@@ -19,7 +19,16 @@ import {
   StartCheckpointResponse,
   SubmitCheckpointRequest,
   SubmitCheckpointResponse,
+  ShareArtifactRequest,
+  ShareArtifactResponse,
+  RevokeArtifactRequest,
+  RevokeArtifactResponse,
+  ListMyArtifactsRequest,
+  ListMyArtifactsResponse,
+  GetPublicArtifactRequest,
+  GetPublicArtifactResponse,
 } from "../generated/userProject";
+import * as shareService from "../services/shareService";
 import * as growthService from "../services/growthService";
 import * as projectService from "../services/projectService";
 import * as phaseReviewService from "../services/phaseReviewService";
@@ -381,6 +390,94 @@ export const projectHandler: UserProjectServiceServer = {
       });
     } catch (error: any) {
       console.error("SubmitCheckpoint failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+    }
+  },
+
+  shareArtifact: async (
+    call: grpc.ServerUnaryCall<ShareArtifactRequest, ShareArtifactResponse>,
+    callback: grpc.sendUnaryData<ShareArtifactResponse>,
+  ) => {
+    try {
+      const { email, projectId, phaseNumber, includeCode } = call.request;
+      const r = await shareService.shareArtifact(email, projectId, phaseNumber, includeCode);
+      callback(null, { slug: r.slug });
+    } catch (error: any) {
+      console.error("ShareArtifact failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+    }
+  },
+
+  revokeArtifact: async (
+    call: grpc.ServerUnaryCall<RevokeArtifactRequest, RevokeArtifactResponse>,
+    callback: grpc.sendUnaryData<RevokeArtifactResponse>,
+  ) => {
+    try {
+      const r = await shareService.revokeArtifact(call.request.email, call.request.slug);
+      callback(null, { revoked: r.revoked });
+    } catch (error: any) {
+      console.error("RevokeArtifact failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+    }
+  },
+
+  listMyArtifacts: async (
+    call: grpc.ServerUnaryCall<ListMyArtifactsRequest, ListMyArtifactsResponse>,
+    callback: grpc.sendUnaryData<ListMyArtifactsResponse>,
+  ) => {
+    try {
+      const r = await shareService.listMyArtifacts(call.request.email);
+      callback(null, {
+        shared: r.shared.map((a) => ({
+          slug: a.slug,
+          projectId: a.projectId,
+          projectName: a.projectName,
+          phaseNumber: a.phaseNumber,
+          phaseTitle: a.phaseTitle,
+          includeCode: a.includeCode,
+          viewCount: a.viewCount,
+        })),
+        shareable: r.shareable.map((a) => ({
+          projectId: a.projectId,
+          projectName: a.projectName,
+          phaseNumber: a.phaseNumber,
+          phaseTitle: a.phaseTitle,
+        })),
+        profileUnlocked: r.profileUnlocked,
+        profileLockedReason: r.profileLockedReason,
+      });
+    } catch (error: any) {
+      console.error("ListMyArtifacts failed:", error.message);
+      callback({ code: grpc.status.INTERNAL, message: error.message }, null);
+    }
+  },
+
+  getPublicArtifact: async (
+    call: grpc.ServerUnaryCall<GetPublicArtifactRequest, GetPublicArtifactResponse>,
+    callback: grpc.sendUnaryData<GetPublicArtifactResponse>,
+  ) => {
+    try {
+      const a: any = await shareService.getPublicArtifact(call.request.slug);
+      callback(null, {
+        found: a.found,
+        revoked: a.revoked,
+        authorName: a.authorName ?? "",
+        projectName: a.projectName ?? "",
+        phaseNumber: a.phaseNumber ?? 0,
+        phaseTitle: a.phaseTitle ?? "",
+        createdAt: a.createdAt ?? "",
+        criteria: (a.criteria ?? []).map((c: any) => ({
+          text: c.text,
+          kind: c.kind,
+          evidencePath: c.evidencePath,
+          evidenceLines: c.evidenceLines,
+        })),
+        explanationQuestion: a.explanationQuestion ?? "",
+        explanationAnswer: a.explanationAnswer ?? "",
+        files: (a.files ?? []).map((f: any) => ({ path: f.path, content: f.content })),
+      });
+    } catch (error: any) {
+      console.error("GetPublicArtifact failed:", error.message);
       callback({ code: grpc.status.INTERNAL, message: error.message }, null);
     }
   },

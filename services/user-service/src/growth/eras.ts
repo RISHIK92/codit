@@ -10,10 +10,15 @@
  * test, not by convention, because it is the single rule that stops this from
  * becoming a progress bar for output.
  *
- * NOTE ON NAMES: the first ("Blank Page") and last ("The Long Approach") come
- * from the authored spec; the seven between are placeholders chosen to fit the
- * arc and should be confirmed or replaced. The gates are the engineering; the
- * names are not.
+ * NAMES: three come from the authored spec and are load-bearing — "Blank Page"
+ * (first), "Builder" (the era at which public profiles unlock, referenced by
+ * shareService.PROFILE_ERA_INDEX), and "The Long Approach" (last). The other six
+ * are chosen to sit in the same register: quiet and concrete rather than
+ * rank-like, because "Apprentice / Journeyman / Master" would frame this as a
+ * ladder to climb, and the point is that it's a road you're still on.
+ *
+ * They remain the easiest thing in this file to change — the gates are the
+ * engineering, the names are voice.
  */
 import type { GrowthStats } from "./stats";
 
@@ -80,7 +85,7 @@ export const ERAS: Era[] = [
   },
   {
     index: 2,
-    name: "Foundations",
+    name: "Rough Draft",
     blurb: "You've explained your own work back, in your own words.",
     requirements: [
       req("Complete 3 phases", 3, (c) => c.phasesCompleted),
@@ -89,7 +94,7 @@ export const ERAS: Era[] = [
   },
   {
     index: 3,
-    name: "Apprentice",
+    name: "Working Knowledge",
     blurb: "A finished project, and evidence you understood it.",
     requirements: [
       req("Finish a project", 1, (c) => c.projectsCompleted),
@@ -99,7 +104,7 @@ export const ERAS: Era[] = [
   },
   {
     index: 4,
-    name: "Debugger",
+    name: "Load Bearing",
     blurb:
       "You've been wrong, found out why, and fixed it — repeatedly. This is the era most people skip and shouldn't.",
     requirements: [
@@ -121,7 +126,7 @@ export const ERAS: Era[] = [
   },
   {
     index: 6,
-    name: "Cartographer",
+    name: "Clear Ground",
     blurb: "You've cleared the fog behind you — no phase left unexamined.",
     requirements: [
       req("Finish 3 projects", 3, (c) => c.projectsCompleted),
@@ -140,7 +145,7 @@ export const ERAS: Era[] = [
   },
   {
     index: 7,
-    name: "Practitioner",
+    name: "Steady Hand",
     blurb: "Depth, not just coverage.",
     requirements: [
       req("Finish 5 projects", 5, (c) => c.projectsCompleted),

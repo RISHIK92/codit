@@ -158,7 +158,7 @@ console.log("\n4. Era progression is sequential and legible");
     `reached ${lopsided.current.name}`,
   );
 
-  check("the next era is named", firstLight.next?.name === "Foundations");
+  check("the next era is named", firstLight.next?.name === "Rough Draft");
   check("its requirements come with progress", firstLight.nextRequirements.length > 0);
   check(
     "progress never exceeds what's needed",

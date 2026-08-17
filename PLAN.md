@@ -195,9 +195,20 @@ Every one of these was invisible until there was a number:
 - **The evidence check was too strict, and it was mine, not the model's.** Requiring one contiguous verbatim quote rejected correct work whenever a criterion is satisfied by several separate places in a file ("uses header, main, section and footer" is four non-adjacent elements). That alone produced a **100% false-fail rate** while the model was behaving perfectly. Now verified segment-by-segment: every segment must exist, so invented evidence still fails.
 - **Criterion wording measurably changes accuracy.** "X rather than Y" is two claims, and graders conflate them. Rewording one such criterion as a single positive claim improved attribution from 3/5 to 4/5 immediately. **34 criteria in `criteria.ts` still use that shape** — worth a pass.
 
-### Known cost
+### Known cost — since resolved by measurement
 
-Per-criterion grading resends the file context for each criterion, so a 5-criterion phase costs roughly 5× the tokens of one holistic call. That is the price of the accuracy, and it is the right trade — but it makes the free Groq tier (8000 TPM) impractical, and grading runs serially by default because of it (`GRADING_CONCURRENCY`). Batching criteria into one call would cut this, at the cost of reintroducing the anchoring the design exists to avoid.
+Per-criterion grading resends the file context for each criterion, so N criteria cost roughly N× the tokens. On a tokens-per-minute quota that is also N× the *latency*: the audit measured a **median 18.3s review, worst case 25.6s**.
+
+Batching all criteria into one call was the obvious fix and the obvious risk — the model sees the criteria together and might anchor, judging them as a set rather than independently. Rather than argue about it, both modes were scored against the same ground-truth fixtures over 14 trials:
+
+| | per-criterion | batch |
+|---|---|---|
+| False pass | 0% | 0% |
+| False fail | 0% | 0% |
+| Attribution | 10/10 exact | 10/10 exact |
+| Median review | 18.3s | **9.3s** |
+
+Identical accuracy, half the latency. Batch is now the default (`GRADING_MODE`), with per-criterion kept as the more conservative fallback if a harder fixture set ever shows it regressing. The evidence requirement — every pass must quote real code, verified against the files — is shared by both modes and unchanged.
 
 ---
 
@@ -354,7 +365,12 @@ The era names: "Blank Page" and "The Long Approach" come from your spec; the sev
 
 ---
 
-## Phase 6 — Engagement III: visible proof
+## Phase 6 — Engagement III: visible proof ✅ DONE
+
+*Publishing requires a passed checkpoint, so a shared artifact is evidence of
+understanding rather than of completion. 30 checks, including the privacy
+boundary on the unauthenticated read.*
+
 
 **Goal:** make the achievement legible to other people.
 
@@ -367,6 +383,25 @@ The era names: "Blank Page" and "The Long Approach" come from your spec; the sev
 - The share artifact should show **the criteria passed and the evidence**, not just "completed." That's the difference between a badge and proof.
 
 **Exit criteria:** a user can send someone a link that credibly demonstrates understanding, not just completion.
+
+### The rule that makes it worth anything
+
+**You can only publish a phase you have explained back.** Completing it isn't enough. An artifact saying "this person finished a phase" is a badge, and badges are the credential-without-substance this product argues against. The published page instead says three things: here is what was built, here is *where each requirement was verified in the code*, and here is the author explaining in their own words why it works — an explanation they had to pass before the page could exist.
+
+That also means **Show can only ever be earned through Understand**, which keeps the four stats from collapsing into "activity".
+
+### Privacy, since this is the only endpoint a stranger can call
+
+- Slugs are random and unguessable, never row ids — published work can't be enumerated.
+- The public response is a fixed, curated shape. Tested explicitly: no email, no internal project id, no enrollment id, nothing about the author's other work or failed attempts.
+- Publishing is per-phase and opt-in, with a separate "explanation only" option that withholds the code.
+- Revoking is immediate, and **re-publishing issues a new slug** — a link the author killed stays dead rather than quietly coming back to life.
+- A withdrawn link says so instead of 404ing, so a stranger following it learns it was taken down rather than that they typed it wrong.
+- Withdrawing lowers Show.
+
+### Known wart
+
+`startCheckpoint` writes its row eagerly because the client needs an id, so opening a checkpoint and abandoning it leaves a `passed: false` row forever. It is completely inert — every stat, the fog calculation and the share eligibility check all count only passed checkpoints — but it is untidy and would matter if abandoned attempts were ever surfaced.
 
 **Size:** medium.
 

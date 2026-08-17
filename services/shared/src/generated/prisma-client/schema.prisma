@@ -252,6 +252,42 @@ model UnderstandingCheckpoint {
   @@index([user_email, project_id, phase_number])
 }
 
+/**
+ * A phase the user has chosen to publish.
+ * Sharing requires a PASSED checkpoint on that phase — not merely completing
+ * it. A shareable artifact should be evidence of understanding rather than of
+ * output, or it becomes exactly the credential-without-substance this product
+ * exists to argue against. It also means Show can only ever be earned through
+ * Understand, which keeps the four stats from collapsing into "activity".
+ * Publishing exposes the user's own code and their explanation to anyone with
+ * the link, so it is explicit, per-phase, and revocable at any time. The slug
+ * is unguessable rather than sequential, and revoking is honoured immediately;
+ * `revoked` rows are kept rather than deleted so a link that once worked can
+ * report that it was withdrawn instead of looking broken.
+ */
+model SharedArtifact {
+  id           String   @id @default(uuid())
+  /**
+   * Unguessable public identifier. Never the row id or anything enumerable.
+   */
+  slug         String   @unique
+  user_email   String
+  project_id   String
+  phase_number Int
+  /**
+   * Whether the frozen snapshot of their code is published alongside the
+   * explanation, or only the criteria and the write-up. Opt-in per share.
+   */
+  include_code Boolean  @default(true)
+  revoked      Boolean  @default(false)
+  view_count   Int      @default(0)
+  created_at   DateTime @default(now())
+
+  @@unique([user_email, project_id, phase_number])
+  @@index([user_email])
+  @@index([slug])
+}
+
 enum ResultSource {
   /**
    * Decided in code — no model involved, no judgement to second-guess.

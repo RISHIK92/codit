@@ -20,6 +20,13 @@
  *   About one thing. A criterion that fails for two unrelated reasons can't tell
  *   the user which one to fix.
  *
+ *   ONE CLAIM, NOT TWO. This is a measured rule, not a style preference. The
+ *   shape "X rather than Y" reads naturally to a human but asks a grader two
+ *   questions and gets one conflated answer back; the accuracy audit caught it
+ *   failing correct submissions. State the positive specifically enough that
+ *   the negative follows — "page layout is built with Flexbox or Grid" rather
+ *   than "...rather than floats". All criteria here were swept for this.
+ *
  *   Scoped to THIS phase. The single most common grading failure observed is a
  *   grader wandering into later phases' concerns — commenting on CSS during an
  *   HTML-structure phase. Criteria are what keep it in its lane.
@@ -118,12 +125,12 @@ const portfolio: ProjectCriteria = {
     d(1, "style.css exists and is linked from index.html", "structural",
       { check: "file_matches", path: "index.html", pattern: "<link[^>]+stylesheet", flags: "i" },
       "A CSS file sitting next to your HTML does nothing on its own — the browser has to be told to load it."),
-    m(2, "Layout uses Flexbox or Grid rather than floats or absolute positioning for page structure", "structural",
+    m(2, "Page layout is built with Flexbox or Grid", "structural",
       "Floats were a workaround from before CSS had real layout tools. This phase is about the tools that replaced them."),
     d(3, "At least one media query adapts the layout to smaller screens", "behavioral",
       { check: "file_matches", path: "style.css", pattern: "@media", flags: "i" },
       "Responsive means the layout changes at certain widths. Look up media queries."),
-    m(4, "Repeated values (colours, spacing) are defined once as CSS custom properties rather than retyped", "structural",
+    m(4, "Repeated colours and spacing are defined once as CSS custom properties and reused", "structural",
       "If you change your accent colour, how many places do you have to edit? Look up CSS custom properties."),
     m(5, "The page is readable and unbroken at mobile widths — no horizontal scrolling or overlapping text", "behavioral",
       "Narrow the browser right down. Anything that spills sideways is usually a fixed width that should be a max-width."),
@@ -138,7 +145,7 @@ const portfolio: ProjectCriteria = {
       "JavaScript variables reset on reload. Something has to write the choice somewhere the browser keeps between visits."),
     m(4, "The contact form validates input and prevents submission when invalid, showing the user what's wrong", "behavioral",
       "Look at the submit event and how to stop its default behaviour, then how to tell the user which field is the problem."),
-    m(5, "Event handling is attached in JavaScript rather than through inline onclick attributes in the HTML", "structural",
+    m(5, "Event handlers are attached from JavaScript with addEventListener", "structural",
       "Mixing behaviour into markup is the pattern this phase moves away from. Look up addEventListener."),
   ],
 };
@@ -177,9 +184,9 @@ const quiz: ProjectCriteria = {
       "Your data should be a list, where each entry is an object holding the question and its options."),
     m(2, "The question text and options on screen come from the JavaScript data, not from hardcoded HTML", "behavioral",
       "Change a question in your array — the page should change. If it doesn't, the HTML is still the source of truth."),
-    m(3, "Elements are found with querySelector/querySelectorAll rather than assumed to exist", "structural",
+    m(3, "Elements are looked up with querySelector or querySelectorAll before being used", "structural",
       "You need a reference to an element before you can change it. Look up document.querySelector."),
-    m(4, "Text is inserted with textContent rather than innerHTML where no markup is needed", "structural",
+    m(4, "Plain text is inserted using textContent", "structural",
       "One of these interprets what you give it as HTML. Consider what happens when a question contains a < character."),
   ],
   4: [
@@ -187,7 +194,7 @@ const quiz: ProjectCriteria = {
       "You need a click listener, and a CSS class that changes appearance. Look up classList."),
     m(2, "Only one option can be selected at a time — selecting a second clears the first", "behavioral",
       "Before marking the new choice, something has to un-mark the old one."),
-    m(3, "Click handling uses one listener on the container rather than a separate listener per option", "structural",
+    m(3, "A single click listener on the options container handles every option", "structural",
       "Attaching a listener to every option doesn't scale and breaks for elements added later. Look up event delegation and event.target."),
     m(4, "Selection state is reflected by toggling classes, not by writing inline styles", "structural",
       "Appearance belongs in CSS. JavaScript should decide which class applies, not what colour it is."),
@@ -197,7 +204,7 @@ const quiz: ProjectCriteria = {
       "You're tracking a position in an array. Consider what should happen when that index reaches the end."),
     m(2, "The score increases exactly once per correct answer, even if the option is clicked repeatedly", "behavioral",
       "This is the bug this phase is really about. Ask what stops a second click on an already-scored question."),
-    m(3, "The screen is redrawn from the current state rather than patched piece by piece on each click", "structural",
+    m(3, "One function redraws the screen from the current state variables", "structural",
       "Keep the truth in variables and have one function draw the screen from them. Patching the DOM directly is how state and display drift apart."),
     m(4, "Question data and current position are held in variables, not read back out of the DOM", "structural",
       "Reading the answer back out of the page makes the page the source of truth. It shouldn't be."),
@@ -225,7 +232,7 @@ const todo: ProjectCriteria = {
       "If you wrote the same markup three times, that's the component you haven't extracted yet."),
     m(3, "TaskItem's props are typed with a TypeScript interface", "structural",
       "Describe the shape of what the component receives. Look up typing props with an interface."),
-    m(4, "At least three tasks render, produced with .map() over an array rather than written out one by one", "behavioral",
+    m(4, "At least three tasks render, produced by mapping over an array", "behavioral",
       "The list comes from data. Look up rendering a list with .map()."),
   ],
   2: [
@@ -235,7 +242,7 @@ const todo: ProjectCriteria = {
       "If the input is controlled, clearing it means setting its state back to empty."),
     m(3, "The input is controlled — its value comes from state and changes through onChange", "structural",
       "A controlled input has React as the source of truth for its contents."),
-    m(4, "Adding a task creates a new array rather than pushing into the existing one", "structural",
+    m(4, "Adding a task produces a new array, leaving the previous one unmodified", "structural",
       "Mutating state in place means React can't tell anything changed. Look up immutable array updates and the spread syntax."),
   ],
   3: [
@@ -259,7 +266,7 @@ const todo: ProjectCriteria = {
       "localStorage stores strings only — an array has to be converted both ways."),
     m(4, "Initial state is read from storage once at start-up, not on every render", "structural",
       "Reading storage in the render body runs it constantly. Look up lazy initial state in useState."),
-    m(5, "A first-time visitor with nothing stored gets an empty list rather than a crash", "behavioral",
+    m(5, "A first-time visitor with nothing stored sees an empty list and no error", "behavioral",
       "Parsing null is the failure here. Consider what getItem returns when the key was never set."),
   ],
   5: [
@@ -284,7 +291,7 @@ const restApi: ProjectCriteria = {
       "Look at app.listen and how the port is supplied."),
     m(3, "A Prisma schema defines User and Post models with a relation between them", "structural",
       "A post belongs to a user — that relationship is declared in the schema, not just implied."),
-    m(4, "Configuration comes from environment variables rather than values written into the source", "structural",
+    m(4, "Connection strings and secrets are read from environment variables", "structural",
       "Connection strings and secrets differ per environment and must not be committed."),
     m(5, "A migration exists so the schema can be recreated from scratch", "structural",
       "Pushing changes straight to a database leaves no record of how it got that shape."),
@@ -308,9 +315,9 @@ const restApi: ProjectCriteria = {
       "Not every route is protected — the middleware has to be applied selectively."),
     m(3, "A user cannot modify or delete another user's post", "behavioral",
       "Being logged in is not the same as being the owner. This is the check people forget."),
-    m(4, "Auth is applied as middleware rather than repeated inside each handler", "structural",
+    m(4, "Authentication is applied as middleware on the protected routes", "structural",
       "A check copy-pasted into every route is one you'll eventually forget to paste."),
-    m(5, "Errors are handled centrally and return appropriate status codes rather than leaking stack traces", "structural",
+    m(5, "A central error-handling middleware turns thrown errors into appropriate status codes", "structural",
       "Look up Express error-handling middleware and its four-argument signature."),
     m(6, "The list endpoint is paginated instead of returning every row", "behavioral",
       "Returning an unbounded table gets slower forever."),
@@ -318,7 +325,7 @@ const restApi: ProjectCriteria = {
   4: [
     m(1, "Tests cover the auth flow and the protected routes, including the failure cases", "behavioral",
       "Tests that only cover success don't test the security."),
-    m(2, "Tests run against the real HTTP layer rather than calling handlers directly", "structural",
+    m(2, "Tests issue real HTTP requests against the running app", "structural",
       "Look up Supertest — middleware and routing only get exercised through real requests."),
     m(3, "Coverage is at least 80%", "behavioral",
       "Your test runner can report this."),
@@ -335,11 +342,11 @@ const chat: ProjectCriteria = {
   1: [
     m(1, "A message sent by a client is received by the server and delivered back to clients in real time", "behavioral",
       "Both ends emit and both ends listen — a one-directional setup only looks like it works."),
-    m(2, "Socket.IO is attached to a custom Next.js server rather than a standard API route", "structural",
+    m(2, "Socket.IO is attached to a custom Next.js server", "structural",
       "Serverless request/response handlers can't hold a long-lived connection open."),
     m(3, "Connection and disconnection are both handled, with cleanup on disconnect", "structural",
       "Sockets that are never cleaned up accumulate for as long as the process runs."),
-    m(4, "Event names are defined once and shared rather than retyped as string literals on both sides", "structural",
+    m(4, "Event names are defined once in a shared module and imported by both client and server", "structural",
       "A typo in an event name fails silently — nothing errors, the message just never arrives."),
   ],
   2: [
@@ -347,7 +354,7 @@ const chat: ProjectCriteria = {
       "Look up Socket.IO rooms and emitting to a room rather than broadcasting to everyone."),
     m(2, "A typing indicator appears for other users within about 300ms of a keystroke", "behavioral",
       "Fast enough to feel live without emitting on literally every keypress."),
-    m(3, "Typing events are debounced rather than emitted on every keystroke", "structural",
+    m(3, "Typing events are debounced before being emitted", "structural",
       "One event per character is a lot of traffic for information that changes meaning slowly."),
     m(4, "Presence is tracked so the room shows who is currently connected", "behavioral",
       "Presence has to be updated on both join and disconnect, or it drifts."),
@@ -359,7 +366,7 @@ const chat: ProjectCriteria = {
       "Read the most recent range rather than everything."),
     m(2, "Messages are stored in a Redis sorted set keyed by room, ordered by timestamp", "structural",
       "Look up ZADD and ZRANGE and why the score gives you ordering for free."),
-    m(3, "History is capped rather than growing without limit", "structural",
+    m(3, "Stored message history is capped to a fixed maximum", "structural",
       "Unbounded keys eventually become the outage. Look up trimming and TTL."),
     m(4, "The Redis connection is created once and reused, not opened per message", "structural",
       "Connection setup per operation is a large hidden cost."),
@@ -388,19 +395,19 @@ const taskQueue: ProjectCriteria = {
       "Acknowledging on receipt loses work whenever a worker dies mid-job. Look up XACK."),
     m(3, "Jobs left unacknowledged by a dead consumer can be found and reclaimed", "behavioral",
       "Look up XPENDING and claiming stale entries."),
-    m(4, "The consumer applies backpressure rather than reading faster than it can process", "structural",
+    m(4, "The consumer applies backpressure, reading no faster than it processes", "structural",
       "Unbounded reading moves the queue into memory, which just relocates the problem."),
   ],
   2: [
     m(1, "Jobs are processed concurrently by a pool of workers", "behavioral",
       "Goroutines plus a channel to feed them."),
-    m(2, "Pool size is configurable rather than hardcoded", "structural",
+    m(2, "Worker pool size is read from configuration", "structural",
       "The right parallelism depends on the workload and the machine."),
     m(3, "Shutdown is graceful — in-flight jobs finish and nothing is dropped", "behavioral",
       "Look up signal handling, context cancellation, and WaitGroup."),
-    m(4, "Cancellation propagates through context rather than via a shared boolean", "structural",
+    m(4, "Cancellation propagates through context.Context", "structural",
       "Context is Go's built-in mechanism for exactly this, and it composes."),
-    m(5, "Errors from workers are collected rather than silently swallowed", "structural",
+    m(5, "Errors returned by workers are collected and surfaced", "structural",
       "A goroutine that fails quietly is indistinguishable from one that succeeded. Look up errgroup."),
   ],
   3: [
@@ -412,7 +419,7 @@ const taskQueue: ProjectCriteria = {
       "Hand-written types drift from the contract."),
     m(4, "RPCs honour deadlines and stop working when the client has gone away", "structural",
       "Work continuing after the caller has given up is wasted."),
-    m(5, "Cross-cutting concerns like logging live in interceptors rather than in each handler", "structural",
+    m(5, "Logging and other cross-cutting concerns live in gRPC interceptors", "structural",
       "Look up gRPC interceptors."),
   ],
   4: [
@@ -420,7 +427,7 @@ const taskQueue: ProjectCriteria = {
       "Latency needs a histogram — an average hides exactly the tail you care about."),
     m(2, "A Grafana dashboard displays those metrics live", "behavioral",
       "Prometheus scrapes, Grafana draws."),
-    m(3, "Logs are structured rather than formatted strings", "structural",
+    m(3, "Logs are emitted as structured key-value records", "structural",
       "Look up slog. Grep stops working at volume; fields don't."),
     m(4, "docker compose brings the whole system up with health checks that gate startup order", "behavioral",
       "A service starting before its dependency is ready is the classic compose failure."),
@@ -437,13 +444,13 @@ const reviewBot: ProjectCriteria = {
       "Subscribe to the right events and confirm the payloads arrive."),
     m(2, "Webhook signatures are verified before the payload is trusted", "structural",
       "The endpoint is public — anyone can post to it. Look up HMAC-SHA256 verification of the GitHub signature header."),
-    m(3, "Signature comparison is constant-time rather than a plain equality check", "structural",
+    m(3, "The signature comparison uses a constant-time comparison function", "structural",
       "Ordinary string comparison leaks timing information. Look up compare_digest."),
     m(4, "The webhook responds quickly and does slow work outside the request", "structural",
       "GitHub times these out — the handler should acknowledge and hand off."),
   ],
   2: [
-    m(1, "Diffs are parsed into structured per-file objects rather than passed around as raw text", "structural",
+    m(1, "Diffs are parsed into structured per-file objects", "structural",
       "The unified diff format carries file paths, hunks and line numbers — that structure is worth keeping."),
     m(2, "Line numbers survive parsing so a comment can be attached to the right line", "behavioral",
       "Hunk headers are what let you map a diff position back to a file line."),
@@ -455,11 +462,11 @@ const reviewBot: ProjectCriteria = {
   3: [
     m(1, "The chain returns review comments with file, line, severity and message", "behavioral",
       "A shape you can act on, not prose you have to re-parse."),
-    m(2, "Output is validated against a schema rather than parsed out of free text", "structural",
+    m(2, "Model output is validated against a schema before use", "structural",
       "Look up structured output with Pydantic — regexing model output fails eventually and silently."),
     m(3, "Prompts are templates with typed inputs, not strings concatenated at the call site", "structural",
       "Look up ChatPromptTemplate."),
-    m(4, "A malformed model response is handled rather than crashing the request", "behavioral",
+    m(4, "A malformed model response is handled without crashing the request", "behavioral",
       "It will happen. Decide what should occur when it does."),
   ],
   4: [

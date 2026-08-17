@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Archive } from "lucide-react";
 import { GrowthPanel } from "@/components/dashboard/GrowthPanel";
+import { SharePanel } from "@/components/dashboard/SharePanel";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -220,8 +221,9 @@ export default function DashboardPage() {
           Four separate stats and a named era. No combined score anywhere: a
           single number would let shipping stand in for understanding, and
           keeping those apart is the whole point of this panel. */}
-      <div className="mb-12">
+      <div className="mb-12 space-y-4">
         <GrowthPanel getToken={() => user!.getIdToken()} />
+        <SharePanel getToken={() => user!.getIdToken()} />
       </div>
 
       {/* ── CURRENT PROJECT HERO CARD ── */}

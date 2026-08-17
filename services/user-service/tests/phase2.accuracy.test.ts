@@ -105,6 +105,9 @@ async function main() {
   });
 
   const trials: Trial[] = [];
+  // Latency is part of the felt product, so it's reported next to accuracy —
+  // a more accurate gate that nobody waits for isn't better.
+  const elapsed: number[] = [];
 
   for (let run = 1; run <= RUNS; run++) {
     for (const fixture of FIXTURES) {
@@ -134,7 +137,10 @@ async function main() {
         });
       }
 
+      const t0 = Date.now();
       const res = await phaseReviewService.submitPhaseReview(project.id, EMAIL, "index.html");
+      const elapsedMs = Date.now() - t0;
+      elapsed.push(elapsedMs);
       const failedOrders = res.results
         .filter((r) => !r.passed)
         .map((r) => orderById.get(r.criterionId) ?? 0)
@@ -171,7 +177,8 @@ async function main() {
         `  ${tag}  ${fixture.name.padEnd(20)} run${run}  ` +
           `${res.criteriaPassed}/${res.criteriaTotal} passed` +
           (failedOrders.length ? `  failed: [${failedOrders.join(",")}]` : "") +
-          (res.results.some((r) => r.ungraded) ? "  (ungraded present)" : ""),
+          (res.results.some((r) => r.ungraded) ? "  (ungraded present)" : "") +
+          `  ${(elapsedMs / 1000).toFixed(1)}s`,
       );
 
       void up;
@@ -186,6 +193,14 @@ async function main() {
 
   const falsePassRate = expectedFail.length ? falsePasses.length / expectedFail.length : 0;
   const falseFailRate = expectedPass.length ? falseFails.length / expectedPass.length : 0;
+
+  const sorted = [...elapsed].sort((a, b) => a - b);
+  const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0;
+  console.log("\n─── Latency ────────────────────────────────────────────");
+  console.log(
+    `  mode: ${process.env.GRADING_MODE ?? "batch (server default)"}   median ${(median / 1000).toFixed(1)}s   ` +
+      `slowest ${(Math.max(...elapsed, 0) / 1000).toFixed(1)}s`,
+  );
 
   console.log("\n─── Accuracy ───────────────────────────────────────────");
   console.log(

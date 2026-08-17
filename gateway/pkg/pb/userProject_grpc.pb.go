@@ -30,6 +30,10 @@ const (
 	UserProjectService_GetGrowth_FullMethodName               = "/userProject.UserProjectService/GetGrowth"
 	UserProjectService_StartCheckpoint_FullMethodName         = "/userProject.UserProjectService/StartCheckpoint"
 	UserProjectService_SubmitCheckpoint_FullMethodName        = "/userProject.UserProjectService/SubmitCheckpoint"
+	UserProjectService_ShareArtifact_FullMethodName           = "/userProject.UserProjectService/ShareArtifact"
+	UserProjectService_RevokeArtifact_FullMethodName          = "/userProject.UserProjectService/RevokeArtifact"
+	UserProjectService_ListMyArtifacts_FullMethodName         = "/userProject.UserProjectService/ListMyArtifacts"
+	UserProjectService_GetPublicArtifact_FullMethodName       = "/userProject.UserProjectService/GetPublicArtifact"
 )
 
 // UserProjectServiceClient is the client API for UserProjectService service.
@@ -71,6 +75,21 @@ type UserProjectServiceClient interface {
 	StartCheckpoint(ctx context.Context, in *StartCheckpointRequest, opts ...grpc.CallOption) (*StartCheckpointResponse, error)
 	// Grades a checkpoint explanation. Passing is the only thing that clears fog.
 	SubmitCheckpoint(ctx context.Context, in *SubmitCheckpointRequest, opts ...grpc.CallOption) (*SubmitCheckpointResponse, error)
+	// Publishes a phase the user has completed AND explained back. Requiring the
+	// checkpoint is the point: a shareable artifact should evidence understanding,
+	// not output, or it's the credential-without-substance this product argues
+	// against. It also means Show can only be earned through Understand.
+	ShareArtifact(ctx context.Context, in *ShareArtifactRequest, opts ...grpc.CallOption) (*ShareArtifactResponse, error)
+	// Withdraws a published artifact. Honoured immediately.
+	RevokeArtifact(ctx context.Context, in *RevokeArtifactRequest, opts ...grpc.CallOption) (*RevokeArtifactResponse, error)
+	// What the signed-in user has published, and which phases they could publish.
+	ListMyArtifacts(ctx context.Context, in *ListMyArtifactsRequest, opts ...grpc.CallOption) (*ListMyArtifactsResponse, error)
+	// Public, unauthenticated read of one published artifact.
+	//
+	// Everything returned is deliberately chosen: no email, no user id, nothing
+	// about other projects, nothing about failed attempts. A published phase
+	// reveals what the author opted into publishing and nothing adjacent to it.
+	GetPublicArtifact(ctx context.Context, in *GetPublicArtifactRequest, opts ...grpc.CallOption) (*GetPublicArtifactResponse, error)
 }
 
 type userProjectServiceClient struct {
@@ -171,6 +190,46 @@ func (c *userProjectServiceClient) SubmitCheckpoint(ctx context.Context, in *Sub
 	return out, nil
 }
 
+func (c *userProjectServiceClient) ShareArtifact(ctx context.Context, in *ShareArtifactRequest, opts ...grpc.CallOption) (*ShareArtifactResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ShareArtifactResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_ShareArtifact_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userProjectServiceClient) RevokeArtifact(ctx context.Context, in *RevokeArtifactRequest, opts ...grpc.CallOption) (*RevokeArtifactResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeArtifactResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_RevokeArtifact_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userProjectServiceClient) ListMyArtifacts(ctx context.Context, in *ListMyArtifactsRequest, opts ...grpc.CallOption) (*ListMyArtifactsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMyArtifactsResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_ListMyArtifacts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userProjectServiceClient) GetPublicArtifact(ctx context.Context, in *GetPublicArtifactRequest, opts ...grpc.CallOption) (*GetPublicArtifactResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPublicArtifactResponse)
+	err := c.cc.Invoke(ctx, UserProjectService_GetPublicArtifact_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserProjectServiceServer is the server API for UserProjectService service.
 // All implementations must embed UnimplementedUserProjectServiceServer
 // for forward compatibility.
@@ -210,6 +269,21 @@ type UserProjectServiceServer interface {
 	StartCheckpoint(context.Context, *StartCheckpointRequest) (*StartCheckpointResponse, error)
 	// Grades a checkpoint explanation. Passing is the only thing that clears fog.
 	SubmitCheckpoint(context.Context, *SubmitCheckpointRequest) (*SubmitCheckpointResponse, error)
+	// Publishes a phase the user has completed AND explained back. Requiring the
+	// checkpoint is the point: a shareable artifact should evidence understanding,
+	// not output, or it's the credential-without-substance this product argues
+	// against. It also means Show can only be earned through Understand.
+	ShareArtifact(context.Context, *ShareArtifactRequest) (*ShareArtifactResponse, error)
+	// Withdraws a published artifact. Honoured immediately.
+	RevokeArtifact(context.Context, *RevokeArtifactRequest) (*RevokeArtifactResponse, error)
+	// What the signed-in user has published, and which phases they could publish.
+	ListMyArtifacts(context.Context, *ListMyArtifactsRequest) (*ListMyArtifactsResponse, error)
+	// Public, unauthenticated read of one published artifact.
+	//
+	// Everything returned is deliberately chosen: no email, no user id, nothing
+	// about other projects, nothing about failed attempts. A published phase
+	// reveals what the author opted into publishing and nothing adjacent to it.
+	GetPublicArtifact(context.Context, *GetPublicArtifactRequest) (*GetPublicArtifactResponse, error)
 	mustEmbedUnimplementedUserProjectServiceServer()
 }
 
@@ -246,6 +320,18 @@ func (UnimplementedUserProjectServiceServer) StartCheckpoint(context.Context, *S
 }
 func (UnimplementedUserProjectServiceServer) SubmitCheckpoint(context.Context, *SubmitCheckpointRequest) (*SubmitCheckpointResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SubmitCheckpoint not implemented")
+}
+func (UnimplementedUserProjectServiceServer) ShareArtifact(context.Context, *ShareArtifactRequest) (*ShareArtifactResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ShareArtifact not implemented")
+}
+func (UnimplementedUserProjectServiceServer) RevokeArtifact(context.Context, *RevokeArtifactRequest) (*RevokeArtifactResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeArtifact not implemented")
+}
+func (UnimplementedUserProjectServiceServer) ListMyArtifacts(context.Context, *ListMyArtifactsRequest) (*ListMyArtifactsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListMyArtifacts not implemented")
+}
+func (UnimplementedUserProjectServiceServer) GetPublicArtifact(context.Context, *GetPublicArtifactRequest) (*GetPublicArtifactResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPublicArtifact not implemented")
 }
 func (UnimplementedUserProjectServiceServer) mustEmbedUnimplementedUserProjectServiceServer() {}
 func (UnimplementedUserProjectServiceServer) testEmbeddedByValue()                            {}
@@ -430,6 +516,78 @@ func _UserProjectService_SubmitCheckpoint_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserProjectService_ShareArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShareArtifactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).ShareArtifact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_ShareArtifact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).ShareArtifact(ctx, req.(*ShareArtifactRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserProjectService_RevokeArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeArtifactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).RevokeArtifact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_RevokeArtifact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).RevokeArtifact(ctx, req.(*RevokeArtifactRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserProjectService_ListMyArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMyArtifactsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).ListMyArtifacts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_ListMyArtifacts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).ListMyArtifacts(ctx, req.(*ListMyArtifactsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserProjectService_GetPublicArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPublicArtifactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserProjectServiceServer).GetPublicArtifact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserProjectService_GetPublicArtifact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserProjectServiceServer).GetPublicArtifact(ctx, req.(*GetPublicArtifactRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserProjectService_ServiceDesc is the grpc.ServiceDesc for UserProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -472,6 +630,22 @@ var UserProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitCheckpoint",
 			Handler:    _UserProjectService_SubmitCheckpoint_Handler,
+		},
+		{
+			MethodName: "ShareArtifact",
+			Handler:    _UserProjectService_ShareArtifact_Handler,
+		},
+		{
+			MethodName: "RevokeArtifact",
+			Handler:    _UserProjectService_RevokeArtifact_Handler,
+		},
+		{
+			MethodName: "ListMyArtifacts",
+			Handler:    _UserProjectService_ListMyArtifacts_Handler,
+		},
+		{
+			MethodName: "GetPublicArtifact",
+			Handler:    _UserProjectService_GetPublicArtifact_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

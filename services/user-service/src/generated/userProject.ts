@@ -21,6 +21,103 @@ import {
 
 export const protobufPackage = "userProject";
 
+export interface ShareArtifactRequest {
+  email: string;
+  projectId: string;
+  phaseNumber: number;
+  /** Publish the frozen snapshot of their code alongside the explanation. */
+  includeCode: boolean;
+}
+
+export interface ShareArtifactResponse {
+  slug: string;
+}
+
+export interface RevokeArtifactRequest {
+  email: string;
+  slug: string;
+}
+
+export interface RevokeArtifactResponse {
+  revoked: boolean;
+}
+
+export interface ListMyArtifactsRequest {
+  email: string;
+}
+
+export interface MyArtifactProto {
+  slug: string;
+  projectId: string;
+  projectName: string;
+  phaseNumber: number;
+  phaseTitle: string;
+  includeCode: boolean;
+  viewCount: number;
+}
+
+/** A phase that could be published but hasn't been — completed and explained. */
+export interface ShareablePhaseProto {
+  projectId: string;
+  projectName: string;
+  phaseNumber: number;
+  phaseTitle: string;
+}
+
+export interface ListMyArtifactsResponse {
+  shared: MyArtifactProto[];
+  shareable: ShareablePhaseProto[];
+  /**
+   * Public profiles unlock at the Builder era. Individual phases can be shared
+   * before that; the aggregated profile is what's milestone-gated.
+   */
+  profileUnlocked: boolean;
+  profileLockedReason: string;
+}
+
+export interface GetPublicArtifactRequest {
+  slug: string;
+}
+
+export interface PublicCriterionProto {
+  text: string;
+  kind: string;
+  /**
+   * Where the grader found the evidence. Included because "passed" alone is a
+   * badge; a badge plus the line it was verified against is proof.
+   */
+  evidencePath: string;
+  evidenceLines: string;
+}
+
+export interface PublicFileProto {
+  path: string;
+  content: string;
+}
+
+export interface GetPublicArtifactResponse {
+  found: boolean;
+  /**
+   * True when the link was valid but the author has since withdrawn it — so the
+   * page can say so rather than looking broken.
+   */
+  revoked: boolean;
+  /** Display name only. Never the email. */
+  authorName: string;
+  projectName: string;
+  phaseNumber: number;
+  phaseTitle: string;
+  createdAt: string;
+  criteria: PublicCriterionProto[];
+  /**
+   * The explain-it-back exchange. This is the substance of the artifact: the
+   * criteria show the code works, this shows they understood it.
+   */
+  explanationQuestion: string;
+  explanationAnswer: string;
+  files: PublicFileProto[];
+}
+
 export interface GetGrowthRequest {
   email: string;
 }
@@ -204,6 +301,1314 @@ export interface SubmitPhaseReviewResponse {
   criteriaTotal: number;
   criteriaPassed: number;
 }
+
+function createBaseShareArtifactRequest(): ShareArtifactRequest {
+  return { email: "", projectId: "", phaseNumber: 0, includeCode: false };
+}
+
+export const ShareArtifactRequest: MessageFns<ShareArtifactRequest> = {
+  encode(message: ShareArtifactRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    if (message.projectId !== "") {
+      writer.uint32(18).string(message.projectId);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(24).int32(message.phaseNumber);
+    }
+    if (message.includeCode !== false) {
+      writer.uint32(32).bool(message.includeCode);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ShareArtifactRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseShareArtifactRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.includeCode = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ShareArtifactRequest {
+    return {
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+      includeCode: isSet(object.includeCode)
+        ? globalThis.Boolean(object.includeCode)
+        : isSet(object.include_code)
+        ? globalThis.Boolean(object.include_code)
+        : false,
+    };
+  },
+
+  toJSON(message: ShareArtifactRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    if (message.includeCode !== false) {
+      obj.includeCode = message.includeCode;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ShareArtifactRequest>, I>>(base?: I): ShareArtifactRequest {
+    return ShareArtifactRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ShareArtifactRequest>, I>>(object: I): ShareArtifactRequest {
+    const message = createBaseShareArtifactRequest();
+    message.email = object.email ?? "";
+    message.projectId = object.projectId ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    message.includeCode = object.includeCode ?? false;
+    return message;
+  },
+};
+
+function createBaseShareArtifactResponse(): ShareArtifactResponse {
+  return { slug: "" };
+}
+
+export const ShareArtifactResponse: MessageFns<ShareArtifactResponse> = {
+  encode(message: ShareArtifactResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.slug !== "") {
+      writer.uint32(10).string(message.slug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ShareArtifactResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseShareArtifactResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.slug = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ShareArtifactResponse {
+    return { slug: isSet(object.slug) ? globalThis.String(object.slug) : "" };
+  },
+
+  toJSON(message: ShareArtifactResponse): unknown {
+    const obj: any = {};
+    if (message.slug !== "") {
+      obj.slug = message.slug;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ShareArtifactResponse>, I>>(base?: I): ShareArtifactResponse {
+    return ShareArtifactResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ShareArtifactResponse>, I>>(object: I): ShareArtifactResponse {
+    const message = createBaseShareArtifactResponse();
+    message.slug = object.slug ?? "";
+    return message;
+  },
+};
+
+function createBaseRevokeArtifactRequest(): RevokeArtifactRequest {
+  return { email: "", slug: "" };
+}
+
+export const RevokeArtifactRequest: MessageFns<RevokeArtifactRequest> = {
+  encode(message: RevokeArtifactRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    if (message.slug !== "") {
+      writer.uint32(18).string(message.slug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RevokeArtifactRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRevokeArtifactRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.slug = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RevokeArtifactRequest {
+    return {
+      email: isSet(object.email) ? globalThis.String(object.email) : "",
+      slug: isSet(object.slug) ? globalThis.String(object.slug) : "",
+    };
+  },
+
+  toJSON(message: RevokeArtifactRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    if (message.slug !== "") {
+      obj.slug = message.slug;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RevokeArtifactRequest>, I>>(base?: I): RevokeArtifactRequest {
+    return RevokeArtifactRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RevokeArtifactRequest>, I>>(object: I): RevokeArtifactRequest {
+    const message = createBaseRevokeArtifactRequest();
+    message.email = object.email ?? "";
+    message.slug = object.slug ?? "";
+    return message;
+  },
+};
+
+function createBaseRevokeArtifactResponse(): RevokeArtifactResponse {
+  return { revoked: false };
+}
+
+export const RevokeArtifactResponse: MessageFns<RevokeArtifactResponse> = {
+  encode(message: RevokeArtifactResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.revoked !== false) {
+      writer.uint32(8).bool(message.revoked);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RevokeArtifactResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRevokeArtifactResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.revoked = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RevokeArtifactResponse {
+    return { revoked: isSet(object.revoked) ? globalThis.Boolean(object.revoked) : false };
+  },
+
+  toJSON(message: RevokeArtifactResponse): unknown {
+    const obj: any = {};
+    if (message.revoked !== false) {
+      obj.revoked = message.revoked;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RevokeArtifactResponse>, I>>(base?: I): RevokeArtifactResponse {
+    return RevokeArtifactResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RevokeArtifactResponse>, I>>(object: I): RevokeArtifactResponse {
+    const message = createBaseRevokeArtifactResponse();
+    message.revoked = object.revoked ?? false;
+    return message;
+  },
+};
+
+function createBaseListMyArtifactsRequest(): ListMyArtifactsRequest {
+  return { email: "" };
+}
+
+export const ListMyArtifactsRequest: MessageFns<ListMyArtifactsRequest> = {
+  encode(message: ListMyArtifactsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.email !== "") {
+      writer.uint32(10).string(message.email);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListMyArtifactsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListMyArtifactsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.email = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListMyArtifactsRequest {
+    return { email: isSet(object.email) ? globalThis.String(object.email) : "" };
+  },
+
+  toJSON(message: ListMyArtifactsRequest): unknown {
+    const obj: any = {};
+    if (message.email !== "") {
+      obj.email = message.email;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListMyArtifactsRequest>, I>>(base?: I): ListMyArtifactsRequest {
+    return ListMyArtifactsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListMyArtifactsRequest>, I>>(object: I): ListMyArtifactsRequest {
+    const message = createBaseListMyArtifactsRequest();
+    message.email = object.email ?? "";
+    return message;
+  },
+};
+
+function createBaseMyArtifactProto(): MyArtifactProto {
+  return { slug: "", projectId: "", projectName: "", phaseNumber: 0, phaseTitle: "", includeCode: false, viewCount: 0 };
+}
+
+export const MyArtifactProto: MessageFns<MyArtifactProto> = {
+  encode(message: MyArtifactProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.slug !== "") {
+      writer.uint32(10).string(message.slug);
+    }
+    if (message.projectId !== "") {
+      writer.uint32(18).string(message.projectId);
+    }
+    if (message.projectName !== "") {
+      writer.uint32(26).string(message.projectName);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(32).int32(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      writer.uint32(42).string(message.phaseTitle);
+    }
+    if (message.includeCode !== false) {
+      writer.uint32(48).bool(message.includeCode);
+    }
+    if (message.viewCount !== 0) {
+      writer.uint32(56).int32(message.viewCount);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MyArtifactProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMyArtifactProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.slug = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.projectName = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.phaseTitle = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.includeCode = reader.bool();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.viewCount = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MyArtifactProto {
+    return {
+      slug: isSet(object.slug) ? globalThis.String(object.slug) : "",
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      projectName: isSet(object.projectName)
+        ? globalThis.String(object.projectName)
+        : isSet(object.project_name)
+        ? globalThis.String(object.project_name)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+      phaseTitle: isSet(object.phaseTitle)
+        ? globalThis.String(object.phaseTitle)
+        : isSet(object.phase_title)
+        ? globalThis.String(object.phase_title)
+        : "",
+      includeCode: isSet(object.includeCode)
+        ? globalThis.Boolean(object.includeCode)
+        : isSet(object.include_code)
+        ? globalThis.Boolean(object.include_code)
+        : false,
+      viewCount: isSet(object.viewCount)
+        ? globalThis.Number(object.viewCount)
+        : isSet(object.view_count)
+        ? globalThis.Number(object.view_count)
+        : 0,
+    };
+  },
+
+  toJSON(message: MyArtifactProto): unknown {
+    const obj: any = {};
+    if (message.slug !== "") {
+      obj.slug = message.slug;
+    }
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.projectName !== "") {
+      obj.projectName = message.projectName;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      obj.phaseTitle = message.phaseTitle;
+    }
+    if (message.includeCode !== false) {
+      obj.includeCode = message.includeCode;
+    }
+    if (message.viewCount !== 0) {
+      obj.viewCount = Math.round(message.viewCount);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MyArtifactProto>, I>>(base?: I): MyArtifactProto {
+    return MyArtifactProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MyArtifactProto>, I>>(object: I): MyArtifactProto {
+    const message = createBaseMyArtifactProto();
+    message.slug = object.slug ?? "";
+    message.projectId = object.projectId ?? "";
+    message.projectName = object.projectName ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    message.phaseTitle = object.phaseTitle ?? "";
+    message.includeCode = object.includeCode ?? false;
+    message.viewCount = object.viewCount ?? 0;
+    return message;
+  },
+};
+
+function createBaseShareablePhaseProto(): ShareablePhaseProto {
+  return { projectId: "", projectName: "", phaseNumber: 0, phaseTitle: "" };
+}
+
+export const ShareablePhaseProto: MessageFns<ShareablePhaseProto> = {
+  encode(message: ShareablePhaseProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.projectId !== "") {
+      writer.uint32(10).string(message.projectId);
+    }
+    if (message.projectName !== "") {
+      writer.uint32(18).string(message.projectName);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(24).int32(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      writer.uint32(34).string(message.phaseTitle);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ShareablePhaseProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseShareablePhaseProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.projectId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.projectName = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.phaseTitle = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ShareablePhaseProto {
+    return {
+      projectId: isSet(object.projectId)
+        ? globalThis.String(object.projectId)
+        : isSet(object.project_id)
+        ? globalThis.String(object.project_id)
+        : "",
+      projectName: isSet(object.projectName)
+        ? globalThis.String(object.projectName)
+        : isSet(object.project_name)
+        ? globalThis.String(object.project_name)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+      phaseTitle: isSet(object.phaseTitle)
+        ? globalThis.String(object.phaseTitle)
+        : isSet(object.phase_title)
+        ? globalThis.String(object.phase_title)
+        : "",
+    };
+  },
+
+  toJSON(message: ShareablePhaseProto): unknown {
+    const obj: any = {};
+    if (message.projectId !== "") {
+      obj.projectId = message.projectId;
+    }
+    if (message.projectName !== "") {
+      obj.projectName = message.projectName;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      obj.phaseTitle = message.phaseTitle;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ShareablePhaseProto>, I>>(base?: I): ShareablePhaseProto {
+    return ShareablePhaseProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ShareablePhaseProto>, I>>(object: I): ShareablePhaseProto {
+    const message = createBaseShareablePhaseProto();
+    message.projectId = object.projectId ?? "";
+    message.projectName = object.projectName ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    message.phaseTitle = object.phaseTitle ?? "";
+    return message;
+  },
+};
+
+function createBaseListMyArtifactsResponse(): ListMyArtifactsResponse {
+  return { shared: [], shareable: [], profileUnlocked: false, profileLockedReason: "" };
+}
+
+export const ListMyArtifactsResponse: MessageFns<ListMyArtifactsResponse> = {
+  encode(message: ListMyArtifactsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.shared) {
+      MyArtifactProto.encode(v!, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.shareable) {
+      ShareablePhaseProto.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.profileUnlocked !== false) {
+      writer.uint32(24).bool(message.profileUnlocked);
+    }
+    if (message.profileLockedReason !== "") {
+      writer.uint32(34).string(message.profileLockedReason);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListMyArtifactsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListMyArtifactsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.shared.push(MyArtifactProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.shareable.push(ShareablePhaseProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.profileUnlocked = reader.bool();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.profileLockedReason = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListMyArtifactsResponse {
+    return {
+      shared: globalThis.Array.isArray(object?.shared)
+        ? object.shared.map((e: any) => MyArtifactProto.fromJSON(e))
+        : [],
+      shareable: globalThis.Array.isArray(object?.shareable)
+        ? object.shareable.map((e: any) => ShareablePhaseProto.fromJSON(e))
+        : [],
+      profileUnlocked: isSet(object.profileUnlocked)
+        ? globalThis.Boolean(object.profileUnlocked)
+        : isSet(object.profile_unlocked)
+        ? globalThis.Boolean(object.profile_unlocked)
+        : false,
+      profileLockedReason: isSet(object.profileLockedReason)
+        ? globalThis.String(object.profileLockedReason)
+        : isSet(object.profile_locked_reason)
+        ? globalThis.String(object.profile_locked_reason)
+        : "",
+    };
+  },
+
+  toJSON(message: ListMyArtifactsResponse): unknown {
+    const obj: any = {};
+    if (message.shared?.length) {
+      obj.shared = message.shared.map((e) => MyArtifactProto.toJSON(e));
+    }
+    if (message.shareable?.length) {
+      obj.shareable = message.shareable.map((e) => ShareablePhaseProto.toJSON(e));
+    }
+    if (message.profileUnlocked !== false) {
+      obj.profileUnlocked = message.profileUnlocked;
+    }
+    if (message.profileLockedReason !== "") {
+      obj.profileLockedReason = message.profileLockedReason;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListMyArtifactsResponse>, I>>(base?: I): ListMyArtifactsResponse {
+    return ListMyArtifactsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListMyArtifactsResponse>, I>>(object: I): ListMyArtifactsResponse {
+    const message = createBaseListMyArtifactsResponse();
+    message.shared = object.shared?.map((e) => MyArtifactProto.fromPartial(e)) || [];
+    message.shareable = object.shareable?.map((e) => ShareablePhaseProto.fromPartial(e)) || [];
+    message.profileUnlocked = object.profileUnlocked ?? false;
+    message.profileLockedReason = object.profileLockedReason ?? "";
+    return message;
+  },
+};
+
+function createBaseGetPublicArtifactRequest(): GetPublicArtifactRequest {
+  return { slug: "" };
+}
+
+export const GetPublicArtifactRequest: MessageFns<GetPublicArtifactRequest> = {
+  encode(message: GetPublicArtifactRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.slug !== "") {
+      writer.uint32(10).string(message.slug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPublicArtifactRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetPublicArtifactRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.slug = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetPublicArtifactRequest {
+    return { slug: isSet(object.slug) ? globalThis.String(object.slug) : "" };
+  },
+
+  toJSON(message: GetPublicArtifactRequest): unknown {
+    const obj: any = {};
+    if (message.slug !== "") {
+      obj.slug = message.slug;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetPublicArtifactRequest>, I>>(base?: I): GetPublicArtifactRequest {
+    return GetPublicArtifactRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetPublicArtifactRequest>, I>>(object: I): GetPublicArtifactRequest {
+    const message = createBaseGetPublicArtifactRequest();
+    message.slug = object.slug ?? "";
+    return message;
+  },
+};
+
+function createBasePublicCriterionProto(): PublicCriterionProto {
+  return { text: "", kind: "", evidencePath: "", evidenceLines: "" };
+}
+
+export const PublicCriterionProto: MessageFns<PublicCriterionProto> = {
+  encode(message: PublicCriterionProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.text !== "") {
+      writer.uint32(10).string(message.text);
+    }
+    if (message.kind !== "") {
+      writer.uint32(18).string(message.kind);
+    }
+    if (message.evidencePath !== "") {
+      writer.uint32(26).string(message.evidencePath);
+    }
+    if (message.evidenceLines !== "") {
+      writer.uint32(34).string(message.evidenceLines);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PublicCriterionProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePublicCriterionProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.kind = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.evidencePath = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.evidenceLines = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PublicCriterionProto {
+    return {
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
+      evidencePath: isSet(object.evidencePath)
+        ? globalThis.String(object.evidencePath)
+        : isSet(object.evidence_path)
+        ? globalThis.String(object.evidence_path)
+        : "",
+      evidenceLines: isSet(object.evidenceLines)
+        ? globalThis.String(object.evidenceLines)
+        : isSet(object.evidence_lines)
+        ? globalThis.String(object.evidence_lines)
+        : "",
+    };
+  },
+
+  toJSON(message: PublicCriterionProto): unknown {
+    const obj: any = {};
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.kind !== "") {
+      obj.kind = message.kind;
+    }
+    if (message.evidencePath !== "") {
+      obj.evidencePath = message.evidencePath;
+    }
+    if (message.evidenceLines !== "") {
+      obj.evidenceLines = message.evidenceLines;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PublicCriterionProto>, I>>(base?: I): PublicCriterionProto {
+    return PublicCriterionProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PublicCriterionProto>, I>>(object: I): PublicCriterionProto {
+    const message = createBasePublicCriterionProto();
+    message.text = object.text ?? "";
+    message.kind = object.kind ?? "";
+    message.evidencePath = object.evidencePath ?? "";
+    message.evidenceLines = object.evidenceLines ?? "";
+    return message;
+  },
+};
+
+function createBasePublicFileProto(): PublicFileProto {
+  return { path: "", content: "" };
+}
+
+export const PublicFileProto: MessageFns<PublicFileProto> = {
+  encode(message: PublicFileProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.path !== "") {
+      writer.uint32(10).string(message.path);
+    }
+    if (message.content !== "") {
+      writer.uint32(18).string(message.content);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PublicFileProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePublicFileProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.path = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.content = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PublicFileProto {
+    return {
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      content: isSet(object.content) ? globalThis.String(object.content) : "",
+    };
+  },
+
+  toJSON(message: PublicFileProto): unknown {
+    const obj: any = {};
+    if (message.path !== "") {
+      obj.path = message.path;
+    }
+    if (message.content !== "") {
+      obj.content = message.content;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PublicFileProto>, I>>(base?: I): PublicFileProto {
+    return PublicFileProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PublicFileProto>, I>>(object: I): PublicFileProto {
+    const message = createBasePublicFileProto();
+    message.path = object.path ?? "";
+    message.content = object.content ?? "";
+    return message;
+  },
+};
+
+function createBaseGetPublicArtifactResponse(): GetPublicArtifactResponse {
+  return {
+    found: false,
+    revoked: false,
+    authorName: "",
+    projectName: "",
+    phaseNumber: 0,
+    phaseTitle: "",
+    createdAt: "",
+    criteria: [],
+    explanationQuestion: "",
+    explanationAnswer: "",
+    files: [],
+  };
+}
+
+export const GetPublicArtifactResponse: MessageFns<GetPublicArtifactResponse> = {
+  encode(message: GetPublicArtifactResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.found !== false) {
+      writer.uint32(8).bool(message.found);
+    }
+    if (message.revoked !== false) {
+      writer.uint32(16).bool(message.revoked);
+    }
+    if (message.authorName !== "") {
+      writer.uint32(26).string(message.authorName);
+    }
+    if (message.projectName !== "") {
+      writer.uint32(34).string(message.projectName);
+    }
+    if (message.phaseNumber !== 0) {
+      writer.uint32(40).int32(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      writer.uint32(50).string(message.phaseTitle);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(58).string(message.createdAt);
+    }
+    for (const v of message.criteria) {
+      PublicCriterionProto.encode(v!, writer.uint32(66).fork()).join();
+    }
+    if (message.explanationQuestion !== "") {
+      writer.uint32(74).string(message.explanationQuestion);
+    }
+    if (message.explanationAnswer !== "") {
+      writer.uint32(82).string(message.explanationAnswer);
+    }
+    for (const v of message.files) {
+      PublicFileProto.encode(v!, writer.uint32(90).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPublicArtifactResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetPublicArtifactResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.found = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.revoked = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.authorName = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.projectName = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.phaseNumber = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.phaseTitle = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.criteria.push(PublicCriterionProto.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.explanationQuestion = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.explanationAnswer = reader.string();
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.files.push(PublicFileProto.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetPublicArtifactResponse {
+    return {
+      found: isSet(object.found) ? globalThis.Boolean(object.found) : false,
+      revoked: isSet(object.revoked) ? globalThis.Boolean(object.revoked) : false,
+      authorName: isSet(object.authorName)
+        ? globalThis.String(object.authorName)
+        : isSet(object.author_name)
+        ? globalThis.String(object.author_name)
+        : "",
+      projectName: isSet(object.projectName)
+        ? globalThis.String(object.projectName)
+        : isSet(object.project_name)
+        ? globalThis.String(object.project_name)
+        : "",
+      phaseNumber: isSet(object.phaseNumber)
+        ? globalThis.Number(object.phaseNumber)
+        : isSet(object.phase_number)
+        ? globalThis.Number(object.phase_number)
+        : 0,
+      phaseTitle: isSet(object.phaseTitle)
+        ? globalThis.String(object.phaseTitle)
+        : isSet(object.phase_title)
+        ? globalThis.String(object.phase_title)
+        : "",
+      createdAt: isSet(object.createdAt)
+        ? globalThis.String(object.createdAt)
+        : isSet(object.created_at)
+        ? globalThis.String(object.created_at)
+        : "",
+      criteria: globalThis.Array.isArray(object?.criteria)
+        ? object.criteria.map((e: any) => PublicCriterionProto.fromJSON(e))
+        : [],
+      explanationQuestion: isSet(object.explanationQuestion)
+        ? globalThis.String(object.explanationQuestion)
+        : isSet(object.explanation_question)
+        ? globalThis.String(object.explanation_question)
+        : "",
+      explanationAnswer: isSet(object.explanationAnswer)
+        ? globalThis.String(object.explanationAnswer)
+        : isSet(object.explanation_answer)
+        ? globalThis.String(object.explanation_answer)
+        : "",
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => PublicFileProto.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: GetPublicArtifactResponse): unknown {
+    const obj: any = {};
+    if (message.found !== false) {
+      obj.found = message.found;
+    }
+    if (message.revoked !== false) {
+      obj.revoked = message.revoked;
+    }
+    if (message.authorName !== "") {
+      obj.authorName = message.authorName;
+    }
+    if (message.projectName !== "") {
+      obj.projectName = message.projectName;
+    }
+    if (message.phaseNumber !== 0) {
+      obj.phaseNumber = Math.round(message.phaseNumber);
+    }
+    if (message.phaseTitle !== "") {
+      obj.phaseTitle = message.phaseTitle;
+    }
+    if (message.createdAt !== "") {
+      obj.createdAt = message.createdAt;
+    }
+    if (message.criteria?.length) {
+      obj.criteria = message.criteria.map((e) => PublicCriterionProto.toJSON(e));
+    }
+    if (message.explanationQuestion !== "") {
+      obj.explanationQuestion = message.explanationQuestion;
+    }
+    if (message.explanationAnswer !== "") {
+      obj.explanationAnswer = message.explanationAnswer;
+    }
+    if (message.files?.length) {
+      obj.files = message.files.map((e) => PublicFileProto.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetPublicArtifactResponse>, I>>(base?: I): GetPublicArtifactResponse {
+    return GetPublicArtifactResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetPublicArtifactResponse>, I>>(object: I): GetPublicArtifactResponse {
+    const message = createBaseGetPublicArtifactResponse();
+    message.found = object.found ?? false;
+    message.revoked = object.revoked ?? false;
+    message.authorName = object.authorName ?? "";
+    message.projectName = object.projectName ?? "";
+    message.phaseNumber = object.phaseNumber ?? 0;
+    message.phaseTitle = object.phaseTitle ?? "";
+    message.createdAt = object.createdAt ?? "";
+    message.criteria = object.criteria?.map((e) => PublicCriterionProto.fromPartial(e)) || [];
+    message.explanationQuestion = object.explanationQuestion ?? "";
+    message.explanationAnswer = object.explanationAnswer ?? "";
+    message.files = object.files?.map((e) => PublicFileProto.fromPartial(e)) || [];
+    return message;
+  },
+};
 
 function createBaseGetGrowthRequest(): GetGrowthRequest {
   return { email: "" };
@@ -2638,6 +4043,64 @@ export const UserProjectServiceService = {
       Buffer.from(SubmitCheckpointResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): SubmitCheckpointResponse => SubmitCheckpointResponse.decode(value),
   },
+  /**
+   * Publishes a phase the user has completed AND explained back. Requiring the
+   * checkpoint is the point: a shareable artifact should evidence understanding,
+   * not output, or it's the credential-without-substance this product argues
+   * against. It also means Show can only be earned through Understand.
+   */
+  shareArtifact: {
+    path: "/userProject.UserProjectService/ShareArtifact" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ShareArtifactRequest): Buffer => Buffer.from(ShareArtifactRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ShareArtifactRequest => ShareArtifactRequest.decode(value),
+    responseSerialize: (value: ShareArtifactResponse): Buffer =>
+      Buffer.from(ShareArtifactResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ShareArtifactResponse => ShareArtifactResponse.decode(value),
+  },
+  /** Withdraws a published artifact. Honoured immediately. */
+  revokeArtifact: {
+    path: "/userProject.UserProjectService/RevokeArtifact" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: RevokeArtifactRequest): Buffer =>
+      Buffer.from(RevokeArtifactRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): RevokeArtifactRequest => RevokeArtifactRequest.decode(value),
+    responseSerialize: (value: RevokeArtifactResponse): Buffer =>
+      Buffer.from(RevokeArtifactResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): RevokeArtifactResponse => RevokeArtifactResponse.decode(value),
+  },
+  /** What the signed-in user has published, and which phases they could publish. */
+  listMyArtifacts: {
+    path: "/userProject.UserProjectService/ListMyArtifacts" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListMyArtifactsRequest): Buffer =>
+      Buffer.from(ListMyArtifactsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListMyArtifactsRequest => ListMyArtifactsRequest.decode(value),
+    responseSerialize: (value: ListMyArtifactsResponse): Buffer =>
+      Buffer.from(ListMyArtifactsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListMyArtifactsResponse => ListMyArtifactsResponse.decode(value),
+  },
+  /**
+   * Public, unauthenticated read of one published artifact.
+   *
+   * Everything returned is deliberately chosen: no email, no user id, nothing
+   * about other projects, nothing about failed attempts. A published phase
+   * reveals what the author opted into publishing and nothing adjacent to it.
+   */
+  getPublicArtifact: {
+    path: "/userProject.UserProjectService/GetPublicArtifact" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetPublicArtifactRequest): Buffer =>
+      Buffer.from(GetPublicArtifactRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetPublicArtifactRequest => GetPublicArtifactRequest.decode(value),
+    responseSerialize: (value: GetPublicArtifactResponse): Buffer =>
+      Buffer.from(GetPublicArtifactResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetPublicArtifactResponse => GetPublicArtifactResponse.decode(value),
+  },
 } as const;
 
 export interface UserProjectServiceServer extends UntypedServiceImplementation {
@@ -2684,6 +4147,25 @@ export interface UserProjectServiceServer extends UntypedServiceImplementation {
   startCheckpoint: handleUnaryCall<StartCheckpointRequest, StartCheckpointResponse>;
   /** Grades a checkpoint explanation. Passing is the only thing that clears fog. */
   submitCheckpoint: handleUnaryCall<SubmitCheckpointRequest, SubmitCheckpointResponse>;
+  /**
+   * Publishes a phase the user has completed AND explained back. Requiring the
+   * checkpoint is the point: a shareable artifact should evidence understanding,
+   * not output, or it's the credential-without-substance this product argues
+   * against. It also means Show can only be earned through Understand.
+   */
+  shareArtifact: handleUnaryCall<ShareArtifactRequest, ShareArtifactResponse>;
+  /** Withdraws a published artifact. Honoured immediately. */
+  revokeArtifact: handleUnaryCall<RevokeArtifactRequest, RevokeArtifactResponse>;
+  /** What the signed-in user has published, and which phases they could publish. */
+  listMyArtifacts: handleUnaryCall<ListMyArtifactsRequest, ListMyArtifactsResponse>;
+  /**
+   * Public, unauthenticated read of one published artifact.
+   *
+   * Everything returned is deliberately chosen: no email, no user id, nothing
+   * about other projects, nothing about failed attempts. A published phase
+   * reveals what the author opted into publishing and nothing adjacent to it.
+   */
+  getPublicArtifact: handleUnaryCall<GetPublicArtifactRequest, GetPublicArtifactResponse>;
 }
 
 export interface UserProjectServiceClient extends Client {
@@ -2855,6 +4337,81 @@ export interface UserProjectServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: SubmitCheckpointResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Publishes a phase the user has completed AND explained back. Requiring the
+   * checkpoint is the point: a shareable artifact should evidence understanding,
+   * not output, or it's the credential-without-substance this product argues
+   * against. It also means Show can only be earned through Understand.
+   */
+  shareArtifact(
+    request: ShareArtifactRequest,
+    callback: (error: ServiceError | null, response: ShareArtifactResponse) => void,
+  ): ClientUnaryCall;
+  shareArtifact(
+    request: ShareArtifactRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ShareArtifactResponse) => void,
+  ): ClientUnaryCall;
+  shareArtifact(
+    request: ShareArtifactRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ShareArtifactResponse) => void,
+  ): ClientUnaryCall;
+  /** Withdraws a published artifact. Honoured immediately. */
+  revokeArtifact(
+    request: RevokeArtifactRequest,
+    callback: (error: ServiceError | null, response: RevokeArtifactResponse) => void,
+  ): ClientUnaryCall;
+  revokeArtifact(
+    request: RevokeArtifactRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: RevokeArtifactResponse) => void,
+  ): ClientUnaryCall;
+  revokeArtifact(
+    request: RevokeArtifactRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: RevokeArtifactResponse) => void,
+  ): ClientUnaryCall;
+  /** What the signed-in user has published, and which phases they could publish. */
+  listMyArtifacts(
+    request: ListMyArtifactsRequest,
+    callback: (error: ServiceError | null, response: ListMyArtifactsResponse) => void,
+  ): ClientUnaryCall;
+  listMyArtifacts(
+    request: ListMyArtifactsRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ListMyArtifactsResponse) => void,
+  ): ClientUnaryCall;
+  listMyArtifacts(
+    request: ListMyArtifactsRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ListMyArtifactsResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Public, unauthenticated read of one published artifact.
+   *
+   * Everything returned is deliberately chosen: no email, no user id, nothing
+   * about other projects, nothing about failed attempts. A published phase
+   * reveals what the author opted into publishing and nothing adjacent to it.
+   */
+  getPublicArtifact(
+    request: GetPublicArtifactRequest,
+    callback: (error: ServiceError | null, response: GetPublicArtifactResponse) => void,
+  ): ClientUnaryCall;
+  getPublicArtifact(
+    request: GetPublicArtifactRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetPublicArtifactResponse) => void,
+  ): ClientUnaryCall;
+  getPublicArtifact(
+    request: GetPublicArtifactRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetPublicArtifactResponse) => void,
   ): ClientUnaryCall;
 }
 

@@ -250,6 +250,18 @@ exports.Prisma.UnderstandingCheckpointScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.SharedArtifactScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  user_email: 'user_email',
+  project_id: 'project_id',
+  phase_number: 'phase_number',
+  include_code: 'include_code',
+  revoked: 'revoked',
+  view_count: 'view_count',
+  created_at: 'created_at'
+};
+
 exports.Prisma.UserPhaseProgressScalarFieldEnum = {
   id: 'id',
   user_project_id: 'user_project_id',
@@ -429,6 +441,7 @@ exports.Prisma.ModelName = {
   PhaseReview: 'PhaseReview',
   ReviewCriterionResult: 'ReviewCriterionResult',
   UnderstandingCheckpoint: 'UnderstandingCheckpoint',
+  SharedArtifact: 'SharedArtifact',
   UserPhaseProgress: 'UserPhaseProgress',
   LearningPhase: 'LearningPhase',
   PhaseCriterion: 'PhaseCriterion',

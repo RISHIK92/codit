@@ -45,6 +45,119 @@ service UserProjectService {
 
   // Grades a checkpoint explanation. Passing is the only thing that clears fog.
   rpc SubmitCheckpoint (SubmitCheckpointRequest) returns (SubmitCheckpointResponse);
+
+  // Publishes a phase the user has completed AND explained back. Requiring the
+  // checkpoint is the point: a shareable artifact should evidence understanding,
+  // not output, or it's the credential-without-substance this product argues
+  // against. It also means Show can only be earned through Understand.
+  rpc ShareArtifact (ShareArtifactRequest) returns (ShareArtifactResponse);
+
+  // Withdraws a published artifact. Honoured immediately.
+  rpc RevokeArtifact (RevokeArtifactRequest) returns (RevokeArtifactResponse);
+
+  // What the signed-in user has published, and which phases they could publish.
+  rpc ListMyArtifacts (ListMyArtifactsRequest) returns (ListMyArtifactsResponse);
+
+  // Public, unauthenticated read of one published artifact.
+  //
+  // Everything returned is deliberately chosen: no email, no user id, nothing
+  // about other projects, nothing about failed attempts. A published phase
+  // reveals what the author opted into publishing and nothing adjacent to it.
+  rpc GetPublicArtifact (GetPublicArtifactRequest) returns (GetPublicArtifactResponse);
+}
+
+// ── Sharing ──────────────────────────────────────────────────────────────────
+
+message ShareArtifactRequest {
+  string email        = 1;
+  string project_id   = 2;
+  int32  phase_number = 3;
+  // Publish the frozen snapshot of their code alongside the explanation.
+  bool   include_code = 4;
+}
+
+message ShareArtifactResponse {
+  string slug = 1;
+}
+
+message RevokeArtifactRequest {
+  string email = 1;
+  string slug  = 2;
+}
+
+message RevokeArtifactResponse {
+  bool revoked = 1;
+}
+
+message ListMyArtifactsRequest {
+  string email = 1;
+}
+
+message MyArtifactProto {
+  string slug         = 1;
+  string project_id   = 2;
+  string project_name = 3;
+  int32  phase_number = 4;
+  string phase_title  = 5;
+  bool   include_code = 6;
+  int32  view_count   = 7;
+}
+
+// A phase that could be published but hasn't been — completed and explained.
+message ShareablePhaseProto {
+  string project_id   = 1;
+  string project_name = 2;
+  int32  phase_number = 3;
+  string phase_title  = 4;
+}
+
+message ListMyArtifactsResponse {
+  repeated MyArtifactProto shared = 1;
+  repeated ShareablePhaseProto shareable = 2;
+  // Public profiles unlock at the Builder era. Individual phases can be shared
+  // before that; the aggregated profile is what's milestone-gated.
+  bool   profile_unlocked = 3;
+  string profile_locked_reason = 4;
+}
+
+message GetPublicArtifactRequest {
+  string slug = 1;
+}
+
+message PublicCriterionProto {
+  string text = 1;
+  string kind = 2;
+  // Where the grader found the evidence. Included because "passed" alone is a
+  // badge; a badge plus the line it was verified against is proof.
+  string evidence_path  = 3;
+  string evidence_lines = 4;
+}
+
+message PublicFileProto {
+  string path    = 1;
+  string content = 2;
+}
+
+message GetPublicArtifactResponse {
+  bool   found   = 1;
+  // True when the link was valid but the author has since withdrawn it — so the
+  // page can say so rather than looking broken.
+  bool   revoked = 2;
+
+  // Display name only. Never the email.
+  string author_name  = 3;
+  string project_name = 4;
+  int32  phase_number = 5;
+  string phase_title  = 6;
+  string created_at   = 7;
+
+  repeated PublicCriterionProto criteria = 8;
+  // The explain-it-back exchange. This is the substance of the artifact: the
+  // criteria show the code works, this shows they understood it.
+  string explanation_question = 9;
+  string explanation_answer   = 10;
+
+  repeated PublicFileProto files = 11;
 }
 
 // ── Growth ───────────────────────────────────────────────────────────────────

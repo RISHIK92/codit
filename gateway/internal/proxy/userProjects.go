@@ -322,3 +322,112 @@ func SubmitCheckpointProxy(grpcClient pb.UserProjectServiceClient) http.HandlerF
 		json.NewEncoder(w).Encode(grpcRes)
 	}
 }
+
+// ── Sharing ─────────────────────────────────────────────────────────────────
+
+// ShareArtifactProxy forwards POST /api/share.
+// Body: { "projectId": "...", "phaseNumber": 1, "includeCode": true }
+func ShareArtifactProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+		var body struct {
+			ProjectID   string `json:"projectId"`
+			PhaseNumber int32  `json:"phaseNumber"`
+			IncludeCode bool   `json:"includeCode"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+		if body.ProjectID == "" {
+			http.Error(w, "projectId is required", http.StatusBadRequest)
+			return
+		}
+		grpcRes, err := grpcClient.ShareArtifact(r.Context(), &pb.ShareArtifactRequest{
+			Email: email, ProjectId: body.ProjectID,
+			PhaseNumber: body.PhaseNumber, IncludeCode: body.IncludeCode,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+// RevokeArtifactProxy forwards POST /api/share/revoke. Body: { "slug": "..." }
+func RevokeArtifactProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+		var body struct {
+			Slug string `json:"slug"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Slug == "" {
+			http.Error(w, "slug is required", http.StatusBadRequest)
+			return
+		}
+		grpcRes, err := grpcClient.RevokeArtifact(r.Context(), &pb.RevokeArtifactRequest{
+			Email: email, Slug: body.Slug,
+		})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+// ListMyArtifactsProxy forwards GET /api/share/mine.
+func ListMyArtifactsProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Header.Get("X-User-Email")
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+		grpcRes, err := grpcClient.ListMyArtifacts(r.Context(), &pb.ListMyArtifactsRequest{Email: email})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}
+
+// GetPublicArtifactProxy forwards GET /public/api/share?slug=...
+//
+// Deliberately mounted OUTSIDE the auth middleware — the whole point of a
+// published artifact is that someone without an account can read it. The
+// response is a fixed, curated shape (see the proto): no email, no account
+// data, nothing about the author's other work.
+func GetPublicArtifactProxy(grpcClient pb.UserProjectServiceClient) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		slug := r.URL.Query().Get("slug")
+		if slug == "" {
+			http.Error(w, "slug query param is required", http.StatusBadRequest)
+			return
+		}
+		grpcRes, err := grpcClient.GetPublicArtifact(r.Context(), &pb.GetPublicArtifactRequest{Slug: slug})
+		if err != nil {
+			st, _ := status.FromError(err)
+			http.Error(w, st.Message(), grpcCodeToHTTP(st.Code()))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(grpcRes)
+	}
+}

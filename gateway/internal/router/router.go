@@ -51,6 +51,9 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Get("/api/users/health", proxy.HealthCheckProxy(userClient))
 		r.Get("/api/projects/get-all", proxy.GetAllProjectsProxy(projectClient))
 		r.Get("/api/projects/get", proxy.GetProjectByIdProxy(projectClient))
+		// Published artifacts are readable without an account — that is the
+		// entire point of publishing one.
+		r.Get("/api/share", proxy.GetPublicArtifactProxy(userProjectClient))
 	})
 
 	r.Group(func(r chi.Router) {
@@ -65,6 +68,9 @@ func New(app *firebase.App, cfg *config.Config) *chi.Mux {
 		r.Post("/api/user-projects/archive", proxy.SetUserProjectArchivedProxy(userProjectClient))
 		r.Post("/api/user-projects/submit-review", proxy.SubmitPhaseReviewProxy(userProjectClient))
 		r.Get("/api/growth", proxy.GetGrowthProxy(userProjectClient))
+		r.Post("/api/share", proxy.ShareArtifactProxy(userProjectClient))
+		r.Post("/api/share/revoke", proxy.RevokeArtifactProxy(userProjectClient))
+		r.Get("/api/share/mine", proxy.ListMyArtifactsProxy(userProjectClient))
 		r.Post("/api/checkpoints/start", proxy.StartCheckpointProxy(userProjectClient))
 		r.Post("/api/checkpoints/submit", proxy.SubmitCheckpointProxy(userProjectClient))
 		r.Get("/api/projects/detail", proxy.GetProjectWithPhasesProxy(projectClient, userProjectClient))
