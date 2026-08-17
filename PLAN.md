@@ -201,7 +201,13 @@ Per-criterion grading resends the file context for each criterion, so a 5-criter
 
 ---
 
-## Phase 3 — ai-service, three tiers
+## Phase 3 — ai-service, three tiers ✅ DONE
+
+*`explain` / `suggest` / `chat` now assemble genuinely different context. The
+`graph/` modules are wired into tier 3 as a project map. Verified by 34 offline
+graph checks and 10 live tier checks. The headline: tier 3 answered a
+reverse-dependency question correctly **with zero tool calls**, in 0.9s.*
+
 
 **Goal:** stop paying full agentic cost for cheap questions, and give the expensive tier real codebase understanding.
 
@@ -230,6 +236,22 @@ Tier 1 already effectively exists as `mode: "explain"`. Tier 3 is today's tool-c
 - Staleness: mark stale on file change, regenerate lazily on query. Not eagerly.
 
 **Exit criteria:** explain calls are measurably cheaper and faster; tier 3 resolves files by graph lookup rather than guessing.
+
+### Result
+
+Asked "if I change the signature of `addItem`, which other files would I have to update?" with `src/cart.js` open, tier 3 answered:
+
+> The only place that calls `addItem` right now is **src/index.js**… No other files currently depend on that signature.
+
+Correct, including the negative — `format.js` is a dependency *of* cart, not a dependent, and it correctly excluded it. It took **0.9s and zero tool calls**. The old path would have needed `list_files`, then two `read_file` guesses, to reach the same answer — if it got there at all.
+
+The mechanism is just handing it a structural map up front (what each file exports, what imports what) instead of making it discover that through tool rounds. Same tools, far less groping.
+
+### Also settled here
+
+- **`review` mode is gone from `chat`.** Phase 2 moved grading to `GradeCriteria`; a chat reply ending in a verdict line was a holistic judgement dressed as a contract. Removed from the handler, the proto, and the client's `ChatMode`.
+- **Sandbox constraints are injected into tier 3.** No amount of reading the user's code reveals that `bcrypt` won't install or that `child_process` can't spawn — so it's asserted rather than inferred. Previously the assistant would confidently suggest things that cannot work in WebContainer.
+- **The `graph/` modules had never been executed by anything.** They turned out to be correct — cycles, self-imports, re-exports, dynamic `import()`, bare npm specifiers all handled — but that was luck until there were 34 tests on them.
 
 **Size:** large.
 

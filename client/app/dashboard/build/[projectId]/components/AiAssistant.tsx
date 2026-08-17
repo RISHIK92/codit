@@ -288,12 +288,13 @@ export function AiAssistant({
           activeFilePath: activeFileId,
           snapshotPhaseNumber,
           message: text,
-          // "review" is a fresh evaluation of the current submission — prior
-          // unrelated chat turns are noise here, not useful context.
+          // Only the conversational tier benefits from history. "explain" is
+          // scoped to a clicked snippet and "suggest" is unprompted, so prior
+          // turns are noise for both.
           history:
-            mode === "review"
-              ? []
-              : messages.map((m) => ({ role: m.role, content: m.content })),
+            mode === "chat"
+              ? messages.map((m) => ({ role: m.role, content: m.content }))
+              : [],
           mode,
         },
         (chunk) => {

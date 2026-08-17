@@ -17,6 +17,12 @@ import {
   getSnapshotFileContent,
 } from "../clients/contextClients";
 import { getChatProvider, ChatTurn, ToolDefinition } from "../providers";
+import {
+  buildProjectMap,
+  getNeighbourSlice,
+  renderNeighbourSlice,
+  WEBCONTAINER_CONSTRAINTS,
+} from "../context/tierContext";
 
 const MAX_TOOL_ROUNDS = 4;
 const MAX_FILE_FETCHES = 6;
@@ -34,6 +40,11 @@ function looksLikeToolStall(content: string): boolean {
     )
   );
 }
+
+/** Compact form of the no-ghostwriting rule for tiers with a short prompt
+ * budget. Same absolute prohibition — the tier is cheaper, the rule is not. */
+const NO_GHOSTWRITING_SHORT =
+  "HARD RULE: never use markdown code fences and never write the fix. Name the concept or the API in prose; the user types every character themselves.";
 
 const STALL_FALLBACK_REPLY =
   "I wasn't able to check the project's files just now — try asking again.";
@@ -176,10 +187,42 @@ export const aiServiceHandler: AiServiceServer = {
         return;
       }
 
-      // "review" — grading a phase submission. The client's UI treats the
-      // reply as a verdict: it only advances the phase (and snapshots it)
-      // if the reply contains the literal line "VERDICT: MET" — so that
-      // line has to be a real instruction to the model, not left implicit.
+      // "suggest" — tier 2. Fired when the user looks stuck, not when they
+      // asked a question, which changes what a good answer is: it has to be
+      // short, easy to ignore, and never presume to know what they intended.
+      // Context is a thin slice — the active file plus its dependency
+      // neighbours — because the cost of a full project map isn't justified
+      // for an interruption the user didn't request. Single shot, no tools:
+      // a nudge that takes four tool rounds to produce has arrived too late.
+      if (mode === "suggest") {
+        const slice = await getNeighbourSlice(projectId, userEmail, activeFilePath);
+        const neighbours = renderNeighbourSlice(slice);
+
+        const systemPrompt = [
+          "You are a coding mentor inside a learn-by-doing IDE called Codit. The user has not asked you anything — they appear to be stuck, and you are offering one unprompted nudge.",
+          "Because they didn't ask, the bar is high: say one genuinely useful thing in two sentences or fewer, or say nothing of substance at all.",
+          "Point at what to look at or what concept applies. Do not restate what their code does — they wrote it.",
+          NO_GHOSTWRITING_SHORT,
+          "If nothing about the code suggests a specific problem, reply with exactly: NO_SUGGESTION",
+          contextLines.length ? `\nContext:\n${contextLines.join("\n")}` : "",
+          neighbours ? `\nRelated files:\n${neighbours}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        const result = await provider.getChatCompletion([
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message || "What should I be looking at?" },
+        ]);
+
+        const reply = (result.content ?? "").trim();
+        // The model is given an explicit way to decline, because a suggester
+        // that always has something to say becomes noise and gets muted.
+        call.write({ reply: reply === "NO_SUGGESTION" ? "" : reply });
+        call.end();
+        return;
+      }
+
       // Deliberately hard rules, not a soft preference — a general "don't
       // give away the answer" instruction gets ignored/rationalized by the
       // model the moment a code block would be the "helpful" thing to do.
@@ -202,39 +245,52 @@ export const aiServiceHandler: AiServiceServer = {
         "A reply is only acceptable if it either (a) contains a tool call, or (b) is a real, specific answer grounded in files you've actually read. A reply that only states intent, or redirects the investigation back to the user, is never acceptable.",
       ].join(" ");
 
-      const isReview = mode === "review";
-      const systemPrompt = isReview
-        ? [
-            "You are grading a phase submission inside a learn-by-doing IDE called Codit. The user's message states the phase goal.",
-            "Use list_files and read_file to inspect their actual project files — not just the active file — before judging. Don't take the user's word for it.",
-            "Be specific about what's missing or wrong if the goal isn't met — this is a learning tool, the point is to catch gaps, not rubber-stamp submissions.",
-            NO_GHOSTWRITING,
-            NO_NARRATING,
-            "End your reply with exactly one verdict line, alone on its own line, in exactly this form: `VERDICT: MET` or `VERDICT: NOT MET`. Nothing after it.",
-            contextLines.length ? `\nContext:\n${contextLines.join("\n")}` : "",
-          ].join("\n")
-        : [
-            "You are a concise coding assistant inside a learn-by-doing IDE called Codit. Help the user with their code and learning.",
-            NO_GHOSTWRITING,
-            NO_NARRATING,
-            isSnapshot
-              ? `The user is viewing a read-only, frozen snapshot of phase ${snapshotPhaseNumber} as it was submitted — not the live project. list_files and read_file return that phase's files, not what exists now. Don't suggest edits as if they can make them here; this view can't be changed.`
-              : "",
-            contextLines.length ? `\nContext:\n${contextLines.join("\n")}` : "",
-            "The active file above may not be enough to answer the question. If you need to see other files in the project, use the list_files and read_file tools rather than guessing. Only fetch files that are actually relevant.",
-            "Keep answers short and practical.",
-          ]
-            .filter(Boolean)
-            .join("\n");
+      // ── Tier 3: the full assistant ─────────────────────────────────────────
+      //
+      // The expensive tier, and the only one that gets a project map. Handing
+      // it a structural summary of every file up front replaces the old opening
+      // move of calling list_files, receiving a flat list of paths, and then
+      // guessing which one to read — navigation that consumed tool rounds
+      // before any thinking could start. The tools remain for fetching actual
+      // contents; the map just means it knows where to point them.
+      //
+      // Snapshots are excluded: the map describes the live project, and
+      // offering it while the user is reading frozen history would describe
+      // files that aren't the ones on screen.
+      const [projectMap, slice] = isSnapshot
+        ? ["", null]
+        : await Promise.all([
+            buildProjectMap(projectId, userEmail),
+            getNeighbourSlice(projectId, userEmail, activeFilePath),
+          ]);
+      const neighbours = slice ? renderNeighbourSlice(slice) : "";
+
+      const systemPrompt = [
+        "You are a concise coding assistant inside a learn-by-doing IDE called Codit. Help the user with their code and learning.",
+        NO_GHOSTWRITING,
+        NO_NARRATING,
+        isSnapshot
+          ? `The user is viewing a read-only, frozen snapshot of phase ${snapshotPhaseNumber} as it was submitted — not the live project. list_files and read_file return that phase's files, not what exists now. Don't suggest edits as if they can make them here; this view can't be changed.`
+          : WEBCONTAINER_CONSTRAINTS,
+        contextLines.length ? `\nContext:\n${contextLines.join("\n")}` : "",
+        projectMap
+          ? `\nProject structure (what each file exports/imports and how it's shaped — not its full contents):\n${projectMap}`
+          : "",
+        neighbours ? `\nFiles related to the active file:\n${neighbours}` : "",
+        projectMap
+          ? "The map above tells you which file to look at. Use read_file to fetch the ones you actually need — don't guess at paths, and don't re-list files the map already shows."
+          : "If you need to see other files in the project, use the list_files and read_file tools rather than guessing. Only fetch files that are actually relevant.",
+        "Keep answers short and practical.",
+      ]
+        .filter(Boolean)
+        .join("\n");
 
       const messages: ChatTurn[] = [
         { role: "system", content: systemPrompt },
-        ...(isReview
-          ? []
-          : history.map((h) => ({
-              role: h.role as "user" | "assistant",
-              content: h.content,
-            }))),
+        ...history.map((h) => ({
+          role: h.role as "user" | "assistant",
+          content: h.content,
+        })),
         { role: "user", content: message },
       ];
 

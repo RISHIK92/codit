@@ -372,18 +372,25 @@ type ChatRequest struct {
 	ActiveFilePath string                 `protobuf:"bytes,4,opt,name=active_file_path,json=activeFilePath,proto3" json:"active_file_path,omitempty"` // empty if no file is open
 	Message        string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`                                       // latest user message
 	History        []*ChatMessage         `protobuf:"bytes,6,rep,name=history,proto3" json:"history,omitempty"`                                       // prior turns, oldest first
-	// "" or "chat" = full agentic assistant (tool-calling, multi-file context).
-	// "explain" = direct single-shot call, no tools, no file-fetching loop —
-	// used for the cheap Option+Click "explain this" flow.
-	// "review" = grades a phase submission. Inspects the user's actual project
-	// files via tool calls and ends its reply with a line reading exactly
-	// "VERDICT: MET" or "VERDICT: NOT MET".
+	// Which tier handles the request. The tiers differ in how much context they
+	// assemble, because paying for the largest on every request made the
+	// assistant both slow and expensive:
 	//
-	// That verdict line is a machine-read contract, not prose: UserProjectService
-	// .SubmitPhaseReview parses it server-side to decide whether to advance the
-	// phase. Never call this mode directly from an end-user client and act on the
-	// result — a caller that grades itself is not a gate. Route reviews through
-	// SubmitPhaseReview, which is the only component that should interpret this.
+	//	"explain" — cheapest. Single shot, no tools, scoped to the snippet the
+	//	            user clicked. Must feel instant, so it gets nothing more.
+	//	"suggest" — the user appears stuck and did NOT ask a question. Single
+	//	            shot, no tools, context is the active file plus its
+	//	            dependency neighbours. May return an empty reply, which
+	//	            means "nothing worth saying" — render nothing, don't retry.
+	//	"" or "chat" — the full assistant. Tool-calling, plus a structural map
+	//	            of the whole project assembled up front so it knows which
+	//	            file to read instead of guessing, plus the sandbox
+	//	            constraints it can't infer from the code.
+	//
+	// There is deliberately no "review" mode. Grading moved to GradeCriteria,
+	// which judges one criterion at a time and requires evidence; a chat reply
+	// ending in a verdict line was a holistic judgement dressed as a contract,
+	// and holistic judgements drift generous.
 	Mode string `protobuf:"bytes,7,opt,name=mode,proto3" json:"mode,omitempty"`
 	// Client-supplied summary of the user's current project and task, e.g.
 	// "Project: Recipe Tracker (React, Node) — Phase 2: State Management".

@@ -22,7 +22,18 @@ export interface ChatHistoryEntry {
  * "review" evaluates a phase submission against its goal, using a parsed
  * code summary rather than raw file contents — used by the Submit button.
  */
-export type ChatMode = "chat" | "explain" | "review";
+/**
+ * Which assistant tier handles the request.
+ *
+ * "chat"    — the full assistant: tools, plus a structural map of the project.
+ * "explain" — single shot, no tools, scoped to the clicked snippet. Instant.
+ * "suggest" — an unprompted nudge when the user looks stuck. May return an
+ *             empty string, meaning "nothing worth saying" — render nothing.
+ *
+ * "review" is gone: grading moved to the submit-review endpoint, which judges
+ * each criterion separately and requires evidence.
+ */
+export type ChatMode = "chat" | "explain" | "suggest";
 
 /**
  * Send a message to the AI assistant; context is assembled server-side.
