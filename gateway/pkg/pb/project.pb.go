@@ -318,6 +318,94 @@ func (x *Project) GetPrerequisiteIds() []string {
 	return nil
 }
 
+// One checkable condition a phase submission is graded against.
+//
+// Sent to the client so the user can see the target before submitting. Showing
+// the rubric isn't making the phase easier — it's making the difficulty
+// legitimate. Being failed against criteria you were never shown is arbitrary;
+// being failed against a checklist you could read the whole time is a fair test.
+//
+// Note what is deliberately NOT here: check_config. How a criterion is verified
+// is grading internals, and a client that knows the exact pattern being matched
+// is a client that can be written to satisfy the pattern instead of the intent.
+type PhaseCriterionProto struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Order int32                  `protobuf:"varint,2,opt,name=order,proto3" json:"order,omitempty"`
+	Text  string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
+	Kind  string                 `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"` // "behavioral" | "structural" | "conceptual"
+	// Shown only once a criterion has failed — a hint given up front would answer
+	// the question the phase is asking.
+	Hint          string `protobuf:"bytes,5,opt,name=hint,proto3" json:"hint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PhaseCriterionProto) Reset() {
+	*x = PhaseCriterionProto{}
+	mi := &file_project_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PhaseCriterionProto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PhaseCriterionProto) ProtoMessage() {}
+
+func (x *PhaseCriterionProto) ProtoReflect() protoreflect.Message {
+	mi := &file_project_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PhaseCriterionProto.ProtoReflect.Descriptor instead.
+func (*PhaseCriterionProto) Descriptor() ([]byte, []int) {
+	return file_project_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PhaseCriterionProto) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *PhaseCriterionProto) GetOrder() int32 {
+	if x != nil {
+		return x.Order
+	}
+	return 0
+}
+
+func (x *PhaseCriterionProto) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *PhaseCriterionProto) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *PhaseCriterionProto) GetHint() string {
+	if x != nil {
+		return x.Hint
+	}
+	return ""
+}
+
 type LearningPhaseProto struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -327,13 +415,14 @@ type LearningPhaseProto struct {
 	PhaseNumber      int32                  `protobuf:"varint,5,opt,name=phase_number,json=phaseNumber,proto3" json:"phase_number,omitempty"`
 	EstimatedMinutes int32                  `protobuf:"varint,6,opt,name=estimated_minutes,json=estimatedMinutes,proto3" json:"estimated_minutes,omitempty"`
 	LongDescription  string                 `protobuf:"bytes,7,opt,name=long_description,json=longDescription,proto3" json:"long_description,omitempty"`
+	Criteria         []*PhaseCriterionProto `protobuf:"bytes,8,rep,name=criteria,proto3" json:"criteria,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
 func (x *LearningPhaseProto) Reset() {
 	*x = LearningPhaseProto{}
-	mi := &file_project_proto_msgTypes[5]
+	mi := &file_project_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -345,7 +434,7 @@ func (x *LearningPhaseProto) String() string {
 func (*LearningPhaseProto) ProtoMessage() {}
 
 func (x *LearningPhaseProto) ProtoReflect() protoreflect.Message {
-	mi := &file_project_proto_msgTypes[5]
+	mi := &file_project_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -358,7 +447,7 @@ func (x *LearningPhaseProto) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LearningPhaseProto.ProtoReflect.Descriptor instead.
 func (*LearningPhaseProto) Descriptor() ([]byte, []int) {
-	return file_project_proto_rawDescGZIP(), []int{5}
+	return file_project_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LearningPhaseProto) GetId() string {
@@ -410,6 +499,13 @@ func (x *LearningPhaseProto) GetLongDescription() string {
 	return ""
 }
 
+func (x *LearningPhaseProto) GetCriteria() []*PhaseCriterionProto {
+	if x != nil {
+		return x.Criteria
+	}
+	return nil
+}
+
 type GetProjectWithPhasesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
@@ -420,7 +516,7 @@ type GetProjectWithPhasesRequest struct {
 
 func (x *GetProjectWithPhasesRequest) Reset() {
 	*x = GetProjectWithPhasesRequest{}
-	mi := &file_project_proto_msgTypes[6]
+	mi := &file_project_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -432,7 +528,7 @@ func (x *GetProjectWithPhasesRequest) String() string {
 func (*GetProjectWithPhasesRequest) ProtoMessage() {}
 
 func (x *GetProjectWithPhasesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_project_proto_msgTypes[6]
+	mi := &file_project_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -445,7 +541,7 @@ func (x *GetProjectWithPhasesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectWithPhasesRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectWithPhasesRequest) Descriptor() ([]byte, []int) {
-	return file_project_proto_rawDescGZIP(), []int{6}
+	return file_project_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetProjectWithPhasesRequest) GetProjectId() string {
@@ -474,7 +570,7 @@ type GetProjectWithPhasesResponse struct {
 
 func (x *GetProjectWithPhasesResponse) Reset() {
 	*x = GetProjectWithPhasesResponse{}
-	mi := &file_project_proto_msgTypes[7]
+	mi := &file_project_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -486,7 +582,7 @@ func (x *GetProjectWithPhasesResponse) String() string {
 func (*GetProjectWithPhasesResponse) ProtoMessage() {}
 
 func (x *GetProjectWithPhasesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_project_proto_msgTypes[7]
+	mi := &file_project_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -499,7 +595,7 @@ func (x *GetProjectWithPhasesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectWithPhasesResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectWithPhasesResponse) Descriptor() ([]byte, []int) {
-	return file_project_proto_rawDescGZIP(), []int{7}
+	return file_project_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetProjectWithPhasesResponse) GetProject() *Project {
@@ -558,7 +654,13 @@ const file_project_proto_rawDesc = "" +
 	"\fdeliverables\x18\t \x03(\tR\fdeliverables\x12#\n" +
 	"\rinitial_files\x18\n" +
 	" \x01(\tR\finitialFiles\x12)\n" +
-	"\x10prerequisite_ids\x18\v \x03(\tR\x0fprerequisiteIds\"\xeb\x01\n" +
+	"\x10prerequisite_ids\x18\v \x03(\tR\x0fprerequisiteIds\"w\n" +
+	"\x13PhaseCriterionProto\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05order\x18\x02 \x01(\x05R\x05order\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12\x12\n" +
+	"\x04kind\x18\x04 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04hint\x18\x05 \x01(\tR\x04hint\"\xa5\x02\n" +
 	"\x12LearningPhaseProto\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -566,7 +668,8 @@ const file_project_proto_rawDesc = "" +
 	"\x04goal\x18\x04 \x01(\tR\x04goal\x12!\n" +
 	"\fphase_number\x18\x05 \x01(\x05R\vphaseNumber\x12+\n" +
 	"\x11estimated_minutes\x18\x06 \x01(\x05R\x10estimatedMinutes\x12)\n" +
-	"\x10long_description\x18\a \x01(\tR\x0flongDescription\"R\n" +
+	"\x10long_description\x18\a \x01(\tR\x0flongDescription\x128\n" +
+	"\bcriteria\x18\b \x03(\v2\x1c.project.PhaseCriterionProtoR\bcriteria\"R\n" +
 	"\x1bGetProjectWithPhasesRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x14\n" +
@@ -593,33 +696,35 @@ func file_project_proto_rawDescGZIP() []byte {
 	return file_project_proto_rawDescData
 }
 
-var file_project_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_project_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_project_proto_goTypes = []any{
 	(*GetAllProjectsRequest)(nil),        // 0: project.GetAllProjectsRequest
 	(*GetAllProjectsResponse)(nil),       // 1: project.GetAllProjectsResponse
 	(*GetProjectByIdRequest)(nil),        // 2: project.GetProjectByIdRequest
 	(*GetProjectByIdResponse)(nil),       // 3: project.GetProjectByIdResponse
 	(*Project)(nil),                      // 4: project.Project
-	(*LearningPhaseProto)(nil),           // 5: project.LearningPhaseProto
-	(*GetProjectWithPhasesRequest)(nil),  // 6: project.GetProjectWithPhasesRequest
-	(*GetProjectWithPhasesResponse)(nil), // 7: project.GetProjectWithPhasesResponse
+	(*PhaseCriterionProto)(nil),          // 5: project.PhaseCriterionProto
+	(*LearningPhaseProto)(nil),           // 6: project.LearningPhaseProto
+	(*GetProjectWithPhasesRequest)(nil),  // 7: project.GetProjectWithPhasesRequest
+	(*GetProjectWithPhasesResponse)(nil), // 8: project.GetProjectWithPhasesResponse
 }
 var file_project_proto_depIdxs = []int32{
 	4, // 0: project.GetAllProjectsResponse.projects:type_name -> project.Project
 	4, // 1: project.GetProjectByIdResponse.project:type_name -> project.Project
-	4, // 2: project.GetProjectWithPhasesResponse.project:type_name -> project.Project
-	5, // 3: project.GetProjectWithPhasesResponse.phases:type_name -> project.LearningPhaseProto
-	0, // 4: project.ProjectService.GetAllProjects:input_type -> project.GetAllProjectsRequest
-	2, // 5: project.ProjectService.GetProjectById:input_type -> project.GetProjectByIdRequest
-	6, // 6: project.ProjectService.GetProjectWithPhases:input_type -> project.GetProjectWithPhasesRequest
-	1, // 7: project.ProjectService.GetAllProjects:output_type -> project.GetAllProjectsResponse
-	3, // 8: project.ProjectService.GetProjectById:output_type -> project.GetProjectByIdResponse
-	7, // 9: project.ProjectService.GetProjectWithPhases:output_type -> project.GetProjectWithPhasesResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 2: project.LearningPhaseProto.criteria:type_name -> project.PhaseCriterionProto
+	4, // 3: project.GetProjectWithPhasesResponse.project:type_name -> project.Project
+	6, // 4: project.GetProjectWithPhasesResponse.phases:type_name -> project.LearningPhaseProto
+	0, // 5: project.ProjectService.GetAllProjects:input_type -> project.GetAllProjectsRequest
+	2, // 6: project.ProjectService.GetProjectById:input_type -> project.GetProjectByIdRequest
+	7, // 7: project.ProjectService.GetProjectWithPhases:input_type -> project.GetProjectWithPhasesRequest
+	1, // 8: project.ProjectService.GetAllProjects:output_type -> project.GetAllProjectsResponse
+	3, // 9: project.ProjectService.GetProjectById:output_type -> project.GetProjectByIdResponse
+	8, // 10: project.ProjectService.GetProjectWithPhases:output_type -> project.GetProjectWithPhasesResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_project_proto_init() }
@@ -633,7 +738,7 @@ func file_project_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_project_proto_rawDesc), len(file_project_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

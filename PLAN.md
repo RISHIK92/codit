@@ -63,7 +63,13 @@ checks (`tests/phase0.grading.test.ts`), all passing.*
 
 ---
 
-## Phase 1 — The rubric primitive
+## Phase 1 — The rubric primitive ✅ DONE
+
+*135 criteria authored across all 30 seeded phases, source-of-truth in
+`services/shared/prisma/criteria.ts`, applied via `npm run db:criteria`.
+Verified by 19 checks in `services/user-service/tests/phase1.criteria.test.ts`.
+`conceptual` criteria are intentionally unauthored — see the note below.*
+
 
 **Goal:** replace free-text phase goals with structured, checkable criteria.
 
@@ -114,6 +120,15 @@ Note `Deliverable` already exists on `Projects` — this is deliberately its per
 **Exit criteria:** every seeded phase has criteria. The build UI shows them. Nothing grades against them yet.
 
 **Size:** medium. The schema is a day; the authoring is the real cost.
+
+### What authoring 135 criteria actually taught
+
+Worth recording, because this is the spec Phase 7's generator has to hit:
+
+- **`conceptual` criteria can't be authored yet.** Nothing in the system can grade "do they understand this" from code. Authoring them now would fail every user on a criterion with no path to passing. The enum value is the slot Phase 5's explain-it-back checkpoint fills; knowledge checks carry the comprehension load until then. This is why the split ended up 65 behavioral / 70 structural / 0 conceptual.
+- **Deterministic checks are a floor, not a ceiling.** Only 13 of 135 are deterministic. A regex proves a shape is present, not that it's right — anything satisfiable by pasting the pattern into a comment needs a model-judged criterion covering the substance too.
+- **The hardest constraint is staying in the phase's lane.** The observed grader failure was wandering into later phases' concerns (commenting on CSS during an HTML-structure phase). Criteria are the fix, but only if each one is scoped to what *this* phase teaches.
+- **`behavioral` vs `structural` is the load-bearing distinction.** Code that works by accident passes behavioral and fails structural. That gap is the entire product, and it's why the two must never be collapsed into one score.
 
 ---
 

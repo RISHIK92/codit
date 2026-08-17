@@ -10,6 +10,27 @@ interface DescriptionPanelProps {
   projectName: string;
 }
 
+// Build and Understand are tracked separately by design, and a criterion's kind
+// is where that split originates — so it's labelled here rather than flattened
+// into an undifferentiated checklist.
+const KIND_META: Record<string, { label: string; className: string; title: string }> = {
+  behavioral: {
+    label: "Works",
+    className: "text-success/70",
+    title: "Behavioural — the thing does what it should",
+  },
+  structural: {
+    label: "Built right",
+    className: "text-accent/70",
+    title: "Structural — it's built the way this phase teaches, not just made to work",
+  },
+  conceptual: {
+    label: "Understood",
+    className: "text-[#b8a4e8]/70",
+    title: "Conceptual — you can explain why it works",
+  },
+};
+
 // ── Minimal markdown renderer for long_description ──────────────────────────
 // Authored phase content uses a small, fixed markdown subset — "## " headings,
 // **bold**, `inline code`, and blank-line paragraph breaks — so a full
@@ -92,6 +113,7 @@ export function DescriptionPanel({
   }
 
   const goalText = parseGoal(phase.goal);
+  const criteria = [...(phase.criteria ?? [])].sort((a, b) => a.order - b.order);
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "description", label: "Description" },
@@ -160,16 +182,70 @@ export function DescriptionPanel({
           </div>
         )}
 
-        {activeTab === "goal" && goalText && (
-          <div className="space-y-3">
-            <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-4">
-              Learning objective
-            </p>
-            <div className="p-4 bg-accent/5 border border-accent/20 rounded-sm">
-              <p className="font-(family-name:--font-dm) text-[13px] text-accent/90 leading-[1.7] whitespace-pre-wrap">
-                {goalText}
+        {activeTab === "goal" && (
+          <div className="space-y-5">
+            {goalText && (
+              <div className="space-y-3">
+                <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
+                  Learning objective
+                </p>
+                <div className="p-4 bg-accent/5 border border-accent/20 rounded-sm">
+                  <p className="font-(family-name:--font-dm) text-[13px] text-accent/90 leading-[1.7] whitespace-pre-wrap">
+                    {goalText}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* The rubric, shown before submitting rather than revealed on
+                failure. Withholding it wouldn't make the phase harder in any
+                way that teaches something — it would just make a demanding
+                gate feel arbitrary. */}
+            {criteria.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-baseline justify-between">
+                  <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
+                    What this phase is graded on
+                  </p>
+                  <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost/70">
+                    {criteria.length} {criteria.length === 1 ? "check" : "checks"}
+                  </span>
+                </div>
+
+                <ul className="space-y-2">
+                  {criteria.map((c) => (
+                    <li
+                      key={c.id}
+                      className="flex gap-3 p-3 rounded-sm border border-border-s bg-void/40"
+                    >
+                      <span className="shrink-0 mt-[3px] w-3.5 h-3.5 rounded-[3px] border border-border-s" />
+                      <div className="min-w-0 space-y-1">
+                        <p className="font-(family-name:--font-dm) text-[12.5px] text-txt/90 leading-[1.6]">
+                          {c.text}
+                        </p>
+                        <span
+                          className={`inline-block font-(family-name:--font-dm) text-[9px] uppercase tracking-[0.15em] ${KIND_META[c.kind]?.className ?? "text-txt-ghost"}`}
+                          title={KIND_META[c.kind]?.title}
+                        >
+                          {KIND_META[c.kind]?.label ?? c.kind}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-[1.6] italic">
+                  Every check has to pass before the next phase unlocks. You can
+                  resubmit as many times as you need.
+                </p>
+              </div>
+            )}
+
+            {!goalText && criteria.length === 0 && (
+              <p className="font-(family-name:--font-dm) text-[12px] text-txt-ghost italic">
+                No objective recorded for this phase.
               </p>
-            </div>
+            )}
           </div>
         )}
       </div>

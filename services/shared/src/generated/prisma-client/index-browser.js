@@ -248,6 +248,17 @@ exports.Prisma.LearningPhaseScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PhaseCriterionScalarFieldEnum = {
+  id: 'id',
+  phase_id: 'phase_id',
+  order: 'order',
+  text: 'text',
+  kind: 'kind',
+  check_type: 'check_type',
+  check_config: 'check_config',
+  hint: 'hint'
+};
+
 exports.Prisma.KnowledgeChecksScalarFieldEnum = {
   id: 'id',
   phase_id: 'phase_id',
@@ -356,6 +367,17 @@ exports.PhaseStatus = exports.$Enums.PhaseStatus = {
   locked: 'locked'
 };
 
+exports.CriterionKind = exports.$Enums.CriterionKind = {
+  behavioral: 'behavioral',
+  structural: 'structural',
+  conceptual: 'conceptual'
+};
+
+exports.CheckType = exports.$Enums.CheckType = {
+  deterministic: 'deterministic',
+  model_judged: 'model_judged'
+};
+
 exports.Question_Type = exports.$Enums.Question_Type = {
   code_completion: 'code_completion',
   multiple_choice: 'multiple_choice',
@@ -375,6 +397,7 @@ exports.Prisma.ModelName = {
   PhaseReview: 'PhaseReview',
   UserPhaseProgress: 'UserPhaseProgress',
   LearningPhase: 'LearningPhase',
+  PhaseCriterion: 'PhaseCriterion',
   KnowledgeChecks: 'KnowledgeChecks',
   KnowledgeCheckAttempt: 'KnowledgeCheckAttempt',
   Resources: 'Resources',

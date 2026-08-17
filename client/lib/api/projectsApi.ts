@@ -162,6 +162,25 @@ export interface CatalogueProjectDTO {
   }>;
 }
 
+/**
+ * One condition this phase's submission is graded against.
+ *
+ * Shown to the user before they submit, on purpose. The gate is meant to be
+ * demanding, not mysterious — being failed against a checklist you could read
+ * the whole time is a fair test; being failed against hidden criteria is just
+ * arbitrary. How each one is actually verified stays server-side.
+ */
+export interface PhaseCriterionDTO {
+  id: string;
+  order: number;
+  text: string;
+  /** "behavioral" — it does what it should. "structural" — it's built the way
+   * this phase teaches. "conceptual" — they can explain why. */
+  kind: string;
+  /** Names the concept to look up, never the code. Revealed once it has failed. */
+  hint?: string;
+}
+
 export interface LearningPhaseDTO {
   id: string;
   title: string;
@@ -171,6 +190,8 @@ export interface LearningPhaseDTO {
   goal: string; // JSON-encoded string from DB
   phase_number: number;
   estimated_minutes: number;
+  /** Empty for phases authored before the rubric existed. */
+  criteria?: PhaseCriterionDTO[];
 }
 
 export interface GetProjectWithPhasesResponse {

@@ -341,6 +341,19 @@ export const getCatalogueProjectById = async (projectId: string) => {
           goal: true,
           phase_number: true,
           estimated_minutes: true,
+          criteria: {
+            orderBy: { order: "asc" },
+            // check_config is deliberately omitted: it describes how a criterion
+            // is verified, and a client that can read the pattern being matched
+            // can be written to satisfy the pattern rather than the intent.
+            select: {
+              id: true,
+              order: true,
+              text: true,
+              kind: true,
+              hint: true,
+            },
+          },
         },
       },
     },

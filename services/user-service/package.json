@@ -8,7 +8,8 @@
     "start": "node dist/user-service/server.js",
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "generate:proto": "buf generate ../../shared/proto",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:criteria": "ts-node scripts/backfill-criteria.ts"
   },
   "keywords": [],
   "author": "",

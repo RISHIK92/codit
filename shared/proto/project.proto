@@ -48,6 +48,26 @@ message Project {
   repeated string prerequisite_ids = 11;
 }
 
+// One checkable condition a phase submission is graded against.
+//
+// Sent to the client so the user can see the target before submitting. Showing
+// the rubric isn't making the phase easier — it's making the difficulty
+// legitimate. Being failed against criteria you were never shown is arbitrary;
+// being failed against a checklist you could read the whole time is a fair test.
+//
+// Note what is deliberately NOT here: check_config. How a criterion is verified
+// is grading internals, and a client that knows the exact pattern being matched
+// is a client that can be written to satisfy the pattern instead of the intent.
+message PhaseCriterionProto {
+  string id         = 1;
+  int32  order      = 2;
+  string text       = 3;
+  string kind       = 4;  // "behavioral" | "structural" | "conceptual"
+  // Shown only once a criterion has failed — a hint given up front would answer
+  // the question the phase is asking.
+  string hint       = 5;
+}
+
 message LearningPhaseProto {
   string id                = 1;
   string title             = 2;
@@ -56,6 +76,7 @@ message LearningPhaseProto {
   int32  phase_number      = 5;
   int32  estimated_minutes = 6;
   string long_description  = 7;
+  repeated PhaseCriterionProto criteria = 8;
 }
 
 message GetProjectWithPhasesRequest {

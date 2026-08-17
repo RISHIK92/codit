@@ -88,6 +88,23 @@ export type UserPhaseProgress = $Result.DefaultSelection<Prisma.$UserPhaseProgre
  */
 export type LearningPhase = $Result.DefaultSelection<Prisma.$LearningPhasePayload>
 /**
+ * Model PhaseCriterion
+ * * One checkable condition a phase submission must satisfy.
+ *  *
+ *  * Replaces grading against `LearningPhase.goal`, which is a prose sentence. A
+ *  * grader handed prose returns a holistic judgement with no structure to inspect,
+ *  * debug, or count — and holistic judgements drift generous, which is the failure
+ *  * that matters here. Criteria turn one vague verdict into N specific ones, each
+ *  * of which has to be independently evidenced.
+ *  *
+ *  * This is also the contract that later work depends on: the retrieval layer
+ *  * needs "find evidence for criterion 3" to be a well-posed question, the growth
+ *  * stats need `kind` to tell shipping apart from understanding, and generated
+ *  * projects need a definition of what a phase's success condition looks like as
+ *  * data.
+ */
+export type PhaseCriterion = $Result.DefaultSelection<Prisma.$PhaseCriterionPayload>
+/**
  * Model KnowledgeChecks
  * 
  */
@@ -112,7 +129,24 @@ export type ResourceProgress = $Result.DefaultSelection<Prisma.$ResourceProgress
  * Enums
  */
 export namespace $Enums {
-  export const Skill_Level: {
+  export const CriterionKind: {
+  behavioral: 'behavioral',
+  structural: 'structural',
+  conceptual: 'conceptual'
+};
+
+export type CriterionKind = (typeof CriterionKind)[keyof typeof CriterionKind]
+
+
+export const CheckType: {
+  deterministic: 'deterministic',
+  model_judged: 'model_judged'
+};
+
+export type CheckType = (typeof CheckType)[keyof typeof CheckType]
+
+
+export const Skill_Level: {
   beginner: 'beginner',
   intermediate: 'intermediate',
   advanced: 'advanced'
@@ -174,6 +208,14 @@ export const ReviewVerdict: {
 export type ReviewVerdict = (typeof ReviewVerdict)[keyof typeof ReviewVerdict]
 
 }
+
+export type CriterionKind = $Enums.CriterionKind
+
+export const CriterionKind: typeof $Enums.CriterionKind
+
+export type CheckType = $Enums.CheckType
+
+export const CheckType: typeof $Enums.CheckType
 
 export type Skill_Level = $Enums.Skill_Level
 
@@ -440,6 +482,16 @@ export class PrismaClient<
     * ```
     */
   get learningPhase(): Prisma.LearningPhaseDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.phaseCriterion`: Exposes CRUD operations for the **PhaseCriterion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PhaseCriteria
+    * const phaseCriteria = await prisma.phaseCriterion.findMany()
+    * ```
+    */
+  get phaseCriterion(): Prisma.PhaseCriterionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.knowledgeChecks`: Exposes CRUD operations for the **KnowledgeChecks** model.
@@ -933,6 +985,7 @@ export namespace Prisma {
     PhaseReview: 'PhaseReview',
     UserPhaseProgress: 'UserPhaseProgress',
     LearningPhase: 'LearningPhase',
+    PhaseCriterion: 'PhaseCriterion',
     KnowledgeChecks: 'KnowledgeChecks',
     KnowledgeCheckAttempt: 'KnowledgeCheckAttempt',
     Resources: 'Resources',
@@ -955,7 +1008,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "userPhaseProgress" | "learningPhase" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
+      modelProps: "user" | "projects" | "deliverable" | "entranceQuestion" | "entranceTestAttempt" | "projectFile" | "phaseSnapshotFile" | "blob" | "userProjects" | "phaseReview" | "userPhaseProgress" | "learningPhase" | "phaseCriterion" | "knowledgeChecks" | "knowledgeCheckAttempt" | "resources" | "resourceProgress"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1847,6 +1900,80 @@ export namespace Prisma {
           }
         }
       }
+      PhaseCriterion: {
+        payload: Prisma.$PhaseCriterionPayload<ExtArgs>
+        fields: Prisma.PhaseCriterionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PhaseCriterionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PhaseCriterionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>
+          }
+          findFirst: {
+            args: Prisma.PhaseCriterionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PhaseCriterionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>
+          }
+          findMany: {
+            args: Prisma.PhaseCriterionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>[]
+          }
+          create: {
+            args: Prisma.PhaseCriterionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>
+          }
+          createMany: {
+            args: Prisma.PhaseCriterionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PhaseCriterionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>[]
+          }
+          delete: {
+            args: Prisma.PhaseCriterionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>
+          }
+          update: {
+            args: Prisma.PhaseCriterionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>
+          }
+          deleteMany: {
+            args: Prisma.PhaseCriterionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PhaseCriterionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PhaseCriterionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>[]
+          }
+          upsert: {
+            args: Prisma.PhaseCriterionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhaseCriterionPayload>
+          }
+          aggregate: {
+            args: Prisma.PhaseCriterionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePhaseCriterion>
+          }
+          groupBy: {
+            args: Prisma.PhaseCriterionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PhaseCriterionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PhaseCriterionCountArgs<ExtArgs>
+            result: $Utils.Optional<PhaseCriterionCountAggregateOutputType> | number
+          }
+        }
+      }
       KnowledgeChecks: {
         payload: Prisma.$KnowledgeChecksPayload<ExtArgs>
         fields: Prisma.KnowledgeChecksFieldRefs
@@ -2251,6 +2378,7 @@ export namespace Prisma {
     phaseReview?: PhaseReviewOmit
     userPhaseProgress?: UserPhaseProgressOmit
     learningPhase?: LearningPhaseOmit
+    phaseCriterion?: PhaseCriterionOmit
     knowledgeChecks?: KnowledgeChecksOmit
     knowledgeCheckAttempt?: KnowledgeCheckAttemptOmit
     resources?: ResourcesOmit
@@ -2497,11 +2625,13 @@ export namespace Prisma {
   export type LearningPhaseCountOutputType = {
     resources: number
     knowledgeChecks: number
+    criteria: number
   }
 
   export type LearningPhaseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     resources?: boolean | LearningPhaseCountOutputTypeCountResourcesArgs
     knowledgeChecks?: boolean | LearningPhaseCountOutputTypeCountKnowledgeChecksArgs
+    criteria?: boolean | LearningPhaseCountOutputTypeCountCriteriaArgs
   }
 
   // Custom InputTypes
@@ -2527,6 +2657,13 @@ export namespace Prisma {
    */
   export type LearningPhaseCountOutputTypeCountKnowledgeChecksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: KnowledgeChecksWhereInput
+  }
+
+  /**
+   * LearningPhaseCountOutputType without action
+   */
+  export type LearningPhaseCountOutputTypeCountCriteriaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhaseCriterionWhereInput
   }
 
 
@@ -15294,6 +15431,7 @@ export namespace Prisma {
     project?: boolean | ProjectsDefaultArgs<ExtArgs>
     resources?: boolean | LearningPhase$resourcesArgs<ExtArgs>
     knowledgeChecks?: boolean | LearningPhase$knowledgeChecksArgs<ExtArgs>
+    criteria?: boolean | LearningPhase$criteriaArgs<ExtArgs>
     _count?: boolean | LearningPhaseCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["learningPhase"]>
 
@@ -15346,6 +15484,7 @@ export namespace Prisma {
     project?: boolean | ProjectsDefaultArgs<ExtArgs>
     resources?: boolean | LearningPhase$resourcesArgs<ExtArgs>
     knowledgeChecks?: boolean | LearningPhase$knowledgeChecksArgs<ExtArgs>
+    criteria?: boolean | LearningPhase$criteriaArgs<ExtArgs>
     _count?: boolean | LearningPhaseCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LearningPhaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15361,6 +15500,7 @@ export namespace Prisma {
       project: Prisma.$ProjectsPayload<ExtArgs>
       resources: Prisma.$ResourcesPayload<ExtArgs>[]
       knowledgeChecks: Prisma.$KnowledgeChecksPayload<ExtArgs>[]
+      criteria: Prisma.$PhaseCriterionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -15771,6 +15911,7 @@ export namespace Prisma {
     project<T extends ProjectsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectsDefaultArgs<ExtArgs>>): Prisma__ProjectsClient<$Result.GetResult<Prisma.$ProjectsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     resources<T extends LearningPhase$resourcesArgs<ExtArgs> = {}>(args?: Subset<T, LearningPhase$resourcesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResourcesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     knowledgeChecks<T extends LearningPhase$knowledgeChecksArgs<ExtArgs> = {}>(args?: Subset<T, LearningPhase$knowledgeChecksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KnowledgeChecksPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    criteria<T extends LearningPhase$criteriaArgs<ExtArgs> = {}>(args?: Subset<T, LearningPhase$criteriaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16255,6 +16396,30 @@ export namespace Prisma {
   }
 
   /**
+   * LearningPhase.criteria
+   */
+  export type LearningPhase$criteriaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    where?: PhaseCriterionWhereInput
+    orderBy?: PhaseCriterionOrderByWithRelationInput | PhaseCriterionOrderByWithRelationInput[]
+    cursor?: PhaseCriterionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PhaseCriterionScalarFieldEnum | PhaseCriterionScalarFieldEnum[]
+  }
+
+  /**
    * LearningPhase without action
    */
   export type LearningPhaseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16270,6 +16435,1147 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: LearningPhaseInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PhaseCriterion
+   */
+
+  export type AggregatePhaseCriterion = {
+    _count: PhaseCriterionCountAggregateOutputType | null
+    _avg: PhaseCriterionAvgAggregateOutputType | null
+    _sum: PhaseCriterionSumAggregateOutputType | null
+    _min: PhaseCriterionMinAggregateOutputType | null
+    _max: PhaseCriterionMaxAggregateOutputType | null
+  }
+
+  export type PhaseCriterionAvgAggregateOutputType = {
+    order: number | null
+  }
+
+  export type PhaseCriterionSumAggregateOutputType = {
+    order: number | null
+  }
+
+  export type PhaseCriterionMinAggregateOutputType = {
+    id: string | null
+    phase_id: string | null
+    order: number | null
+    text: string | null
+    kind: $Enums.CriterionKind | null
+    check_type: $Enums.CheckType | null
+    hint: string | null
+  }
+
+  export type PhaseCriterionMaxAggregateOutputType = {
+    id: string | null
+    phase_id: string | null
+    order: number | null
+    text: string | null
+    kind: $Enums.CriterionKind | null
+    check_type: $Enums.CheckType | null
+    hint: string | null
+  }
+
+  export type PhaseCriterionCountAggregateOutputType = {
+    id: number
+    phase_id: number
+    order: number
+    text: number
+    kind: number
+    check_type: number
+    check_config: number
+    hint: number
+    _all: number
+  }
+
+
+  export type PhaseCriterionAvgAggregateInputType = {
+    order?: true
+  }
+
+  export type PhaseCriterionSumAggregateInputType = {
+    order?: true
+  }
+
+  export type PhaseCriterionMinAggregateInputType = {
+    id?: true
+    phase_id?: true
+    order?: true
+    text?: true
+    kind?: true
+    check_type?: true
+    hint?: true
+  }
+
+  export type PhaseCriterionMaxAggregateInputType = {
+    id?: true
+    phase_id?: true
+    order?: true
+    text?: true
+    kind?: true
+    check_type?: true
+    hint?: true
+  }
+
+  export type PhaseCriterionCountAggregateInputType = {
+    id?: true
+    phase_id?: true
+    order?: true
+    text?: true
+    kind?: true
+    check_type?: true
+    check_config?: true
+    hint?: true
+    _all?: true
+  }
+
+  export type PhaseCriterionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhaseCriterion to aggregate.
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseCriteria to fetch.
+     */
+    orderBy?: PhaseCriterionOrderByWithRelationInput | PhaseCriterionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PhaseCriterionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseCriteria from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseCriteria.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PhaseCriteria
+    **/
+    _count?: true | PhaseCriterionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PhaseCriterionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PhaseCriterionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PhaseCriterionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PhaseCriterionMaxAggregateInputType
+  }
+
+  export type GetPhaseCriterionAggregateType<T extends PhaseCriterionAggregateArgs> = {
+        [P in keyof T & keyof AggregatePhaseCriterion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePhaseCriterion[P]>
+      : GetScalarType<T[P], AggregatePhaseCriterion[P]>
+  }
+
+
+
+
+  export type PhaseCriterionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhaseCriterionWhereInput
+    orderBy?: PhaseCriterionOrderByWithAggregationInput | PhaseCriterionOrderByWithAggregationInput[]
+    by: PhaseCriterionScalarFieldEnum[] | PhaseCriterionScalarFieldEnum
+    having?: PhaseCriterionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PhaseCriterionCountAggregateInputType | true
+    _avg?: PhaseCriterionAvgAggregateInputType
+    _sum?: PhaseCriterionSumAggregateInputType
+    _min?: PhaseCriterionMinAggregateInputType
+    _max?: PhaseCriterionMaxAggregateInputType
+  }
+
+  export type PhaseCriterionGroupByOutputType = {
+    id: string
+    phase_id: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config: JsonValue | null
+    hint: string
+    _count: PhaseCriterionCountAggregateOutputType | null
+    _avg: PhaseCriterionAvgAggregateOutputType | null
+    _sum: PhaseCriterionSumAggregateOutputType | null
+    _min: PhaseCriterionMinAggregateOutputType | null
+    _max: PhaseCriterionMaxAggregateOutputType | null
+  }
+
+  type GetPhaseCriterionGroupByPayload<T extends PhaseCriterionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PhaseCriterionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PhaseCriterionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PhaseCriterionGroupByOutputType[P]>
+            : GetScalarType<T[P], PhaseCriterionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PhaseCriterionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    phase_id?: boolean
+    order?: boolean
+    text?: boolean
+    kind?: boolean
+    check_type?: boolean
+    check_config?: boolean
+    hint?: boolean
+    learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseCriterion"]>
+
+  export type PhaseCriterionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    phase_id?: boolean
+    order?: boolean
+    text?: boolean
+    kind?: boolean
+    check_type?: boolean
+    check_config?: boolean
+    hint?: boolean
+    learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseCriterion"]>
+
+  export type PhaseCriterionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    phase_id?: boolean
+    order?: boolean
+    text?: boolean
+    kind?: boolean
+    check_type?: boolean
+    check_config?: boolean
+    hint?: boolean
+    learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["phaseCriterion"]>
+
+  export type PhaseCriterionSelectScalar = {
+    id?: boolean
+    phase_id?: boolean
+    order?: boolean
+    text?: boolean
+    kind?: boolean
+    check_type?: boolean
+    check_config?: boolean
+    hint?: boolean
+  }
+
+  export type PhaseCriterionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phase_id" | "order" | "text" | "kind" | "check_type" | "check_config" | "hint", ExtArgs["result"]["phaseCriterion"]>
+  export type PhaseCriterionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+  }
+  export type PhaseCriterionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+  }
+  export type PhaseCriterionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    learningPhase?: boolean | LearningPhaseDefaultArgs<ExtArgs>
+  }
+
+  export type $PhaseCriterionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PhaseCriterion"
+    objects: {
+      learningPhase: Prisma.$LearningPhasePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      phase_id: string
+      /**
+       * * Display and evaluation order within the phase.
+       */
+      order: number
+      /**
+       * * Specific enough to be checked, in the user's language:
+       *    * "Nav links target section IDs on the same page", not "navigation works".
+       */
+      text: string
+      kind: $Enums.CriterionKind
+      check_type: $Enums.CheckType
+      /**
+       * * Shape depends on check_type — see the CheckType docs. Null for model_judged.
+       */
+      check_config: Prisma.JsonValue | null
+      /**
+       * * Shown when this criterion fails. Names the concept or the thing to look up;
+       *    * never the code, same rule the assistant follows.
+       */
+      hint: string
+    }, ExtArgs["result"]["phaseCriterion"]>
+    composites: {}
+  }
+
+  type PhaseCriterionGetPayload<S extends boolean | null | undefined | PhaseCriterionDefaultArgs> = $Result.GetResult<Prisma.$PhaseCriterionPayload, S>
+
+  type PhaseCriterionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PhaseCriterionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PhaseCriterionCountAggregateInputType | true
+    }
+
+  export interface PhaseCriterionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PhaseCriterion'], meta: { name: 'PhaseCriterion' } }
+    /**
+     * Find zero or one PhaseCriterion that matches the filter.
+     * @param {PhaseCriterionFindUniqueArgs} args - Arguments to find a PhaseCriterion
+     * @example
+     * // Get one PhaseCriterion
+     * const phaseCriterion = await prisma.phaseCriterion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PhaseCriterionFindUniqueArgs>(args: SelectSubset<T, PhaseCriterionFindUniqueArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PhaseCriterion that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PhaseCriterionFindUniqueOrThrowArgs} args - Arguments to find a PhaseCriterion
+     * @example
+     * // Get one PhaseCriterion
+     * const phaseCriterion = await prisma.phaseCriterion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PhaseCriterionFindUniqueOrThrowArgs>(args: SelectSubset<T, PhaseCriterionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhaseCriterion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionFindFirstArgs} args - Arguments to find a PhaseCriterion
+     * @example
+     * // Get one PhaseCriterion
+     * const phaseCriterion = await prisma.phaseCriterion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PhaseCriterionFindFirstArgs>(args?: SelectSubset<T, PhaseCriterionFindFirstArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhaseCriterion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionFindFirstOrThrowArgs} args - Arguments to find a PhaseCriterion
+     * @example
+     * // Get one PhaseCriterion
+     * const phaseCriterion = await prisma.phaseCriterion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PhaseCriterionFindFirstOrThrowArgs>(args?: SelectSubset<T, PhaseCriterionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PhaseCriteria that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PhaseCriteria
+     * const phaseCriteria = await prisma.phaseCriterion.findMany()
+     * 
+     * // Get first 10 PhaseCriteria
+     * const phaseCriteria = await prisma.phaseCriterion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const phaseCriterionWithIdOnly = await prisma.phaseCriterion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PhaseCriterionFindManyArgs>(args?: SelectSubset<T, PhaseCriterionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PhaseCriterion.
+     * @param {PhaseCriterionCreateArgs} args - Arguments to create a PhaseCriterion.
+     * @example
+     * // Create one PhaseCriterion
+     * const PhaseCriterion = await prisma.phaseCriterion.create({
+     *   data: {
+     *     // ... data to create a PhaseCriterion
+     *   }
+     * })
+     * 
+     */
+    create<T extends PhaseCriterionCreateArgs>(args: SelectSubset<T, PhaseCriterionCreateArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PhaseCriteria.
+     * @param {PhaseCriterionCreateManyArgs} args - Arguments to create many PhaseCriteria.
+     * @example
+     * // Create many PhaseCriteria
+     * const phaseCriterion = await prisma.phaseCriterion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PhaseCriterionCreateManyArgs>(args?: SelectSubset<T, PhaseCriterionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PhaseCriteria and returns the data saved in the database.
+     * @param {PhaseCriterionCreateManyAndReturnArgs} args - Arguments to create many PhaseCriteria.
+     * @example
+     * // Create many PhaseCriteria
+     * const phaseCriterion = await prisma.phaseCriterion.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PhaseCriteria and only return the `id`
+     * const phaseCriterionWithIdOnly = await prisma.phaseCriterion.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PhaseCriterionCreateManyAndReturnArgs>(args?: SelectSubset<T, PhaseCriterionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PhaseCriterion.
+     * @param {PhaseCriterionDeleteArgs} args - Arguments to delete one PhaseCriterion.
+     * @example
+     * // Delete one PhaseCriterion
+     * const PhaseCriterion = await prisma.phaseCriterion.delete({
+     *   where: {
+     *     // ... filter to delete one PhaseCriterion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PhaseCriterionDeleteArgs>(args: SelectSubset<T, PhaseCriterionDeleteArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PhaseCriterion.
+     * @param {PhaseCriterionUpdateArgs} args - Arguments to update one PhaseCriterion.
+     * @example
+     * // Update one PhaseCriterion
+     * const phaseCriterion = await prisma.phaseCriterion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PhaseCriterionUpdateArgs>(args: SelectSubset<T, PhaseCriterionUpdateArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PhaseCriteria.
+     * @param {PhaseCriterionDeleteManyArgs} args - Arguments to filter PhaseCriteria to delete.
+     * @example
+     * // Delete a few PhaseCriteria
+     * const { count } = await prisma.phaseCriterion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PhaseCriterionDeleteManyArgs>(args?: SelectSubset<T, PhaseCriterionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhaseCriteria.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PhaseCriteria
+     * const phaseCriterion = await prisma.phaseCriterion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PhaseCriterionUpdateManyArgs>(args: SelectSubset<T, PhaseCriterionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhaseCriteria and returns the data updated in the database.
+     * @param {PhaseCriterionUpdateManyAndReturnArgs} args - Arguments to update many PhaseCriteria.
+     * @example
+     * // Update many PhaseCriteria
+     * const phaseCriterion = await prisma.phaseCriterion.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PhaseCriteria and only return the `id`
+     * const phaseCriterionWithIdOnly = await prisma.phaseCriterion.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PhaseCriterionUpdateManyAndReturnArgs>(args: SelectSubset<T, PhaseCriterionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PhaseCriterion.
+     * @param {PhaseCriterionUpsertArgs} args - Arguments to update or create a PhaseCriterion.
+     * @example
+     * // Update or create a PhaseCriterion
+     * const phaseCriterion = await prisma.phaseCriterion.upsert({
+     *   create: {
+     *     // ... data to create a PhaseCriterion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PhaseCriterion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PhaseCriterionUpsertArgs>(args: SelectSubset<T, PhaseCriterionUpsertArgs<ExtArgs>>): Prisma__PhaseCriterionClient<$Result.GetResult<Prisma.$PhaseCriterionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PhaseCriteria.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionCountArgs} args - Arguments to filter PhaseCriteria to count.
+     * @example
+     * // Count the number of PhaseCriteria
+     * const count = await prisma.phaseCriterion.count({
+     *   where: {
+     *     // ... the filter for the PhaseCriteria we want to count
+     *   }
+     * })
+    **/
+    count<T extends PhaseCriterionCountArgs>(
+      args?: Subset<T, PhaseCriterionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PhaseCriterionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PhaseCriterion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PhaseCriterionAggregateArgs>(args: Subset<T, PhaseCriterionAggregateArgs>): Prisma.PrismaPromise<GetPhaseCriterionAggregateType<T>>
+
+    /**
+     * Group by PhaseCriterion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhaseCriterionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PhaseCriterionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PhaseCriterionGroupByArgs['orderBy'] }
+        : { orderBy?: PhaseCriterionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PhaseCriterionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPhaseCriterionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PhaseCriterion model
+   */
+  readonly fields: PhaseCriterionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PhaseCriterion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PhaseCriterionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    learningPhase<T extends LearningPhaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LearningPhaseDefaultArgs<ExtArgs>>): Prisma__LearningPhaseClient<$Result.GetResult<Prisma.$LearningPhasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PhaseCriterion model
+   */
+  interface PhaseCriterionFieldRefs {
+    readonly id: FieldRef<"PhaseCriterion", 'String'>
+    readonly phase_id: FieldRef<"PhaseCriterion", 'String'>
+    readonly order: FieldRef<"PhaseCriterion", 'Int'>
+    readonly text: FieldRef<"PhaseCriterion", 'String'>
+    readonly kind: FieldRef<"PhaseCriterion", 'CriterionKind'>
+    readonly check_type: FieldRef<"PhaseCriterion", 'CheckType'>
+    readonly check_config: FieldRef<"PhaseCriterion", 'Json'>
+    readonly hint: FieldRef<"PhaseCriterion", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PhaseCriterion findUnique
+   */
+  export type PhaseCriterionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseCriterion to fetch.
+     */
+    where: PhaseCriterionWhereUniqueInput
+  }
+
+  /**
+   * PhaseCriterion findUniqueOrThrow
+   */
+  export type PhaseCriterionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseCriterion to fetch.
+     */
+    where: PhaseCriterionWhereUniqueInput
+  }
+
+  /**
+   * PhaseCriterion findFirst
+   */
+  export type PhaseCriterionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseCriterion to fetch.
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseCriteria to fetch.
+     */
+    orderBy?: PhaseCriterionOrderByWithRelationInput | PhaseCriterionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhaseCriteria.
+     */
+    cursor?: PhaseCriterionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseCriteria from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseCriteria.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhaseCriteria.
+     */
+    distinct?: PhaseCriterionScalarFieldEnum | PhaseCriterionScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseCriterion findFirstOrThrow
+   */
+  export type PhaseCriterionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseCriterion to fetch.
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseCriteria to fetch.
+     */
+    orderBy?: PhaseCriterionOrderByWithRelationInput | PhaseCriterionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhaseCriteria.
+     */
+    cursor?: PhaseCriterionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseCriteria from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseCriteria.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhaseCriteria.
+     */
+    distinct?: PhaseCriterionScalarFieldEnum | PhaseCriterionScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseCriterion findMany
+   */
+  export type PhaseCriterionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * Filter, which PhaseCriteria to fetch.
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhaseCriteria to fetch.
+     */
+    orderBy?: PhaseCriterionOrderByWithRelationInput | PhaseCriterionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PhaseCriteria.
+     */
+    cursor?: PhaseCriterionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhaseCriteria from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhaseCriteria.
+     */
+    skip?: number
+    distinct?: PhaseCriterionScalarFieldEnum | PhaseCriterionScalarFieldEnum[]
+  }
+
+  /**
+   * PhaseCriterion create
+   */
+  export type PhaseCriterionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PhaseCriterion.
+     */
+    data: XOR<PhaseCriterionCreateInput, PhaseCriterionUncheckedCreateInput>
+  }
+
+  /**
+   * PhaseCriterion createMany
+   */
+  export type PhaseCriterionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PhaseCriteria.
+     */
+    data: PhaseCriterionCreateManyInput | PhaseCriterionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PhaseCriterion createManyAndReturn
+   */
+  export type PhaseCriterionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * The data used to create many PhaseCriteria.
+     */
+    data: PhaseCriterionCreateManyInput | PhaseCriterionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PhaseCriterion update
+   */
+  export type PhaseCriterionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PhaseCriterion.
+     */
+    data: XOR<PhaseCriterionUpdateInput, PhaseCriterionUncheckedUpdateInput>
+    /**
+     * Choose, which PhaseCriterion to update.
+     */
+    where: PhaseCriterionWhereUniqueInput
+  }
+
+  /**
+   * PhaseCriterion updateMany
+   */
+  export type PhaseCriterionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PhaseCriteria.
+     */
+    data: XOR<PhaseCriterionUpdateManyMutationInput, PhaseCriterionUncheckedUpdateManyInput>
+    /**
+     * Filter which PhaseCriteria to update
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * Limit how many PhaseCriteria to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhaseCriterion updateManyAndReturn
+   */
+  export type PhaseCriterionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * The data used to update PhaseCriteria.
+     */
+    data: XOR<PhaseCriterionUpdateManyMutationInput, PhaseCriterionUncheckedUpdateManyInput>
+    /**
+     * Filter which PhaseCriteria to update
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * Limit how many PhaseCriteria to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PhaseCriterion upsert
+   */
+  export type PhaseCriterionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PhaseCriterion to update in case it exists.
+     */
+    where: PhaseCriterionWhereUniqueInput
+    /**
+     * In case the PhaseCriterion found by the `where` argument doesn't exist, create a new PhaseCriterion with this data.
+     */
+    create: XOR<PhaseCriterionCreateInput, PhaseCriterionUncheckedCreateInput>
+    /**
+     * In case the PhaseCriterion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PhaseCriterionUpdateInput, PhaseCriterionUncheckedUpdateInput>
+  }
+
+  /**
+   * PhaseCriterion delete
+   */
+  export type PhaseCriterionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
+    /**
+     * Filter which PhaseCriterion to delete.
+     */
+    where: PhaseCriterionWhereUniqueInput
+  }
+
+  /**
+   * PhaseCriterion deleteMany
+   */
+  export type PhaseCriterionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhaseCriteria to delete
+     */
+    where?: PhaseCriterionWhereInput
+    /**
+     * Limit how many PhaseCriteria to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhaseCriterion without action
+   */
+  export type PhaseCriterionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhaseCriterion
+     */
+    select?: PhaseCriterionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhaseCriterion
+     */
+    omit?: PhaseCriterionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PhaseCriterionInclude<ExtArgs> | null
   }
 
 
@@ -20928,6 +22234,20 @@ export namespace Prisma {
   export type LearningPhaseScalarFieldEnum = (typeof LearningPhaseScalarFieldEnum)[keyof typeof LearningPhaseScalarFieldEnum]
 
 
+  export const PhaseCriterionScalarFieldEnum: {
+    id: 'id',
+    phase_id: 'phase_id',
+    order: 'order',
+    text: 'text',
+    kind: 'kind',
+    check_type: 'check_type',
+    check_config: 'check_config',
+    hint: 'hint'
+  };
+
+  export type PhaseCriterionScalarFieldEnum = (typeof PhaseCriterionScalarFieldEnum)[keyof typeof PhaseCriterionScalarFieldEnum]
+
+
   export const KnowledgeChecksScalarFieldEnum: {
     id: 'id',
     phase_id: 'phase_id',
@@ -21181,6 +22501,34 @@ export namespace Prisma {
    * Reference to a field of type 'PhaseStatus[]'
    */
   export type ListEnumPhaseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PhaseStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CriterionKind'
+   */
+  export type EnumCriterionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CriterionKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'CriterionKind[]'
+   */
+  export type ListEnumCriterionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CriterionKind[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CheckType'
+   */
+  export type EnumCheckTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CheckType'>
+    
+
+
+  /**
+   * Reference to a field of type 'CheckType[]'
+   */
+  export type ListEnumCheckTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CheckType[]'>
     
 
 
@@ -22005,6 +23353,7 @@ export namespace Prisma {
     project?: XOR<ProjectsScalarRelationFilter, ProjectsWhereInput>
     resources?: ResourcesListRelationFilter
     knowledgeChecks?: KnowledgeChecksListRelationFilter
+    criteria?: PhaseCriterionListRelationFilter
   }
 
   export type LearningPhaseOrderByWithRelationInput = {
@@ -22022,6 +23371,7 @@ export namespace Prisma {
     project?: ProjectsOrderByWithRelationInput
     resources?: ResourcesOrderByRelationAggregateInput
     knowledgeChecks?: KnowledgeChecksOrderByRelationAggregateInput
+    criteria?: PhaseCriterionOrderByRelationAggregateInput
   }
 
   export type LearningPhaseWhereUniqueInput = Prisma.AtLeast<{
@@ -22042,6 +23392,7 @@ export namespace Prisma {
     project?: XOR<ProjectsScalarRelationFilter, ProjectsWhereInput>
     resources?: ResourcesListRelationFilter
     knowledgeChecks?: KnowledgeChecksListRelationFilter
+    criteria?: PhaseCriterionListRelationFilter
   }, "id">
 
   export type LearningPhaseOrderByWithAggregationInput = {
@@ -22078,6 +23429,79 @@ export namespace Prisma {
     phase_status?: EnumPhaseStatusWithAggregatesFilter<"LearningPhase"> | $Enums.PhaseStatus
     estimated_minutes?: IntWithAggregatesFilter<"LearningPhase"> | number
     createdAt?: DateTimeWithAggregatesFilter<"LearningPhase"> | Date | string
+  }
+
+  export type PhaseCriterionWhereInput = {
+    AND?: PhaseCriterionWhereInput | PhaseCriterionWhereInput[]
+    OR?: PhaseCriterionWhereInput[]
+    NOT?: PhaseCriterionWhereInput | PhaseCriterionWhereInput[]
+    id?: StringFilter<"PhaseCriterion"> | string
+    phase_id?: StringFilter<"PhaseCriterion"> | string
+    order?: IntFilter<"PhaseCriterion"> | number
+    text?: StringFilter<"PhaseCriterion"> | string
+    kind?: EnumCriterionKindFilter<"PhaseCriterion"> | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFilter<"PhaseCriterion"> | $Enums.CheckType
+    check_config?: JsonNullableFilter<"PhaseCriterion">
+    hint?: StringFilter<"PhaseCriterion"> | string
+    learningPhase?: XOR<LearningPhaseScalarRelationFilter, LearningPhaseWhereInput>
+  }
+
+  export type PhaseCriterionOrderByWithRelationInput = {
+    id?: SortOrder
+    phase_id?: SortOrder
+    order?: SortOrder
+    text?: SortOrder
+    kind?: SortOrder
+    check_type?: SortOrder
+    check_config?: SortOrderInput | SortOrder
+    hint?: SortOrder
+    learningPhase?: LearningPhaseOrderByWithRelationInput
+  }
+
+  export type PhaseCriterionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    phase_id_order?: PhaseCriterionPhase_idOrderCompoundUniqueInput
+    AND?: PhaseCriterionWhereInput | PhaseCriterionWhereInput[]
+    OR?: PhaseCriterionWhereInput[]
+    NOT?: PhaseCriterionWhereInput | PhaseCriterionWhereInput[]
+    phase_id?: StringFilter<"PhaseCriterion"> | string
+    order?: IntFilter<"PhaseCriterion"> | number
+    text?: StringFilter<"PhaseCriterion"> | string
+    kind?: EnumCriterionKindFilter<"PhaseCriterion"> | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFilter<"PhaseCriterion"> | $Enums.CheckType
+    check_config?: JsonNullableFilter<"PhaseCriterion">
+    hint?: StringFilter<"PhaseCriterion"> | string
+    learningPhase?: XOR<LearningPhaseScalarRelationFilter, LearningPhaseWhereInput>
+  }, "id" | "phase_id_order">
+
+  export type PhaseCriterionOrderByWithAggregationInput = {
+    id?: SortOrder
+    phase_id?: SortOrder
+    order?: SortOrder
+    text?: SortOrder
+    kind?: SortOrder
+    check_type?: SortOrder
+    check_config?: SortOrderInput | SortOrder
+    hint?: SortOrder
+    _count?: PhaseCriterionCountOrderByAggregateInput
+    _avg?: PhaseCriterionAvgOrderByAggregateInput
+    _max?: PhaseCriterionMaxOrderByAggregateInput
+    _min?: PhaseCriterionMinOrderByAggregateInput
+    _sum?: PhaseCriterionSumOrderByAggregateInput
+  }
+
+  export type PhaseCriterionScalarWhereWithAggregatesInput = {
+    AND?: PhaseCriterionScalarWhereWithAggregatesInput | PhaseCriterionScalarWhereWithAggregatesInput[]
+    OR?: PhaseCriterionScalarWhereWithAggregatesInput[]
+    NOT?: PhaseCriterionScalarWhereWithAggregatesInput | PhaseCriterionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PhaseCriterion"> | string
+    phase_id?: StringWithAggregatesFilter<"PhaseCriterion"> | string
+    order?: IntWithAggregatesFilter<"PhaseCriterion"> | number
+    text?: StringWithAggregatesFilter<"PhaseCriterion"> | string
+    kind?: EnumCriterionKindWithAggregatesFilter<"PhaseCriterion"> | $Enums.CriterionKind
+    check_type?: EnumCheckTypeWithAggregatesFilter<"PhaseCriterion"> | $Enums.CheckType
+    check_config?: JsonNullableWithAggregatesFilter<"PhaseCriterion">
+    hint?: StringWithAggregatesFilter<"PhaseCriterion"> | string
   }
 
   export type KnowledgeChecksWhereInput = {
@@ -23200,6 +24624,7 @@ export namespace Prisma {
     project: ProjectsCreateNestedOneWithoutLearningPhasesInput
     resources?: ResourcesCreateNestedManyWithoutLearningPhaseInput
     knowledgeChecks?: KnowledgeChecksCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseUncheckedCreateInput = {
@@ -23216,6 +24641,7 @@ export namespace Prisma {
     createdAt?: Date | string
     resources?: ResourcesUncheckedCreateNestedManyWithoutLearningPhaseInput
     knowledgeChecks?: KnowledgeChecksUncheckedCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionUncheckedCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseUpdateInput = {
@@ -23232,6 +24658,7 @@ export namespace Prisma {
     project?: ProjectsUpdateOneRequiredWithoutLearningPhasesNestedInput
     resources?: ResourcesUpdateManyWithoutLearningPhaseNestedInput
     knowledgeChecks?: KnowledgeChecksUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type LearningPhaseUncheckedUpdateInput = {
@@ -23248,6 +24675,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resources?: ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput
     knowledgeChecks?: KnowledgeChecksUncheckedUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type LearningPhaseCreateManyInput = {
@@ -23289,6 +24717,82 @@ export namespace Prisma {
     phase_status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhaseCriterionCreateInput = {
+    id?: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+    learningPhase: LearningPhaseCreateNestedOneWithoutCriteriaInput
+  }
+
+  export type PhaseCriterionUncheckedCreateInput = {
+    id?: string
+    phase_id: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+  }
+
+  export type PhaseCriterionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
+    learningPhase?: LearningPhaseUpdateOneRequiredWithoutCriteriaNestedInput
+  }
+
+  export type PhaseCriterionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PhaseCriterionCreateManyInput = {
+    id?: string
+    phase_id: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+  }
+
+  export type PhaseCriterionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PhaseCriterionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phase_id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
   }
 
   export type KnowledgeChecksCreateInput = {
@@ -24566,11 +26070,21 @@ export namespace Prisma {
     none?: KnowledgeChecksWhereInput
   }
 
+  export type PhaseCriterionListRelationFilter = {
+    every?: PhaseCriterionWhereInput
+    some?: PhaseCriterionWhereInput
+    none?: PhaseCriterionWhereInput
+  }
+
   export type ResourcesOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type KnowledgeChecksOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PhaseCriterionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -24622,16 +26136,94 @@ export namespace Prisma {
     estimated_minutes?: SortOrder
   }
 
-  export type EnumQuestion_TypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.Question_Type | EnumQuestion_TypeFieldRefInput<$PrismaModel>
-    in?: $Enums.Question_Type[] | ListEnumQuestion_TypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Question_Type[] | ListEnumQuestion_TypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumQuestion_TypeFilter<$PrismaModel> | $Enums.Question_Type
+  export type EnumCriterionKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.CriterionKind | EnumCriterionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCriterionKindFilter<$PrismaModel> | $Enums.CriterionKind
+  }
+
+  export type EnumCheckTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.CheckType | EnumCheckTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCheckTypeFilter<$PrismaModel> | $Enums.CheckType
   }
 
   export type LearningPhaseScalarRelationFilter = {
     is?: LearningPhaseWhereInput
     isNot?: LearningPhaseWhereInput
+  }
+
+  export type PhaseCriterionPhase_idOrderCompoundUniqueInput = {
+    phase_id: string
+    order: number
+  }
+
+  export type PhaseCriterionCountOrderByAggregateInput = {
+    id?: SortOrder
+    phase_id?: SortOrder
+    order?: SortOrder
+    text?: SortOrder
+    kind?: SortOrder
+    check_type?: SortOrder
+    check_config?: SortOrder
+    hint?: SortOrder
+  }
+
+  export type PhaseCriterionAvgOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type PhaseCriterionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    phase_id?: SortOrder
+    order?: SortOrder
+    text?: SortOrder
+    kind?: SortOrder
+    check_type?: SortOrder
+    hint?: SortOrder
+  }
+
+  export type PhaseCriterionMinOrderByAggregateInput = {
+    id?: SortOrder
+    phase_id?: SortOrder
+    order?: SortOrder
+    text?: SortOrder
+    kind?: SortOrder
+    check_type?: SortOrder
+    hint?: SortOrder
+  }
+
+  export type PhaseCriterionSumOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type EnumCriterionKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CriterionKind | EnumCriterionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCriterionKindWithAggregatesFilter<$PrismaModel> | $Enums.CriterionKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCriterionKindFilter<$PrismaModel>
+    _max?: NestedEnumCriterionKindFilter<$PrismaModel>
+  }
+
+  export type EnumCheckTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CheckType | EnumCheckTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCheckTypeWithAggregatesFilter<$PrismaModel> | $Enums.CheckType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCheckTypeFilter<$PrismaModel>
+    _max?: NestedEnumCheckTypeFilter<$PrismaModel>
+  }
+
+  export type EnumQuestion_TypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.Question_Type | EnumQuestion_TypeFieldRefInput<$PrismaModel>
+    in?: $Enums.Question_Type[] | ListEnumQuestion_TypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Question_Type[] | ListEnumQuestion_TypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumQuestion_TypeFilter<$PrismaModel> | $Enums.Question_Type
   }
 
   export type KnowledgeCheckAttemptListRelationFilter = {
@@ -25460,6 +27052,13 @@ export namespace Prisma {
     connect?: KnowledgeChecksWhereUniqueInput | KnowledgeChecksWhereUniqueInput[]
   }
 
+  export type PhaseCriterionCreateNestedManyWithoutLearningPhaseInput = {
+    create?: XOR<PhaseCriterionCreateWithoutLearningPhaseInput, PhaseCriterionUncheckedCreateWithoutLearningPhaseInput> | PhaseCriterionCreateWithoutLearningPhaseInput[] | PhaseCriterionUncheckedCreateWithoutLearningPhaseInput[]
+    connectOrCreate?: PhaseCriterionCreateOrConnectWithoutLearningPhaseInput | PhaseCriterionCreateOrConnectWithoutLearningPhaseInput[]
+    createMany?: PhaseCriterionCreateManyLearningPhaseInputEnvelope
+    connect?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+  }
+
   export type ResourcesUncheckedCreateNestedManyWithoutLearningPhaseInput = {
     create?: XOR<ResourcesCreateWithoutLearningPhaseInput, ResourcesUncheckedCreateWithoutLearningPhaseInput> | ResourcesCreateWithoutLearningPhaseInput[] | ResourcesUncheckedCreateWithoutLearningPhaseInput[]
     connectOrCreate?: ResourcesCreateOrConnectWithoutLearningPhaseInput | ResourcesCreateOrConnectWithoutLearningPhaseInput[]
@@ -25472,6 +27071,13 @@ export namespace Prisma {
     connectOrCreate?: KnowledgeChecksCreateOrConnectWithoutLearningPhaseInput | KnowledgeChecksCreateOrConnectWithoutLearningPhaseInput[]
     createMany?: KnowledgeChecksCreateManyLearningPhaseInputEnvelope
     connect?: KnowledgeChecksWhereUniqueInput | KnowledgeChecksWhereUniqueInput[]
+  }
+
+  export type PhaseCriterionUncheckedCreateNestedManyWithoutLearningPhaseInput = {
+    create?: XOR<PhaseCriterionCreateWithoutLearningPhaseInput, PhaseCriterionUncheckedCreateWithoutLearningPhaseInput> | PhaseCriterionCreateWithoutLearningPhaseInput[] | PhaseCriterionUncheckedCreateWithoutLearningPhaseInput[]
+    connectOrCreate?: PhaseCriterionCreateOrConnectWithoutLearningPhaseInput | PhaseCriterionCreateOrConnectWithoutLearningPhaseInput[]
+    createMany?: PhaseCriterionCreateManyLearningPhaseInputEnvelope
+    connect?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
   }
 
   export type LearningPhaseUpdateconceptsInput = {
@@ -25515,6 +27121,20 @@ export namespace Prisma {
     deleteMany?: KnowledgeChecksScalarWhereInput | KnowledgeChecksScalarWhereInput[]
   }
 
+  export type PhaseCriterionUpdateManyWithoutLearningPhaseNestedInput = {
+    create?: XOR<PhaseCriterionCreateWithoutLearningPhaseInput, PhaseCriterionUncheckedCreateWithoutLearningPhaseInput> | PhaseCriterionCreateWithoutLearningPhaseInput[] | PhaseCriterionUncheckedCreateWithoutLearningPhaseInput[]
+    connectOrCreate?: PhaseCriterionCreateOrConnectWithoutLearningPhaseInput | PhaseCriterionCreateOrConnectWithoutLearningPhaseInput[]
+    upsert?: PhaseCriterionUpsertWithWhereUniqueWithoutLearningPhaseInput | PhaseCriterionUpsertWithWhereUniqueWithoutLearningPhaseInput[]
+    createMany?: PhaseCriterionCreateManyLearningPhaseInputEnvelope
+    set?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    disconnect?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    delete?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    connect?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    update?: PhaseCriterionUpdateWithWhereUniqueWithoutLearningPhaseInput | PhaseCriterionUpdateWithWhereUniqueWithoutLearningPhaseInput[]
+    updateMany?: PhaseCriterionUpdateManyWithWhereWithoutLearningPhaseInput | PhaseCriterionUpdateManyWithWhereWithoutLearningPhaseInput[]
+    deleteMany?: PhaseCriterionScalarWhereInput | PhaseCriterionScalarWhereInput[]
+  }
+
   export type ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput = {
     create?: XOR<ResourcesCreateWithoutLearningPhaseInput, ResourcesUncheckedCreateWithoutLearningPhaseInput> | ResourcesCreateWithoutLearningPhaseInput[] | ResourcesUncheckedCreateWithoutLearningPhaseInput[]
     connectOrCreate?: ResourcesCreateOrConnectWithoutLearningPhaseInput | ResourcesCreateOrConnectWithoutLearningPhaseInput[]
@@ -25541,6 +27161,42 @@ export namespace Prisma {
     update?: KnowledgeChecksUpdateWithWhereUniqueWithoutLearningPhaseInput | KnowledgeChecksUpdateWithWhereUniqueWithoutLearningPhaseInput[]
     updateMany?: KnowledgeChecksUpdateManyWithWhereWithoutLearningPhaseInput | KnowledgeChecksUpdateManyWithWhereWithoutLearningPhaseInput[]
     deleteMany?: KnowledgeChecksScalarWhereInput | KnowledgeChecksScalarWhereInput[]
+  }
+
+  export type PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseNestedInput = {
+    create?: XOR<PhaseCriterionCreateWithoutLearningPhaseInput, PhaseCriterionUncheckedCreateWithoutLearningPhaseInput> | PhaseCriterionCreateWithoutLearningPhaseInput[] | PhaseCriterionUncheckedCreateWithoutLearningPhaseInput[]
+    connectOrCreate?: PhaseCriterionCreateOrConnectWithoutLearningPhaseInput | PhaseCriterionCreateOrConnectWithoutLearningPhaseInput[]
+    upsert?: PhaseCriterionUpsertWithWhereUniqueWithoutLearningPhaseInput | PhaseCriterionUpsertWithWhereUniqueWithoutLearningPhaseInput[]
+    createMany?: PhaseCriterionCreateManyLearningPhaseInputEnvelope
+    set?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    disconnect?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    delete?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    connect?: PhaseCriterionWhereUniqueInput | PhaseCriterionWhereUniqueInput[]
+    update?: PhaseCriterionUpdateWithWhereUniqueWithoutLearningPhaseInput | PhaseCriterionUpdateWithWhereUniqueWithoutLearningPhaseInput[]
+    updateMany?: PhaseCriterionUpdateManyWithWhereWithoutLearningPhaseInput | PhaseCriterionUpdateManyWithWhereWithoutLearningPhaseInput[]
+    deleteMany?: PhaseCriterionScalarWhereInput | PhaseCriterionScalarWhereInput[]
+  }
+
+  export type LearningPhaseCreateNestedOneWithoutCriteriaInput = {
+    create?: XOR<LearningPhaseCreateWithoutCriteriaInput, LearningPhaseUncheckedCreateWithoutCriteriaInput>
+    connectOrCreate?: LearningPhaseCreateOrConnectWithoutCriteriaInput
+    connect?: LearningPhaseWhereUniqueInput
+  }
+
+  export type EnumCriterionKindFieldUpdateOperationsInput = {
+    set?: $Enums.CriterionKind
+  }
+
+  export type EnumCheckTypeFieldUpdateOperationsInput = {
+    set?: $Enums.CheckType
+  }
+
+  export type LearningPhaseUpdateOneRequiredWithoutCriteriaNestedInput = {
+    create?: XOR<LearningPhaseCreateWithoutCriteriaInput, LearningPhaseUncheckedCreateWithoutCriteriaInput>
+    connectOrCreate?: LearningPhaseCreateOrConnectWithoutCriteriaInput
+    upsert?: LearningPhaseUpsertWithoutCriteriaInput
+    connect?: LearningPhaseWhereUniqueInput
+    update?: XOR<XOR<LearningPhaseUpdateToOneWithWhereWithoutCriteriaInput, LearningPhaseUpdateWithoutCriteriaInput>, LearningPhaseUncheckedUpdateWithoutCriteriaInput>
   }
 
   export type KnowledgeChecksCreateoptionsInput = {
@@ -26083,6 +27739,40 @@ export namespace Prisma {
     _max?: NestedEnumPhaseStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumCriterionKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.CriterionKind | EnumCriterionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCriterionKindFilter<$PrismaModel> | $Enums.CriterionKind
+  }
+
+  export type NestedEnumCheckTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.CheckType | EnumCheckTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCheckTypeFilter<$PrismaModel> | $Enums.CheckType
+  }
+
+  export type NestedEnumCriterionKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CriterionKind | EnumCriterionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CriterionKind[] | ListEnumCriterionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCriterionKindWithAggregatesFilter<$PrismaModel> | $Enums.CriterionKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCriterionKindFilter<$PrismaModel>
+    _max?: NestedEnumCriterionKindFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCheckTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CheckType | EnumCheckTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CheckType[] | ListEnumCheckTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCheckTypeWithAggregatesFilter<$PrismaModel> | $Enums.CheckType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCheckTypeFilter<$PrismaModel>
+    _max?: NestedEnumCheckTypeFilter<$PrismaModel>
+  }
+
   export type NestedEnumQuestion_TypeFilter<$PrismaModel = never> = {
     equals?: $Enums.Question_Type | EnumQuestion_TypeFieldRefInput<$PrismaModel>
     in?: $Enums.Question_Type[] | ListEnumQuestion_TypeFieldRefInput<$PrismaModel>
@@ -26251,6 +27941,7 @@ export namespace Prisma {
     createdAt?: Date | string
     resources?: ResourcesCreateNestedManyWithoutLearningPhaseInput
     knowledgeChecks?: KnowledgeChecksCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseUncheckedCreateWithoutProjectInput = {
@@ -26266,6 +27957,7 @@ export namespace Prisma {
     createdAt?: Date | string
     resources?: ResourcesUncheckedCreateNestedManyWithoutLearningPhaseInput
     knowledgeChecks?: KnowledgeChecksUncheckedCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionUncheckedCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseCreateOrConnectWithoutProjectInput = {
@@ -27262,6 +28954,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PhaseCriterionCreateWithoutLearningPhaseInput = {
+    id?: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+  }
+
+  export type PhaseCriterionUncheckedCreateWithoutLearningPhaseInput = {
+    id?: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+  }
+
+  export type PhaseCriterionCreateOrConnectWithoutLearningPhaseInput = {
+    where: PhaseCriterionWhereUniqueInput
+    create: XOR<PhaseCriterionCreateWithoutLearningPhaseInput, PhaseCriterionUncheckedCreateWithoutLearningPhaseInput>
+  }
+
+  export type PhaseCriterionCreateManyLearningPhaseInputEnvelope = {
+    data: PhaseCriterionCreateManyLearningPhaseInput | PhaseCriterionCreateManyLearningPhaseInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProjectsUpsertWithoutLearningPhasesInput = {
     update: XOR<ProjectsUpdateWithoutLearningPhasesInput, ProjectsUncheckedUpdateWithoutLearningPhasesInput>
     create: XOR<ProjectsCreateWithoutLearningPhasesInput, ProjectsUncheckedCreateWithoutLearningPhasesInput>
@@ -27363,6 +29085,116 @@ export namespace Prisma {
     question_type?: EnumQuestion_TypeFilter<"KnowledgeChecks"> | $Enums.Question_Type
   }
 
+  export type PhaseCriterionUpsertWithWhereUniqueWithoutLearningPhaseInput = {
+    where: PhaseCriterionWhereUniqueInput
+    update: XOR<PhaseCriterionUpdateWithoutLearningPhaseInput, PhaseCriterionUncheckedUpdateWithoutLearningPhaseInput>
+    create: XOR<PhaseCriterionCreateWithoutLearningPhaseInput, PhaseCriterionUncheckedCreateWithoutLearningPhaseInput>
+  }
+
+  export type PhaseCriterionUpdateWithWhereUniqueWithoutLearningPhaseInput = {
+    where: PhaseCriterionWhereUniqueInput
+    data: XOR<PhaseCriterionUpdateWithoutLearningPhaseInput, PhaseCriterionUncheckedUpdateWithoutLearningPhaseInput>
+  }
+
+  export type PhaseCriterionUpdateManyWithWhereWithoutLearningPhaseInput = {
+    where: PhaseCriterionScalarWhereInput
+    data: XOR<PhaseCriterionUpdateManyMutationInput, PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseInput>
+  }
+
+  export type PhaseCriterionScalarWhereInput = {
+    AND?: PhaseCriterionScalarWhereInput | PhaseCriterionScalarWhereInput[]
+    OR?: PhaseCriterionScalarWhereInput[]
+    NOT?: PhaseCriterionScalarWhereInput | PhaseCriterionScalarWhereInput[]
+    id?: StringFilter<"PhaseCriterion"> | string
+    phase_id?: StringFilter<"PhaseCriterion"> | string
+    order?: IntFilter<"PhaseCriterion"> | number
+    text?: StringFilter<"PhaseCriterion"> | string
+    kind?: EnumCriterionKindFilter<"PhaseCriterion"> | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFilter<"PhaseCriterion"> | $Enums.CheckType
+    check_config?: JsonNullableFilter<"PhaseCriterion">
+    hint?: StringFilter<"PhaseCriterion"> | string
+  }
+
+  export type LearningPhaseCreateWithoutCriteriaInput = {
+    id?: string
+    title: string
+    description: string
+    long_description?: string
+    concepts?: LearningPhaseCreateconceptsInput | string[]
+    goal?: NullableJsonNullValueInput | InputJsonValue
+    phase_number: number
+    phase_status?: $Enums.PhaseStatus
+    estimated_minutes: number
+    createdAt?: Date | string
+    project: ProjectsCreateNestedOneWithoutLearningPhasesInput
+    resources?: ResourcesCreateNestedManyWithoutLearningPhaseInput
+    knowledgeChecks?: KnowledgeChecksCreateNestedManyWithoutLearningPhaseInput
+  }
+
+  export type LearningPhaseUncheckedCreateWithoutCriteriaInput = {
+    id?: string
+    project_id: string
+    title: string
+    description: string
+    long_description?: string
+    concepts?: LearningPhaseCreateconceptsInput | string[]
+    goal?: NullableJsonNullValueInput | InputJsonValue
+    phase_number: number
+    phase_status?: $Enums.PhaseStatus
+    estimated_minutes: number
+    createdAt?: Date | string
+    resources?: ResourcesUncheckedCreateNestedManyWithoutLearningPhaseInput
+    knowledgeChecks?: KnowledgeChecksUncheckedCreateNestedManyWithoutLearningPhaseInput
+  }
+
+  export type LearningPhaseCreateOrConnectWithoutCriteriaInput = {
+    where: LearningPhaseWhereUniqueInput
+    create: XOR<LearningPhaseCreateWithoutCriteriaInput, LearningPhaseUncheckedCreateWithoutCriteriaInput>
+  }
+
+  export type LearningPhaseUpsertWithoutCriteriaInput = {
+    update: XOR<LearningPhaseUpdateWithoutCriteriaInput, LearningPhaseUncheckedUpdateWithoutCriteriaInput>
+    create: XOR<LearningPhaseCreateWithoutCriteriaInput, LearningPhaseUncheckedCreateWithoutCriteriaInput>
+    where?: LearningPhaseWhereInput
+  }
+
+  export type LearningPhaseUpdateToOneWithWhereWithoutCriteriaInput = {
+    where?: LearningPhaseWhereInput
+    data: XOR<LearningPhaseUpdateWithoutCriteriaInput, LearningPhaseUncheckedUpdateWithoutCriteriaInput>
+  }
+
+  export type LearningPhaseUpdateWithoutCriteriaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    long_description?: StringFieldUpdateOperationsInput | string
+    concepts?: LearningPhaseUpdateconceptsInput | string[]
+    goal?: NullableJsonNullValueInput | InputJsonValue
+    phase_number?: IntFieldUpdateOperationsInput | number
+    phase_status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    estimated_minutes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectsUpdateOneRequiredWithoutLearningPhasesNestedInput
+    resources?: ResourcesUpdateManyWithoutLearningPhaseNestedInput
+    knowledgeChecks?: KnowledgeChecksUpdateManyWithoutLearningPhaseNestedInput
+  }
+
+  export type LearningPhaseUncheckedUpdateWithoutCriteriaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    project_id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    long_description?: StringFieldUpdateOperationsInput | string
+    concepts?: LearningPhaseUpdateconceptsInput | string[]
+    goal?: NullableJsonNullValueInput | InputJsonValue
+    phase_number?: IntFieldUpdateOperationsInput | number
+    phase_status?: EnumPhaseStatusFieldUpdateOperationsInput | $Enums.PhaseStatus
+    estimated_minutes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resources?: ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput
+    knowledgeChecks?: KnowledgeChecksUncheckedUpdateManyWithoutLearningPhaseNestedInput
+  }
+
   export type LearningPhaseCreateWithoutKnowledgeChecksInput = {
     id?: string
     title: string
@@ -27376,6 +29208,7 @@ export namespace Prisma {
     createdAt?: Date | string
     project: ProjectsCreateNestedOneWithoutLearningPhasesInput
     resources?: ResourcesCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseUncheckedCreateWithoutKnowledgeChecksInput = {
@@ -27391,6 +29224,7 @@ export namespace Prisma {
     estimated_minutes: number
     createdAt?: Date | string
     resources?: ResourcesUncheckedCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionUncheckedCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseCreateOrConnectWithoutKnowledgeChecksInput = {
@@ -27452,6 +29286,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectsUpdateOneRequiredWithoutLearningPhasesNestedInput
     resources?: ResourcesUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type LearningPhaseUncheckedUpdateWithoutKnowledgeChecksInput = {
@@ -27467,6 +29302,7 @@ export namespace Prisma {
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resources?: ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type KnowledgeCheckAttemptUpsertWithWhereUniqueWithoutKnowledgeCheckInput = {
@@ -27568,6 +29404,7 @@ export namespace Prisma {
     createdAt?: Date | string
     project: ProjectsCreateNestedOneWithoutLearningPhasesInput
     knowledgeChecks?: KnowledgeChecksCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseUncheckedCreateWithoutResourcesInput = {
@@ -27583,6 +29420,7 @@ export namespace Prisma {
     estimated_minutes: number
     createdAt?: Date | string
     knowledgeChecks?: KnowledgeChecksUncheckedCreateNestedManyWithoutLearningPhaseInput
+    criteria?: PhaseCriterionUncheckedCreateNestedManyWithoutLearningPhaseInput
   }
 
   export type LearningPhaseCreateOrConnectWithoutResourcesInput = {
@@ -27644,6 +29482,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectsUpdateOneRequiredWithoutLearningPhasesNestedInput
     knowledgeChecks?: KnowledgeChecksUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type LearningPhaseUncheckedUpdateWithoutResourcesInput = {
@@ -27659,6 +29498,7 @@ export namespace Prisma {
     estimated_minutes?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     knowledgeChecks?: KnowledgeChecksUncheckedUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type ResourceProgressUpsertWithWhereUniqueWithoutResourceInput = {
@@ -27843,6 +29683,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resources?: ResourcesUpdateManyWithoutLearningPhaseNestedInput
     knowledgeChecks?: KnowledgeChecksUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type LearningPhaseUncheckedUpdateWithoutProjectInput = {
@@ -27858,6 +29699,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resources?: ResourcesUncheckedUpdateManyWithoutLearningPhaseNestedInput
     knowledgeChecks?: KnowledgeChecksUncheckedUpdateManyWithoutLearningPhaseNestedInput
+    criteria?: PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseNestedInput
   }
 
   export type LearningPhaseUncheckedUpdateManyWithoutProjectInput = {
@@ -28095,6 +29937,16 @@ export namespace Prisma {
     question_type: $Enums.Question_Type
   }
 
+  export type PhaseCriterionCreateManyLearningPhaseInput = {
+    id?: string
+    order: number
+    text: string
+    kind: $Enums.CriterionKind
+    check_type: $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: string
+  }
+
   export type ResourcesUpdateWithoutLearningPhaseInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
@@ -28157,6 +30009,36 @@ export namespace Prisma {
     correct_answer?: NullableStringFieldUpdateOperationsInput | string | null
     explanation?: StringFieldUpdateOperationsInput | string
     question_type?: EnumQuestion_TypeFieldUpdateOperationsInput | $Enums.Question_Type
+  }
+
+  export type PhaseCriterionUpdateWithoutLearningPhaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PhaseCriterionUncheckedUpdateWithoutLearningPhaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PhaseCriterionUncheckedUpdateManyWithoutLearningPhaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    text?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCriterionKindFieldUpdateOperationsInput | $Enums.CriterionKind
+    check_type?: EnumCheckTypeFieldUpdateOperationsInput | $Enums.CheckType
+    check_config?: NullableJsonNullValueInput | InputJsonValue
+    hint?: StringFieldUpdateOperationsInput | string
   }
 
   export type KnowledgeCheckAttemptCreateManyKnowledgeCheckInput = {

@@ -141,6 +141,13 @@ export const projectCatalogueHandler: ProjectServiceServer = {
           goal: ph.goal ? JSON.stringify(ph.goal) : "",
           phaseNumber: ph.phase_number,
           estimatedMinutes: ph.estimated_minutes,
+          criteria: (ph.criteria ?? []).map((c: any) => ({
+            id: c.id,
+            order: c.order,
+            text: c.text,
+            kind: c.kind,
+            hint: c.hint ?? "",
+          })),
         })),
         locked: false,
         alreadyStarted: false,

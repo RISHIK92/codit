@@ -55,6 +55,31 @@ export interface Project {
   prerequisiteIds: string[];
 }
 
+/**
+ * One checkable condition a phase submission is graded against.
+ *
+ * Sent to the client so the user can see the target before submitting. Showing
+ * the rubric isn't making the phase easier — it's making the difficulty
+ * legitimate. Being failed against criteria you were never shown is arbitrary;
+ * being failed against a checklist you could read the whole time is a fair test.
+ *
+ * Note what is deliberately NOT here: check_config. How a criterion is verified
+ * is grading internals, and a client that knows the exact pattern being matched
+ * is a client that can be written to satisfy the pattern instead of the intent.
+ */
+export interface PhaseCriterionProto {
+  id: string;
+  order: number;
+  text: string;
+  /** "behavioral" | "structural" | "conceptual" */
+  kind: string;
+  /**
+   * Shown only once a criterion has failed — a hint given up front would answer
+   * the question the phase is asking.
+   */
+  hint: string;
+}
+
 export interface LearningPhaseProto {
   id: string;
   title: string;
@@ -64,6 +89,7 @@ export interface LearningPhaseProto {
   phaseNumber: number;
   estimatedMinutes: number;
   longDescription: string;
+  criteria: PhaseCriterionProto[];
 }
 
 export interface GetProjectWithPhasesRequest {
@@ -570,8 +596,141 @@ export const Project: MessageFns<Project> = {
   },
 };
 
+function createBasePhaseCriterionProto(): PhaseCriterionProto {
+  return { id: "", order: 0, text: "", kind: "", hint: "" };
+}
+
+export const PhaseCriterionProto: MessageFns<PhaseCriterionProto> = {
+  encode(message: PhaseCriterionProto, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.order !== 0) {
+      writer.uint32(16).int32(message.order);
+    }
+    if (message.text !== "") {
+      writer.uint32(26).string(message.text);
+    }
+    if (message.kind !== "") {
+      writer.uint32(34).string(message.kind);
+    }
+    if (message.hint !== "") {
+      writer.uint32(42).string(message.hint);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PhaseCriterionProto {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePhaseCriterionProto();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.order = reader.int32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.kind = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.hint = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PhaseCriterionProto {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      order: isSet(object.order) ? globalThis.Number(object.order) : 0,
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
+      hint: isSet(object.hint) ? globalThis.String(object.hint) : "",
+    };
+  },
+
+  toJSON(message: PhaseCriterionProto): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.order !== 0) {
+      obj.order = Math.round(message.order);
+    }
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.kind !== "") {
+      obj.kind = message.kind;
+    }
+    if (message.hint !== "") {
+      obj.hint = message.hint;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PhaseCriterionProto>, I>>(base?: I): PhaseCriterionProto {
+    return PhaseCriterionProto.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PhaseCriterionProto>, I>>(object: I): PhaseCriterionProto {
+    const message = createBasePhaseCriterionProto();
+    message.id = object.id ?? "";
+    message.order = object.order ?? 0;
+    message.text = object.text ?? "";
+    message.kind = object.kind ?? "";
+    message.hint = object.hint ?? "";
+    return message;
+  },
+};
+
 function createBaseLearningPhaseProto(): LearningPhaseProto {
-  return { id: "", title: "", description: "", goal: "", phaseNumber: 0, estimatedMinutes: 0, longDescription: "" };
+  return {
+    id: "",
+    title: "",
+    description: "",
+    goal: "",
+    phaseNumber: 0,
+    estimatedMinutes: 0,
+    longDescription: "",
+    criteria: [],
+  };
 }
 
 export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
@@ -596,6 +755,9 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
     }
     if (message.longDescription !== "") {
       writer.uint32(58).string(message.longDescription);
+    }
+    for (const v of message.criteria) {
+      PhaseCriterionProto.encode(v!, writer.uint32(66).fork()).join();
     }
     return writer;
   },
@@ -663,6 +825,14 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
           message.longDescription = reader.string();
           continue;
         }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.criteria.push(PhaseCriterionProto.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -693,6 +863,9 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
         : isSet(object.long_description)
         ? globalThis.String(object.long_description)
         : "",
+      criteria: globalThis.Array.isArray(object?.criteria)
+        ? object.criteria.map((e: any) => PhaseCriterionProto.fromJSON(e))
+        : [],
     };
   },
 
@@ -719,6 +892,9 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
     if (message.longDescription !== "") {
       obj.longDescription = message.longDescription;
     }
+    if (message.criteria?.length) {
+      obj.criteria = message.criteria.map((e) => PhaseCriterionProto.toJSON(e));
+    }
     return obj;
   },
 
@@ -734,6 +910,7 @@ export const LearningPhaseProto: MessageFns<LearningPhaseProto> = {
     message.phaseNumber = object.phaseNumber ?? 0;
     message.estimatedMinutes = object.estimatedMinutes ?? 0;
     message.longDescription = object.longDescription ?? "";
+    message.criteria = object.criteria?.map((e) => PhaseCriterionProto.fromPartial(e)) || [];
     return message;
   },
 };

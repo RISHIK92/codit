@@ -201,6 +201,63 @@ model LearningPhase {
   project         Projects @relation(fields: [project_id], references: [id])
   resources       Resources[]
   knowledgeChecks KnowledgeChecks[]
+  criteria        PhaseCriterion[]
+}
+
+/** One checkable condition a phase submission must satisfy.
+ *
+ * Replaces grading against `LearningPhase.goal`, which is a prose sentence. A
+ * grader handed prose returns a holistic judgement with no structure to inspect,
+ * debug, or count — and holistic judgements drift generous, which is the failure
+ * that matters here. Criteria turn one vague verdict into N specific ones, each
+ * of which has to be independently evidenced.
+ *
+ * This is also the contract that later work depends on: the retrieval layer
+ * needs "find evidence for criterion 3" to be a well-posed question, the growth
+ * stats need `kind` to tell shipping apart from understanding, and generated
+ * projects need a definition of what a phase's success condition looks like as
+ * data. */
+model PhaseCriterion {
+  id           String        @id @default(uuid())
+  phase_id     String
+  /** Display and evaluation order within the phase. */
+  order        Int
+  /** Specific enough to be checked, in the user's language:
+   * "Nav links target section IDs on the same page", not "navigation works". */
+  text         String
+  kind         CriterionKind
+  check_type   CheckType
+  /** Shape depends on check_type — see the CheckType docs. Null for model_judged. */
+  check_config Json?
+  /** Shown when this criterion fails. Names the concept or the thing to look up;
+   * never the code, same rule the assistant follows. */
+  hint         String        @default("")
+
+  learningPhase LearningPhase @relation(fields: [phase_id], references: [id])
+
+  @@unique([phase_id, order])
+  @@index([phase_id])
+}
+
+enum CriterionKind {
+  /** The thing does what it should — observable behaviour of the built artifact. */
+  behavioral
+  /** It's built the way this phase teaches — the structural lesson, not just a
+   * result that happens to work. */
+  structural
+  /** They can articulate why. Feeds the Understand stat rather than Build, and
+   * is the only kind that can't be satisfied by code alone. */
+  conceptual
+}
+
+enum CheckType {
+  /** Evaluated in code, no model involved — file exists, parses, matches a
+   * pattern, contains an element. Cheap, instant, and impossible to talk out of
+   * a verdict, so these run first. */
+  deterministic
+  /** Requires reading and reasoning about the code. Graded one criterion at a
+   * time, and must cite evidence. */
+  model_judged
 }
 
 model KnowledgeChecks {

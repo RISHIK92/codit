@@ -5,6 +5,7 @@ import {
   Question_Type,
   Difficulty,
 } from "../src/generated/prisma-client";
+import { applyCriteria } from "./apply-criteria";
 
 const prisma = new PrismaClient();
 
@@ -1872,6 +1873,10 @@ async function main() {
   console.log(
     "✅ Seeded 18 entrance test questions (6 easy / 6 intermediate / 6 advanced)",
   );
+
+  // Rubrics come from criteria.ts via the same function the backfill script
+  // uses, so a freshly seeded database and a backfilled one are identical.
+  await applyCriteria(prisma);
 
   console.log("\n✨ Seeding complete!");
   console.log("   Projects seeded:");
