@@ -59,12 +59,12 @@ function QuestionTab({
           : "border-border-s bg-surface/60 hover:border-accent/30"
       }`}
     >
-      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border-s font-(family-name:--font-dm) text-[9px] uppercase tracking-widest text-txt-ghost shrink-0">
+      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border-s font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost shrink-0">
         {meta.icon}
         {meta.label}
       </span>
 
-      <span className="flex-1 min-w-0 truncate font-(family-name:--font-dm) text-[12px] text-txt">
+      <span className="flex-1 min-w-0 truncate font-sans text-base text-txt">
         {check.question}
       </span>
 
@@ -139,13 +139,13 @@ function QuestionModal({
         </button>
 
         <div className="flex items-center gap-2 mb-3 pr-6">
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border-s font-(family-name:--font-dm) text-[9px] uppercase tracking-widest text-txt-ghost">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-border-s font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
             {meta.icon}
             {meta.label}
           </span>
           {check.attempted && (
             <span
-              className={`inline-flex items-center gap-1 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${
+              className={`inline-flex items-center gap-1 font-sans text-xs uppercase tracking-[0.07em] ${
                 check.is_correct ? "text-success" : "text-red-400"
               }`}
             >
@@ -159,7 +159,7 @@ function QuestionModal({
           )}
         </div>
 
-        <p className="font-(family-name:--font-dm) text-[13px] text-txt leading-relaxed whitespace-pre-wrap mb-4">
+        <p className="font-sans text-base text-txt leading-relaxed whitespace-pre-wrap mb-4">
           {check.question}
         </p>
 
@@ -168,7 +168,7 @@ function QuestionModal({
             {check.options.map((opt) => (
               <label
                 key={opt}
-                className={`flex items-center gap-2 px-2.5 py-1.5 rounded border cursor-pointer font-(family-name:--font-dm) text-[11px] transition-colors ${
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded border cursor-pointer font-sans text-sm transition-colors ${
                   draft === opt
                     ? "border-accent/50 bg-accent/5 text-txt"
                     : "border-border-s text-txt-muted hover:border-accent/30"
@@ -194,12 +194,12 @@ function QuestionModal({
             placeholder="Type your answer…"
             rows={4}
             autoFocus
-            className="w-full mb-4 px-2.5 py-2 rounded border border-border-s bg-void font-(family-name:--font-mono) text-[11px] text-txt resize-none focus:outline-none focus:border-accent/40 disabled:opacity-70"
+            className="w-full mb-4 px-2.5 py-2 rounded border border-border-s bg-void font-(family-name:--font-mono) text-sm text-txt resize-none focus:outline-none focus:border-accent/40 disabled:opacity-70"
           />
         )}
 
         {check.attempted ? (
-          <p className="font-(family-name:--font-dm) text-[11px] text-txt-muted leading-relaxed">
+          <p className="font-sans text-sm text-txt-muted leading-relaxed">
             {check.explanation}
           </p>
         ) : (
@@ -207,13 +207,13 @@ function QuestionModal({
             <button
               onClick={handleSubmit}
               disabled={submitting || !draft.trim()}
-              className="flex items-center gap-1.5 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/40 px-4 py-2 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-1.5 font-sans text-sm uppercase tracking-[0.07em] text-accent border border-accent/40 px-4 py-2 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-40 cursor-pointer"
             >
               {submitting && <Loader2 size={11} className="animate-spin" />}
               Submit
             </button>
             {error && (
-              <span className="font-(family-name:--font-dm) text-[10px] text-red-400">
+              <span className="font-sans text-xs text-red-400">
                 {error}
               </span>
             )}
@@ -285,7 +285,7 @@ export function KnowledgeChecksPanel({
   if (!phaseId) {
     return (
       <div className="flex-1 flex items-center justify-center text-txt-ghost">
-        <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest">
+        <span className="font-sans text-sm uppercase tracking-[0.07em]">
           Select a phase
         </span>
       </div>
@@ -296,7 +296,7 @@ export function KnowledgeChecksPanel({
     return (
       <div className="flex-1 flex items-center justify-center gap-2 text-txt-ghost">
         <Loader2 size={14} className="animate-spin text-accent" />
-        <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest">
+        <span className="font-sans text-sm uppercase tracking-[0.07em]">
           Loading knowledge checks
         </span>
       </div>
@@ -306,12 +306,12 @@ export function KnowledgeChecksPanel({
   if (error) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
-        <span className="font-(family-name:--font-dm) text-[13px] text-red-400">
+        <span className="font-sans text-base text-red-400">
           {error}
         </span>
         <button
           onClick={fetchChecks}
-          className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent hover:text-txt transition-colors cursor-pointer"
+          className="font-sans text-sm uppercase tracking-[0.07em] text-accent hover:text-txt transition-colors cursor-pointer"
         >
           Retry
         </button>
@@ -323,7 +323,7 @@ export function KnowledgeChecksPanel({
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-2 text-txt-ghost px-6 text-center">
         <HelpCircle size={22} className="text-border-s" />
-        <span className="font-(family-name:--font-dm) text-[11px] text-txt-ghost">
+        <span className="font-sans text-sm text-txt-ghost">
           No knowledge checks for Phase {phaseNumber ?? ""}
         </span>
       </div>
@@ -339,10 +339,10 @@ export function KnowledgeChecksPanel({
     <div className="flex flex-col h-full overflow-hidden">
       <div className="px-5 pt-4 pb-3 border-b border-border-s shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-txt-ghost">
+          <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
             {attempted}/{total} attempted
           </span>
-          <span className="font-(family-name:--font-dm) text-[10px] text-accent">
+          <span className="font-sans text-xs text-accent">
             {correct}/{attempted || total} correct
           </span>
         </div>

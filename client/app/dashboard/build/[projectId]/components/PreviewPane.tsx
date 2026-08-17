@@ -23,7 +23,7 @@ export function PreviewPane({ previewUrl, emptyState }: PreviewPaneProps) {
         <>
           <div className="h-8 shrink-0 flex items-center gap-2 px-3 border-b border-border-s bg-surface/40">
             <Globe size={11} className="text-accent/60 shrink-0" />
-            <span className="font-(family-name:--font-dm) text-[11px] text-txt-muted truncate flex-1">
+            <span className="font-sans text-sm text-txt-muted truncate flex-1">
               {previewUrl}
             </span>
             <button

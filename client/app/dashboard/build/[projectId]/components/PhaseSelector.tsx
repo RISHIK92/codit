@@ -24,7 +24,7 @@ export function PhaseSelector({
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[11px] text-txt-muted hover:text-txt hover:border-accent/40 transition-colors cursor-pointer"
+        className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border-s rounded-sm font-sans text-sm text-txt-muted hover:text-txt hover:border-accent/40 transition-colors cursor-pointer"
       >
         <span className="text-accent">
           Phase {phases[activeIdx]?.phase_number ?? activeIdx + 1}
@@ -64,16 +64,16 @@ export function PhaseSelector({
                   }
                 `}
               >
-                <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost shrink-0 w-5">
+                <span className="font-sans text-xs text-txt-ghost shrink-0 w-5">
                   {String(ph.phase_number).padStart(2, "0")}
                 </span>
-                <span className="font-(family-name:--font-dm) text-[11px] flex-1 truncate">
+                <span className="font-sans text-sm flex-1 truncate">
                   {ph.title}
                 </span>
                 {isLocked ? (
                   <Lock size={10} className="text-txt-ghost shrink-0" />
                 ) : (
-                  <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost shrink-0">
+                  <span className="font-sans text-xs text-txt-ghost shrink-0">
                     {fmtMinutes(ph.estimated_minutes)}
                   </span>
                 )}

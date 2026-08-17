@@ -92,7 +92,7 @@ export function SharePanel({
     <div className="border border-border-s rounded-sm">
       <div className="px-5 pt-4 pb-3 border-b border-border-s flex items-center gap-2">
         <Share2 size={13} className="text-txt-muted" />
-        <h3 className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+        <h3 className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
           Published work
         </h3>
       </div>
@@ -102,21 +102,21 @@ export function SharePanel({
           {data.shared.map((a) => (
             <li key={a.slug} className="px-5 py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
               <div className="flex-1 min-w-[12rem]">
-                <p className="font-(family-name:--font-dm) text-[12.5px] text-txt/90">
+                <p className="font-sans text-base text-txt/90">
                   {a.project_name} · Phase {a.phase_number}
                 </p>
-                <p className="font-(family-name:--font-dm) text-[10.5px] text-txt-ghost">
+                <p className="font-sans text-xs text-txt-ghost">
                   {a.phase_title}
                   {a.include_code ? " · code included" : " · explanation only"}
                 </p>
               </div>
-              <span className="flex items-center gap-1 font-(family-name:--font-dm) text-[10.5px] text-txt-ghost">
+              <span className="flex items-center gap-1 font-sans text-xs text-txt-ghost">
                 <Eye size={10} />
                 {a.view_count}
               </span>
               <button
                 onClick={() => copyLink(a.slug)}
-                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border-s hover:border-accent/40 font-(family-name:--font-dm) text-[10.5px] text-txt-muted hover:text-accent transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2 py-1 rounded-sm border border-border-s hover:border-accent/40 font-sans text-xs text-txt-muted hover:text-accent transition-colors cursor-pointer"
               >
                 <Link2 size={10} />
                 {copied === a.slug ? "Copied" : "Copy link"}
@@ -124,7 +124,7 @@ export function SharePanel({
               <button
                 onClick={() => withdraw(a.slug)}
                 disabled={busy === a.slug}
-                className="px-2 py-1 rounded-sm font-(family-name:--font-dm) text-[10.5px] text-txt-ghost hover:text-warning disabled:opacity-40 transition-colors cursor-pointer"
+                className="px-2 py-1 rounded-sm font-sans text-xs text-txt-ghost hover:text-warning disabled:opacity-40 transition-colors cursor-pointer"
               >
                 {busy === a.slug ? "…" : "Withdraw"}
               </button>
@@ -135,10 +135,10 @@ export function SharePanel({
 
       {data.shareable.length > 0 && (
         <div className="px-5 py-4 border-t border-border-s">
-          <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost mb-1.5">
+          <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mb-1.5">
             Ready to publish
           </p>
-          <p className="font-(family-name:--font-dm) text-[11.5px] text-txt-muted leading-[1.6] mb-3">
+          <p className="font-sans text-sm text-txt-muted leading-[1.6] mb-3">
             You&apos;ve built these and explained them back. A published phase shows the
             checks that were verified against your code and your own explanation of why it works.
           </p>
@@ -147,21 +147,21 @@ export function SharePanel({
               const key = `${p.project_id}:${p.phase_number}`;
               return (
                 <div key={key} className="flex flex-wrap items-center gap-2">
-                  <span className="flex-1 min-w-[12rem] font-(family-name:--font-dm) text-[12px] text-txt/85">
+                  <span className="flex-1 min-w-[12rem] font-sans text-base text-txt/85">
                     {p.project_name} · Phase {p.phase_number}
                     {p.phase_title ? ` — ${p.phase_title}` : ""}
                   </span>
                   <button
                     onClick={() => publish(p.project_id, p.phase_number, true)}
                     disabled={busy === key}
-                    className="px-2.5 py-1 rounded-sm border border-accent/40 text-accent hover:bg-accent/5 disabled:opacity-40 font-(family-name:--font-dm) text-[10.5px] uppercase tracking-widest cursor-pointer transition-colors"
+                    className="px-2.5 py-1 rounded-sm border border-accent/40 text-accent hover:bg-accent/5 disabled:opacity-40 font-sans text-xs uppercase tracking-[0.07em] cursor-pointer transition-colors"
                   >
                     {busy === key ? "…" : "Publish with code"}
                   </button>
                   <button
                     onClick={() => publish(p.project_id, p.phase_number, false)}
                     disabled={busy === key}
-                    className="px-2.5 py-1 rounded-sm border border-border-s text-txt-muted hover:text-txt disabled:opacity-40 font-(family-name:--font-dm) text-[10.5px] uppercase tracking-widest cursor-pointer transition-colors"
+                    className="px-2.5 py-1 rounded-sm border border-border-s text-txt-muted hover:text-txt disabled:opacity-40 font-sans text-xs uppercase tracking-[0.07em] cursor-pointer transition-colors"
                   >
                     Explanation only
                   </button>
@@ -175,14 +175,14 @@ export function SharePanel({
       {!data.profile_unlocked && data.profile_locked_reason && (
         <div className="px-5 py-3 border-t border-border-s flex items-start gap-2">
           <Lock size={11} className="text-txt-ghost shrink-0 mt-[2px]" />
-          <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-[1.5]">
+          <p className="font-sans text-sm text-txt-ghost leading-[1.5]">
             {data.profile_locked_reason}
           </p>
         </div>
       )}
 
       {error && (
-        <p className="px-5 pb-3 font-(family-name:--font-dm) text-[11.5px] text-warning">{error}</p>
+        <p className="px-5 pb-3 font-sans text-sm text-warning">{error}</p>
       )}
     </div>
   );

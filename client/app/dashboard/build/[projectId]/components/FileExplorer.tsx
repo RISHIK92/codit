@@ -144,7 +144,7 @@ export function TreeNode({
                 if (e.key === "Escape") setRenaming(false);
               }}
               onBlur={commitRename}
-              className="flex-1 bg-transparent border-b border-accent/50 text-[12px] font-(family-name:--font-dm) text-txt outline-none min-w-0"
+              className="flex-1 bg-transparent border-b border-accent/50 text-base font-sans text-txt outline-none min-w-0"
             />
           </div>
         ) : (
@@ -158,7 +158,7 @@ export function TreeNode({
             onKeyDown={(e) =>
               e.key === "Enter" && (setExpanded((v) => !v), onFolderClick(node))
             }
-            className={`w-full flex items-center group/row font-(family-name:--font-dm) gap-1.5 px-2 py-0.75 transition-colors cursor-pointer
+            className={`w-full flex items-center group/row font-sans gap-1.5 px-2 py-0.75 transition-colors cursor-pointer
               ${selectedExplorerItemId === node.id ? "bg-accent/10 text-accent" : "hover:bg-surface/60"}`}
             style={{ paddingLeft: `${8 + depth * 12}px` }}
           >
@@ -167,7 +167,7 @@ export function TreeNode({
               className={`text-txt-ghost shrink-0 transition-transform ${expanded ? "rotate-90" : ""}`}
             />
             {getFileIcon(node.name, true, expanded)}
-            <span className="text-[12px] font-(family-name:--font-dm) text-txt-muted group-hover/row:text-txt truncate flex-1 text-left">
+            <span className="text-base font-sans text-txt-muted group-hover/row:text-txt truncate flex-1 text-left">
               {node.name}
             </span>
             {!readOnly && actions}
@@ -224,7 +224,7 @@ export function TreeNode({
                   placeholder={
                     pendingType === "folder" ? "folder name" : "file name"
                   }
-                  className="flex-1 bg-transparent border-b border-accent/50 text-[12px] font-(family-name:--font-dm) text-txt outline-none placeholder:text-txt-ghost min-w-0"
+                  className="flex-1 bg-transparent border-b border-accent/50 text-base font-sans text-txt outline-none placeholder:text-txt-ghost min-w-0"
                 />
               </div>
             )}
@@ -251,7 +251,7 @@ export function TreeNode({
           if (e.key === "Escape") setRenaming(false);
         }}
         onBlur={commitRename}
-        className="flex-1 bg-transparent border-b border-accent/50 text-[12px] font-(family-name:--font-dm) text-txt outline-none min-w-0"
+        className="flex-1 bg-transparent border-b border-accent/50 text-base font-sans text-txt outline-none min-w-0"
       />
     </div>
   ) : (
@@ -266,7 +266,7 @@ export function TreeNode({
       style={{ paddingLeft: `${8 + depth * 12}px` }}
     >
       {getFileIcon(node.name)}
-      <span className="font-(family-name:--font-dm) text-[12px] truncate flex-1 text-left">
+      <span className="font-sans text-base truncate flex-1 text-left">
         {node.name}
       </span>
       {!readOnly && actions}
@@ -334,7 +334,7 @@ export function FileExplorer({
       {/* Header */}
       <div className="h-9 shrink-0 flex items-center gap-2 px-3 border-b border-border-s bg-surface/50">
         <Folder size={12} className="text-accent/60" />
-        <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost flex-1">
+        <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost flex-1">
           Explorer
         </span>
         {!readOnly && (
@@ -421,7 +421,7 @@ export function FileExplorer({
               placeholder={
                 pendingType === "folder" ? "folder name" : "file name"
               }
-              className="flex-1 bg-transparent border-b border-accent/50 text-[12px] font-(family-name:--font-dm) text-txt outline-none placeholder:text-txt-ghost min-w-0"
+              className="flex-1 bg-transparent border-b border-accent/50 text-base font-sans text-txt outline-none placeholder:text-txt-ghost min-w-0"
             />
           </div>
         )}

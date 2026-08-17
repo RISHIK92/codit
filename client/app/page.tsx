@@ -5,14 +5,45 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores";
 
+/**
+ * The landing page.
+ *
+ * Rewritten from template boilerplate ("The Future of Your Workflow Starts
+ * Here", "polished volcanic glass") that said nothing about this product and
+ * advertised 124K+ active users, 99.9% uptime and a 4.9-star rating — numbers
+ * that were invented. Fabricated social proof on the front door of a product
+ * whose entire argument is that credentials should be earned is the worst
+ * possible first impression, so it is gone rather than restyled.
+ *
+ * What replaces it is the actual claim, stated plainly: the assistant can read
+ * your whole codebase and will not write it for you, and you don't advance
+ * until you can explain what you built.
+ */
+
+const LOOP = [
+  {
+    n: "01",
+    title: "Build something real",
+    body: "Projects broken into phases, in a full editor with a terminal and live preview running in your browser. No setup, no tutorial to follow along with.",
+  },
+  {
+    n: "02",
+    title: "Get unstuck without being handed the answer",
+    body: "The assistant can read every file you've written. It will tell you which line is wrong and name the concept you're missing — and it will not write the fix. You type every character yourself.",
+  },
+  {
+    n: "03",
+    title: "Prove you understood it",
+    body: "Each phase is graded against specific criteria, checked against your actual code. Then you explain in your own words why it works. The code already works — that part isn't the test.",
+  },
+];
+
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuthStore();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.replace("/dashboard");
-    }
+    if (!loading && user) router.replace("/dashboard");
   }, [loading, user, router]);
 
   if (loading) {
@@ -22,234 +53,133 @@ export default function Home() {
       </div>
     );
   }
-
   if (user) return null;
 
   return (
     <>
-      {/* ── Navigation ── */}
-      <nav className="sticky top-0 z-50 h-[72px] flex items-center backdrop-blur-xl saturate-[1.8] bg-[rgba(7,8,10,0.7)] border-b border-border-s">
-        <div className="w-full max-w-[1280px] mx-auto px-6 flex justify-between items-center">
-          {/* Logo */}
-          <div className="flex items-center gap-2 font-[family-name:var(--font-cormorant)] text-2xl font-semibold tracking-tight">
-            <div className="w-6 h-6 bg-[linear-gradient(135deg,#c8f0e8,#b8a4e8,#e8c4a0,#7fffd4)] rounded-[4px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
+      <nav className="sticky top-0 z-50 h-16 flex items-center bg-void/85 backdrop-blur-md border-b border-border-s">
+        <div className="w-full max-w-5xl mx-auto px-6 flex justify-between items-center">
+          <div className="flex items-center gap-2.5 font-serif text-xl font-semibold tracking-tight">
+            <div className="w-5 h-5 bg-accent rounded-[3px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
             Codit
           </div>
-
-          {/* Nav Links */}
-          <div className="hidden md:flex gap-8">
-            {["Features", "Platform", "Pricing"].map((item) => (
-              <Link
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="font-[family-name:var(--font-dm)] text-xs uppercase tracking-[0.1em] text-txt-muted hover:text-txt transition-colors relative group"
-              >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform origin-center duration-300" />
-              </Link>
-            ))}
-          </div>
-
-          {/* CTA */}
           <Link
             href="/login"
-            className="bg-accent text-[#070810] px-5 py-2 rounded-full font-[family-name:var(--font-dm)] text-xs uppercase tracking-[0.1em] hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(200,240,232,0.4)] transition-all"
+            className="bg-accent text-void px-4 py-2 rounded-md font-medium text-sm hover:bg-accent-strong transition-colors"
           >
-            Get Started
+            Start building
           </Link>
         </div>
       </nav>
 
-      <main className="w-full max-w-[1280px] mx-auto px-6">
-        {/* ── Hero ── */}
-        <section className="pt-28 pb-20 flex flex-col items-center text-center relative">
-          <h1 className="font-[family-name:var(--font-cormorant)] font-light text-[clamp(56px,9vw,128px)] leading-[0.9] tracking-[-0.03em] flex flex-col mb-8">
-            <span className="text-txt animate-fadeUp">The Future of</span>
-            <span className="text-gradient-iris animate-fadeUp-d1">
-              Your Workflow
-            </span>
-            <span className="text-outline animate-fadeUp-d2">Starts Here.</span>
+      <main className="w-full max-w-5xl mx-auto px-6">
+        {/* Hero. One claim, at a size you can read, with no animated gradient
+            competing with the words. */}
+        <section className="pt-24 pb-20 max-w-3xl">
+          <h1 className="font-serif font-light text-4xl sm:text-[3.5rem] leading-[1.05] tracking-[-0.02em] text-txt mb-7 animate-fadeUp">
+            You can ship code you don&apos;t understand.
+            <br />
+            <span className="text-accent">Here you can&apos;t.</span>
           </h1>
-          <p className="text-txt-muted max-w-[480px] mb-13 text-base animate-fadeUp-d3">
-            A dark, ultra-refined interface that feels like polished volcanic
-            glass. Experience the next generation of digital workspaces.
+          <p className="text-md text-txt-muted prose-measure mb-9 animate-fadeUp-d1">
+            Codit is a learn-by-doing IDE with an assistant that reads your entire
+            project and refuses to write any of it. You build real things, you get
+            unstuck on your own, and you don&apos;t move to the next phase until
+            you can explain what you just made.
           </p>
-          <div className="flex gap-4 animate-fadeUp-d4">
-            <Link
-              href="#features"
-              className="px-8 py-4 border border-border-s rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] text-txt bg-transparent hover:border-accent hover:bg-glass transition-all"
-            >
-              Explore Platform
-            </Link>
+          <div className="flex flex-wrap gap-3 animate-fadeUp-d2">
             <Link
               href="/login"
-              className="px-8 py-4 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(127,255,212,0.2)] transition-all"
+              className="px-6 py-3 rounded-md bg-accent text-void font-medium text-base hover:bg-accent-strong transition-colors"
             >
-              Initialize System
+              Start building
             </Link>
-          </div>
-        </section>
-
-        {/* ── Features Bento Grid ── */}
-        <section id="features" className="py-20">
-          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-[280px_280px] gap-6">
-            {/* Large Card */}
-            <div className="md:col-span-2 md:row-span-2 bg-surface border border-border-s rounded-lg p-8 relative overflow-hidden flex flex-col justify-end group hover:border-border-a hover:shadow-[0_0_0_1px_var(--color-border-a),0_8px_40px_rgba(127,255,212,0.08)] hover:-translate-y-1 transition-all duration-400">
-              <svg
-                className="absolute top-8 left-8 w-10 h-10 text-accent"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              <div className="absolute top-8 right-8 font-[family-name:var(--font-dm)] text-2xl text-txt-ghost rotate-90 origin-[center_right]">
-                01
-              </div>
-              <h3 className="font-[family-name:var(--font-cormorant)] text-2xl font-light mb-2">
-                Liquid Dynamics
-              </h3>
-              <p className="text-txt-muted text-[13px] max-w-[80%]">
-                Fluid organic shapes bleeding into rigid geometric structures,
-                offering a seamless user experience.
-              </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-surface border border-border-s rounded-lg p-8 relative overflow-hidden flex flex-col justify-end group hover:border-border-a hover:shadow-[0_0_0_1px_var(--color-border-a),0_8px_40px_rgba(127,255,212,0.08)] hover:-translate-y-1 transition-all duration-400">
-              <svg
-                className="absolute top-8 left-8 w-10 h-10 text-accent"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-              <div className="absolute top-8 right-8 font-[family-name:var(--font-dm)] text-2xl text-txt-ghost rotate-90 origin-[center_right]">
-                02
-              </div>
-              <h3 className="font-[family-name:var(--font-cormorant)] text-2xl font-light mb-2">
-                Obsidian Security
-              </h3>
-              <p className="text-txt-muted text-[13px] max-w-[80%]">
-                Bank-grade encryption wrapped in an elegant interface.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-surface border border-border-s rounded-lg p-8 relative overflow-hidden flex flex-col justify-end group hover:border-border-a hover:shadow-[0_0_0_1px_var(--color-border-a),0_8px_40px_rgba(127,255,212,0.08)] hover:-translate-y-1 transition-all duration-400">
-              <svg
-                className="absolute top-8 left-8 w-10 h-10 text-accent"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              <div className="absolute top-8 right-8 font-[family-name:var(--font-dm)] text-2xl text-txt-ghost rotate-90 origin-[center_right]">
-                03
-              </div>
-              <h3 className="font-[family-name:var(--font-cormorant)] text-2xl font-light mb-2">
-                Deep Insights
-              </h3>
-              <p className="text-txt-muted text-[13px] max-w-[80%]">
-                Analytics that illuminate the darkest corners of your data.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Stats ── */}
-        <section className="py-20 grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-          {[
-            { num: "124K+", label: "Active Users" },
-            { num: "99.9%", label: "System Uptime" },
-            { num: "4.9★", label: "Average Rating" },
-          ].map(({ num, label }) => (
-            <div key={label} className="flex flex-col items-center">
-              <div className="font-[family-name:var(--font-bebas)] text-[80px] leading-none mb-1 text-gradient-iris">
-                {num}
-              </div>
-              <div className="text-txt-muted text-[11px] uppercase tracking-[0.1em]">
-                {label}
-              </div>
-            </div>
-          ))}
-        </section>
-
-        {/* ── CTA Banner ── */}
-        <section className="my-13 mb-36 py-20 px-6 bg-elevated relative overflow-hidden rounded-2xl text-center border border-border-s">
-          {/* Mesh overlay */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_0%,rgba(127,255,212,0.12)_0%,transparent_60%),radial-gradient(ellipse_60%_80%_at_100%_100%,rgba(184,164,232,0.08)_0%,transparent_60%)]" />
-          <div className="relative z-10">
-            <h2 className="font-[family-name:var(--font-cormorant)] text-5xl font-light mb-6">
-              Ready to dive in?
-            </h2>
             <Link
-              href="/login"
-              className="inline-block px-8 py-4 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(127,255,212,0.2)] transition-all"
+              href="#how"
+              className="px-6 py-3 rounded-md border border-border-m text-txt font-medium text-base hover:bg-elevated transition-colors"
             >
-              Get Started Now
+              How it works
             </Link>
           </div>
         </section>
 
-        {/* ── Footer ── */}
-        <footer className="border-t border-border-s py-13">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-            {[
-              { title: "Platform", links: ["Features", "Security", "Pricing"] },
-              {
-                title: "Resources",
-                links: ["Documentation", "API Reference", "Blog"],
-              },
-              { title: "Company", links: ["About", "Careers", "Contact"] },
-              { title: "Legal", links: ["Privacy", "Terms"] },
-            ].map(({ title, links }) => (
-              <div key={title}>
-                <div className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.15em] text-txt mb-5">
-                  {title}
+        {/* The honest framing of who this is for. */}
+        <section className="py-14 border-t border-border-s">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+            <div>
+              <p className="label mb-3">The problem</p>
+              <p className="text-md text-txt-muted leading-[1.75]">
+                Getting code to work and understanding why it works used to be the
+                same skill. They aren&apos;t any more. You can describe what you
+                want, get something that runs, and ship it — without ever learning
+                what it does.
+              </p>
+            </div>
+            <div>
+              <p className="label mb-3">What that costs</p>
+              <p className="text-md text-txt-muted leading-[1.75]">
+                It holds until something breaks in a way the model can&apos;t fix,
+                or until someone asks why you built it that way. Most people
+                feeling this already know. That&apos;s the gap this closes.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="how" className="py-14 border-t border-border-s">
+          <h2 className="font-serif text-2xl text-txt mb-9">How it works</h2>
+          <div className="space-y-9">
+            {LOOP.map((s) => (
+              <div key={s.n} className="flex gap-5 sm:gap-7">
+                <span className="font-mono text-sm text-accent pt-1 shrink-0">
+                  {s.n}
+                </span>
+                <div>
+                  <h3 className="text-lg font-medium text-txt mb-2">{s.title}</h3>
+                  <p className="text-base text-txt-muted prose-measure leading-[1.75]">
+                    {s.body}
+                  </p>
                 </div>
-                <ul className="flex flex-col gap-3">
-                  {links.map((link) => (
-                    <li key={link}>
-                      <Link
-                        href="#"
-                        className="text-txt-muted text-[13px] hover:text-accent transition-colors"
-                      >
-                        {link}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
               </div>
             ))}
           </div>
+        </section>
 
-          <div className="mt-13 pt-6 border-t border-border-s flex justify-between items-center font-[family-name:var(--font-dm)] text-[11px] text-txt-ghost">
-            <div className="flex items-center gap-2 font-[family-name:var(--font-cormorant)] text-lg font-semibold text-txt">
-              <div className="w-4 h-4 bg-[linear-gradient(135deg,#c8f0e8,#b8a4e8,#e8c4a0,#7fffd4)] rounded-[3px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
-              Codit
-            </div>
-            <div>© {new Date().getFullYear()} Codit Inc.</div>
+        <section className="py-14 border-t border-border-s">
+          <div className="card p-7 sm:p-9">
+            <p className="label mb-4">What makes it different</p>
+            <p className="font-serif text-xl sm:text-2xl text-txt leading-[1.4] prose-measure">
+              Every other AI coding tool is competing to write your code faster.
+              This one is competing to make you not need it.
+            </p>
           </div>
-        </footer>
+        </section>
+
+        <section className="py-14 border-t border-border-s pb-24">
+          <h2 className="font-serif text-2xl text-txt mb-3">
+            Start with one project.
+          </h2>
+          <p className="text-base text-txt-muted prose-measure mb-7">
+            One at a time, deliberately. You&apos;ll be slower than you would be
+            with an assistant that just writes it. That&apos;s the whole point.
+          </p>
+          <Link
+            href="/login"
+            className="inline-block px-6 py-3 rounded-md bg-accent text-void font-medium text-base hover:bg-accent-strong transition-colors"
+          >
+            Start building
+          </Link>
+        </section>
       </main>
+
+      <footer className="border-t border-border-s">
+        <div className="max-w-5xl mx-auto px-6 py-7 flex items-center justify-between">
+          <span className="font-serif text-base text-txt-muted">Codit</span>
+          <span className="text-sm text-txt-ghost">
+            Built for people who want to actually know this stuff.
+          </span>
+        </div>
+      </footer>
     </>
   );
 }

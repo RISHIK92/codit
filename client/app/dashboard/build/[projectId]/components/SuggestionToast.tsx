@@ -29,7 +29,7 @@ export function SuggestionToast({
     >
       <div className="flex items-start gap-2.5 px-4 pt-3.5 pb-2">
         <Lightbulb size={13} className="text-accent shrink-0 mt-[3px]" />
-        <p className="flex-1 font-(family-name:--font-dm) text-[12.5px] leading-[1.65] text-txt/90">
+        <p className="flex-1 font-sans text-base leading-[1.65] text-txt/90">
           {suggestion.text}
         </p>
         <button
@@ -42,12 +42,12 @@ export function SuggestionToast({
       </div>
 
       <div className="flex items-center justify-between px-4 pb-2.5">
-        <span className="font-(family-name:--font-dm) text-[9.5px] uppercase tracking-[0.15em] text-txt-ghost/70">
+        <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost/70">
           Suggestion
         </span>
         <button
           onClick={onTurnOff}
-          className="font-(family-name:--font-dm) text-[10.5px] text-txt-ghost hover:text-txt-muted underline underline-offset-2 transition-colors cursor-pointer"
+          className="font-sans text-xs text-txt-ghost hover:text-txt-muted underline underline-offset-2 transition-colors cursor-pointer"
         >
           Turn these off
         </button>

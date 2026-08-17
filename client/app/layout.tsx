@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Bebas_Neue,
   Cormorant_Garamond,
   DM_Mono,
   DM_Sans,
@@ -26,12 +25,6 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-const bebas = Bebas_Neue({
-  variable: "--font-bebas",
-  subsets: ["latin"],
-  weight: ["400"],
-});
-
 export const metadata: Metadata = {
   title: "Codit",
   description: "The future of your workflow starts here.",
@@ -45,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${dmMono.variable} ${dmSans.variable} ${bebas.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${dmMono.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans text-[var(--text-primary)]">
         <AuthInitializer />

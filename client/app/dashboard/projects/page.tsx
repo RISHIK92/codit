@@ -28,8 +28,8 @@ const SKILL_META: Record<
   },
   advanced: {
     label: "Advanced",
-    color: "text-[#b8a4e8] border-[#b8a4e8]/30 bg-[#b8a4e8]/5",
-    dot: "bg-[#b8a4e8]",
+    color: "text-sky border-sky/30 bg-sky/5",
+    dot: "bg-sky",
   },
 };
 
@@ -181,16 +181,16 @@ function RequirementsModal({
         {/* Title */}
         <div className="relative z-10 text-center mb-1">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${badgeColorClasses}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-sans text-xs uppercase tracking-[0.07em] ${badgeColorClasses}`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${badgeDotClasses}`} />
             {badgeLabel}
           </span>
         </div>
-        <h2 className="relative z-10 font-(family-name:--font-cormorant) text-[22px] font-semibold text-txt text-center mt-3 mb-2">
+        <h2 className="relative z-10 font-serif text-xl font-semibold text-txt text-center mt-3 mb-2">
           Unlock Requirements
         </h2>
-        <p className="relative z-10 font-(family-name:--font-dm) text-[11px] text-txt-muted text-center mb-6">
+        <p className="relative z-10 font-sans text-sm text-txt-muted text-center mb-6">
           {subtitle}
         </p>
 
@@ -226,7 +226,7 @@ function RequirementsModal({
                 )}
               </span>
               <span
-                className={`font-(family-name:--font-dm) text-[12px] leading-relaxed ${
+                className={`font-sans text-base leading-relaxed ${
                   req.met ? "text-txt" : "text-txt-muted"
                 }`}
               >
@@ -240,14 +240,14 @@ function RequirementsModal({
         <div className="relative z-10 mt-7 flex flex-col gap-2">
           <button
             onClick={onClose}
-            className="w-full py-2.5 border border-border-s rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt hover:border-border-a transition-colors"
+            className="w-full py-2.5 border border-border-s rounded-sm font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost hover:text-txt hover:border-border-a transition-colors"
           >
             Got it
           </button>
           {onSkip && (
             <button
               onClick={onSkip}
-              className="w-full py-2.5 border border-accent/30 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent hover:bg-accent/5 transition-colors"
+              className="w-full py-2.5 border border-accent/30 rounded-sm font-sans text-sm uppercase tracking-[0.07em] text-accent hover:bg-accent/5 transition-colors"
             >
               I already know this — skip
             </button>
@@ -368,12 +368,12 @@ export default function ProjectsBrowsePage() {
   if (catalogueError) {
     return (
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen flex flex-col items-center justify-center gap-3">
-        <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
+        <p className="font-sans text-base text-txt-muted">
           {catalogueError}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/30 px-4 py-2 rounded-sm hover:bg-accent/5 transition-colors"
+          className="font-sans text-sm uppercase tracking-[0.07em] text-accent border border-accent/30 px-4 py-2 rounded-sm hover:bg-accent/5 transition-colors"
         >
           Retry
         </button>
@@ -503,13 +503,13 @@ export default function ProjectsBrowsePage() {
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen">
         {/* ── HEADER ────────────────────────────────────────────────────── */}
         <div className="mb-10">
-          <div className="font-(family-name:--font-dm) text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-3">
+          <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-3">
             Catalogue
           </div>
-          <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt mb-2 leading-none">
+          <h1 className="font-serif text-4xl font-semibold text-txt mb-2 leading-none">
             Browse Projects
           </h1>
-          <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
+          <p className="font-sans text-base text-txt-muted">
             Pick a project, answer a few questions, and your personalised
             learning plan is ready.
           </p>
@@ -536,7 +536,7 @@ export default function ProjectsBrowsePage() {
               placeholder="Search by name or tech…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-void border border-border-s rounded-sm font-(family-name:--font-dm) text-[12px] text-txt placeholder:text-txt-ghost focus:outline-none focus:border-accent/40 transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 bg-void border border-border-s rounded-sm font-sans text-base text-txt placeholder:text-txt-ghost focus:outline-none focus:border-accent/40 transition-colors"
             />
           </div>
 
@@ -546,7 +546,7 @@ export default function ProjectsBrowsePage() {
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
-                className={`px-4 py-2 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-colors cursor-pointer
+                className={`px-4 py-2 rounded-sm font-sans text-sm uppercase tracking-[0.07em] border transition-colors cursor-pointer
                   ${
                     filter === f.value
                       ? "bg-void border-border-a text-txt"
@@ -563,10 +563,10 @@ export default function ProjectsBrowsePage() {
         {/* ── GRID ──────────────────────────────────────────────────────── */}
         {visible.length === 0 ? (
           <div className="py-24 flex flex-col items-center gap-3 text-center">
-            <div className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
+            <div className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost">
               No projects match
             </div>
-            <p className="font-(family-name:--font-dm) text-[12px] text-txt-ghost/60">
+            <p className="font-sans text-base text-txt-ghost/60">
               Try a different search term or filter.
             </p>
           </div>
@@ -599,32 +599,32 @@ export default function ProjectsBrowsePage() {
                     <div className="flex flex-col gap-5 select-none pointer-events-none blur-[2px] opacity-60">
                       <div className="flex items-center justify-between">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${skill.color}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-sans text-xs uppercase tracking-[0.07em] ${skill.color}`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${skill.dot}`}
                           />
                           {skill.label}
                         </span>
-                        <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+                        <span className="font-sans text-xs text-txt-ghost">
                           {formatTime(project.estimated_minutes)}
                         </span>
                       </div>
-                      <h3 className="font-(family-name:--font-cormorant) text-[22px] font-semibold text-txt leading-tight">
+                      <h3 className="font-serif text-xl font-semibold text-txt leading-tight">
                         {project.name}
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {project.tech_stack.map((tech: string) => (
                           <span
                             key={tech}
-                            className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[10px] text-txt-ghost"
+                            className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-sans text-xs text-txt-ghost"
                           >
                             {tech}
                           </span>
                         ))}
                       </div>
                       <div className="flex items-center justify-between pt-4 border-t border-border-s">
-                        <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+                        <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
                           {project.phase_count} phases
                         </span>
                       </div>
@@ -636,10 +636,10 @@ export default function ProjectsBrowsePage() {
                         <LockIcon className="w-4 h-4 text-txt-muted group-hover:text-accent transition-colors" />
                       </div>
                       <div className="text-center px-4">
-                        <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-muted group-hover:text-txt transition-colors">
+                        <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-muted group-hover:text-txt transition-colors">
                           Locked
                         </p>
-                        <p className="font-(family-name:--font-dm) text-[10px] text-txt-muted/50 mt-1 group-hover:text-txt-ghost transition-colors">
+                        <p className="font-sans text-xs text-txt-muted/50 mt-1 group-hover:text-txt-ghost transition-colors">
                           Tap to view requirements
                         </p>
                       </div>
@@ -663,21 +663,21 @@ export default function ProjectsBrowsePage() {
                   {/* Top row: skill badge + time */}
                   <div className="relative z-10 flex items-center justify-between">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${skill.color}`}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border font-sans text-xs uppercase tracking-[0.07em] ${skill.color}`}
                     >
                       <span
                         className={`w-1.5 h-1.5 rounded-full ${skill.dot}`}
                       />
                       {skill.label}
                     </span>
-                    <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost tracking-wide">
+                    <span className="font-sans text-xs text-txt-ghost tracking-wide">
                       {formatTime(project.estimated_minutes)}
                     </span>
                   </div>
 
                   {/* Title */}
                   <div className="relative z-10 flex-1">
-                    <h3 className="font-(family-name:--font-cormorant) text-[22px] font-semibold text-txt mb-2 group-hover:text-accent transition-colors leading-tight">
+                    <h3 className="font-serif text-xl font-semibold text-txt mb-2 group-hover:text-accent transition-colors leading-tight">
                       {project.name}
                     </h3>
                   </div>
@@ -687,7 +687,7 @@ export default function ProjectsBrowsePage() {
                     {project.tech_stack.map((tech: string) => (
                       <span
                         key={tech}
-                        className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-(family-name:--font-dm) text-[10px] text-txt-ghost tracking-wide"
+                        className="px-2 py-0.5 bg-surface border border-border-s rounded-sm font-sans text-xs text-txt-ghost tracking-wide"
                       >
                         {tech}
                       </span>
@@ -696,10 +696,10 @@ export default function ProjectsBrowsePage() {
 
                   {/* Footer: phases + CTA arrow */}
                   <div className="relative z-10 flex items-center justify-between pt-4 border-t border-border-s">
-                    <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+                    <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
                       {project.phase_count} phases
                     </span>
-                    <span className="font-(family-name:--font-dm) text-[12px] text-accent opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                    <span className="font-sans text-base text-accent opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
                       Start →
                     </span>
                   </div>
@@ -711,7 +711,7 @@ export default function ProjectsBrowsePage() {
 
         {/* ── COUNT ─────────────────────────────────────────────────────── */}
         {visible.length > 0 && (
-          <div className="mt-8 font-(family-name:--font-dm) text-[11px] text-txt-ghost tracking-wide">
+          <div className="mt-8 font-sans text-sm text-txt-ghost tracking-wide">
             {visible.length} project{visible.length !== 1 ? "s" : ""}
             {filter !== "all" && ` · ${filter}`}
             {search && ` · "${search}"`}

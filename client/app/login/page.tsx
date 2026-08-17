@@ -162,14 +162,14 @@ export default function LoginPage() {
 
   /* ── Shared class helpers ── */
   const inputCls = (hasErr: boolean) =>
-    `w-full py-3.5 px-4 bg-void border rounded-[4px] text-txt font-[family-name:var(--font-dm)] text-sm outline-none transition-all ${
+    `w-full py-3.5 px-4 bg-void border rounded-[4px] text-txt font-sans text-sm outline-none transition-all ${
       hasErr
         ? "border-err shadow-[0_0_0_3px_rgba(255,107,122,0.08)]"
         : "border-border-s focus:border-accent focus:shadow-[0_0_0_3px_rgba(200,240,232,0.08)]"
     }`;
 
   const labelCls =
-    "font-[family-name:var(--font-dm)] text-[10px] tracking-[0.15em] uppercase text-txt-muted block mb-2";
+    "font-sans text-xs tracking-[0.07em] uppercase text-txt-muted block mb-2";
 
   /* ── Dynamic header text ── */
   const eyebrowText =
@@ -201,18 +201,18 @@ export default function LoginPage() {
       <div className="fixed inset-0 z-[100] bg-void flex items-center justify-center px-6">
         <div className="bg-elevated border border-border-s rounded-lg p-8 text-center max-w-md animate-fadeUp-fast">
           <div className="text-4xl mb-4">✉</div>
-          <h2 className="font-[family-name:var(--font-cormorant)] text-[32px] font-light mb-4">
+          <h2 className="font-serif text-2xl font-light mb-4">
             Check your inbox
           </h2>
           <p className="text-txt-muted mb-2">We sent a verification link to</p>
           <p className="text-txt font-medium mb-6">{email}</p>
-          <p className="text-[13px] text-txt-ghost mb-8">
+          <p className="text-base text-txt-ghost mb-8">
             Click it to activate your account, then come back here to sign in.
           </p>
           <button
             onClick={handleResend}
             disabled={resendCooldown > 0}
-            className={`px-6 py-3 rounded-[4px] bg-accent text-[#070810] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)] ${
+            className={`px-6 py-3 rounded-[4px] bg-accent text-[var(--bg-void)] font-sans text-base uppercase tracking-[0.1em] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)] ${
               resendCooldown > 0 ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
@@ -223,7 +223,7 @@ export default function LoginPage() {
           <div className="mt-6">
             <button
               onClick={handleBack}
-              className="text-txt-muted font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] hover:text-txt transition-colors bg-transparent border-none cursor-pointer"
+              className="text-txt-muted font-sans text-sm uppercase tracking-[0.1em] hover:text-txt transition-colors bg-transparent border-none cursor-pointer"
             >
               ← Start over
             </button>
@@ -233,7 +233,7 @@ export default function LoginPage() {
         {/* Toast */}
         {toast && (
           <div
-            className={`fixed bottom-8 right-8 bg-elevated border rounded-lg py-3.5 px-5 font-[family-name:var(--font-dm)] text-xs text-txt shadow-[0_24px_64px_rgba(0,0,0,0.6)] z-[1000] animate-toastIn ${
+            className={`fixed bottom-8 right-8 bg-elevated border rounded-lg py-3.5 px-5 font-sans text-xs text-txt shadow-[0_24px_64px_rgba(0,0,0,0.6)] z-[1000] animate-toastIn ${
               toast.type === "success"
                 ? "border-[rgba(127,255,212,0.3)]"
                 : "border-[rgba(255,107,122,0.3)]"
@@ -252,9 +252,9 @@ export default function LoginPage() {
       <div className="md:hidden absolute top-0 left-0 w-full h-12 flex items-center px-6 bg-surface border-b border-border-s z-10">
         <Link
           href="/"
-          className="flex items-center gap-2 font-[family-name:var(--font-cormorant)] text-2xl font-semibold"
+          className="flex items-center gap-2 font-serif text-2xl font-semibold"
         >
-          <div className="w-[18px] h-[18px] bg-[linear-gradient(135deg,#c8f0e8,#b8a4e8,#e8c4a0,#7fffd4)] rounded-[3px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
+          <div className="w-[18px] h-[18px] bg-[linear-gradient(135deg,var(--accent),var(--sky),var(--earth),var(--accent))] rounded-[3px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
           Codit
         </Link>
       </div>
@@ -262,28 +262,27 @@ export default function LoginPage() {
       {/* ── Left Panel ── */}
       <div className="hidden md:flex flex-1 bg-surface relative overflow-hidden flex-col justify-between p-16">
         {/* Animated mesh */}
-        <div className="absolute inset-0 animate-meshDrift bg-[radial-gradient(ellipse_80%_60%_at_20%_30%,rgba(127,255,212,0.15)_0%,transparent_70%),radial-gradient(ellipse_60%_80%_at_80%_70%,rgba(184,164,232,0.12)_0%,transparent_70%)] pointer-events-none" />
 
         <Link
           href="/"
-          className="flex items-center gap-2 font-[family-name:var(--font-cormorant)] text-2xl font-semibold relative z-10"
+          className="flex items-center gap-2 font-serif text-2xl font-semibold relative z-10"
         >
-          <div className="w-[18px] h-[18px] bg-[linear-gradient(135deg,#c8f0e8,#b8a4e8,#e8c4a0,#7fffd4)] rounded-[3px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
+          <div className="w-[18px] h-[18px] bg-[linear-gradient(135deg,var(--accent),var(--sky),var(--earth),var(--accent))] rounded-[3px] [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
           Codit
         </Link>
 
         <div className="relative z-10 max-w-[80%]">
-          <div className="font-[family-name:var(--font-cormorant)] text-[32px] italic text-white/80 leading-[1.2] mb-4">
+          <div className="font-serif text-2xl italic text-white/80 leading-[1.2] mb-4">
             &quot;Design is not just what it looks like and feels like. Design
             is how it works.&quot;
           </div>
-          <div className="font-[family-name:var(--font-dm)] text-[11px] text-txt-muted uppercase tracking-[0.1em]">
+          <div className="font-sans text-sm text-txt-muted uppercase tracking-[0.1em]">
             — Component Library
           </div>
         </div>
 
-        <div className="font-[family-name:var(--font-dm)] text-[11px] text-txt-ghost flex items-center gap-2 relative z-10">
-          <div className="w-1.5 h-1.5 rounded-full bg-[linear-gradient(135deg,#c8f0e8,#b8a4e8,#e8c4a0,#7fffd4)]" />
+        <div className="font-sans text-sm text-txt-ghost flex items-center gap-2 relative z-10">
+          <div className="w-1.5 h-1.5 rounded-full bg-[linear-gradient(135deg,var(--accent),var(--sky),var(--earth),var(--accent))]" />
           Secure Identity Infrastructure
         </div>
       </div>
@@ -294,14 +293,14 @@ export default function LoginPage() {
           {/* Header */}
           <div className="mb-8">
             <span
-              className={`font-[family-name:var(--font-dm)] text-[11px] text-accent uppercase tracking-[0.1em] block mb-2 transition-opacity duration-200 ${
+              className={`font-sans text-sm text-accent uppercase tracking-[0.1em] block mb-2 transition-opacity duration-200 ${
                 transitioning ? "opacity-0" : "opacity-100"
               }`}
             >
               {eyebrowText}
             </span>
             <h1
-              className={`font-[family-name:var(--font-cormorant)] text-5xl font-light mb-3 leading-none transition-opacity duration-200 ${
+              className={`font-serif text-5xl font-light mb-3 leading-none transition-opacity duration-200 ${
                 transitioning ? "opacity-0" : "opacity-100"
               }`}
             >
@@ -321,7 +320,7 @@ export default function LoginPage() {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className={`flex-1 py-4 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)] ${
+                  className={`flex-1 py-4 bg-accent text-[var(--bg-void)] rounded-[4px] font-sans text-base uppercase tracking-[0.1em] relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)] ${
                     loading ? "btn-loading" : ""
                   }`}
                 >
@@ -330,7 +329,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => animateStep("password")}
-                  className="py-4 px-6 bg-transparent border border-border-s rounded-[4px] text-txt font-[family-name:var(--font-dm)] text-[13px] cursor-pointer hover:border-accent transition-colors"
+                  className="py-4 px-6 bg-transparent border border-border-s rounded-[4px] text-txt font-sans text-base cursor-pointer hover:border-accent transition-colors"
                 >
                   Cancel
                 </button>
@@ -353,7 +352,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={handleBack}
-                      className="mt-2 text-txt-muted font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] hover:text-txt transition-colors bg-transparent border-none cursor-pointer"
+                      className="mt-2 text-txt-muted font-sans text-sm uppercase tracking-[0.1em] hover:text-txt transition-colors bg-transparent border-none cursor-pointer"
                     >
                       ← Edit email
                     </button>
@@ -372,7 +371,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => animateStep("forgot_password")}
-                        className="text-txt-muted font-[family-name:var(--font-dm)] text-[10px] hover:text-accent transition-colors bg-transparent border-none cursor-pointer mb-2"
+                        className="text-txt-muted font-sans text-xs hover:text-accent transition-colors bg-transparent border-none cursor-pointer mb-2"
                       >
                         Forgot?
                       </button>
@@ -390,8 +389,8 @@ export default function LoginPage() {
 
                 {/* Inline error */}
                 {error && (
-                  <div className="font-[family-name:var(--font-dm)] text-[11px] text-err tracking-[0.04em] mt-1.5 mb-3 flex items-center gap-1.5 animate-fadeUp-fast">
-                    <span className="w-3.5 h-3.5 border border-err rounded-full text-[9px] flex items-center justify-center shrink-0">
+                  <div className="font-sans text-sm text-err tracking-[0.04em] mt-1.5 mb-3 flex items-center gap-1.5 animate-fadeUp-fast">
+                    <span className="w-3.5 h-3.5 border border-err rounded-full text-xs flex items-center justify-center shrink-0">
                       !
                     </span>
                     {error}
@@ -401,7 +400,7 @@ export default function LoginPage() {
                 {/* Submit button */}
                 <button
                   type="submit"
-                  className={`w-full py-4 mt-2 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] relative overflow-hidden cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)] ${
+                  className={`w-full py-4 mt-2 bg-accent text-[var(--bg-void)] rounded-[4px] font-sans text-base uppercase tracking-[0.1em] relative overflow-hidden cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)] ${
                     loading ? "btn-loading" : ""
                   }`}
                 >
@@ -413,7 +412,7 @@ export default function LoginPage() {
                   <>
                     <div className="flex items-center gap-4 my-5">
                       <span className="flex-1 h-px bg-border-s" />
-                      <span className="font-[family-name:var(--font-dm)] text-[11px] text-txt-ghost tracking-[0.1em] whitespace-nowrap">
+                      <span className="font-sans text-sm text-txt-ghost tracking-[0.1em] whitespace-nowrap">
                         or continue with
                       </span>
                       <span className="flex-1 h-px bg-border-s" />
@@ -422,7 +421,7 @@ export default function LoginPage() {
                       type="button"
                       onClick={handleGoogle}
                       disabled={loading}
-                      className={`w-full py-3.5 px-5 bg-elevated border border-border-s rounded-lg text-txt font-[family-name:var(--font-dm)] text-[13px] tracking-[0.06em] flex items-center justify-center gap-3 cursor-pointer transition-all hover:bg-glass hover:border-border-a hover:-translate-y-px hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative overflow-hidden ${
+                      className={`w-full py-3.5 px-5 bg-elevated border border-border-s rounded-lg text-txt font-sans text-base tracking-[0.06em] flex items-center justify-center gap-3 cursor-pointer transition-all hover:bg-glass hover:border-border-a hover:-translate-y-px hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative overflow-hidden ${
                         loading ? "btn-loading" : ""
                       }`}
                     >
@@ -440,7 +439,7 @@ export default function LoginPage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed bottom-8 right-8 bg-elevated border rounded-lg py-3.5 px-5 font-[family-name:var(--font-dm)] text-xs text-txt shadow-[0_24px_64px_rgba(0,0,0,0.6)] z-[1000] animate-toastIn ${
+          className={`fixed bottom-8 right-8 bg-elevated border rounded-lg py-3.5 px-5 font-sans text-xs text-txt shadow-[0_24px_64px_rgba(0,0,0,0.6)] z-[1000] animate-toastIn ${
             toast.type === "success"
               ? "border-[rgba(127,255,212,0.3)]"
               : "border-[rgba(255,107,122,0.3)]"

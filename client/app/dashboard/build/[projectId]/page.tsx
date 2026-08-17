@@ -133,7 +133,7 @@ const MonacoEditor = dynamic(
       <div className="flex-1 flex items-center justify-center bg-void">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-          <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+          <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
             Loading editor
           </span>
         </div>
@@ -1465,7 +1465,7 @@ export default function BuildPage() {
       <div className="h-screen bg-void flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-          <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost tracking-widest uppercase">
+          <p className="font-sans text-sm text-txt-ghost tracking-[0.07em] uppercase">
             Loading workspace
           </p>
         </div>
@@ -1478,15 +1478,15 @@ export default function BuildPage() {
     return (
       <div className="h-screen bg-void flex items-center justify-center">
         <div className="text-center">
-          <p className="font-(family-name:--font-cormorant) text-2xl text-txt mb-2">
+          <p className="font-serif text-2xl text-txt mb-2">
             Failed to load project
           </p>
-          <p className="font-(family-name:--font-dm) text-sm text-txt-muted mb-6">
+          <p className="font-sans text-sm text-txt-muted mb-6">
             {error}
           </p>
           <Link
             href="/dashboard"
-            className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors"
+            className="font-sans text-sm uppercase tracking-[0.07em] text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors"
           >
             ← Back to Dashboard
           </Link>
@@ -1504,13 +1504,13 @@ export default function BuildPage() {
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 font-(family-name:--font-dm) text-[11px] text-txt-ghost hover:text-txt transition-colors"
+            className="flex items-center gap-1.5 font-sans text-sm text-txt-ghost hover:text-txt transition-colors"
           >
             <ArrowLeft size={13} />
             Dashboard
           </Link>
           <span className="text-border-s">|</span>
-          <span className="font-(family-name:--font-cormorant) text-[16px] font-medium text-txt">
+          <span className="font-serif text-lg font-medium text-txt">
             {projectName}
           </span>
           {phases.length > 0 && (
@@ -1533,7 +1533,7 @@ export default function BuildPage() {
             <button
               onClick={handleToggleRun}
               disabled={previewServerStarting}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-sans text-sm uppercase tracking-[0.07em] border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                 ${
                   previewServerRunning
                     ? "border-accent/40 text-accent bg-accent/5"
@@ -1561,7 +1561,7 @@ export default function BuildPage() {
           {/* AI Assistant toggle */}
           <button
             onClick={() => setAiOpen((v) => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-sans text-sm uppercase tracking-[0.07em] border transition-all cursor-pointer
               ${
                 aiOpen
                   ? "border-accent/40 text-accent bg-accent/5"
@@ -1580,7 +1580,7 @@ export default function BuildPage() {
               <button
                 onClick={handleSave}
                 disabled={saveStatus === "saving"}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-sans text-sm uppercase tracking-[0.07em] border transition-all cursor-pointer
                   ${
                     saveStatus === "saved"
                       ? "border-accent/40 text-accent bg-accent/5"
@@ -1607,7 +1607,7 @@ export default function BuildPage() {
               <button
                 onClick={handleSubmitForReview}
                 disabled={aiThinking || submitChecking}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-sans text-sm uppercase tracking-[0.07em] border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
                 title="Submit this phase for AI review"
               >
                 {submitChecking ? (
@@ -1624,12 +1624,12 @@ export default function BuildPage() {
 
       {submitPrompt && (
         <div className="px-4 py-2 bg-warning/10 border-b border-warning/30 flex items-center justify-between gap-3">
-          <span className="font-(family-name:--font-dm) text-[11px] text-warning">
+          <span className="font-sans text-sm text-warning">
             {submitPrompt}
           </span>
           <button
             onClick={() => setSubmitPrompt(null)}
-            className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors cursor-pointer shrink-0"
+            className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost hover:text-txt transition-colors cursor-pointer shrink-0"
           >
             Dismiss
           </button>
@@ -1685,7 +1685,7 @@ export default function BuildPage() {
           {/* Panel header */}
           <div className="h-9 shrink-0 flex items-center gap-2 px-4 border-b border-border-s bg-surface/50">
             <BookOpen size={12} className="text-accent" />
-            <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+            <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               Phase Guide
             </span>
           </div>
@@ -1702,7 +1702,7 @@ export default function BuildPage() {
               <button
                 key={tab.id}
                 onClick={() => setLeftTab(tab.id)}
-                className={`px-4 py-2 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest border-b-2 transition-colors cursor-pointer ${
+                className={`px-4 py-2 font-sans text-xs uppercase tracking-[0.07em] border-b-2 transition-colors cursor-pointer ${
                   leftTab === tab.id
                     ? "text-accent border-accent"
                     : "text-txt-ghost border-transparent hover:text-txt"
@@ -1752,7 +1752,7 @@ export default function BuildPage() {
           >
             <div className="h-9 shrink-0 flex items-center gap-2 px-3 border-b border-border-s bg-surface/50">
               <Folder size={12} className="text-accent/60" />
-              <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost flex-1">
+              <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost flex-1">
                 Explorer
               </span>
               {/* New file / new folder buttons */}
@@ -1835,7 +1835,7 @@ export default function BuildPage() {
                     placeholder={
                       pendingType === "folder" ? "folder name" : "file name"
                     }
-                    className="flex-1 bg-transparent border-b border-accent/50 text-[12px] font-(family-name:--font-dm) text-txt outline-none placeholder:text-txt-ghost min-w-0"
+                    className="flex-1 bg-transparent border-b border-accent/50 text-base font-sans text-txt outline-none placeholder:text-txt-ghost min-w-0"
                   />
                 </div>
               )}
@@ -1866,7 +1866,7 @@ export default function BuildPage() {
                     onClick={() => setActiveTabId(tab.id)}
                   >
                     {getFileIcon(tab.name)}
-                    <span className="font-(family-name:--font-dm) text-[11px]">
+                    <span className="font-sans text-sm">
                       {tab.name}
                     </span>
                     <button
@@ -1911,7 +1911,7 @@ export default function BuildPage() {
               >
                 {openTabs.length === 0 ? (
                   <div className="h-full flex items-center justify-center bg-void">
-                    <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost uppercase tracking-widest">
+                    <p className="font-sans text-sm text-txt-ghost uppercase tracking-[0.07em]">
                       Select a file to start editing
                     </p>
                   </div>
@@ -2304,12 +2304,12 @@ export default function BuildPage() {
                   previewUrl={previewUrl}
                   emptyState={
                     <div>
-                      <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-1">
+                      <p className="font-sans text-base text-txt-muted mb-1">
                         No server running
                       </p>
-                      <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-relaxed max-w-60">
+                      <p className="font-sans text-sm text-txt-ghost leading-relaxed max-w-60">
                         Start a dev server in the terminal (e.g.{" "}
-                        <code className="px-1 py-0.5 bg-surface rounded text-accent/70 text-[10px] font-mono">
+                        <code className="px-1 py-0.5 bg-surface rounded text-accent/70 text-xs font-mono">
                           npm run dev
                         </code>
                         ) and the preview will appear here automatically.
@@ -2332,7 +2332,7 @@ export default function BuildPage() {
               >
                 <div className="flex items-center gap-2">
                   <Terminal size={12} className="text-accent/70" />
-                  <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+                  <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
                     Terminal
                   </span>
                 </div>
@@ -2439,7 +2439,7 @@ export default function BuildPage() {
                                 : "text-txt-ghost"
                             }
                           />
-                          <span className="font-(family-name:--font-dm) text-[11px] truncate">
+                          <span className="font-sans text-sm truncate">
                             {t.name}
                           </span>
                         </div>

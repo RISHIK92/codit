@@ -36,17 +36,17 @@ export default function InvoiceForm() {
 }`;
 
   return (
-    <div className="flex flex-col h-screen bg-void text-txt font-[family-name:var(--font-dm)] text-sm">
+    <div className="flex flex-col h-screen bg-void text-txt font-sans text-sm">
       {/* ── TOP TOOLBAR ── */}
       <div className="flex items-center justify-between p-[12px_24px] bg-surface border-b border-border-s sticky top-0 z-50 shrink-0">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard/projects/1"
-            className="flex items-center gap-2 p-[8px_16px] bg-elevated border border-border-s rounded-md text-[12px] text-txt-secondary transition-all hover:text-txt hover:border-border-a"
+            className="flex items-center gap-2 p-[8px_16px] bg-elevated border border-border-s rounded-md text-base text-txt-secondary transition-all hover:text-txt hover:border-border-a"
           >
             <span>←</span> Back to Phase
           </Link>
-          <div className="font-[family-name:var(--font-cormorant)] text-lg font-semibold text-txt">
+          <div className="font-serif text-lg font-semibold text-txt">
             Invoice Form Component
           </div>
         </div>
@@ -56,31 +56,31 @@ export default function InvoiceForm() {
       <div className="flex flex-1 overflow-hidden">
         {/* FILE EXPLORER (Left) */}
         <div className="w-[240px] bg-surface border-r border-border-s p-[16px_12px] overflow-y-auto shrink-0 flex flex-col hidden md:flex">
-          <div className="text-[10px] text-txt-ghost uppercase tracking-[0.1em] mb-4 pl-2">
+          <div className="text-xs text-txt-ghost uppercase tracking-[0.1em] mb-4 pl-2">
             Explorer
           </div>
 
           <ul className="list-none p-0 flex flex-col">
-            <li className="flex items-center gap-2 p-[8px_12px] rounded-md text-[12px] text-txt font-medium cursor-pointer transition-colors hover:bg-glass">
-              <span className="text-[14px]">▼</span> src/
+            <li className="flex items-center gap-2 p-[8px_12px] rounded-md text-base text-txt font-medium cursor-pointer transition-colors hover:bg-glass">
+              <span className="text-md">▼</span> src/
             </li>
             <ul className="list-none p-0 flex flex-col ml-4 border-l border-border-s">
-              <li className="flex items-center gap-2 p-[8px_12px] ml-2 rounded-md text-[12px] text-txt-secondary cursor-pointer transition-colors hover:bg-glass hover:text-txt">
-                <span className="text-[14px]">📄</span> App.jsx
+              <li className="flex items-center gap-2 p-[8px_12px] ml-2 rounded-md text-base text-txt-secondary cursor-pointer transition-colors hover:bg-glass hover:text-txt">
+                <span className="text-md">📄</span> App.jsx
               </li>
-              <li className="flex items-center gap-2 p-[8px_12px] ml-2 rounded-md text-[12px] text-txt font-medium cursor-pointer transition-colors hover:bg-glass">
-                <span className="text-[14px]">▼</span> components/
+              <li className="flex items-center gap-2 p-[8px_12px] ml-2 rounded-md text-base text-txt font-medium cursor-pointer transition-colors hover:bg-glass">
+                <span className="text-md">▼</span> components/
               </li>
               <ul className="list-none p-0 flex flex-col ml-6">
-                <li className="flex items-center gap-2 p-[8px_12px] border-l-2 border-accent bg-[rgba(200,240,232,0.08)] rounded-r-md text-[12px] text-accent font-medium cursor-pointer relative">
-                  <span className="text-[14px]">⚛️</span> InvoiceForm.jsx
+                <li className="flex items-center gap-2 p-[8px_12px] border-l-2 border-accent bg-[rgba(200,240,232,0.08)] rounded-r-md text-base text-accent font-medium cursor-pointer relative">
+                  <span className="text-md">⚛️</span> InvoiceForm.jsx
                 </li>
-                <li className="flex items-center gap-2 p-[8px_12px] rounded-md text-[12px] text-txt-secondary cursor-pointer transition-colors hover:bg-glass hover:text-txt">
-                  <span className="text-[14px]">⚛️</span> Button.jsx
+                <li className="flex items-center gap-2 p-[8px_12px] rounded-md text-base text-txt-secondary cursor-pointer transition-colors hover:bg-glass hover:text-txt">
+                  <span className="text-md">⚛️</span> Button.jsx
                 </li>
               </ul>
-              <li className="flex items-center gap-2 p-[8px_12px] ml-2 rounded-md text-[12px] text-txt font-medium cursor-pointer transition-colors hover:bg-glass">
-                <span className="text-[14px]">▶</span> styles/
+              <li className="flex items-center gap-2 p-[8px_12px] ml-2 rounded-md text-base text-txt font-medium cursor-pointer transition-colors hover:bg-glass">
+                <span className="text-md">▶</span> styles/
               </li>
             </ul>
           </ul>
@@ -97,7 +97,7 @@ export default function InvoiceForm() {
               <div className="px-4 py-2 text-xs text-txt-ghost">App.jsx</div>
             </div>
             {/* Fake Monaco Editor Styling */}
-            <div className="flex p-4 font-[family-name:var(--font-dm)] text-[13px] leading-[1.6]">
+            <div className="flex p-4 font-sans text-base leading-[1.6]">
               {/* Line Numbers */}
               <div className="flex flex-col text-txt-ghost text-right select-none pr-4 border-r border-[#ffffff0a] mr-4">
                 {codeString.split("\n").map((_, i) => (
@@ -111,15 +111,15 @@ export default function InvoiceForm() {
                     __html: codeString
                       .replace(
                         /import|from|export|default|function|const|return|async|await/g,
-                        '<span class="text-[#c8f0e8]">$&</span>',
+                        '<span class="text-[var(--accent)]">$&</span>',
                       )
                       .replace(
                         /useState|console\.log/g,
-                        '<span class="text-[#7fffd4]">$&</span>',
+                        '<span class="text-[var(--accent)]">$&</span>',
                       )
                       .replace(
                         /'.*?'/g,
-                        '<span class="text-[#e8c4a0]">$&</span>',
+                        '<span class="text-[var(--earth)]">$&</span>',
                       )
                       .replace(
                         /\{|\}|\(|\)|<|>/g,
@@ -134,7 +134,7 @@ export default function InvoiceForm() {
           {/* LIVE PREVIEW HORIZONTAL SPLIT */}
           <div className="h-[40%] bg-white border-t-[2px] border-border-s relative flex flex-col text-[#000]">
             <div className="flex items-center justify-between p-[8px_16px] bg-surface text-txt border-b border-border-s shrink-0">
-              <div className="font-[family-name:var(--font-dm)] text-[11px] text-txt-ghost flex items-center gap-2">
+              <div className="font-sans text-sm text-txt-ghost flex items-center gap-2">
                 <span>🌐</span> localhost:3000
               </div>
               <div className="flex gap-2">
@@ -192,7 +192,7 @@ export default function InvoiceForm() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`p-[6px_16px] font-[family-name:var(--font-dm)] text-[11px] tracking-[0.06em] rounded-md uppercase cursor-pointer transition-all
+              className={`p-[6px_16px] font-sans text-sm tracking-[0.06em] rounded-md uppercase cursor-pointer transition-all
                 ${
                   activeTab === tab.id
                     ? "text-accent bg-[rgba(200,240,232,0.08)]"
@@ -207,7 +207,7 @@ export default function InvoiceForm() {
           <button className="text-txt-ghost hover:text-txt px-2">✕</button>
         </div>
 
-        <div className="flex-1 p-4 overflow-y-auto font-[family-name:var(--font-dm)] text-[12px] leading-[1.6]">
+        <div className="flex-1 p-4 overflow-y-auto font-sans text-base leading-[1.6]">
           {activeTab === "console" && (
             <div className="flex flex-col">
               <div className="flex gap-3 py-1 text-txt-secondary">

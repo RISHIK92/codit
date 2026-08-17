@@ -99,13 +99,13 @@ export function PastPhaseSnapshotOverlay({
       {/* Banner */}
       <div className="h-10 shrink-0 flex items-center gap-2 px-4 border-b border-warning/30 bg-warning/10">
         <History size={13} className="text-warning shrink-0" />
-        <span className="font-(family-name:--font-dm) text-[11px] text-warning">
+        <span className="font-sans text-sm text-warning">
           Viewing Phase {phaseNumber} as submitted — read-only, can't be
           edited or resubmitted.
         </span>
         <button
           onClick={onClose}
-          className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-sm border border-border-s text-txt-ghost hover:text-txt hover:border-border-a transition-colors cursor-pointer font-(family-name:--font-dm) text-[10px] uppercase tracking-widest"
+          className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-sm border border-border-s text-txt-ghost hover:text-txt hover:border-border-a transition-colors cursor-pointer font-sans text-xs uppercase tracking-[0.07em]"
         >
           <X size={11} />
           Back to current
@@ -119,13 +119,13 @@ export function PastPhaseSnapshotOverlay({
           </div>
         ) : error ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="font-(family-name:--font-dm) text-[12px] text-error">
+            <p className="font-sans text-base text-error">
               {error}
             </p>
           </div>
         ) : tree.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="font-(family-name:--font-dm) text-[12px] text-txt-ghost">
+            <p className="font-sans text-base text-txt-ghost">
               No snapshot was saved for this phase.
             </p>
           </div>
@@ -193,7 +193,7 @@ export function PastPhaseSnapshotOverlay({
                     />
                   ) : (
                     <div className="h-full flex items-center justify-center bg-void">
-                      <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost uppercase tracking-widest">
+                      <p className="font-sans text-sm text-txt-ghost uppercase tracking-[0.07em]">
                         Select a file to view
                       </p>
                     </div>
@@ -238,7 +238,7 @@ export function PastPhaseSnapshotOverlay({
                   <PreviewPane
                     previewUrl={previewUrl}
                     emptyState={
-                      <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted max-w-60">
+                      <p className="font-sans text-base text-txt-muted max-w-60">
                         {hasHtmlFile
                           ? 'Click "Run" to serve this phase\'s snapshot exactly as it was submitted.'
                           : "Use the terminal below to install and start this phase's snapshot, e.g. npm install && npm run dev."}
@@ -259,7 +259,7 @@ export function PastPhaseSnapshotOverlay({
                 <div className="h-9 shrink-0 flex items-center justify-between px-3 border-b border-border-s bg-surface/50">
                   <div className="flex items-center gap-2">
                     <Terminal size={12} className="text-accent/70" />
-                    <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+                    <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
                       Terminal
                     </span>
                   </div>

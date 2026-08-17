@@ -44,12 +44,12 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-border-s shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           <span
-            className={`px-2 py-0.5 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${accent}`}
+            className={`px-2 py-0.5 rounded-sm border font-sans text-xs uppercase tracking-[0.07em] ${accent}`}
           >
             {headline}
           </span>
           {criteria_total > 0 && (
-            <span className="font-(family-name:--font-dm) text-[11px] text-txt-muted truncate">
+            <span className="font-sans text-sm text-txt-muted truncate">
               {criteria_passed} of {criteria_total} checks passed
             </span>
           )}
@@ -65,7 +65,7 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2.5">
         {verdict === "blocked" && (
-          <p className="font-(family-name:--font-dm) text-[12.5px] text-txt/85 leading-[1.7]">
+          <p className="font-sans text-base text-txt/85 leading-[1.7]">
             {result.feedback}
           </p>
         )}
@@ -91,7 +91,7 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
                 <Icon size={14} className={`${tone} shrink-0 mt-[2px]`} />
                 <div className="min-w-0 space-y-1.5">
                   <p
-                    className={`font-(family-name:--font-dm) text-[12.5px] leading-[1.6] ${
+                    className={`font-sans text-base leading-[1.6] ${
                       r.passed ? "text-txt/70" : "text-txt/95"
                     }`}
                   >
@@ -102,7 +102,7 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
                       it's just confirmation, so it's de-emphasised. */}
                   {r.reasoning && (
                     <p
-                      className={`font-(family-name:--font-dm) text-[11.5px] leading-[1.6] ${
+                      className={`font-sans text-sm leading-[1.6] ${
                         r.passed ? "text-txt-ghost" : "text-txt-muted"
                       }`}
                     >
@@ -113,7 +113,7 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
                   {/* Showing where the grader looked is what makes a wrong
                       verdict arguable instead of arbitrary. */}
                   {r.passed && r.evidence_path && (
-                    <div className="flex items-center gap-1.5 font-mono text-[10.5px] text-txt-ghost">
+                    <div className="flex items-center gap-1.5 font-mono text-xs text-txt-ghost">
                       <MapPin size={9} />
                       <span className="truncate">
                         {r.evidence_path}
@@ -123,7 +123,7 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
                   )}
 
                   {!r.passed && r.hint && (
-                    <p className="font-(family-name:--font-dm) text-[11.5px] text-accent/75 leading-[1.6]">
+                    <p className="font-sans text-sm text-accent/75 leading-[1.6]">
                       {r.hint}
                     </p>
                   )}
@@ -134,7 +134,7 @@ export function ReviewResultsPanel({ result, onClose }: ReviewResultsPanelProps)
         })}
 
         {verdict !== "met" && results.length > 0 && (
-          <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost italic pt-1 leading-[1.6]">
+          <p className="font-sans text-sm text-txt-ghost italic pt-1 leading-[1.6]">
             {anyUngraded
               ? "Checks marked with a warning weren't graded — that's on us, not your code. Submit again."
               : "Fix what's flagged and submit again. There's no limit on attempts."}

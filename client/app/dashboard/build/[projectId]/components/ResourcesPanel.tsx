@@ -155,7 +155,7 @@ export function ResourcesPanel({
   if (!phaseId) {
     return (
       <div className="flex-1 flex items-center justify-center text-txt-ghost">
-        <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest">
+        <span className="font-sans text-sm uppercase tracking-[0.07em]">
           Select a phase
         </span>
       </div>
@@ -166,7 +166,7 @@ export function ResourcesPanel({
     return (
       <div className="flex-1 flex items-center justify-center gap-2 text-txt-ghost">
         <Loader2 size={14} className="animate-spin text-accent" />
-        <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest">
+        <span className="font-sans text-sm uppercase tracking-[0.07em]">
           Loading resources
         </span>
       </div>
@@ -176,12 +176,12 @@ export function ResourcesPanel({
   if (error) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
-        <span className="font-(family-name:--font-dm) text-[11px] text-red-400">
+        <span className="font-sans text-sm text-red-400">
           {error}
         </span>
         <button
           onClick={fetchResources}
-          className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-accent hover:text-txt transition-colors cursor-pointer"
+          className="font-sans text-xs uppercase tracking-[0.07em] text-accent hover:text-txt transition-colors cursor-pointer"
         >
           Retry
         </button>
@@ -193,10 +193,10 @@ export function ResourcesPanel({
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-2 text-txt-ghost px-6 text-center">
         <BookOpen size={22} className="text-border-s" />
-        <span className="font-(family-name:--font-dm) text-[11px] text-txt-ghost">
+        <span className="font-sans text-sm text-txt-ghost">
           No resources for Phase {phaseNumber ?? ""}
         </span>
-        <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost/50">
+        <span className="font-sans text-xs text-txt-ghost/50">
           Resources will appear here once added by an admin
         </span>
       </div>
@@ -212,10 +212,10 @@ export function ResourcesPanel({
       {/* Progress bar header */}
       <div className="px-5 pt-4 pb-3 border-b border-border-s shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-txt-ghost">
+          <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
             {completed}/{total} completed
           </span>
-          <span className="font-(family-name:--font-dm) text-[10px] text-accent">
+          <span className="font-sans text-xs text-accent">
             {pct}%
           </span>
         </div>
@@ -246,13 +246,13 @@ export function ResourcesPanel({
                 {/* Type badge + duration */}
                 <div className="flex items-center gap-2 mb-2">
                   <span
-                    className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-(family-name:--font-dm) text-[9px] uppercase tracking-widest ${meta.color}`}
+                    className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-sans text-xs uppercase tracking-[0.07em] ${meta.color}`}
                   >
                     {meta.icon}
                     {meta.label}
                   </span>
                   {resource.duration_minutes > 0 && (
-                    <span className="flex items-center gap-1 font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+                    <span className="flex items-center gap-1 font-sans text-xs text-txt-ghost">
                       <Clock size={9} />
                       {resource.duration_minutes}m
                     </span>
@@ -264,7 +264,7 @@ export function ResourcesPanel({
 
                 {/* Title */}
                 <p
-                  className={`font-(family-name:--font-dm) text-[12px] leading-snug mb-1 ${
+                  className={`font-sans text-base leading-snug mb-1 ${
                     resource.completed
                       ? "line-through text-txt-ghost"
                       : "text-txt"
@@ -275,7 +275,7 @@ export function ResourcesPanel({
 
                 {/* Provider */}
                 {resource.provider && (
-                  <p className="font-(family-name:--font-dm) text-[10px] text-txt-ghost mb-2">
+                  <p className="font-sans text-xs text-txt-ghost mb-2">
                     {resource.provider}
                   </p>
                 )}
@@ -286,7 +286,7 @@ export function ResourcesPanel({
                     href={resource.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-accent hover:text-txt transition-colors"
+                    className="inline-flex items-center gap-1 font-sans text-xs uppercase tracking-[0.07em] text-accent hover:text-txt transition-colors"
                   >
                     Open
                     <ExternalLink size={9} />
@@ -298,7 +298,7 @@ export function ResourcesPanel({
                     title={
                       resource.completed ? "Mark incomplete" : "Mark complete"
                     }
-                    className="flex items-center gap-1.5 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-1.5 font-sans text-xs uppercase tracking-[0.07em] transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {isBusy ? (
                       <Loader2 size={13} className="animate-spin text-accent" />

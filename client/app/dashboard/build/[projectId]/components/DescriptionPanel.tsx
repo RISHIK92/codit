@@ -26,7 +26,7 @@ const KIND_META: Record<string, { label: string; className: string; title: strin
   },
   conceptual: {
     label: "Understood",
-    className: "text-[#b8a4e8]/70",
+    className: "text-sky/70",
     title: "Conceptual — you can explain why it works",
   },
 };
@@ -44,7 +44,7 @@ function renderInlineMd(text: string, keyPrefix: string) {
       return (
         <code
           key={key}
-          className="px-1 py-0.5 bg-void rounded text-[12px] font-mono text-accent/80 border border-border-s"
+          className="px-1 py-0.5 bg-void rounded text-base font-mono text-accent/80 border border-border-s"
         >
           {part.slice(1, -1)}
         </code>
@@ -76,7 +76,7 @@ function renderLongDescription(text: string) {
       return (
         <h3
           key={key}
-          className="font-(family-name:--font-dm) text-[13px] font-semibold uppercase tracking-wider text-txt mt-2"
+          className="font-sans text-base font-semibold uppercase tracking-wider text-txt mt-2"
         >
           {renderInlineMd(block.slice(3), key)}
         </h3>
@@ -105,7 +105,7 @@ export function DescriptionPanel({
   if (!phase) {
     return (
       <div className="flex-1 flex items-center justify-center text-txt-ghost">
-        <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest">
+        <span className="font-sans text-sm uppercase tracking-[0.07em]">
           Select a phase
         </span>
       </div>
@@ -125,13 +125,13 @@ export function DescriptionPanel({
     <div className="flex flex-col h-full overflow-hidden">
       {/* Phase header */}
       <div className="px-6 pt-6 pb-4 border-b border-border-s shrink-0">
-        <div className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-accent mb-2">
+        <div className="font-sans text-xs uppercase tracking-[0.07em] text-accent mb-2">
           Phase {phase.phase_number} · {fmtMinutes(phase.estimated_minutes)}
         </div>
-        <h2 className="font-(family-name:--font-cormorant) text-2xl font-semibold text-txt leading-tight mb-1">
+        <h2 className="font-serif text-2xl font-semibold text-txt leading-tight mb-1">
           {phase.title}
         </h2>
-        <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted">
+        <p className="font-sans text-base text-txt-muted">
           {phase.description}
         </p>
       </div>
@@ -142,7 +142,7 @@ export function DescriptionPanel({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-5 py-3 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest transition-colors cursor-pointer border-b-2
+            className={`px-5 py-3 font-sans text-sm uppercase tracking-[0.07em] transition-colors cursor-pointer border-b-2
               ${
                 activeTab === tab.id
                   ? "text-accent border-accent"
@@ -160,11 +160,11 @@ export function DescriptionPanel({
         {activeTab === "description" && (
           <div className="space-y-4">
             {phase.long_description ? (
-              <div className="font-(family-name:--font-dm) text-[13px] text-txt/85 leading-[1.8] space-y-3">
+              <div className="font-sans text-base text-txt/85 leading-[1.8] space-y-3">
                 {renderLongDescription(phase.long_description)}
               </div>
             ) : (
-              <div className="font-(family-name:--font-dm) text-[13px] text-txt/85 leading-[1.8]">
+              <div className="font-sans text-base text-txt/85 leading-[1.8]">
                 {phase.description}
               </div>
             )}
@@ -173,10 +173,10 @@ export function DescriptionPanel({
 
         {activeTab === "concepts" && (
           <div className="space-y-2">
-            <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-4">
+            <p className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost mb-4">
               Key concepts for this phase
             </p>
-            <div className="font-(family-name:--font-dm) text-[12px] text-txt-ghost italic">
+            <div className="font-sans text-base text-txt-ghost italic">
               Concepts will appear here once they are loaded.
             </div>
           </div>
@@ -186,11 +186,11 @@ export function DescriptionPanel({
           <div className="space-y-5">
             {goalText && (
               <div className="space-y-3">
-                <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
+                <p className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost">
                   Learning objective
                 </p>
                 <div className="p-4 bg-accent/5 border border-accent/20 rounded-sm">
-                  <p className="font-(family-name:--font-dm) text-[13px] text-accent/90 leading-[1.7] whitespace-pre-wrap">
+                  <p className="font-sans text-base text-accent/90 leading-[1.7] whitespace-pre-wrap">
                     {goalText}
                   </p>
                 </div>
@@ -204,10 +204,10 @@ export function DescriptionPanel({
             {criteria.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-baseline justify-between">
-                  <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
+                  <p className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost">
                     What this phase is graded on
                   </p>
-                  <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost/70">
+                  <span className="font-sans text-xs text-txt-ghost/70">
                     {criteria.length} {criteria.length === 1 ? "check" : "checks"}
                   </span>
                 </div>
@@ -220,11 +220,11 @@ export function DescriptionPanel({
                     >
                       <span className="shrink-0 mt-[3px] w-3.5 h-3.5 rounded-[3px] border border-border-s" />
                       <div className="min-w-0 space-y-1">
-                        <p className="font-(family-name:--font-dm) text-[12.5px] text-txt/90 leading-[1.6]">
+                        <p className="font-sans text-base text-txt/90 leading-[1.6]">
                           {c.text}
                         </p>
                         <span
-                          className={`inline-block font-(family-name:--font-dm) text-[9px] uppercase tracking-[0.15em] ${KIND_META[c.kind]?.className ?? "text-txt-ghost"}`}
+                          className={`inline-block font-sans text-xs uppercase tracking-[0.07em] ${KIND_META[c.kind]?.className ?? "text-txt-ghost"}`}
                           title={KIND_META[c.kind]?.title}
                         >
                           {KIND_META[c.kind]?.label ?? c.kind}
@@ -234,7 +234,7 @@ export function DescriptionPanel({
                   ))}
                 </ul>
 
-                <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-[1.6] italic">
+                <p className="font-sans text-sm text-txt-ghost leading-[1.6] italic">
                   Every check has to pass before the next phase unlocks. You can
                   resubmit as many times as you need.
                 </p>
@@ -242,7 +242,7 @@ export function DescriptionPanel({
             )}
 
             {!goalText && criteria.length === 0 && (
-              <p className="font-(family-name:--font-dm) text-[12px] text-txt-ghost italic">
+              <p className="font-sans text-base text-txt-ghost italic">
                 No objective recorded for this phase.
               </p>
             )}

@@ -32,8 +32,8 @@ export default function LeftSidebar() {
   return (
     <aside className="hidden md:flex w-60 bg-surface border-r border-border-s p-6 flex-col gap-8 sticky top-0 h-screen overflow-y-auto no-scrollbar z-40">
       {/* Logo */}
-      <div className="flex items-center mx-auto gap-2 font-(family-name:--font-cormorant) text-xl font-semibold tracking-tight text-txt cursor-pointer">
-        <div className="w-6 h-6 bg-[linear-gradient(135deg,#c8f0e8,#b8a4e8,#e8c4a0,#7fffd4)] rounded-sm [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
+      <div className="flex items-center mx-auto gap-2 font-serif text-xl font-semibold tracking-tight text-txt cursor-pointer">
+        <div className="w-6 h-6 bg-[linear-gradient(135deg,var(--accent),var(--sky),var(--earth),var(--accent))] rounded-sm [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
         Codit
       </div>
 
@@ -48,7 +48,7 @@ export default function LeftSidebar() {
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-sm font-(family-name:--font-dm) text-[12px] uppercase tracking-widest border transition-colors
+              className={`flex items-center gap-3 px-4 py-3 rounded-sm font-sans text-base uppercase tracking-[0.07em] border transition-colors
                 ${
                   isActive
                     ? "text-txt border-border-s bg-void"
@@ -65,10 +65,10 @@ export default function LeftSidebar() {
       {/* Current Project */}
       {currentProject.id ? (
         <div className="group bg-void border border-border-s rounded-sm p-5 cursor-pointer transition-colors hover:border-accent">
-          <div className="font-(family-name:--font-dm) text-[9px] tracking-[0.15em] uppercase text-txt-ghost mb-2">
+          <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-2">
             Phase {currentProject.phase} ·
           </div>
-          <div className="font-(family-name:--font-cormorant) text-xl font-medium text-txt mb-4 group-hover:text-accent transition-colors flex items-center justify-between">
+          <div className="font-serif text-xl font-medium text-txt mb-4 group-hover:text-accent transition-colors flex items-center justify-between">
             {currentProject.title}
           </div>
           <div className="w-full h-0.5 bg-surface relative overflow-hidden">
@@ -99,7 +99,7 @@ export default function LeftSidebar() {
               />
             </svg>
           </div>
-          <div className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost group-hover:text-txt transition-colors">
+          <div className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost group-hover:text-txt transition-colors">
             Start a project
           </div>
         </Link>
@@ -113,14 +113,14 @@ export default function LeftSidebar() {
           <Link
             key={name}
             href="#"
-            className="px-4 py-2 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors"
+            className="px-4 py-2 font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost hover:text-txt transition-colors"
           >
             {name}
           </Link>
         ))}
         <button
           onClick={handleSignOut}
-          className="px-4 py-2 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+          className="px-4 py-2 font-sans text-sm uppercase tracking-[0.07em] text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer"
         >
           Sign Out
         </button>

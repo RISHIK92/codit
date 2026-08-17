@@ -1,130 +1,128 @@
 @import "tailwindcss";
 @import "@xterm/xterm/css/xterm.css";
 
-:root {
-  /* Backgrounds */
-  --bg-void: #07080a;
-  --bg-surface: #0d0f12;
-  --bg-elevated: #141720;
-  --bg-glass: rgba(255, 255, 255, 0.03);
+/* ─────────────────────────────────────────────────────────────────────────────
+   Codit design system
 
-  /* Iridescent Accent System */
-  --accent-primary: #c8f0e8;
-  --accent-glow: #7fffd4;
-  --accent-warm: #e8c4a0;
-  --accent-violet: #b8a4e8;
+   Two ideas drive everything here.
 
-  /* Iridescent Gradient */
-  --gradient-iris: linear-gradient(
-    135deg,
-    #c8f0e8 0%,
-    #b8a4e8 35%,
-    #e8c4a0 70%,
-    #7fffd4 100%
-  );
+   1. Reading is the product. Prose, criteria, grader feedback, explanations and
+      code ARE the thing people come here to do. The previous system had 219 text
+      nodes at 11px or smaller and only seven at 14px or above — a decorative
+      scale, not a reading one. This one has a floor at 12px, body copy at 15px
+      and prose at 16px.
 
-  /* Text — three tiers by actual reading weight, not decoration:
-     primary for content you're meant to read, secondary for real but
-     lesser text (subtitles, explanations), ghost for pure chrome (tiny
-     uppercase labels, placeholders, disabled state). Previously ghost
-     (#a3a5ad) was measurably lighter than secondary (#8892a4) despite
-     being the more de-emphasized tier, and secondary itself sat around a
-     ~6.4:1 contrast on --bg-void — legal but dim for anything read at
-     length. Reordered and lightened so secondary is clearly readable
-     (~10.5:1) and ghost sits where secondary used to be (~6.3:1). */
-  --text-primary: #eef0f5;
-  --text-secondary: #b6bccb;
-  --text-ghost: #8891a0;
+   2. The palette carries the product's own framing: what you build stands on the
+      ground, what you understand is written in the sky. Earth tones for output,
+      sky tones for comprehension. That's the same Build/Understand separation
+      the growth layer enforces in data, made visible — not decoration.
 
-  /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-active: rgba(200, 240, 232, 0.3);
+   The tone this aims at is an observatory logbook rather than a spaceship
+   console: warm ink, patient, quiet enough to read at length. Every ambient
+   animation is gone. Motion here only ever reports a state change.
 
-  /* Semantic */
-  --error: #ff6b7a;
-  --success: #7fffd4;
-  --warning: #f0c87a;
+   Values live in @theme as literals so Tailwind can generate utilities from
+   them, and the hand-written classes below consume the same tokens. One source
+   of truth, no parallel palette.
+   ──────────────────────────────────────────────────────────────────────────── */
 
-  /* Progress & Status States */
-  --status-active: #7fffd4;
-  --status-complete: #a8e6cf;
-  --status-locked: #3a4155;
-  --status-warning: #f0c87a;
+@theme {
+  /* ── Surfaces: warm ink ────────────────────────────────────────────────
+     The old base was #07080a, a blue-black that with a neon mint accent read
+     as spaceship console. A warm near-black keeps the dark identity, eases the
+     halation around small glyphs, and stops the earth tones going muddy. */
+  --color-void: #14130f;
+  --color-surface: #1c1b16;
+  --color-elevated: #26241d;
+  --color-inset: #100f0c;
+  --color-glass: rgba(255, 250, 240, 0.035);
 
-  /* Phase-specific accent colors */
-  --phase-frontend: #c8f0e8;
-  --phase-backend: #e8c4a0;
-  --phase-deploy: #b8a4e8;
+  /* ── Text: warm paper ──────────────────────────────────────────────────
+     `muted` is for real text you're expected to read and is held high; `ghost`
+     is chrome only — labels, timestamps, placeholders — never a sentence
+     anyone needs. */
+  --color-txt: #f2ede3;
+  --color-txt-muted: #bcb5a6;
+  --color-txt-ghost: #8d877a;
 
-  /* Glow effects */
-  --glow-primary: 0 0 20px rgba(127, 255, 212, 0.25);
-  --glow-warm: 0 0 20px rgba(232, 196, 160, 0.25);
-  --glow-violet: 0 0 20px rgba(184, 164, 232, 0.25);
-  --glow-error: 0 0 20px rgba(255, 107, 122, 0.25);
+  /* ── Accent: sky ───────────────────────────────────────────────────────
+     The accent is the sky blue because what this product is actually about is
+     the understanding, not the shipping. */
+  --color-accent: #8fabdd;
+  --color-accent-strong: #b3c6ea;
 
-  /* Grid/canvas background */
-  --grid-color: rgba(255, 255, 255, 0.02);
+  /* ── Ground and sky ────────────────────────────────────────────────────
+     Build is earth, Understand is sky. They are never the same colour for the
+     same reason they are never the same number. */
+  --color-earth: #d0a05e; /* Build — what exists because of you */
+  --color-sky: #8fabdd; /* Understand — what you can explain */
+  --color-sage: #93ad84; /* Explore — how far you've looked */
+  --color-clay: #cd8f6d; /* Show — warmth turned outward */
 
-  /* Depth layers */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-xl: 0 32px 72px rgba(0, 0, 0, 0.7);
+  /* ── Semantics ─────────────────────────────────────────────────────────
+     Distinct from the accent. Previously --success and --accent were the same
+     value, so "this passed" and "this is clickable" looked identical. */
+  --color-success: #93ad84;
+  --color-warning: #d9a25f;
+  --color-error: #c8756a;
 
-  /* Motion */
+  --color-status-active: #8fabdd;
+  --color-status-complete: #93ad84;
+  --color-status-locked: #4a463d;
+
+  /* Aliases kept so surfaces not yet migrated still resolve. */
+  --color-violet: #8fabdd;
+  --color-warm: #d0a05e;
+  --color-phase-frontend: #8fabdd;
+  --color-phase-backend: #d0a05e;
+  --color-phase-deploy: #cd8f6d;
+
+  /* ── Borders ───────────────────────────────────────────────────────────
+     Raised from 0.06 — at that value cards did not read as cards, so the UI
+     looked like text floating on a gradient. Warm-tinted to match the ground. */
+  --color-border-s: rgba(242, 237, 227, 0.1);
+  --color-border-m: rgba(242, 237, 227, 0.17);
+  --color-border-a: rgba(143, 171, 221, 0.5);
+
+  /* ── Type scale ────────────────────────────────────────────────────────
+     Line heights are bound to sizes so a caller can't pair 15px text with a
+     1.2 leading by accident. */
+  --text-xs: 0.75rem; /* 12 — badges, metadata. The floor. */
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.8125rem; /* 13 — dense UI */
+  --text-sm--line-height: 1.5;
+  --text-base: 0.9375rem; /* 15 — default UI text */
+  --text-base--line-height: 1.6;
+  --text-md: 1rem; /* 16 — prose read at length */
+  --text-md--line-height: 1.7;
+  --text-lg: 1.125rem; /* 18 */
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.375rem; /* 22 */
+  --text-xl--line-height: 1.35;
+  --text-2xl: 1.75rem; /* 28 */
+  --text-2xl--line-height: 1.2;
+  --text-3xl: 2.25rem; /* 36 */
+  --text-3xl--line-height: 1.15;
+  --text-4xl: 3rem; /* 48 — hero only */
+  --text-4xl--line-height: 1.05;
+
+  /* Three families, each doing real work. Bebas was a fourth earning nothing
+     but load time. */
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
 
-@theme {
-  --color-void: var(--bg-void);
-  --color-surface: var(--bg-surface);
-  --color-elevated: var(--bg-elevated);
-  --color-glass: var(--bg-glass);
+  --animate-fadeUp: fadeUp 0.4s var(--ease-out-expo) both;
+  --animate-fadeUp-fast: fadeUp 0.25s var(--ease-out-expo) both;
+  --animate-toastIn: toastIn 0.3s var(--ease-spring) both;
 
-  --color-accent: var(--accent-primary);
-  --color-txt: var(--text-primary);
-  --color-txt-muted: var(--text-secondary);
-  --color-txt-ghost: var(--text-ghost);
-
-  --color-border-s: var(--border-subtle);
-  --color-border-a: var(--border-active);
-  --color-error: var(--error);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-
-  --color-status-active: var(--status-active);
-  --color-status-complete: var(--status-complete);
-  --color-status-locked: var(--status-locked);
-  --color-status-warning: var(--status-warning);
-
-  --color-phase-frontend: var(--phase-frontend);
-  --color-phase-backend: var(--phase-backend);
-  --color-phase-deploy: var(--phase-deploy);
-
-  /* UI copy uses a readable sans; display and mono fonts stay opt-in. */
-  --font-sans: var(--font-dm-sans);
-  --font-serif: var(--font-cormorant);
-  --font-mono: var(--font-dm-mono);
-  --font-display: var(--font-bebas);
-
-  --animate-fadeUp: fadeUp 0.8s var(--ease-out-expo) both;
-  --animate-fadeUp-fast: fadeUp 0.4s var(--ease-out-expo) both;
-  --animate-meshDrift: meshDrift 12s ease-in-out infinite alternate;
-  --animate-toastIn: toastIn 0.35s var(--ease-spring) both;
-  --animate-shimmer: shimmer 20s linear infinite;
-  --animate-pulseRing: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-pulseGlow: pulseGlow 2s ease-in-out infinite;
-  --animate-countUp: countUp 1.5s var(--ease-out-expo) forwards;
-  --animate-dropletPulse: dropletPulse 2.5s ease-in-out infinite;
-  --animate-typingBounce: typingBounce 1.4s ease-in-out infinite;
-
-  /* Re-mapping Tailwind box shadows */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -137,42 +135,79 @@
 }
 
 body {
-  background-color: var(--bg-void);
-  background-image:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"),
-    radial-gradient(
-      ellipse 80% 60% at -10% -10%,
-      rgba(120, 200, 180, 0.08) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 60% 80% at 110% 110%,
-      rgba(184, 164, 232, 0.06) 0%,
-      transparent 60%
-    );
-  color: var(--text-primary);
+  background-color: var(--color-void);
+  color: var(--color-txt);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Keep the project-detail screen readable and consistent with the UI font. */
-.project-detail,
-.project-detail * {
-  font-family: var(--font-dm-sans), sans-serif;
+/* ── Reading measure ────────────────────────────────────────────────────────
+   Past roughly 80 characters the eye loses its place returning to the next
+   line. That matters more here than usual, because the text people read in
+   this product is explanation, not chrome. */
+.prose-measure {
+  max-width: 68ch;
 }
 
-/* --- Keyframes --- */
-@keyframes drift {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(40px, 30px) scale(1.1);
-  }
+/* ── Label ──────────────────────────────────────────────────────────────────
+   Replaces 135 hand-rolled `uppercase tracking-widest text-[10px]` labels.
+   Uppercase is legible at 12px with modest tracking and a readable colour; at
+   9–10px with 0.2em tracking and a faint grey it is decoration pretending to
+   be information. */
+.label {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-txt-ghost);
 }
+.label-strong {
+  color: var(--color-txt-muted);
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────
+   One card treatment used everywhere. Cards were previously defined ad hoc
+   with different radii, borders and padding, which is why nothing felt like
+   part of one system. */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-s);
+  border-radius: 6px;
+}
+.card-inset {
+  background-color: var(--color-inset);
+  border: 1px solid var(--color-border-s);
+  border-radius: 5px;
+}
+.card-interactive {
+  transition:
+    border-color 0.16s var(--ease-in-out),
+    background-color 0.16s var(--ease-in-out);
+}
+.card-interactive:hover {
+  border-color: var(--color-border-m);
+  background-color: var(--color-elevated);
+}
+
+/* ── Focus ──────────────────────────────────────────────────────────────────
+   A visible, consistent focus ring. The previous system had none, which is a
+   real accessibility gap in a product with this much keyboard-driven work. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
 
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -180,30 +215,14 @@ body {
   }
 }
 
-@keyframes revealLine {
+@keyframes toastIn {
   from {
-    transform: scaleX(0);
+    opacity: 0;
+    transform: translateY(12px);
   }
   to {
-    transform: scaleX(1);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-@keyframes meshDrift {
-  from {
-    transform: scale(1) rotate(0deg);
-  }
-  to {
-    transform: scale(1.05) rotate(2deg);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -216,62 +235,8 @@ body {
   }
 }
 
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulseRing {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(127, 255, 212, 0);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(127, 255, 212, 0);
-  }
-}
-
-@keyframes pulseGlow {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.3);
-  }
-}
-
-@keyframes countUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes dropletPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-}
-
+/* Loops, but it encodes live state — the distinction that decides whether
+   repeating motion is justified. */
 @keyframes typingBounce {
   0%,
   60%,
@@ -279,92 +244,77 @@ body {
     transform: translateY(0);
   }
   30% {
-    transform: translateY(-8px);
+    transform: translateY(-5px);
   }
 }
 
-/* --- Components & Utils --- */
+/* ── Utilities ──────────────────────────────────────────────────────────── */
 
+.animate-typingBounce {
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+
+/* Staggered entrance. Resolves and stops — a transition, not ambience. */
 .animate-fadeUp-d1 {
-  animation: fadeUp 0.8s var(--ease-out-expo) 100ms both;
+  animation: fadeUp 0.5s var(--ease-out-expo) 60ms both;
 }
 .animate-fadeUp-d2 {
-  animation: fadeUp 0.8s var(--ease-out-expo) 200ms both;
+  animation: fadeUp 0.5s var(--ease-out-expo) 140ms both;
 }
 .animate-fadeUp-d3 {
-  animation: fadeUp 0.8s var(--ease-out-expo) 300ms both;
+  animation: fadeUp 0.5s var(--ease-out-expo) 220ms both;
 }
 .animate-fadeUp-d4 {
-  animation: fadeUp 0.8s var(--ease-out-expo) 400ms both;
-}
-
-.text-gradient-iris {
-  background: var(--gradient-iris);
-  background-size: 300% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 4s linear infinite;
-}
-
-.text-outline {
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
-  -webkit-text-fill-color: transparent;
+  animation: fadeUp 0.5s var(--ease-out-expo) 300ms both;
 }
 
 .btn-loading {
   pointer-events: none;
   color: transparent !important;
 }
-
 .btn-loading::after {
   content: "";
   position: absolute;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(7, 8, 10, 0.3);
-  border-top-color: #07080a;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(20, 19, 15, 0.3);
+  border-top-color: var(--color-void);
   border-radius: 50%;
   top: 50%;
   left: 50%;
-  margin-top: -9px;
-  margin-left: -9px;
+  margin-top: -8px;
+  margin-left: -8px;
   animation: spin 0.7s linear infinite;
-}
-
-.field-reveal {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    max-height 0.35s var(--ease-out-expo),
-    opacity 0.3s var(--ease-out-expo),
-    transform 0.3s var(--ease-out-expo);
-}
-
-.field-reveal.visible {
-  max-height: 200px;
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .input-accent::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 32px;
+  top: 30px;
   bottom: 0;
   width: 2px;
-  background: var(--accent-primary);
+  background: var(--color-accent);
   border-radius: 2px;
   transform: scaleY(0);
   transform-origin: top;
-  transition: transform 0.25s var(--ease-out-expo);
+  transition: transform 0.2s var(--ease-out-expo);
 }
-
 .input-accent:focus-within::before {
   transform: scaleY(1);
+}
+
+.field-reveal {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.3s var(--ease-out-expo),
+    opacity 0.25s var(--ease-out-expo);
+}
+.field-reveal.visible {
+  max-height: 220px;
+  opacity: 1;
 }
 
 @utility no-scrollbar {

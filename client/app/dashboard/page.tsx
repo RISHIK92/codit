@@ -153,13 +153,13 @@ export default function DashboardPage() {
 
           {/* Copy */}
           <div className="relative z-10 max-w-sm">
-            <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-3">
+            <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-3">
               No active project
             </div>
-            <h2 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-txt mb-3 leading-tight">
+            <h2 className="font-serif text-4xl font-semibold text-txt mb-3 leading-tight">
               Start your first project
             </h2>
-            <p className="font-[family-name:var(--font-dm)] text-[13px] text-txt-muted leading-relaxed">
+            <p className="font-sans text-base text-txt-muted leading-relaxed">
               Your personalised learning plan will appear here.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
             <Link
               href="/dashboard/projects"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-[var(--bg-void)] rounded-[4px] font-sans text-base uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
             >
               Browse Projects →
             </Link>
@@ -180,15 +180,15 @@ export default function DashboardPage() {
           {/* Activity */}
           <div>
             <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
-              <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+              <h3 className="font-sans text-sm tracking-[0.07em] uppercase text-txt-muted">
                 Recent Activity
               </h3>
             </div>
             <div className="py-10 flex flex-col items-center gap-2 text-center">
-              <div className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-widest text-txt-ghost">
+              <div className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost">
                 No activity yet
               </div>
-              <p className="font-[family-name:var(--font-dm)] text-[12px] text-txt-ghost/60">
+              <p className="font-sans text-base text-txt-ghost/60">
                 Activity will appear here once you start a project.
               </p>
             </div>
@@ -197,15 +197,15 @@ export default function DashboardPage() {
           {/* Resources */}
           <div>
             <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
-              <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+              <h3 className="font-sans text-sm tracking-[0.07em] uppercase text-txt-muted">
                 Recommended Reference
               </h3>
             </div>
             <div className="py-10 flex flex-col items-center gap-2 text-center">
-              <div className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-widest text-txt-ghost">
+              <div className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost">
                 Nothing to show yet
               </div>
-              <p className="font-[family-name:var(--font-dm)] text-[12px] text-txt-ghost/60">
+              <p className="font-sans text-base text-txt-ghost/60">
                 Resources tailored to your project will show up here.
               </p>
             </div>
@@ -232,31 +232,31 @@ export default function DashboardPage() {
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 relative z-10">
           <div>
-            <h2 className="font-[family-name:var(--font-cormorant)] text-4xl font-semibold text-txt mb-2 leading-none">
+            <h2 className="font-serif text-4xl font-semibold text-txt mb-2 leading-none">
               {currentProject.title}
             </h2>
-            <p className="font-[family-name:var(--font-dm)] text-[13px] text-txt-muted tracking-wide">
+            <p className="font-sans text-base text-txt-muted tracking-wide">
               Phase {currentProject.phase} — {currentProject.description}
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             {confirmArchive ? (
               <>
-                <span className="font-[family-name:var(--font-dm)] text-[11px] text-txt-muted">
+                <span className="font-sans text-sm text-txt-muted">
                   Archive this project? You can resume it later, as long as no
                   other project is live.
                 </span>
                 <button
                   onClick={handleArchive}
                   disabled={archiving}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-error/40 text-error rounded-[4px] font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] hover:bg-error/5 transition-colors disabled:opacity-50"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-error/40 text-error rounded-[4px] font-sans text-sm uppercase tracking-[0.1em] hover:bg-error/5 transition-colors disabled:opacity-50"
                 >
                   {archiving ? "Archiving…" : "Confirm"}
                 </button>
                 <button
                   onClick={() => setConfirmArchive(false)}
                   disabled={archiving}
-                  className="font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] text-txt-ghost hover:text-txt transition-colors"
+                  className="font-sans text-sm uppercase tracking-[0.1em] text-txt-ghost hover:text-txt transition-colors"
                 >
                   Cancel
                 </button>
@@ -266,14 +266,14 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setConfirmArchive(true)}
                   title="Archive this project to start a different one"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 border border-border-s text-txt-ghost rounded-[4px] font-[family-name:var(--font-dm)] text-[11px] uppercase tracking-[0.1em] hover:text-txt hover:border-border-a transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 border border-border-s text-txt-ghost rounded-[4px] font-sans text-sm uppercase tracking-[0.1em] hover:text-txt hover:border-border-a transition-colors"
                 >
                   <Archive size={13} />
                   Archive
                 </button>
                 <Link
                   href={`/dashboard/build/${currentProject.id}`}
-                  className="inline-flex items-center justify-center px-8 py-3.5 bg-accent text-[#070810] rounded-[4px] font-[family-name:var(--font-dm)] text-[13px] uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
+                  className="inline-flex items-center justify-center px-8 py-3.5 bg-accent text-[var(--bg-void)] rounded-[4px] font-sans text-base uppercase tracking-[0.1em] transition-all hover:shadow-[0_12px_40px_rgba(127,255,212,0.25)]"
                 >
                   Continue Learning →
                 </Link>
@@ -284,7 +284,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-col lg:flex-row gap-8 relative z-10">
           <div className="flex-1 flex flex-col justify-end pb-1">
-            <div className="flex justify-between items-center mb-3 font-[family-name:var(--font-dm)] text-[11px] tracking-[0.1em] uppercase text-txt-muted">
+            <div className="flex justify-between items-center mb-3 font-sans text-sm tracking-[0.1em] uppercase text-txt-muted">
               <span>Overall Progress</span>
               <span className="text-txt">{currentProject.progress}%</span>
             </div>
@@ -309,10 +309,10 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <div>
-                <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.15em] uppercase text-txt-ghost mb-1">
+                <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-1">
                   Next Objective
                 </div>
-                <div className="font-[family-name:var(--font-dm)] text-xs text-txt font-medium">
+                <div className="font-sans text-xs text-txt font-medium">
                   {currentProject.nextObjective}
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function DashboardPage() {
         {/* ── DELIVERABLES ── */}
         {currentProject.deliverables.length > 0 && (
           <div className="mt-8 pt-8 border-t border-border-s relative z-10">
-            <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-4">
+            <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-4">
               By the end of this project
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-2.5">
@@ -340,7 +340,7 @@ export default function DashboardPage() {
                   >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
-                  <span className="font-[family-name:var(--font-dm)] text-[12px] text-txt-muted leading-snug">
+                  <span className="font-sans text-base text-txt-muted leading-snug">
                     {item}
                   </span>
                 </div>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
       {/* ── PHASE TRACKER ── */}
       <div className="mb-14 relative group/tracker">
         <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
-          <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+          <h3 className="font-sans text-sm tracking-[0.07em] uppercase text-txt-muted">
             Phase Progression
           </h3>
           <div className="flex items-center gap-2">
@@ -449,20 +449,20 @@ export default function DashboardPage() {
                   </div>
 
                   <div
-                    className={`font-[family-name:var(--font-dm)] text-[10px] tracking-[0.15em] uppercase mb-3 flex items-center gap-2
+                    className={`font-sans text-xs tracking-[0.07em] uppercase mb-3 flex items-center gap-2
                       ${isActive ? "text-accent" : "text-txt-ghost"}
                     `}
                   >
                     Phase {phase.id}
                     {isActive && (
-                      <span className="px-1.5 py-0.5 bg-accent/10 rounded-[2px] text-[8px] leading-none">
+                      <span className="px-1.5 py-0.5 bg-accent/10 rounded-[2px] text-xs leading-none">
                         ACTIVE
                       </span>
                     )}
                   </div>
 
                   <h3
-                    className={`font-[family-name:var(--font-cormorant)] text-2xl font-medium mb-2 transition-colors
+                    className={`font-serif text-2xl font-medium mb-2 transition-colors
                       ${isLocked ? "text-txt-muted" : "text-txt"}
                       ${isActive ? "group-hover:text-accent" : ""}
                     `}
@@ -471,7 +471,7 @@ export default function DashboardPage() {
                   </h3>
 
                   <p
-                    className={`font-[family-name:var(--font-dm)] text-xs mb-6 ${isLocked ? "text-txt-ghost" : "text-txt-muted"}`}
+                    className={`font-sans text-xs mb-6 ${isLocked ? "text-txt-ghost" : "text-txt-muted"}`}
                   >
                     {phase.description}
                   </p>
@@ -495,7 +495,7 @@ export default function DashboardPage() {
         {/* ── ACTIVITY FEED ── */}
         <div>
           <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
-            <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+            <h3 className="font-sans text-sm tracking-[0.07em] uppercase text-txt-muted">
               Recent Activity
             </h3>
           </div>
@@ -533,10 +533,10 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <div className="font-[family-name:var(--font-dm)] text-[13px] leading-relaxed text-txt mb-1.5">
+                  <div className="font-sans text-base leading-relaxed text-txt mb-1.5">
                     {activity.text}
                   </div>
-                  <div className="font-[family-name:var(--font-dm)] text-[10px] tracking-[0.05em] text-txt-ghost">
+                  <div className="font-sans text-xs tracking-[0.05em] text-txt-ghost">
                     {activity.time}
                   </div>
                 </div>
@@ -548,7 +548,7 @@ export default function DashboardPage() {
         {/* ── RESOURCE GRID ── */}
         <div>
           <div className="flex items-center justify-between mb-4 border-b border-border-s pb-4">
-            <h3 className="font-[family-name:var(--font-dm)] text-[11px] tracking-[0.15em] uppercase text-txt-muted">
+            <h3 className="font-sans text-sm tracking-[0.07em] uppercase text-txt-muted">
               Recommended Reference
             </h3>
           </div>
@@ -559,14 +559,14 @@ export default function DashboardPage() {
                 className="group bg-void border border-border-s rounded-[4px] p-5 cursor-pointer transition-all duration-200 hover:border-accent hover:shadow-[0_4px_24px_rgba(0,0,0,0.4)] flex justify-between items-center"
               >
                 <div>
-                  <div className="font-[family-name:var(--font-dm)] text-[9px] tracking-[0.15em] uppercase text-txt-ghost mb-2.5">
+                  <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-2.5">
                     {resource.type}
                   </div>
-                  <h4 className="font-[family-name:var(--font-cormorant)] text-[20px] font-medium text-txt mb-0.5 group-hover:text-accent transition-colors">
+                  <h4 className="font-serif text-xl font-medium text-txt mb-0.5 group-hover:text-accent transition-colors">
                     {resource.title}
                   </h4>
                 </div>
-                <div className="font-[family-name:var(--font-dm)] text-[11px] text-txt-muted tracking-wide flex items-center gap-2">
+                <div className="font-sans text-sm text-txt-muted tracking-wide flex items-center gap-2">
                   {resource.time}
                   <span className="text-accent opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
                     →

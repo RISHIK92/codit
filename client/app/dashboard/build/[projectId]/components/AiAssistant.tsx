@@ -76,7 +76,7 @@ function renderInline(text: string, keyPrefix: string) {
       return (
         <code
           key={`${keyPrefix}-${j}`}
-          className="px-1 py-0.5 bg-void rounded text-[11px] font-mono text-accent/80 border border-border-s"
+          className="px-1 py-0.5 bg-void rounded text-sm font-mono text-accent/80 border border-border-s"
         >
           {part.slice(1, -1)}
         </code>
@@ -131,7 +131,7 @@ function renderTextBlock(block: string, blockKey: string) {
 
 function renderContent(text: string) {
   if (!text)
-    return <span className="opacity-30 italic text-[11px]">Thinking…</span>;
+    return <span className="opacity-30 italic text-sm">Thinking…</span>;
 
   const blocks = text.split(/(```[\s\S]*?```)/g);
   return blocks.map((block, i) => {
@@ -143,10 +143,10 @@ function renderContent(text: string) {
       return (
         <pre
           key={i}
-          className="my-2 p-3 bg-void rounded-sm border border-border-s overflow-x-auto text-[11px] font-mono leading-relaxed text-txt-muted"
+          className="my-2 p-3 bg-void rounded-sm border border-border-s overflow-x-auto text-sm font-mono leading-relaxed text-txt-muted"
         >
           {lang && (
-            <div className="text-[9px] uppercase tracking-widest text-txt-ghost mb-2 font-(family-name:--font-dm)">
+            <div className="text-xs uppercase tracking-[0.07em] text-txt-ghost mb-2 font-sans">
               {lang}
             </div>
           )}
@@ -365,7 +365,7 @@ export function AiAssistant({
         {/* Header */}
         <div className="h-12 shrink-0 flex items-center gap-2.5 px-4 border-b border-border-s bg-surface/60">
           <Sparkles size={13} className="text-accent shrink-0" />
-          <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt flex-1">
+          <span className="font-sans text-sm uppercase tracking-[0.07em] text-txt flex-1">
             AI Assistant
           </span>
           {messages.length > 0 && (
@@ -392,7 +392,7 @@ export function AiAssistant({
               <div className="w-10 h-10 rounded-full border border-accent/20 flex items-center justify-center bg-accent/5">
                 <Sparkles size={16} className="text-accent/60" />
               </div>
-              <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-relaxed max-w-55">
+              <p className="font-sans text-sm text-txt-ghost leading-relaxed max-w-55">
                 Ask anything about your code, the current phase, or how to debug
                 an issue.
               </p>
@@ -408,7 +408,7 @@ export function AiAssistant({
                       setInput(prompt);
                       inputRef.current?.focus();
                     }}
-                    className="w-full text-left px-3 py-2 rounded-sm border border-border-s text-[11px] font-(family-name:--font-dm) text-txt-ghost hover:text-txt hover:border-accent/30 hover:bg-surface/40 transition-colors cursor-pointer"
+                    className="w-full text-left px-3 py-2 rounded-sm border border-border-s text-sm font-sans text-txt-ghost hover:text-txt hover:border-accent/30 hover:bg-surface/40 transition-colors cursor-pointer"
                   >
                     {prompt}
                   </button>
@@ -423,7 +423,7 @@ export function AiAssistant({
               className={`flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"}`}
             >
               <div
-                className={`group relative max-w-[90%] px-3 py-2.5 rounded-sm text-[12px] font-(family-name:--font-dm) leading-[1.7]
+                className={`group relative max-w-[90%] px-3 py-2.5 rounded-sm text-base font-sans leading-[1.7]
                   ${
                     msg.role === "user"
                       ? "bg-accent/10 border border-accent/20 text-txt"
@@ -447,7 +447,7 @@ export function AiAssistant({
                   {renderContent(msg.content)}
                 </div>
               </div>
-              <span className="text-[9px] font-(family-name:--font-dm) text-txt-ghost px-1">
+              <span className="text-xs font-sans text-txt-ghost px-1">
                 {msg.timestamp.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -469,7 +469,7 @@ export function AiAssistant({
               onKeyDown={handleKeyDown}
               placeholder="Ask about your code…"
               rows={1}
-              className="flex-1 resize-none bg-transparent text-[12px] font-(family-name:--font-dm) text-txt placeholder:text-txt-ghost outline-none leading-relaxed max-h-32 overflow-y-auto"
+              className="flex-1 resize-none bg-transparent text-base font-sans text-txt placeholder:text-txt-ghost outline-none leading-relaxed max-h-32 overflow-y-auto"
               style={{ minHeight: "20px" }}
               onInput={(e) => {
                 const el = e.currentTarget;
@@ -496,7 +496,7 @@ export function AiAssistant({
               </button>
             )}
           </div>
-          <p className="mt-1.5 text-[9px] font-(family-name:--font-dm) text-txt-ghost text-center">
+          <p className="mt-1.5 text-xs font-sans text-txt-ghost text-center">
             Enter to send · Shift+Enter for newline
           </p>
         </div>

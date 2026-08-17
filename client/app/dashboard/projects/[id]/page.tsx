@@ -31,8 +31,8 @@ const SKILL_META: Record<
   },
   advanced: {
     label: "Advanced",
-    color: "text-[#b8a4e8] border-[#b8a4e8]/30 bg-[#b8a4e8]/5",
-    dot: "bg-[#b8a4e8]",
+    color: "text-sky border-sky/30 bg-sky/5",
+    dot: "bg-sky",
   },
 };
 
@@ -92,13 +92,13 @@ function PhaseItem({
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center gap-4 p-5 text-left"
       >
-        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-(family-name:--font-dm) text-[11px] text-txt-muted">
+        <span className="shrink-0 w-7 h-7 rounded border border-border-s bg-surface flex items-center justify-center font-sans text-sm text-txt-muted">
           {String(index + 1).padStart(2, "0")}
         </span>
-        <span className="flex-1 font-(family-name:--font-cormorant) text-[18px] font-medium text-white leading-tight">
+        <span className="flex-1 font-serif text-lg font-medium text-white leading-tight">
           {phase.title}
         </span>
-        <span className="shrink-0 font-(family-name:--font-dm) text-[11px] text-txt-ghost">
+        <span className="shrink-0 font-sans text-sm text-txt-ghost">
           {fmtMinutes(phase.estimated_minutes)}
         </span>
         <span
@@ -112,20 +112,20 @@ function PhaseItem({
         <div className="px-5 pb-5 pt-0 flex flex-col gap-4 border-t border-border-s">
           {phase.description && (
             <div className="pt-4">
-              <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-2">
+              <p className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost mb-2">
                 Description
               </p>
-              <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-white/80">
+              <p className="font-sans text-sm leading-relaxed text-white/80">
                 {phase.description}
               </p>
             </div>
           )}
           {goalText && (
             <div>
-              <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost mb-2">
+              <p className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost mb-2">
                 Learning Goal
               </p>
-              <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-accent/80">
+              <p className="font-sans text-sm leading-relaxed text-accent/80">
                 {goalText}
               </p>
             </div>
@@ -203,7 +203,7 @@ export default function ProjectDetailPage() {
       <div className="project-detail min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-          <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost tracking-widest uppercase">
+          <p className="font-sans text-sm text-txt-ghost tracking-[0.07em] uppercase">
             Loading project
           </p>
         </div>
@@ -216,15 +216,15 @@ export default function ProjectDetailPage() {
     return (
       <div className="project-detail min-h-[calc(100vh-80px)] bg-surface flex items-center justify-center">
         <div className="text-center">
-          <p className="font-(family-name:--font-cormorant) text-2xl text-txt mb-2">
+          <p className="font-serif text-2xl text-txt mb-2">
             Project not found
           </p>
-          <p className="font-(family-name:--font-dm) text-sm text-txt-muted mb-6">
+          <p className="font-sans text-sm text-txt-muted mb-6">
             {error}
           </p>
           <Link
             href="/dashboard/projects"
-            className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors"
+            className="font-sans text-sm uppercase tracking-[0.07em] text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors"
           >
             ← Browse Projects
           </Link>
@@ -240,7 +240,7 @@ export default function ProjectDetailPage() {
         {/* Back link */}
         <Link
           href="/dashboard/projects"
-          className="inline-flex items-center gap-2 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt-muted transition-colors mb-10"
+          className="inline-flex items-center gap-2 font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost hover:text-txt-muted transition-colors mb-10"
         >
           ← Browse Projects
         </Link>
@@ -253,7 +253,7 @@ export default function ProjectDetailPage() {
           {/* Skill badge */}
           <div className="flex items-center gap-3 mb-5">
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm border font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${meta.color}`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm border font-sans text-xs uppercase tracking-[0.07em] ${meta.color}`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
               {meta.label}
@@ -263,7 +263,7 @@ export default function ProjectDetailPage() {
                 href={project.demo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost hover:text-accent transition-colors border border-border-s px-2.5 py-0.5 rounded-sm"
+                className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost hover:text-accent transition-colors border border-border-s px-2.5 py-0.5 rounded-sm"
               >
                 View Demo ↗
               </a>
@@ -271,13 +271,13 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Title */}
-          <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-tight mb-4">
+          <h1 className="font-serif text-4xl font-semibold text-txt leading-tight mb-4">
             {project.name}
           </h1>
 
           {/* Goal */}
           {project.goal && (
-            <p className="font-(family-name:--font-dm) text-sm leading-relaxed text-txt-muted mb-6 max-w-2xl">
+            <p className="font-sans text-sm leading-relaxed text-txt-muted mb-6 max-w-2xl">
               {project.goal}
             </p>
           )}
@@ -287,7 +287,7 @@ export default function ProjectDetailPage() {
             {project.tech_stack.map((t) => (
               <span
                 key={t}
-                className="font-(family-name:--font-dm) text-[10px] text-txt-ghost border border-border-s rounded-sm px-2 py-0.5 bg-surface"
+                className="font-sans text-xs text-txt-ghost border border-border-s rounded-sm px-2 py-0.5 bg-surface"
               >
                 {t}
               </span>
@@ -297,7 +297,7 @@ export default function ProjectDetailPage() {
           {/* Deliverables */}
           {(project.deliverables ?? []).length > 0 && (
             <div className="mt-6 pt-6 border-t border-border-s">
-              <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-txt-ghost mb-4">
+              <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mb-4">
                 By the end of this project
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
@@ -314,7 +314,7 @@ export default function ProjectDetailPage() {
                     >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    <span className="font-(family-name:--font-dm) text-[12px] text-txt-muted leading-snug">
+                    <span className="font-sans text-base text-txt-muted leading-snug">
                       {item}
                     </span>
                   </div>
@@ -327,27 +327,27 @@ export default function ProjectDetailPage() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-void border border-border-s rounded-sm p-4 flex flex-col gap-1">
-            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+            <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               Total Time
             </p>
-            <p className="font-(family-name:--font-cormorant) text-2xl text-txt">
+            <p className="font-serif text-2xl text-txt">
               {fmtMinutes(project.estimated_minutes)}
             </p>
           </div>
           <div className="bg-void border border-border-s rounded-sm p-4 flex flex-col gap-1">
-            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+            <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               Phases
             </p>
-            <p className="font-(family-name:--font-cormorant) text-2xl text-txt">
+            <p className="font-serif text-2xl text-txt">
               {phases.length || project.phase_count}
             </p>
           </div>
           <div className="bg-void border border-border-s rounded-sm p-4 flex flex-col gap-1">
-            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+            <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               {profile?.hours_per_week ? "Est. Completion" : "Completion Date"}
             </p>
             <p
-              className={`font-(family-name:--font-cormorant) text-xl leading-tight ${profile?.hours_per_week ? "text-txt" : "text-txt-ghost italic text-base"}`}
+              className={`font-serif text-xl leading-tight ${profile?.hours_per_week ? "text-txt" : "text-txt-ghost italic text-base"}`}
             >
               {endDate}
             </p>
@@ -357,7 +357,7 @@ export default function ProjectDetailPage() {
         {/* Learning Phases */}
         {phases.length > 0 && (
           <div className="mb-8">
-            <h2 className="font-(family-name:--font-cormorant) text-2xl text-txt mb-4">
+            <h2 className="font-serif text-2xl text-txt mb-4">
               Learning Phases
             </h2>
             <div className="flex flex-col gap-3">
@@ -371,14 +371,14 @@ export default function ProjectDetailPage() {
         {/* CTA */}
         <div className="bg-void border border-border-s rounded-sm p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="font-(family-name:--font-cormorant) text-xl text-txt mb-1">
+            <p className="font-serif text-xl text-txt mb-1">
               {alreadyStarted
                 ? "Continue your journey"
                 : locked
                   ? "Project slot occupied"
                   : "Ready to start?"}
             </p>
-            <p className="font-(family-name:--font-dm) text-xs text-txt-muted">
+            <p className="font-sans text-xs text-txt-muted">
               {alreadyStarted
                 ? "This project is already in your workspace."
                 : locked
@@ -386,7 +386,7 @@ export default function ProjectDetailPage() {
                   : "Add this project to your workspace and start building."}
             </p>
             {addError && (
-              <p className="font-(family-name:--font-dm) text-[11px] text-error mt-2">
+              <p className="font-sans text-sm text-error mt-2">
                 {addError}
               </p>
             )}
@@ -395,7 +395,7 @@ export default function ProjectDetailPage() {
           {alreadyStarted ? (
             <button
               onClick={() => router.push("/dashboard")}
-              className="shrink-0 font-(family-name:--font-dm) cursor-pointer text-[11px] uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
+              className="shrink-0 font-sans cursor-pointer text-sm uppercase tracking-[0.07em] border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
             >
               Go to Dashboard
             </button>
@@ -403,11 +403,11 @@ export default function ProjectDetailPage() {
             <div className="shrink-0 flex flex-col items-end gap-1.5">
               <button
                 disabled
-                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border border-border-s text-txt-ghost px-6 py-2.5 rounded-sm cursor-not-allowed opacity-50"
+                className="font-sans text-sm uppercase tracking-[0.07em] border border-border-s text-txt-ghost px-6 py-2.5 rounded-sm cursor-not-allowed opacity-50"
               >
                 Locked
               </button>
-              <p className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+              <p className="font-sans text-xs text-txt-ghost">
                 Finish your current project first
               </p>
             </div>
@@ -415,7 +415,7 @@ export default function ProjectDetailPage() {
             <button
               onClick={handleContinue}
               disabled={adding}
-              className="shrink-0 font-(family-name:--font-dm) text-[11px] cursor-pointer uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="shrink-0 font-sans text-sm cursor-pointer uppercase tracking-[0.07em] border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {adding ? (
                 <>

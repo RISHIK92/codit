@@ -22,9 +22,9 @@ interface EnrichedProject {
 }
 
 const SKILL_COLOR: Record<string, string> = {
-  beginner: "#7fffd4",
+  beginner: "var(--accent)",
   intermediate: "#f0c87a",
-  advanced: "#b8a4e8",
+  advanced: "var(--sky)",
 };
 
 const STATUS_CONFIG: Record<
@@ -152,7 +152,7 @@ function ConstellationNode({
   const cfg = isPaused
     ? { label: "Paused", color: "text-txt-ghost", ring: "border-border-s" }
     : STATUS_CONFIG[status];
-  const accent = SKILL_COLOR[ep.catalogue.skill_level] ?? "#7fffd4";
+  const accent = SKILL_COLOR[ep.catalogue.skill_level] ?? "var(--accent)";
   // current_phase comes as omitempty from Go — coerce to 0 if undefined
   const currentPhase = ep.user.current_phase ?? 0;
   const pct = progress(currentPhase, ep.catalogue.phase_count);
@@ -205,7 +205,7 @@ function ConstellationNode({
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span
-                  className="font-(family-name:--font-dm) text-[11px] font-medium"
+                  className="font-sans text-sm font-medium"
                   style={{ color: accent }}
                 >
                   {isActive && pct === 0 ? "P1" : `${pct}%`}
@@ -218,7 +218,7 @@ function ConstellationNode({
               {/* Top row — status + level */}
               <div className="flex items-center gap-2 mb-2">
                 <span
-                  className={`inline-flex items-center gap-1 font-(family-name:--font-dm) text-[9px] uppercase tracking-[0.15em] ${cfg.color}`}
+                  className={`inline-flex items-center gap-1 font-sans text-xs uppercase tracking-[0.07em] ${cfg.color}`}
                 >
                   <span
                     className={`w-1 h-1 rounded-full ${isActive ? "animate-pulse" : ""}`}
@@ -230,7 +230,7 @@ function ConstellationNode({
                 </span>
                 <span className="w-px h-2.5 bg-border-s" />
                 <span
-                  className="font-(family-name:--font-dm) text-[9px] uppercase tracking-[0.15em]"
+                  className="font-sans text-xs uppercase tracking-[0.07em]"
                   style={{ color: `${accent}99` }}
                 >
                   {ep.catalogue.skill_level}
@@ -238,13 +238,13 @@ function ConstellationNode({
               </div>
 
               {/* Name */}
-              <h3 className="font-(family-name:--font-cormorant) text-xl font-semibold text-txt leading-snug mb-1 group-hover:text-accent transition-colors truncate">
+              <h3 className="font-serif text-xl font-semibold text-txt leading-snug mb-1 group-hover:text-accent transition-colors truncate">
                 {ep.catalogue.name}
               </h3>
 
               {/* Goal */}
               {ep.catalogue.goal && (
-                <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost leading-relaxed line-clamp-1 mb-3">
+                <p className="font-sans text-sm text-txt-ghost leading-relaxed line-clamp-1 mb-3">
                   {ep.catalogue.goal}
                 </p>
               )}
@@ -279,11 +279,11 @@ function ConstellationNode({
 
               {/* Bottom meta */}
               <div className="flex items-center gap-3">
-                <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+                <span className="font-sans text-xs text-txt-ghost">
                   Phase {currentPhase + 1}/{ep.catalogue.phase_count}
                 </span>
                 <span className="w-px h-2.5 bg-border-s" />
-                <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+                <span className="font-sans text-xs text-txt-ghost">
                   {fmtMinutes(ep.catalogue.estimated_minutes)}
                 </span>
                 <span className="w-px h-2.5 bg-border-s" />
@@ -291,13 +291,13 @@ function ConstellationNode({
                   {ep.catalogue.tech_stack.slice(0, 2).map((t) => (
                     <span
                       key={t}
-                      className="font-(family-name:--font-dm) text-[8px] text-txt-ghost border border-border-s rounded-sm px-1 py-px bg-surface"
+                      className="font-sans text-xs text-txt-ghost border border-border-s rounded-sm px-1 py-px bg-surface"
                     >
                       {t}
                     </span>
                   ))}
                   {ep.catalogue.tech_stack.length > 2 && (
-                    <span className="font-(family-name:--font-dm) text-[8px] text-txt-ghost">
+                    <span className="font-sans text-xs text-txt-ghost">
                       +{ep.catalogue.tech_stack.length - 2}
                     </span>
                   )}
@@ -311,14 +311,14 @@ function ConstellationNode({
                       onResume(ep.catalogue.id);
                     }}
                     disabled={resuming}
-                    className="ml-auto font-(family-name:--font-dm) text-[10px] uppercase tracking-widest border border-accent/40 text-accent px-3 py-1.5 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="ml-auto font-sans text-xs uppercase tracking-[0.07em] border border-accent/40 text-accent px-3 py-1.5 rounded-sm hover:bg-accent/5 transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {resuming ? "Resuming…" : "Resume"}
                   </button>
                 ) : (
                   /* Arrow */
                   <span
-                    className="ml-auto font-(family-name:--font-dm) text-[10px] uppercase tracking-widest opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
+                    className="ml-auto font-sans text-xs uppercase tracking-[0.07em] opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
                     style={{ color: accent }}
                   >
                     {isActive ? "Continue →" : "View →"}
@@ -365,10 +365,10 @@ function Nucleus({ projects }: { projects: EnrichedProject[] }) {
           }}
         />
         <div className="relative flex flex-col items-center">
-          <span className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-none">
+          <span className="font-serif text-4xl font-semibold text-txt leading-none">
             {total}
           </span>
-          <span className="font-(family-name:--font-dm) text-[8px] uppercase tracking-[0.2em] text-txt-ghost mt-1">
+          <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mt-1">
             Projects
           </span>
         </div>
@@ -381,10 +381,10 @@ function Nucleus({ projects }: { projects: EnrichedProject[] }) {
             key={c.l}
             className="flex items-center justify-between bg-void border border-border-s rounded-sm px-3 py-2"
           >
-            <span className="font-(family-name:--font-dm) text-[9px] uppercase tracking-[0.15em] text-txt-ghost">
+            <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               {c.l}
             </span>
-            <span className="font-(family-name:--font-cormorant) text-lg text-txt">
+            <span className="font-serif text-lg text-txt">
               {c.v}
             </span>
           </div>
@@ -420,10 +420,10 @@ function MobileStats({ projects }: { projects: EnrichedProject[] }) {
           key={c.l}
           className="bg-void px-3 py-3 flex flex-col gap-0.5 items-center"
         >
-          <span className="font-(family-name:--font-cormorant) text-2xl text-txt leading-none">
+          <span className="font-serif text-2xl text-txt leading-none">
             {c.v}
           </span>
-          <span className="font-(family-name:--font-dm) text-[8px] uppercase tracking-[0.18em] text-txt-ghost mt-0.5">
+          <span className="font-sans text-xs uppercase tracking-[0.18em] text-txt-ghost mt-0.5">
             {c.l}
           </span>
         </div>
@@ -600,12 +600,12 @@ export default function MyProjectsPage() {
   if (error) {
     return (
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen flex flex-col items-center justify-center gap-4">
-        <p className="font-(family-name:--font-dm) text-sm text-txt-muted">
+        <p className="font-sans text-sm text-txt-muted">
           {error}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors cursor-pointer"
+          className="font-sans text-sm uppercase tracking-[0.07em] text-accent border border-accent/30 px-5 py-2 rounded-sm hover:bg-accent/5 transition-colors cursor-pointer"
         >
           Retry
         </button>
@@ -618,10 +618,10 @@ export default function MyProjectsPage() {
     return (
       <div className="p-8 md:p-12 w-full bg-surface min-h-screen flex flex-col">
         <div className="mb-10">
-          <div className="font-(family-name:--font-dm) text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-3">
+          <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-3">
             My Projects
           </div>
-          <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-none">
+          <h1 className="font-serif text-4xl font-semibold text-txt leading-none">
             My Projects
           </h1>
         </div>
@@ -634,15 +634,15 @@ export default function MyProjectsPage() {
           </div>
 
           <div>
-            <p className="font-(family-name:--font-cormorant) text-2xl text-txt mb-2">
+            <p className="font-serif text-2xl text-txt mb-2">
               No projects yet
             </p>
-            <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-6">
+            <p className="font-sans text-base text-txt-muted mb-6">
               Start your first build and track its progress here.
             </p>
             <Link
               href="/dashboard/projects"
-              className="inline-flex items-center gap-2 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
+              className="inline-flex items-center gap-2 font-sans text-sm uppercase tracking-[0.07em] border border-accent/40 text-accent px-6 py-2.5 rounded-sm hover:bg-accent/5 transition-colors"
             >
               Browse Projects →
             </Link>
@@ -657,13 +657,13 @@ export default function MyProjectsPage() {
     <div className="p-8 md:p-12 w-full bg-surface min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <div className="font-(family-name:--font-dm) text-[10px] tracking-[0.2em] uppercase text-txt-ghost mb-3">
+        <div className="font-sans text-xs tracking-[0.07em] uppercase text-txt-ghost mb-3">
           Catalogue
         </div>
-        <h1 className="font-(family-name:--font-cormorant) text-4xl font-semibold text-txt leading-none mb-2">
+        <h1 className="font-serif text-4xl font-semibold text-txt leading-none mb-2">
           My Projects
         </h1>
-        <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
+        <p className="font-sans text-base text-txt-muted">
           Track your active builds, completed work, and archived experiments all
           in one place.
         </p>
@@ -673,7 +673,7 @@ export default function MyProjectsPage() {
       <MobileStats projects={allEnriched} />
 
       {resumeError && (
-        <p className="font-(family-name:--font-dm) text-[11px] text-error mb-4">
+        <p className="font-sans text-sm text-error mb-4">
           {resumeError}
         </p>
       )}
@@ -692,7 +692,7 @@ export default function MyProjectsPage() {
             <button
               key={f.value}
               onClick={() => handleFilterChange(f.value)}
-              className={`relative font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-4 py-3 transition-colors cursor-pointer
+              className={`relative font-sans text-sm uppercase tracking-[0.07em] px-4 py-3 transition-colors cursor-pointer
                 ${filter === f.value ? "text-txt" : "text-txt-ghost hover:text-txt-muted"}`}
             >
               <span className="flex items-center gap-1.5">
@@ -701,7 +701,7 @@ export default function MyProjectsPage() {
                   <span className="w-1 h-1 rounded-full bg-accent animate-pulse" />
                 ) : (
                   count > 0 && (
-                    <span className="text-[9px] opacity-40">{count}</span>
+                    <span className="text-xs opacity-40">{count}</span>
                   )
                 )}
               </span>
@@ -726,7 +726,7 @@ export default function MyProjectsPage() {
               </div>
             );
           })()}
-          <p className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost">
+          <p className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost">
             No {filter.replace("_", " ")} projects
           </p>
         </div>

@@ -28,10 +28,14 @@ const STAT_META: {
   hint: string;
   className: string;
 }[] = [
-  { key: "build", label: "Build", hint: "What exists because of you", className: "text-success" },
-  { key: "understand", label: "Understand", hint: "What you can explain", className: "text-accent" },
-  { key: "explore", label: "Explore", hint: "How far you've looked", className: "text-[#b8a4e8]" },
-  { key: "show", label: "Show", hint: "What others can see", className: "text-txt-muted" },
+  // The palette carries the product's own framing: what you build stands on
+  // the ground, what you understand is written in the sky. Build is earth,
+  // Understand is sky. They are never the same colour, for the same reason
+  // they are never the same number.
+  { key: "build", label: "Build", hint: "What exists because of you", className: "text-earth" },
+  { key: "understand", label: "Understand", hint: "What you can explain", className: "text-sky" },
+  { key: "explore", label: "Explore", hint: "How far you've looked", className: "text-sage" },
+  { key: "show", label: "Show", hint: "What others can see", className: "text-clay" },
 ];
 
 export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
@@ -96,7 +100,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
     return (
       <div className="p-5 border border-border-s rounded-sm flex items-center gap-2 text-txt-ghost">
         <Loader2 size={13} className="animate-spin" />
-        <span className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest">
+        <span className="font-sans text-sm uppercase tracking-[0.07em]">
           Loading growth
         </span>
       </div>
@@ -108,14 +112,14 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
     <div className="border border-border-s rounded-sm overflow-hidden">
       {/* Era */}
       <div className="px-5 pt-5 pb-4 border-b border-border-s">
-        <div className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-accent mb-1.5">
+        <div className="font-sans text-xs uppercase tracking-[0.07em] text-accent mb-1.5">
           Era {growth.era_index + 1}
         </div>
-        <h3 className="font-(family-name:--font-cormorant) text-2xl text-txt leading-tight">
+        <h3 className="font-serif text-2xl text-txt leading-tight">
           {growth.era_name}
         </h3>
         {growth.era_blurb && (
-          <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mt-1.5 leading-[1.6]">
+          <p className="font-sans text-base text-txt-muted mt-1.5 leading-[1.6]">
             {growth.era_blurb}
           </p>
         )}
@@ -125,13 +129,13 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-border-s">
         {STAT_META.map((s) => (
           <div key={s.key} className="px-5 py-4 border-r last:border-r-0 border-border-s">
-            <div className={`font-(family-name:--font-cormorant) text-2xl ${s.className}`}>
+            <div className={`font-serif text-2xl ${s.className}`}>
               {growth[s.key]}
             </div>
-            <div className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt mt-0.5">
+            <div className="font-sans text-xs uppercase tracking-[0.07em] text-txt mt-0.5">
               {s.label}
             </div>
-            <div className="font-(family-name:--font-dm) text-[10px] text-txt-ghost mt-0.5 leading-[1.4]">
+            <div className="font-sans text-xs text-txt-ghost mt-0.5 leading-[1.4]">
               {s.hint}
             </div>
           </div>
@@ -141,7 +145,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
       {/* Next era — named requirements, no hidden score */}
       {growth.next_era_name && (
         <div className="px-5 py-4 border-b border-border-s">
-          <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost mb-2.5">
+          <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mb-2.5">
             To reach {growth.next_era_name}
           </p>
           <ul className="space-y-1.5">
@@ -153,12 +157,12 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
                   <Circle size={12} className="text-txt-ghost shrink-0" />
                 )}
                 <span
-                  className={`font-(family-name:--font-dm) text-[12px] ${r.met ? "text-txt-ghost line-through" : "text-txt/90"}`}
+                  className={`font-sans text-base ${r.met ? "text-txt-ghost line-through" : "text-txt/90"}`}
                 >
                   {r.label}
                 </span>
                 {!r.met && (
-                  <span className="font-(family-name:--font-dm) text-[10.5px] text-txt-ghost ml-auto">
+                  <span className="font-sans text-xs text-txt-ghost ml-auto">
                     {r.have} / {r.need}
                   </span>
                 )}
@@ -173,11 +177,11 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
         <div className="px-5 py-4">
           <div className="flex items-center gap-2 mb-1.5">
             <CloudFog size={13} className="text-txt-muted" />
-            <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+            <p className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               {growth.fog_count} {growth.fog_count === 1 ? "phase" : "phases"} still unexplained
             </p>
           </div>
-          <p className="font-(family-name:--font-dm) text-[11.5px] text-txt-muted leading-[1.6] mb-3">
+          <p className="font-sans text-sm text-txt-muted leading-[1.6] mb-3">
             You built these. Explaining one back in your own words is the only thing that moves Understand.
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -185,7 +189,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
               <button
                 key={`${u.project_id}:${u.phase_number}`}
                 onClick={() => openCheckpoint(u.project_id, u.phase_number)}
-                className="px-2.5 py-1 rounded-sm border border-border-s hover:border-accent/40 hover:bg-accent/5 font-(family-name:--font-dm) text-[11px] text-txt-muted hover:text-accent transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-sm border border-border-s hover:border-accent/40 hover:bg-accent/5 font-sans text-sm text-txt-muted hover:text-accent transition-colors cursor-pointer"
               >
                 {u.project_name || "Project"} · Phase {u.phase_number}
               </button>
@@ -195,7 +199,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
       )}
 
       {error && (
-        <p className="px-5 pb-4 font-(family-name:--font-dm) text-[11.5px] text-warning">{error}</p>
+        <p className="px-5 pb-4 font-sans text-sm text-warning">{error}</p>
       )}
 
       {/* Checkpoint */}
@@ -204,10 +208,10 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
           <div className="w-full max-w-lg bg-surface border border-border-s rounded-sm">
             <div className="flex items-start justify-between px-5 pt-4 pb-3 border-b border-border-s">
               <div>
-                <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-accent">
+                <p className="font-sans text-xs uppercase tracking-[0.07em] text-accent">
                   Explain it back
                 </p>
-                <p className="font-(family-name:--font-dm) text-[10.5px] text-txt-ghost mt-0.5">
+                <p className="font-sans text-xs text-txt-ghost mt-0.5">
                   Phase {checkpoint.phaseNumber}
                 </p>
               </div>
@@ -221,7 +225,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
             </div>
 
             <div className="px-5 py-4 space-y-3">
-              <p className="font-(family-name:--font-dm) text-[13px] text-txt leading-[1.7]">
+              <p className="font-sans text-base text-txt leading-[1.7]">
                 {checkpoint.question}
               </p>
 
@@ -232,15 +236,15 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
                     onChange={(e) => setAnswer(e.target.value)}
                     rows={6}
                     placeholder="In your own words — why does it work, not what it does."
-                    className="w-full bg-void border border-border-s rounded-sm px-3 py-2 font-(family-name:--font-dm) text-[12.5px] text-txt placeholder:text-txt-ghost/60 focus:outline-none focus:border-accent/40 resize-none"
+                    className="w-full bg-void border border-border-s rounded-sm px-3 py-2 font-sans text-base text-txt placeholder:text-txt-ghost/60 focus:outline-none focus:border-accent/40 resize-none"
                   />
-                  <p className="font-(family-name:--font-dm) text-[10.5px] text-txt-ghost leading-[1.5]">
+                  <p className="font-sans text-xs text-txt-ghost leading-[1.5]">
                     Pasting code counts as not answering — the code already works. Plain prose is what's being checked.
                   </p>
                   <button
                     onClick={submit}
                     disabled={grading || answer.trim().length < 40}
-                    className="px-3.5 py-1.5 rounded-sm border border-accent/40 text-accent hover:bg-accent/5 disabled:opacity-40 disabled:cursor-not-allowed font-(family-name:--font-dm) text-[11px] uppercase tracking-widest cursor-pointer transition-colors"
+                    className="px-3.5 py-1.5 rounded-sm border border-accent/40 text-accent hover:bg-accent/5 disabled:opacity-40 disabled:cursor-not-allowed font-sans text-sm uppercase tracking-[0.07em] cursor-pointer transition-colors"
                   >
                     {grading ? "Reading…" : "Submit"}
                   </button>
@@ -250,7 +254,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
               {result && (
                 <div className="space-y-2.5">
                   <div
-                    className={`px-3 py-2 rounded-sm border font-(family-name:--font-dm) text-[12.5px] leading-[1.6] ${
+                    className={`px-3 py-2 rounded-sm border font-sans text-base leading-[1.6] ${
                       result.passed
                         ? "border-success/40 bg-success/5 text-success"
                         : "border-warning/40 bg-warning/5 text-warning"
@@ -259,7 +263,7 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
                     {result.feedback}
                   </div>
                   {result.missing.length > 0 && (
-                    <p className="font-(family-name:--font-dm) text-[11.5px] text-txt-muted leading-[1.6]">
+                    <p className="font-sans text-sm text-txt-muted leading-[1.6]">
                       Worth revisiting: {result.missing.join(", ")}
                     </p>
                   )}
@@ -267,14 +271,14 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
                     {!result.passed && (
                       <button
                         onClick={() => setResult(null)}
-                        className="px-3 py-1.5 rounded-sm border border-border-s text-txt-muted hover:text-txt font-(family-name:--font-dm) text-[11px] uppercase tracking-widest cursor-pointer"
+                        className="px-3 py-1.5 rounded-sm border border-border-s text-txt-muted hover:text-txt font-sans text-sm uppercase tracking-[0.07em] cursor-pointer"
                       >
                         Try again
                       </button>
                     )}
                     <button
                       onClick={() => setCheckpoint(null)}
-                      className="px-3 py-1.5 rounded-sm border border-border-s text-txt-muted hover:text-txt font-(family-name:--font-dm) text-[11px] uppercase tracking-widest cursor-pointer"
+                      className="px-3 py-1.5 rounded-sm border border-border-s text-txt-muted hover:text-txt font-sans text-sm uppercase tracking-[0.07em] cursor-pointer"
                     >
                       Close
                     </button>

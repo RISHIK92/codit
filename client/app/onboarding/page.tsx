@@ -53,8 +53,8 @@ const LEVEL_META: Record<
   },
   advanced: {
     label: "Advanced",
-    color: "text-[#b8a4e8] border-[#b8a4e8]/40 bg-[#b8a4e8]/5",
-    dot: "bg-[#b8a4e8]",
+    color: "text-sky border-sky/40 bg-sky/5",
+    dot: "bg-sky",
     desc: "You'll tackle complex systems, architecture, and distributed problems.",
   },
 };
@@ -206,7 +206,7 @@ export default function OnboardingPage() {
       <div className="relative z-10 w-full max-w-3xl">
         {/* Logo */}
         <div className="mt-4 mb-2 text-center">
-          <span className="font-(family-name:--font-cormorant) text-[32px] font-semibold tracking-tight text-txt">
+          <span className="font-serif text-2xl font-semibold tracking-tight text-txt">
             co<span className="text-accent">dit</span>
           </span>
         </div>
@@ -214,12 +214,12 @@ export default function OnboardingPage() {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost">
+            <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
               {done
                 ? "Complete"
                 : `Setup — ${stepIndex + 1} of ${STEP_ORDER.length}`}
             </span>
-            <span className="font-(family-name:--font-dm) text-[10px] text-txt-ghost">
+            <span className="font-sans text-xs text-txt-ghost">
               {Math.round(Math.min(progress, 100))}%
             </span>
           </div>
@@ -236,10 +236,10 @@ export default function OnboardingPage() {
           {/* ── Step: Learning Modes ── */}
           {step === "modes" && (
             <div>
-              <h1 className="font-(family-name:--font-cormorant) text-[28px] font-semibold text-txt mb-1">
+              <h1 className="font-serif text-2xl font-semibold text-txt mb-1">
                 How do you learn best?
               </h1>
-              <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-8">
+              <p className="font-sans text-base text-txt-muted mb-8">
                 Pick all that apply — we'll mix formats to keep things fresh.
               </p>
               <div className="flex flex-col gap-3">
@@ -263,16 +263,16 @@ export default function OnboardingPage() {
                         }`}
                       >
                         {selected && (
-                          <span className="text-accent text-[10px] leading-none">
+                          <span className="text-accent text-xs leading-none">
                             ✓
                           </span>
                         )}
                       </div>
                       <div>
-                        <p className="font-(family-name:--font-dm) text-[13px] text-txt font-medium">
+                        <p className="font-sans text-base text-txt font-medium">
                           {opt.label}
                         </p>
-                        <p className="font-(family-name:--font-dm) text-[11px] text-txt-ghost mt-0.5">
+                        <p className="font-sans text-sm text-txt-ghost mt-0.5">
                           {opt.desc}
                         </p>
                       </div>
@@ -286,10 +286,10 @@ export default function OnboardingPage() {
           {/* ── Step: Hours per week ── */}
           {step === "hours" && (
             <div>
-              <h1 className="font-(family-name:--font-cormorant) text-[28px] font-semibold text-txt mb-1">
+              <h1 className="font-serif text-2xl font-semibold text-txt mb-1">
                 How much time can you commit?
               </h1>
-              <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-8">
+              <p className="font-sans text-base text-txt-muted mb-8">
                 Be honest — we'll set a realistic pace so you actually finish.
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -303,10 +303,10 @@ export default function OnboardingPage() {
                         : "border-border-s bg-void hover:border-border-a"
                     }`}
                   >
-                    <p className="font-(family-name:--font-dm) text-[13px] text-txt font-medium">
+                    <p className="font-sans text-base text-txt font-medium">
                       {opt.label}
                     </p>
-                    <p className="font-(family-name:--font-dm) text-[10px] text-txt-ghost mt-0.5">
+                    <p className="font-sans text-xs text-txt-ghost mt-0.5">
                       {opt.sub}
                     </p>
                   </button>
@@ -322,7 +322,7 @@ export default function OnboardingPage() {
               {testLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-4">
                   <div className="w-6 h-6 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-                  <p className="font-(family-name:--font-dm) text-[12px] text-txt-ghost">
+                  <p className="font-sans text-base text-txt-ghost">
                     Preparing your assessment…
                   </p>
                 </div>
@@ -331,12 +331,12 @@ export default function OnboardingPage() {
               {/* Error */}
               {testError && !testLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-4">
-                  <p className="font-(family-name:--font-dm) text-[12px] text-red-400 text-center">
+                  <p className="font-sans text-base text-red-400 text-center">
                     {testError}
                   </p>
                   <button
                     onClick={startTest}
-                    className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-4 py-2 border border-border-a rounded-sm text-txt-muted hover:text-txt transition-colors"
+                    className="font-sans text-sm uppercase tracking-[0.07em] px-4 py-2 border border-border-a rounded-sm text-txt-muted hover:text-txt transition-colors"
                   >
                     Try again
                   </button>
@@ -351,14 +351,14 @@ export default function OnboardingPage() {
                 currentQuestion && (
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <h1 className="font-(family-name:--font-cormorant) text-[28px] font-semibold text-txt">
+                      <h1 className="font-serif text-2xl font-semibold text-txt">
                         Quick assessment
                       </h1>
-                      <span className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost bg-border-s/40 px-2 py-1 rounded-sm">
+                      <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost bg-border-s/40 px-2 py-1 rounded-sm">
                         Round {round} · Q{qIndex + 1} of {questions.length}
                       </span>
                     </div>
-                    <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted mb-8">
+                    <p className="font-sans text-base text-txt-muted mb-8">
                       Answer honestly — this sets your starting level, not your
                       ceiling.
                     </p>
@@ -396,15 +396,15 @@ export default function OnboardingPage() {
                     className={`inline-flex items-center gap-2 px-4 py-2 border rounded-sm ${levelMeta.color}`}
                   >
                     <span className={`w-2 h-2 rounded-full ${levelMeta.dot}`} />
-                    <span className="font-(family-name:--font-dm) text-[12px] font-medium">
+                    <span className="font-sans text-base font-medium">
                       {levelMeta.label}
                     </span>
                   </div>
                   <div>
-                    <h1 className="font-(family-name:--font-cormorant) text-[28px] font-semibold text-txt mb-2">
+                    <h1 className="font-serif text-2xl font-semibold text-txt mb-2">
                       You're a {levelMeta.label}
                     </h1>
-                    <p className="font-(family-name:--font-dm) text-[12px] text-txt-muted">
+                    <p className="font-sans text-base text-txt-muted">
                       {levelMeta.desc}
                     </p>
                   </div>
@@ -415,7 +415,7 @@ export default function OnboardingPage() {
 
           {/* ── Error ── */}
           {error && (
-            <p className="mt-4 font-(family-name:--font-dm) text-[11px] text-red-400">
+            <p className="mt-4 font-sans text-sm text-red-400">
               {error}
             </p>
           )}
@@ -426,7 +426,7 @@ export default function OnboardingPage() {
             {step === "hours" ? (
               <button
                 onClick={() => setStep("modes")}
-                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors"
+                className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost hover:text-txt transition-colors"
               >
                 ← Back
               </button>
@@ -437,7 +437,7 @@ export default function OnboardingPage() {
               qIndex > 0 ? (
               <button
                 onClick={handlePrevQuestion}
-                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-txt-ghost hover:text-txt transition-colors"
+                className="font-sans text-sm uppercase tracking-[0.07em] text-txt-ghost hover:text-txt transition-colors"
               >
                 ← Back
               </button>
@@ -450,7 +450,7 @@ export default function OnboardingPage() {
               <button
                 disabled={!canAdvance()}
                 onClick={goNext}
-                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                className="font-sans text-sm uppercase tracking-[0.07em] px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
               >
                 Continue →
               </button>
@@ -466,7 +466,7 @@ export default function OnboardingPage() {
                 <button
                   disabled={!allAnswered || submitting}
                   onClick={handleSubmitRound}
-                  className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                  className="font-sans text-sm uppercase tracking-[0.07em] px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
                 >
                   {submitting ? (
                     <span className="flex items-center gap-2">
@@ -481,7 +481,7 @@ export default function OnboardingPage() {
                 <button
                   disabled={!currentAnswered}
                   onClick={handleNextQuestion}
-                  className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                  className="font-sans text-sm uppercase tracking-[0.07em] px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
                 >
                   Next →
                 </button>
@@ -492,7 +492,7 @@ export default function OnboardingPage() {
               <button
                 disabled={saving}
                 onClick={finishOnboarding}
-                className="font-(family-name:--font-dm) text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
+                className="font-sans text-sm uppercase tracking-[0.07em] px-5 py-2.5 rounded-sm border transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed border-accent/40 text-accent hover:bg-accent/5"
               >
                 {saving ? (
                   <span className="flex items-center gap-2">
@@ -529,23 +529,23 @@ function QuestionBlock({
       ? "text-success/70"
       : question.difficulty === "intermediate"
         ? "text-warning/70"
-        : "text-[#b8a4e8]/70";
+        : "text-sky/70";
 
   return (
     <div>
       <div className="flex items-start gap-3 mb-4">
-        <span className="font-(family-name:--font-dm) text-[11px] text-txt-ghost mt-0.5 shrink-0">
+        <span className="font-sans text-sm text-txt-ghost mt-0.5 shrink-0">
           Q{index + 1}.
         </span>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1.5">
             <span
-              className={`font-(family-name:--font-dm) text-[9px] uppercase tracking-widest ${difficultyColor}`}
+              className={`font-sans text-xs uppercase tracking-[0.07em] ${difficultyColor}`}
             >
               {question.topic}
             </span>
           </div>
-          <p className="font-(family-name:--font-dm) text-[13px] text-txt leading-relaxed">
+          <p className="font-sans text-base text-txt leading-relaxed">
             {question.question}
           </p>
         </div>
@@ -572,7 +572,7 @@ function QuestionBlock({
                   <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 )}
               </span>
-              <span className="font-(family-name:--font-dm) text-[12px] leading-relaxed">
+              <span className="font-sans text-base leading-relaxed">
                 {opt}
               </span>
             </button>

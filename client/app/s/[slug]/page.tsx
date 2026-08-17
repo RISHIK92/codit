@@ -37,10 +37,10 @@ export default async function SharedArtifactPage({
   if (!artifact || !artifact.found) {
     return (
       <Shell>
-        <h1 className="font-(family-name:--font-cormorant) text-3xl text-txt mb-2">
+        <h1 className="font-serif text-3xl text-txt mb-2">
           Nothing here
         </h1>
-        <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
+        <p className="font-sans text-base text-txt-muted">
           This link doesn&apos;t point to anything.
         </p>
       </Shell>
@@ -52,10 +52,10 @@ export default async function SharedArtifactPage({
   if (artifact.revoked) {
     return (
       <Shell>
-        <h1 className="font-(family-name:--font-cormorant) text-3xl text-txt mb-2">
+        <h1 className="font-serif text-3xl text-txt mb-2">
           No longer shared
         </h1>
-        <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
+        <p className="font-sans text-base text-txt-muted">
           The author has withdrawn this.
         </p>
       </Shell>
@@ -72,13 +72,13 @@ export default async function SharedArtifactPage({
   return (
     <Shell>
       <header className="mb-10">
-        <p className="font-(family-name:--font-dm) text-[10px] uppercase tracking-[0.2em] text-accent mb-2">
+        <p className="font-sans text-xs uppercase tracking-[0.07em] text-accent mb-2">
           Verified on Codit{when ? ` · ${when}` : ""}
         </p>
-        <h1 className="font-(family-name:--font-cormorant) text-4xl text-txt leading-tight mb-1.5">
+        <h1 className="font-serif text-4xl text-txt leading-tight mb-1.5">
           {artifact.project_name}
         </h1>
-        <p className="font-(family-name:--font-dm) text-[13px] text-txt-muted">
+        <p className="font-sans text-base text-txt-muted">
           Phase {artifact.phase_number}
           {artifact.phase_title ? ` — ${artifact.phase_title}` : ""} · by{" "}
           {artifact.author_name}
@@ -89,16 +89,16 @@ export default async function SharedArtifactPage({
           prompting, so it gets the position of most weight. */}
       {artifact.explanation_answer && (
         <section className="mb-10">
-          <h2 className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost mb-3">
+          <h2 className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mb-3">
             Explained in their own words
           </h2>
           <div className="border-l-2 border-accent/40 pl-5 py-1">
             {artifact.explanation_question && (
-              <p className="font-(family-name:--font-dm) text-[12.5px] text-txt-muted mb-3 italic">
+              <p className="font-sans text-base text-txt-muted mb-3 italic">
                 {artifact.explanation_question}
               </p>
             )}
-            <p className="font-(family-name:--font-dm) text-[14px] text-txt/90 leading-[1.8] whitespace-pre-wrap">
+            <p className="font-sans text-md text-txt/90 leading-[1.8] whitespace-pre-wrap">
               {artifact.explanation_answer}
             </p>
           </div>
@@ -107,7 +107,7 @@ export default async function SharedArtifactPage({
 
       {artifact.criteria.length > 0 && (
         <section className="mb-10">
-          <h2 className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost mb-3">
+          <h2 className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mb-3">
             Independently verified
           </h2>
           <ul className="space-y-2">
@@ -116,16 +116,16 @@ export default async function SharedArtifactPage({
                 key={i}
                 className="flex flex-wrap items-baseline gap-x-3 gap-y-1 p-3 rounded-sm border border-border-s bg-void/30"
               >
-                <span className="font-(family-name:--font-dm) text-[12.5px] text-txt/90 flex-1 min-w-[16rem]">
+                <span className="font-sans text-base text-txt/90 flex-1 min-w-[16rem]">
                   {c.text}
                 </span>
-                <span className="font-(family-name:--font-dm) text-[9px] uppercase tracking-[0.15em] text-txt-ghost">
+                <span className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost">
                   {KIND_LABEL[c.kind] ?? c.kind}
                 </span>
                 {/* Where it was checked. A badge alone proves nothing; a badge
                     plus the line it was verified against is evidence. */}
                 {c.evidence_path && (
-                  <span className="font-mono text-[10.5px] text-txt-ghost/80">
+                  <span className="font-mono text-xs text-txt-ghost/80">
                     {c.evidence_path}
                     {c.evidence_lines ? `:${c.evidence_lines}` : ""}
                   </span>
@@ -138,16 +138,16 @@ export default async function SharedArtifactPage({
 
       {artifact.files.length > 0 && (
         <section>
-          <h2 className="font-(family-name:--font-dm) text-[10px] uppercase tracking-widest text-txt-ghost mb-3">
+          <h2 className="font-sans text-xs uppercase tracking-[0.07em] text-txt-ghost mb-3">
             The code, as submitted
           </h2>
           <div className="space-y-4">
             {artifact.files.map((f) => (
               <details key={f.path} className="border border-border-s rounded-sm">
-                <summary className="px-4 py-2.5 cursor-pointer font-mono text-[11.5px] text-txt-muted hover:text-txt">
+                <summary className="px-4 py-2.5 cursor-pointer font-mono text-sm text-txt-muted hover:text-txt">
                   {f.path}
                 </summary>
-                <pre className="px-4 pb-4 overflow-x-auto font-mono text-[11.5px] leading-[1.6] text-txt/80">
+                <pre className="px-4 pb-4 overflow-x-auto font-mono text-sm leading-[1.6] text-txt/80">
                   {f.content}
                 </pre>
               </details>
@@ -157,7 +157,7 @@ export default async function SharedArtifactPage({
       )}
 
       <footer className="mt-12 pt-6 border-t border-border-s">
-        <p className="font-(family-name:--font-dm) text-[11.5px] text-txt-ghost leading-[1.6]">
+        <p className="font-sans text-sm text-txt-ghost leading-[1.6]">
           Codit doesn&apos;t let you publish a phase you haven&apos;t explained back. The
           checks above were verified against this code, and the explanation was
           graded before this page could exist.
