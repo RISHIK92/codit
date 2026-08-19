@@ -34,7 +34,16 @@ const STAT_META: {
   { key: "show", label: "Show", hint: "What others can see", className: "text-txt-muted" },
 ];
 
-export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
+export function GrowthPanel({
+  getToken,
+  refreshSignal,
+}: {
+  getToken: () => Promise<string>;
+  /** Bump this (e.g. an incrementing counter) to force a reload — used by
+   * SharePanel so publishing or withdrawing an artifact is reflected in Show
+   * immediately, instead of only on the next full page load. */
+  refreshSignal?: number;
+}) {
   const [growth, setGrowth] = useState<GrowthDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +70,8 @@ export function GrowthPanel({ getToken }: { getToken: () => Promise<string> }) {
 
   useEffect(() => {
     load();
-  }, [load]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [load, refreshSignal]);
 
   async function openCheckpoint(projectId: string, phaseNumber: number) {
     setError("");

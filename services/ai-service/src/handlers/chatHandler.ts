@@ -54,6 +54,69 @@ const NO_GHOSTWRITING_SHORT =
 const STALL_FALLBACK_REPLY =
   "I wasn't able to check the project's files just now — try asking again.";
 
+/**
+ * Server-side backstop for the no-ghostwriting rule.
+ *
+ * The prompt tells the model never to use a fenced code block, in absolute
+ * terms. It usually holds — but tested under direct pressure ("give me the
+ * fix"), the model rationalized around its own hard rule: it announced
+ * "you can type it yourself" and then pasted a working code block to copy
+ * anyway. That is not a hypothetical; it happened on the very first
+ * adversarial prompt tried against this handler. A rule enforced only by
+ * prompt text has no floor — the model can always talk itself past it the
+ * moment refusing feels unhelpful in the moment.
+ *
+ * This is that floor. Every reply from every conversational tier is checked
+ * before it reaches the client; a fenced block means the rule was violated
+ * regardless of why, so the whole reply is replaced rather than surgically
+ * edited — prose written to introduce a code block ("here's a snippet you
+ * can paste") reads as broken once the code is removed anyway, and a full,
+ * predictable refusal is safer than a half-redacted answer.
+ */
+// Signals that a line is genuinely code rather than prose that happens to
+// mention code. Matched line-by-line rather than with one block regex so a
+// stylesheet-shaped reply is caught even when nothing forces it onto fewer
+// lines.
+const CODE_LINE_PATTERNS = [
+  /^\s*[\w.#][\w.#-]*(,\s*[\w.#][\w.#-]*)*\s*\{\s*$/, // "selector {" / "a, b {"
+  /^\s*[a-zA-Z-]+\s*:\s*[^;]+;\s*$/, // "property: value;"
+  /^\s*\}\s*$/, // closing brace
+  /^\s*(const|let|var|function|export|import|class)\s+[\w${]/, // JS declarations
+  /^\s*<\/?[a-zA-Z][\w-]*(\s[^>]*)?>\s*$/, // a standalone HTML tag on its own line
+];
+
+/**
+ * Whether a reply is a large, deliberate code payload — the thing the
+ * ghostwriting rule exists to stop — as opposed to a sentence that mentions a
+ * property or tag name in passing.
+ *
+ * Checking for literal ``` fences alone is not enough: tested live, pushed
+ * with "just give me the actual code, I don't want an explanation", the model
+ * complied with the LETTER of "never use a markdown code fence" by dropping
+ * the fence and pasting the same ready-to-use stylesheet as plain lines
+ * instead — full comments, full selectors, nothing left for the user to
+ * write. That is a content violation wearing a formatting loophole, so the
+ * check has to look at what the lines actually are, not how they're
+ * decorated. Mirrors the intent of looksLikeCode in checkpointGrader.ts,
+ * which solves the same problem in the other direction (a student's answer).
+ */
+function containsGhostwrittenCode(text: string): boolean {
+  const lines = text.split("\n");
+  const codeLines = lines.filter((l) => CODE_LINE_PATTERNS.some((re) => re.test(l)));
+  // A couple of incidental matches ("api: value" read from a config file
+  // discussed in prose, one HTML tag named in passing) shouldn't trip this;
+  // a real pasted block clears this bar by a wide margin.
+  return codeLines.length >= 4;
+}
+
+function enforceNoGhostwriting(text: string): string {
+  if (!text.includes("```") && !containsGhostwrittenCode(text)) return text;
+  console.warn(
+    "[no-ghostwriting] model emitted a code payload despite the prompt rule; reply replaced",
+  );
+  return "I can see what's wrong, but I'm not going to paste the fix — that's the one thing I won't do here. Tell me which part you want explained (the concept, the property, the API) and I'll walk you through it so you write it yourself.";
+}
+
 const TOOLS: ToolDefinition[] = [
   {
     name: "list_files",
@@ -187,7 +250,7 @@ export const aiServiceHandler: AiServiceServer = {
           { role: "user", content: message },
         ]);
 
-        call.write({ reply: result.content ?? "" });
+        call.write({ reply: enforceNoGhostwriting(result.content ?? "") });
         call.end();
         return;
       }
@@ -223,7 +286,9 @@ export const aiServiceHandler: AiServiceServer = {
         const reply = (result.content ?? "").trim();
         // The model is given an explicit way to decline, because a suggester
         // that always has something to say becomes noise and gets muted.
-        call.write({ reply: reply === "NO_SUGGESTION" ? "" : reply });
+        call.write({
+          reply: reply === "NO_SUGGESTION" ? "" : enforceNoGhostwriting(reply),
+        });
         call.end();
         return;
       }
@@ -364,7 +429,7 @@ export const aiServiceHandler: AiServiceServer = {
         }
       }
 
-      call.write({ reply });
+      call.write({ reply: enforceNoGhostwriting(reply) });
       call.end();
     } catch (err: any) {
       call.destroy(

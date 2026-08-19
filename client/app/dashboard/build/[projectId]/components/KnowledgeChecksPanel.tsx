@@ -104,7 +104,15 @@ function QuestionModal({
   const [draft, setDraft] = useState(check.submitted_answer ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // True while the user is re-answering a previously-wrong attempt. Distinct
+  // from check.attempted, which the server sets permanently on first submit —
+  // without this, a wrong answer had no way back to an editable state at all,
+  // silently contradicting "retry as many times as you need" (the gate's own
+  // message) and the server's upsert-based grading, which was already
+  // designed for unlimited retries.
+  const [retrying, setRetrying] = useState(false);
   const meta = typeMeta(check.question_type);
+  const locked = check.attempted && !retrying;
 
   const handleSubmit = useCallback(async () => {
     if (!draft.trim() || submitting) return;
@@ -114,12 +122,19 @@ function QuestionModal({
       const idToken = await getToken();
       const result = await submitAnswer(idToken, check.id, projectId, draft);
       onAnswered(check.id, { ...result, answer: draft });
+      setRetrying(false);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to submit answer");
     } finally {
       setSubmitting(false);
     }
   }, [draft, submitting, check.id, projectId, getToken, onAnswered]);
+
+  const handleRetry = useCallback(() => {
+    setDraft("");
+    setError(null);
+    setRetrying(true);
+  }, []);
 
   return (
     <div
@@ -143,7 +158,7 @@ function QuestionModal({
             {meta.icon}
             {meta.label}
           </span>
-          {check.attempted && (
+          {locked && (
             <span
               className={`inline-flex items-center gap-1 font-(family-name:--font-dm) text-[10px] uppercase tracking-widest ${
                 check.is_correct ? "text-success" : "text-red-400"
@@ -172,14 +187,14 @@ function QuestionModal({
                   draft === opt
                     ? "border-accent/50 bg-accent/5 text-txt"
                     : "border-border-s text-txt-muted hover:border-accent/30"
-                } ${check.attempted ? "pointer-events-none opacity-70" : ""}`}
+                } ${locked ? "pointer-events-none opacity-70" : ""}`}
               >
                 <input
                   type="radio"
                   name={`kc-${check.id}`}
                   className="accent-accent"
                   checked={draft === opt}
-                  disabled={check.attempted}
+                  disabled={locked}
                   onChange={() => setDraft(opt)}
                 />
                 {opt}
@@ -189,7 +204,7 @@ function QuestionModal({
         ) : (
           <textarea
             value={draft}
-            disabled={check.attempted}
+            disabled={locked}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Type your answer…"
             rows={4}
@@ -198,10 +213,20 @@ function QuestionModal({
           />
         )}
 
-        {check.attempted ? (
-          <p className="font-(family-name:--font-dm) text-[11px] text-txt-muted leading-relaxed">
-            {check.explanation}
-          </p>
+        {locked ? (
+          <div className="space-y-3">
+            <p className="font-(family-name:--font-dm) text-[11px] text-txt-muted leading-relaxed">
+              {check.explanation}
+            </p>
+            {!check.is_correct && (
+              <button
+                onClick={handleRetry}
+                className="flex items-center gap-1.5 font-(family-name:--font-dm) text-[11px] uppercase tracking-widest text-accent border border-accent/40 px-4 py-2 rounded-sm hover:bg-accent/5 transition-colors cursor-pointer"
+              >
+                Try again
+              </button>
+            )}
+          </div>
         ) : (
           <div className="flex items-center gap-3">
             <button

@@ -24,6 +24,10 @@ export default function DashboardPage() {
 
   const [archiving, setArchiving] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(false);
+  // Bumped by SharePanel after a publish/withdraw so GrowthPanel refetches —
+  // Show only moves via sharing, and without this it stayed stale until the
+  // next full page load.
+  const [growthRefreshSignal, setGrowthRefreshSignal] = useState(0);
 
   async function handleArchive() {
     if (!user) return;
@@ -222,8 +226,11 @@ export default function DashboardPage() {
           single number would let shipping stand in for understanding, and
           keeping those apart is the whole point of this panel. */}
       <div className="mb-12 space-y-4">
-        <GrowthPanel getToken={() => user!.getIdToken()} />
-        <SharePanel getToken={() => user!.getIdToken()} />
+        <GrowthPanel getToken={() => user!.getIdToken()} refreshSignal={growthRefreshSignal} />
+        <SharePanel
+          getToken={() => user!.getIdToken()}
+          onChanged={() => setGrowthRefreshSignal((n) => n + 1)}
+        />
       </div>
 
       {/* ── CURRENT PROJECT HERO CARD ── */}
